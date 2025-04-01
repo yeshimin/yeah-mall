@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.controller;
 
 import com.yeshimin.yeahboot.controller.base.CrudController;
+import com.yeshimin.yeahboot.domain.base.IdsDto;
 import com.yeshimin.yeahboot.domain.base.R;
 import com.yeshimin.yeahboot.domain.dto.SysRoleCreateDto;
 import com.yeshimin.yeahboot.domain.dto.SysRoleResSetDto;
@@ -52,8 +53,8 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
      * 删除
      */
     @PostMapping("/delete")
-    public R<Void> delete(@RequestBody Long[] ids) {
-        sysRoleService.delete(ids);
+    public R<Void> delete(@RequestBody IdsDto dto) {
+        sysRoleService.delete(dto.getIds());
         return R.ok();
     }
 

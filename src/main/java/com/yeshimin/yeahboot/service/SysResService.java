@@ -109,7 +109,7 @@ public class SysResService {
      * 删除
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete(Long[] ids) {
+    public void delete(List<Long> ids) {
         for (Long id : ids) {
             // 检查：是否存在
             SysResEntity entity = sysResRepo.getOneById(id);

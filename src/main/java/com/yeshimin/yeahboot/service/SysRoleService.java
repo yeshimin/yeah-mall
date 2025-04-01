@@ -69,7 +69,7 @@ public class SysRoleService extends SysRoleRepo {
      * 删除
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete(Long[] ids) {
+    public void delete(List<Long> ids) {
         for (Long id : ids) {
             // 检查：是否存在
             SysRoleEntity entity = super.getOneById(id);

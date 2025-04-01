@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.controller;
 
 import com.yeshimin.yeahboot.controller.base.CrudController;
+import com.yeshimin.yeahboot.domain.base.IdsDto;
 import com.yeshimin.yeahboot.domain.base.R;
 import com.yeshimin.yeahboot.domain.dto.SysOrgCreateDto;
 import com.yeshimin.yeahboot.domain.dto.SysOrgUpdateDto;
@@ -59,8 +60,8 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
      * 删除
      */
     @PostMapping("/delete")
-    public R<Void> delete(@RequestBody Long[] ids) {
-        sysOrgService.delete(ids);
+    public R<Void> delete(@RequestBody IdsDto dto) {
+        sysOrgService.delete(dto.getIds());
         return R.ok();
     }
 }

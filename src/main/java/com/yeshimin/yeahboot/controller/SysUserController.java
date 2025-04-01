@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.controller;
 
 import com.yeshimin.yeahboot.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.controller.base.CrudController;
+import com.yeshimin.yeahboot.domain.base.IdsDto;
 import com.yeshimin.yeahboot.domain.base.R;
 import com.yeshimin.yeahboot.domain.dto.SysUserCreateDto;
 import com.yeshimin.yeahboot.domain.dto.SysUserUpdateDto;
@@ -56,9 +57,9 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
      * 删除
      */
     @PostMapping("/delete")
-    public R<Void> delete(@RequestBody Long[] ids) {
+    public R<Void> delete(@RequestBody IdsDto dto) {
         Long userId = WebContextUtils.getUserId();
-        sysUserService.delete(userId, ids);
+        sysUserService.delete(userId, dto.getIds());
         return R.ok();
     }
 

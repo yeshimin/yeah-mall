@@ -106,7 +106,7 @@ public class SysUserService {
      * 删除
      */
     @Transactional(rollbackFor = Exception.class)
-    public void delete(Long userId, Long[] ids) {
+    public void delete(Long userId, List<Long> ids) {
         for (Long id : ids) {
             // 检查：不能删除自己
             if (Objects.equals(userId, id)) {
