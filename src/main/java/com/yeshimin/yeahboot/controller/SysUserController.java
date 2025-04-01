@@ -1,15 +1,20 @@
 package com.yeshimin.yeahboot.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.controller.base.CrudController;
 import com.yeshimin.yeahboot.domain.base.IdsDto;
 import com.yeshimin.yeahboot.domain.base.R;
 import com.yeshimin.yeahboot.domain.dto.SysUserCreateDto;
 import com.yeshimin.yeahboot.domain.dto.SysUserUpdateDto;
+import com.yeshimin.yeahboot.domain.dto.UserOrgSetDto;
 import com.yeshimin.yeahboot.domain.dto.UserRoleSetDto;
+import com.yeshimin.yeahboot.domain.entity.SysOrgEntity;
 import com.yeshimin.yeahboot.domain.entity.SysRoleEntity;
 import com.yeshimin.yeahboot.domain.entity.SysUserEntity;
 import com.yeshimin.yeahboot.domain.vo.SysUserResTreeNodeVo;
+import com.yeshimin.yeahboot.domain.vo.SysUserVo;
 import com.yeshimin.yeahboot.mapper.SysUserMapper;
 import com.yeshimin.yeahboot.repository.SysUserRepo;
 import com.yeshimin.yeahboot.service.SysUserService;
@@ -43,6 +48,14 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
     @PostMapping("/create")
     public R<SysUserEntity> create(@RequestBody SysUserCreateDto dto) {
         return R.ok(sysUserService.create(dto));
+    }
+
+    /**
+     * 查询
+     */
+    @GetMapping("/query")
+    public R<IPage<SysUserVo>> query(Page<SysUserEntity> page) {
+        return R.ok(sysUserService.query(page));
     }
 
     /**
@@ -87,5 +100,23 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
     @GetMapping("/queryUserResources")
     public R<List<SysUserResTreeNodeVo>> queryUserResources(@RequestParam Long userId) {
         return R.ok(sysUserService.queryUserResources(userId));
+    }
+
+    // ================================================================================
+
+    /**
+     * 查询用户组织
+     */
+    @GetMapping("/queryUserOrgs")
+    public R<List<SysOrgEntity>> queryUserOrgs(@RequestParam Long userId) {
+        return R.ok(sysUserService.queryUserOrgs(userId));
+    }
+
+    /**
+     * 用户挂载组织（全部量操作）
+     */
+    @PostMapping("/setUserOrgs")
+    public R<Boolean> setUserOrgs(@RequestBody UserOrgSetDto dto) {
+        return R.ok(sysUserService.setUserOrgs(dto));
     }
 }

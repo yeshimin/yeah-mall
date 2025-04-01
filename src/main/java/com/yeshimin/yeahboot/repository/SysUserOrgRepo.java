@@ -7,6 +7,7 @@ import com.yeshimin.yeahboot.repository.base.BaseRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,5 +51,22 @@ public class SysUserOrgRepo extends BaseRepo<SysUserOrgMapper, SysUserOrgEntity>
         boolean result = lambdaUpdate().eq(SysUserOrgEntity::getUserId, userId).remove();
         log.debug("deleteByUserId.id[{}]result: {}", userId, result);
         return result;
+    }
+
+    /**
+     * findListByUserId
+     */
+    public List<SysUserOrgEntity> findListByUserId(Long userId) {
+        return lambdaQuery().eq(SysUserOrgEntity::getUserId, userId).list();
+    }
+
+    /**
+     * findListByUserIds
+     */
+    public List<SysUserOrgEntity> findListByUserIds(Collection<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return lambdaQuery().in(SysUserOrgEntity::getUserId, userIds).list();
     }
 }

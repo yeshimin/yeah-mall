@@ -117,9 +117,9 @@ public class SysOrgService {
             if (sysUserOrgRepo.countByOrgId(id) > 0) {
                 throw new BaseException("存在未解除的关联");
             }
-            // 检查：是否存在字节点
+            // 检查：是否存在子节点
             if (sysOrgRepo.countByParentId(id) > 0) {
-                throw new BaseException("存在字节点");
+                throw new BaseException("存在子节点");
             }
             entity.deleteById();
         }

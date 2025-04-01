@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yeshimin.yeahboot.common.errors.BaseException;
 import com.yeshimin.yeahboot.domain.base.BaseEntity;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public abstract class BaseRepo<M extends BaseMapper<E>, E extends BaseEntity<E>> extends ServiceImpl<M, E> {
 
@@ -48,5 +50,15 @@ public abstract class BaseRepo<M extends BaseMapper<E>, E extends BaseEntity<E>>
             throw new IllegalArgumentException("id不能为空");
         }
         return this.lambdaQuery().eq(BaseEntity::getId, id).count();
+    }
+
+    /**
+     * findListByIds
+     */
+    public List<E> findListByIds(Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return this.lambdaQuery().in(BaseEntity::getId, ids).list();
     }
 }

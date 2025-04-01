@@ -3,12 +3,17 @@ package com.yeshimin.yeahboot.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.errors.BaseException;
+import com.yeshimin.yeahboot.domain.base.IdNameVo;
 import com.yeshimin.yeahboot.domain.dto.SysUserCreateDto;
 import com.yeshimin.yeahboot.domain.dto.SysUserUpdateDto;
+import com.yeshimin.yeahboot.domain.dto.UserOrgSetDto;
 import com.yeshimin.yeahboot.domain.dto.UserRoleSetDto;
 import com.yeshimin.yeahboot.domain.entity.*;
 import com.yeshimin.yeahboot.domain.vo.SysUserResTreeNodeVo;
+import com.yeshimin.yeahboot.domain.vo.SysUserVo;
 import com.yeshimin.yeahboot.domain.vo.UserRolesAndResourcesVo;
 import com.yeshimin.yeahboot.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +65,57 @@ public class SysUserService {
         sysUserOrgRepo.createUserOrgRelations(entity.getId(), dto.getOrgIds());
 
         return entity;
+    }
+
+    /**
+     * 查询
+     */
+    public IPage<SysUserVo> query(Page<SysUserEntity> page) {
+        // 查询用户
+        IPage<SysUserEntity> pageUser = sysUserRepo.page(page);
+        List<Long> userIds = pageUser.getRecords().stream().map(SysUserEntity::getId).collect(Collectors.toList());
+
+        // 查询用户组织
+        List<SysUserOrgEntity> listUserOrg = sysUserOrgRepo.findListByUserIds(userIds);
+        Map<Long, List<SysUserOrgEntity>> mapUserOrgs =
+                listUserOrg.stream().collect(Collectors.groupingBy(SysUserOrgEntity::getUserId));
+        List<Long> orgIds = listUserOrg.stream().map(SysUserOrgEntity::getOrgId).collect(Collectors.toList());
+        Map<Long, SysOrgEntity> mapOrg = sysOrgRepo.findListByIds(orgIds)
+                .stream().collect(Collectors.toMap(SysOrgEntity::getId, v -> v));
+
+        // 查询用户角色
+        List<SysUserRoleEntity> listUserRole = sysUserRoleRepo.findListByUserIds(userIds);
+        Map<Long, List<SysUserRoleEntity>> mapUserRoles =
+                listUserRole.stream().collect(Collectors.groupingBy(SysUserRoleEntity::getUserId));
+        List<Long> roleIds = listUserRole.stream().map(SysUserRoleEntity::getRoleId).collect(Collectors.toList());
+        Map<Long, SysRoleEntity> mapRole = sysRoleRepo.findListByIds(roleIds)
+                .stream().collect(Collectors.toMap(SysRoleEntity::getId, v -> v));
+
+        return pageUser.convert(e -> {
+            SysUserVo vo = BeanUtil.copyProperties(e, SysUserVo.class);
+
+            // 组织
+            List<SysUserOrgEntity> userOrgs = mapUserOrgs.getOrDefault(e.getId(), Collections.emptyList());
+            vo.setOrgs(userOrgs.stream().map(r -> {
+                SysOrgEntity sysOrg = mapOrg.get(r.getOrgId());
+                if (sysOrg == null) {
+                    return null;
+                }
+                return new IdNameVo(sysOrg.getId(), sysOrg.getName());
+            }).collect(Collectors.toList()));
+
+            // 角色
+            List<SysUserRoleEntity> userRoles = mapUserRoles.getOrDefault(e.getId(), Collections.emptyList());
+            List<IdNameVo> listIdNameVo = userRoles.stream().map(r -> {
+                SysRoleEntity sysRole = mapRole.get(r.getRoleId());
+                if (sysRole == null) {
+                    return null;
+                }
+                return new IdNameVo(sysRole.getId(), sysRole.getName());
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            vo.setRoles(listIdNameVo);
+            return vo;
+        });
     }
 
     /**
@@ -207,8 +263,57 @@ public class SysUserService {
         return listAllVo.stream().filter(vo -> vo.getParentId() == 0).collect(Collectors.toList());
     }
 
+    // ================================================================================
+
+    /**
+     * 查询用户岗位
+     */
+    public List<SysOrgEntity> queryUserOrgs(Long userId) {
+        // 检查：用户是否存在
+        SysUserEntity entity = sysUserRepo.findOneById(userId);
+        if (entity == null) {
+            throw new RuntimeException("用户未找到");
+        }
+
+        // 查询用户岗位ID集合
+        Set<Long> orgIds = sysUserOrgRepo.findListByUserId(userId)
+                .stream().map(SysUserOrgEntity::getOrgId).collect(Collectors.toSet());
+
+        return orgIds.isEmpty() ? Collections.emptyList() : sysOrgRepo.listByIds(orgIds);
+    }
+
+    /**
+     * 用户挂载组织（全量操作）
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean setUserOrgs(UserOrgSetDto dto) {
+        Long userId = dto.getUserId();
+        Set<Long> orgIds = dto.getOrgIds();
+
+        // 检查：用户是否存在
+        SysUserEntity sysUser = sysUserRepo.findOneById(userId);
+        if (sysUser == null) {
+            throw new RuntimeException("用户未找到");
+        }
+        if (CollUtil.isNotEmpty(orgIds)) {
+            List<SysOrgEntity> listOrg = sysOrgRepo.listByIds(orgIds);
+            if (listOrg.size() != orgIds.size()) {
+                throw new RuntimeException("组织ID不合法");
+            }
+        }
+
+        // clear
+        sysUserOrgRepo.deleteByUserId(userId);
+
+        // add
+        return sysUserOrgRepo.createUserOrgRelations(userId, orgIds);
+    }
+
+    // ================================================================================
+
     /**
      * 查询用户角色和资源
+     * called by AuthService
      */
     public UserRolesAndResourcesVo queryUserRolesAndResources(Long userId) {
         // 检查：用户是否存在

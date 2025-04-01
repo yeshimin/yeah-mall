@@ -18,8 +18,8 @@ import java.util.Collection;
 /**
  * 提供基础的CRUD接口
  *
- * @param <E> 实体类
  * @param <M> BaseMapper
+ * @param <E> Entity
  * @param <S> ServiceImpl
  */
 @Slf4j

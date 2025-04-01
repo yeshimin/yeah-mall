@@ -5,6 +5,7 @@ import com.yeshimin.yeahboot.mapper.SysUserRoleMapper;
 import com.yeshimin.yeahboot.repository.base.BaseRepo;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +32,16 @@ public class SysUserRoleRepo extends BaseRepo<SysUserRoleMapper, SysUserRoleEnti
      */
     public List<SysUserRoleEntity> findListByUserId(Long userId) {
         return this.lambdaQuery().eq(SysUserRoleEntity::getUserId, userId).list();
+    }
+
+    /**
+     * findListByUserIds
+     */
+    public List<SysUserRoleEntity> findListByUserIds(Collection<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return lambdaQuery().in(SysUserRoleEntity::getUserId, userIds).list();
     }
 
     /**
