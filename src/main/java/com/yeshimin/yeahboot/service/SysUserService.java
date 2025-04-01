@@ -117,6 +117,7 @@ public class SysUserService {
             if (entity == null) {
                 throw new RuntimeException(String.format("用户[%s]未找到", id));
             }
+            entity.deleteById();
 
             // 删除user-role关联
             boolean result = sysUserRoleRepo.deleteByUserId(id);

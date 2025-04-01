@@ -23,7 +23,7 @@ public class SysUserRoleRepo extends BaseRepo<SysUserRoleMapper, SysUserRoleEnti
      * deleteByUserId
      */
     public boolean deleteByUserId(Long userId) {
-        return this.lambdaUpdate().eq(SysUserRoleEntity::getId, userId).remove();
+        return this.lambdaUpdate().eq(SysUserRoleEntity::getUserId, userId).remove();
     }
 
     /**
