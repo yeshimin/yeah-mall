@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: yeah-boot
+  # mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/yeah_boot?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useUnicode=true&zeroDateTimeBehavior=CONVERT_TO_NULL&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&allowMultiQueries=false&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true&useAffectedRows=false
+    username: root
+    password: 123456
+
+# jwt相关
+jwt:
+  # 签发密钥
+  secret: xeePu3xo3uoyo5Quooquai0ut1ha7aih
+  # 过期时间（秒）
+  expire-seconds: 36000
+  # 时间校验偏差（秒）
+  default-leeway: 60
