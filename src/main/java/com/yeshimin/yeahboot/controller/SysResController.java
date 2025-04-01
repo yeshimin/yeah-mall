@@ -36,7 +36,7 @@ public class SysResController extends CrudController<SysResMapper, SysResEntity,
     /**
      * 创建
      */
-    @GetMapping("/create")
+    @PostMapping("/create")
     public R<SysResEntity> create(@RequestBody SysResCreateDto dto) {
         return R.ok(sysResService.create(dto));
     }

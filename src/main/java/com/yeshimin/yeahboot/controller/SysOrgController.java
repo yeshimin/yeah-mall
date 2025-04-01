@@ -34,7 +34,7 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
     /**
      * 创建
      */
-    @GetMapping("/create")
+    @PostMapping("/create")
     public R<SysOrgEntity> create(@RequestBody SysOrgCreateDto dto) {
         return R.ok(sysOrgService.create(dto));
     }

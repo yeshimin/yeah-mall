@@ -39,7 +39,7 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
     /**
      * 创建
      */
-    @GetMapping("/create")
+    @PostMapping("/create")
     public R<SysUserEntity> create(@RequestBody SysUserCreateDto dto) {
         return R.ok(sysUserService.create(dto));
     }

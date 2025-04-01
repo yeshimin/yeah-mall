@@ -37,9 +37,9 @@ public class SysResService {
                 throw new BaseException("父节点未找到");
             }
         }
-        // 检查：是否已存在
-        if (sysResRepo.countByName(dto.getName()) > 0) {
-            throw new BaseException("已存在");
+        // 检查：同级是否存在相同名称
+        if (sysResRepo.countByParentIdAndName(dto.getParentId(), dto.getName()) > 0) {
+            throw new BaseException("同级已存在相同名称");
         }
 
         // 创建记录
@@ -93,10 +93,10 @@ public class SysResService {
                 throw new BaseException("父节点未找到");
             }
         }
-        // 检查：是否已存在
+        // 检查：同级是否存在相同名称
         if (!Objects.equals(dto.getName(), entity.getName())) {
-            if (sysResRepo.countByName(dto.getName()) > 0) {
-                throw new BaseException("已存在同名数据");
+            if (sysResRepo.countByParentIdAndName(dto.getParentId(), dto.getName()) > 0) {
+                throw new BaseException("同级已存在相同名称");
             }
         }
 
@@ -116,6 +116,10 @@ public class SysResService {
             // 检查：是否存在未解除的关联
             if (sysRoleResRepo.countByResId(id) > 0) {
                 throw new BaseException("存在未解除的关联");
+            }
+            // 检查：是否存在子节点
+            if (sysResRepo.countByParentId(id) > 0) {
+                throw new BaseException("存在子节点");
             }
             entity.deleteById();
         }

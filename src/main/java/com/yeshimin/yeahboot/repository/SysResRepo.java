@@ -13,10 +13,12 @@ import org.springframework.stereotype.Repository;
 public class SysResRepo extends BaseRepo<SysResMapper, SysResEntity> {
 
     /**
-     * countByName
+     * countByParentIdAndName
      */
-    public long countByName(String name) {
+    public long countByParentIdAndName(Long parentId, String name) {
         LambdaQueryWrapper<SysResEntity> wrapper = Wrappers.lambdaQuery();
+        // 如果parentId为空，默认为第一级
+        wrapper.eq(SysResEntity::getParentId, parentId == null ? 0L : parentId);
         wrapper.eq(SysResEntity::getName, name);
         return super.count(wrapper);
     }
@@ -32,5 +34,14 @@ public class SysResRepo extends BaseRepo<SysResMapper, SysResEntity> {
         boolean result = entity.insert();
         log.debug("createOne.result: {}", result);
         return entity;
+    }
+
+    /**
+     * countByParentId
+     */
+    public long countByParentId(Long parentId) {
+        LambdaQueryWrapper<SysResEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(SysResEntity::getParentId, parentId);
+        return super.count(wrapper);
     }
 }

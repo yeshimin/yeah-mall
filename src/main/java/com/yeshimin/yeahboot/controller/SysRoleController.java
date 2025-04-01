@@ -35,7 +35,7 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
     /**
      * 创建
      */
-    @GetMapping("/create")
+    @PostMapping("/create")
     public R<SysRoleEntity> create(@RequestBody SysRoleCreateDto dto) {
         return R.ok(sysRoleService.create(dto));
     }

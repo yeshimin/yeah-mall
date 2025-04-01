@@ -13,10 +13,11 @@ import org.springframework.stereotype.Repository;
 public class SysOrgRepo extends BaseRepo<SysOrgMapper, SysOrgEntity> {
 
     /**
-     * countByName
+     * countByParentIdAndName
      */
-    public long countByName(String name) {
+    public long countByParentIdAndName(Long parentId, String name) {
         LambdaQueryWrapper<SysOrgEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(SysOrgEntity::getParentId, parentId == null ? 0L : parentId);
         wrapper.eq(SysOrgEntity::getName, name);
         return super.count(wrapper);
     }
@@ -32,5 +33,14 @@ public class SysOrgRepo extends BaseRepo<SysOrgMapper, SysOrgEntity> {
         boolean result = entity.insert();
         log.debug("createOne.result: {}", result);
         return entity;
+    }
+
+    /**
+     * countByParentId
+     */
+    public long countByParentId(Long parentId) {
+        LambdaQueryWrapper<SysOrgEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(SysOrgEntity::getParentId, parentId);
+        return super.count(wrapper);
     }
 }

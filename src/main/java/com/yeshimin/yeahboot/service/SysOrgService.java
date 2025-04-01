@@ -12,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,9 +37,9 @@ public class SysOrgService {
                 throw new BaseException("父节点未找到");
             }
         }
-        // 检查：是否已存在
-        if (sysOrgRepo.countByName(dto.getName()) > 0) {
-            throw new BaseException("已存在");
+        // 检查：同级是否存在相同名称
+        if (sysOrgRepo.countByParentIdAndName(dto.getParentId(), dto.getName()) > 0) {
+            throw new BaseException("同级已存在相同名称");
         }
 
         // 创建记录
@@ -90,10 +93,10 @@ public class SysOrgService {
                 throw new BaseException("父节点未找到");
             }
         }
-        // 检查：是否已存在
+        // 检查：同级是否存在相同名称
         if (!Objects.equals(dto.getName(), entity.getName())) {
-            if (sysOrgRepo.countByName(dto.getName()) > 0) {
-                throw new BaseException("已存在同名数据");
+            if (sysOrgRepo.countByParentIdAndName(dto.getParentId(), dto.getName()) > 0) {
+                throw new BaseException("同级已存在相同名称");
             }
         }
 
@@ -113,6 +116,10 @@ public class SysOrgService {
             // 检查：是否存在未解除的关联
             if (sysUserOrgRepo.countByOrgId(id) > 0) {
                 throw new BaseException("存在未解除的关联");
+            }
+            // 检查：是否存在字节点
+            if (sysOrgRepo.countByParentId(id) > 0) {
+                throw new BaseException("存在字节点");
             }
             entity.deleteById();
         }
