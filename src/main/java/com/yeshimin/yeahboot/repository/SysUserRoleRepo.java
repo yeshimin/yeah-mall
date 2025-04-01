@@ -16,7 +16,7 @@ public class SysUserRoleRepo extends BaseRepo<SysUserRoleMapper, SysUserRoleEnti
      * countByRoleId
      */
     public long countByRoleId(Long roleId) {
-        return super.count(lambdaQuery().eq(SysUserRoleEntity::getRoleId, roleId));
+        return lambdaQuery().eq(SysUserRoleEntity::getRoleId, roleId).count();
     }
 
     /**

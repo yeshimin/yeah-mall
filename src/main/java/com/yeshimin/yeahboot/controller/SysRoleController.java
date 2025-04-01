@@ -60,11 +60,11 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
     // ================================================================================
 
     /**
-     * 获取指定角色对应的资源数据
+     * 查询指定角色对应的资源数据
      */
-    @GetMapping("/resourceTree")
-    public R<List<SysRoleResTreeNodeVo>> resourceTree(@RequestParam Long roleId) {
-        return R.ok(sysRoleService.resourceTree(roleId));
+    @GetMapping("/queryResourceTree")
+    public R<List<SysRoleResTreeNodeVo>> queryResourceTree(@RequestParam Long roleId) {
+        return R.ok(sysRoleService.queryResourceTree(roleId));
     }
 
     /**

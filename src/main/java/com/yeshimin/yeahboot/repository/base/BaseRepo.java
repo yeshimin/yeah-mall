@@ -37,6 +37,16 @@ public abstract class BaseRepo<M extends BaseMapper<E>, E extends BaseEntity<E>>
         if (ids == null || ids.isEmpty()) {
             throw new IllegalArgumentException("ids不能为空");
         }
-        return this.count(this.lambdaQuery().in(BaseEntity::getId, ids));
+        return this.lambdaQuery().in(BaseEntity::getId, ids).count();
+    }
+
+    /**
+     * countById
+     */
+    public long countById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("id不能为空");
+        }
+        return this.lambdaQuery().eq(BaseEntity::getId, id).count();
     }
 }

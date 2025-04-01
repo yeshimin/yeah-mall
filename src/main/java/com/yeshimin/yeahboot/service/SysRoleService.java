@@ -88,9 +88,14 @@ public class SysRoleService extends SysRoleRepo {
     // ================================================================================
 
     /**
-     * 获取指定角色对应的资源数据
+     * 查询指定角色对应的资源数据
      */
-    public List<SysRoleResTreeNodeVo> resourceTree(Long roleId) {
+    public List<SysRoleResTreeNodeVo> queryResourceTree(Long roleId) {
+        // 检查：角色是否存在
+        if (sysRoleRepo.countById(roleId) == 0) {
+            throw new BaseException("角色未找到");
+        }
+
         // 查询角色对应的所有资源
         Set<Long> resIds = sysRoleResRepo.findListByRoleId(roleId)
                 .stream().map(SysRoleResEntity::getResId).collect(Collectors.toSet());
