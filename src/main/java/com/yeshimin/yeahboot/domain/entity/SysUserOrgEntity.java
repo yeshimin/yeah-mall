@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yeshimin.yeahboot.domain.base.BaseEntity;
+import com.yeshimin.yeahboot.domain.base.ConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_user_org")
-public class SysUserOrgEntity extends BaseEntity<SysUserOrgEntity> {
+public class SysUserOrgEntity extends ConditionBaseEntity<SysUserOrgEntity> {
 
     /**
      * 用户ID

@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yeshimin.yeahboot.domain.base.BaseEntity;
+import com.yeshimin.yeahboot.domain.base.ConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_role_res")
-public class SysRoleResEntity extends BaseEntity<SysRoleResEntity> {
+public class SysRoleResEntity extends ConditionBaseEntity<SysRoleResEntity> {
 
     /**
      * 角色ID
