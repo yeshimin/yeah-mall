@@ -37,9 +37,9 @@ public class SysOrgService {
                 throw new BaseException("父节点未找到");
             }
         }
-        // 检查：同级是否存在相同名称
+        // 检查：同一个父节点下是否存在相同名称
         if (sysOrgRepo.countByParentIdAndName(dto.getParentId(), dto.getName()) > 0) {
-            throw new BaseException("同级已存在相同名称");
+            throw new BaseException("同一个父节点下已存在相同名称");
         }
 
         // 创建记录
@@ -93,10 +93,10 @@ public class SysOrgService {
                 throw new BaseException("父节点未找到");
             }
         }
-        // 检查：同级是否存在相同名称
+        // 检查：同一个父节点下是否存在相同名称
         if (!Objects.equals(dto.getName(), entity.getName())) {
             if (sysOrgRepo.countByParentIdAndName(dto.getParentId(), dto.getName()) > 0) {
-                throw new BaseException("同级已存在相同名称");
+                throw new BaseException("同一个父节点下已存在相同名称");
             }
         }
 
