@@ -30,4 +30,7 @@ public class Common {
 
     // 自定义查询字段名，添加_后缀（前缀方式jackson解析不了）
     public static final String CONDITIONS_FIELD_NAME = "conditions_";
+
+    // 验证码缓存key
+    public static final String CAPTCHA_KEY = "captcha_key:%s";
 }

@@ -24,4 +24,16 @@ public class LoginDto extends BaseDomain {
      */
     @NotBlank(message = "密码不能为空")
     private String password;
+
+    /**
+     * 验证码key
+     */
+    @NotBlank(message = "验证码key不能为空")
+    private String key;
+
+    /**
+     * 验证码
+     */
+    @NotBlank(message = "验证码不能为空")
+    private String code;
 }

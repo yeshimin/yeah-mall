@@ -30,6 +30,7 @@
         <mybatis-plus.version>3.5.10</mybatis-plus.version>
         <jwt.version>4.5.0</jwt.version>
         <hutool.version>5.8.36</hutool.version>
+        <easy-captcha.version>1.6.2</easy-captcha.version>
     </properties>
 
     <dependencyManagement>
@@ -62,11 +63,20 @@
                 <version>${hutool.version}</version>
             </dependency>
 
+            <!-- ================================================================================ -->
             <!-- upms module -->
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
                 <artifactId>yeah-upms</artifactId>
                 <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <!-- ================================================================================ -->
+
+            <!-- captcha -->
+            <dependency>
+                <groupId>com.github.whvcse</groupId>
+                <artifactId>easy-captcha</artifactId>
+                <version>${easy-captcha.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
