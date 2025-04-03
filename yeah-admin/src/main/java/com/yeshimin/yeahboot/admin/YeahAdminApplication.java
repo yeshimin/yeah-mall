@@ -6,9 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {"com.yeshimin.yeahboot"})
 @MapperScan("com.yeshimin.yeahboot.**.mapper")
-public class YeahBootApplication {
+public class YeahAdminApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(YeahBootApplication.class, args);
+        SpringApplication.run(YeahAdminApplication.class, args);
     }
 }
