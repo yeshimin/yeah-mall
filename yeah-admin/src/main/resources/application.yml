@@ -16,3 +16,7 @@ jwt:
   expire-seconds: 36000
   # 时间校验偏差（秒）
   default-leeway: 60
+
+yeah-boot:
+  # 是否开启验证码校验
+  enable-captcha: true

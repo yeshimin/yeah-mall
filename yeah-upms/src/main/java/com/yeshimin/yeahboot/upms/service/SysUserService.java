@@ -12,6 +12,7 @@ import com.yeshimin.yeahboot.upms.domain.dto.SysUserUpdateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.UserOrgSetDto;
 import com.yeshimin.yeahboot.upms.domain.dto.UserRoleSetDto;
 import com.yeshimin.yeahboot.upms.domain.entity.*;
+import com.yeshimin.yeahboot.upms.domain.vo.MineVo;
 import com.yeshimin.yeahboot.upms.domain.vo.SysUserResTreeNodeVo;
 import com.yeshimin.yeahboot.upms.domain.vo.SysUserVo;
 import com.yeshimin.yeahboot.upms.domain.vo.UserRolesAndResourcesVo;
@@ -337,6 +338,31 @@ public class SysUserService {
         UserRolesAndResourcesVo vo = new UserRolesAndResourcesVo();
         vo.setRoles(roles);
         vo.setResources(resources);
+        return vo;
+    }
+
+
+    /**
+     * 查询用户个人信息
+     */
+    public MineVo mine(Long userId) {
+        SysUserEntity user = sysUserRepo.getOneById(userId);
+
+        List<Long> roleIds = sysUserRoleRepo.findListByUserId(userId)
+                .stream().map(SysUserRoleEntity::getRoleId).collect(Collectors.toList());
+        List<SysRoleEntity> roles = sysRoleRepo.findListByIds(roleIds);
+
+        List<Long> orgIds = sysUserOrgRepo.findListByUserId(userId)
+                .stream().map(SysUserOrgEntity::getOrgId).collect(Collectors.toList());
+        List<SysOrgEntity> orgs = sysOrgRepo.findListByIds(orgIds);
+
+        List<String> permissions = Collections.singletonList("*:*:*");
+
+        MineVo vo = new MineVo();
+        vo.setUser(user);
+        vo.setRoles(roles);
+        vo.setOrgs(orgs);
+        vo.setPermissions(permissions);
         return vo;
     }
 }

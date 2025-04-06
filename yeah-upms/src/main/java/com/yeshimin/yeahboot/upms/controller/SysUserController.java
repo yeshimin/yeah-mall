@@ -13,6 +13,7 @@ import com.yeshimin.yeahboot.upms.domain.dto.UserRoleSetDto;
 import com.yeshimin.yeahboot.upms.domain.entity.SysOrgEntity;
 import com.yeshimin.yeahboot.upms.domain.entity.SysRoleEntity;
 import com.yeshimin.yeahboot.upms.domain.entity.SysUserEntity;
+import com.yeshimin.yeahboot.upms.domain.vo.MineVo;
 import com.yeshimin.yeahboot.upms.domain.vo.SysUserResTreeNodeVo;
 import com.yeshimin.yeahboot.upms.domain.vo.SysUserVo;
 import com.yeshimin.yeahboot.upms.mapper.SysUserMapper;
@@ -118,5 +119,14 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
     @PostMapping("/setUserOrgs")
     public R<Boolean> setUserOrgs(@RequestBody UserOrgSetDto dto) {
         return R.ok(sysUserService.setUserOrgs(dto));
+    }
+
+    /**
+     * 查询用户个人信息
+     */
+    @GetMapping("/mine")
+    public R<MineVo> mine() {
+        Long userId = WebContextUtils.getUserId();
+        return R.ok(sysUserService.mine(userId));
     }
 }
