@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.upms.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.upms.common.errors.BaseException;
 import com.yeshimin.yeahboot.upms.domain.dto.SysRoleCreateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysRoleResSetDto;
@@ -54,7 +55,7 @@ public class SysRoleService extends SysRoleRepo {
         // 检查：是否存在
         SysRoleEntity entity = super.getOneById(dto.getId());
         // 检查：是否已存在
-        if (!Objects.equals(dto.getName(), entity.getName())) {
+        if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(dto.getName(), entity.getName())) {
             if (super.countByName(dto.getName()) > 0) {
                 throw new BaseException("已存在同名数据");
             }

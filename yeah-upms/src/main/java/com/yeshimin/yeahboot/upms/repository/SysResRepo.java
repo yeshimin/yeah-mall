@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.upms.repository;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yeshimin.yeahboot.upms.domain.entity.SysResEntity;
@@ -42,6 +43,18 @@ public class SysResRepo extends BaseRepo<SysResMapper, SysResEntity> {
     public long countByParentId(Long parentId) {
         LambdaQueryWrapper<SysResEntity> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(SysResEntity::getParentId, parentId);
+        return super.count(wrapper);
+    }
+
+    /**
+     * countByPermission
+     */
+    public long countByPermission(String permission) {
+        if (StrUtil.isBlank(permission)) {
+            throw new IllegalArgumentException("permission is blank");
+        }
+        LambdaQueryWrapper<SysResEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(SysResEntity::getPermission, permission);
         return super.count(wrapper);
     }
 }

@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.upms.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.upms.common.errors.BaseException;
 import com.yeshimin.yeahboot.upms.domain.dto.SysResCreateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysResUpdateDto;
@@ -41,9 +42,15 @@ public class SysResService {
         if (sysResRepo.countByParentIdAndName(dto.getParentId(), dto.getName()) > 0) {
             throw new BaseException("同一个父节点下已存在相同名称");
         }
+        // 检查：权限标识是否已存在
+        if (StrUtil.isNotBlank(dto.getPermission()) && sysResRepo.countByPermission(dto.getPermission()) > 0) {
+            throw new BaseException("权限标识已存在");
+        }
 
         // 创建记录
-        return sysResRepo.createOne(dto.getParentId(), dto.getName(), dto.getRemark());
+        SysResEntity entity = BeanUtil.copyProperties(dto, SysResEntity.class);
+        entity.insert();
+        return entity;
     }
 
     /**
@@ -94,9 +101,15 @@ public class SysResService {
             }
         }
         // 检查：同一个父节点下是否存在相同名称
-        if (!Objects.equals(dto.getName(), entity.getName())) {
+        if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(dto.getName(), entity.getName())) {
             if (sysResRepo.countByParentIdAndName(dto.getParentId(), dto.getName()) > 0) {
                 throw new BaseException("同一个父节点下已存在相同名称");
+            }
+        }
+        // 检查：权限标识是否已存在
+        if (dto.getPermission() != null && !Objects.equals(dto.getPermission(), entity.getPermission())) {
+            if (StrUtil.isNotBlank(dto.getPermission()) && sysResRepo.countByPermission(dto.getPermission()) > 0) {
+                throw new BaseException("权限标识已存在");
             }
         }
 

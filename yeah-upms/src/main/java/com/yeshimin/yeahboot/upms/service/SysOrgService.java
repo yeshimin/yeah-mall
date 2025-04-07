@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.upms.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.upms.common.errors.BaseException;
 import com.yeshimin.yeahboot.upms.domain.dto.SysOrgCreateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysOrgUpdateDto;
@@ -94,7 +95,7 @@ public class SysOrgService {
             }
         }
         // 检查：同一个父节点下是否存在相同名称
-        if (!Objects.equals(dto.getName(), entity.getName())) {
+        if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(dto.getName(), entity.getName())) {
             if (sysOrgRepo.countByParentIdAndName(dto.getParentId(), dto.getName()) > 0) {
                 throw new BaseException("同一个父节点下已存在相同名称");
             }

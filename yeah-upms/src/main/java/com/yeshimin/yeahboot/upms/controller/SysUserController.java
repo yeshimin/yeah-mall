@@ -129,4 +129,13 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
         Long userId = WebContextUtils.getUserId();
         return R.ok(sysUserService.mine(userId));
     }
+
+    /**
+     * 查询用户个人资源
+     */
+    @GetMapping("/mineResources")
+    public R<List<SysUserResTreeNodeVo>> mineResources() {
+        Long userId = WebContextUtils.getUserId();
+        return R.ok(sysUserService.queryUserResources(userId));
+    }
 }
