@@ -19,7 +19,6 @@ import java.util.List;
 /**
  * 系统组织相关
  */
-@Valid
 @RestController
 @RequestMapping("/sysOrg")
 public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity, SysOrgRepo> {
@@ -36,7 +35,7 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
      * 创建
      */
     @PostMapping("/create")
-    public R<SysOrgEntity> create(@RequestBody SysOrgCreateDto dto) {
+    public R<SysOrgEntity> create(@Valid @RequestBody SysOrgCreateDto dto) {
         return R.ok(sysOrgService.create(dto));
     }
 
@@ -52,7 +51,7 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
      * 更新
      */
     @PostMapping("/update")
-    public R<SysOrgEntity> update(@RequestBody SysOrgUpdateDto dto) {
+    public R<SysOrgEntity> update(@Valid @RequestBody SysOrgUpdateDto dto) {
         return R.ok(sysOrgService.update(dto));
     }
 
@@ -60,7 +59,7 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
      * 删除
      */
     @PostMapping("/delete")
-    public R<Void> delete(@RequestBody IdsDto dto) {
+    public R<Void> delete(@Valid @RequestBody IdsDto dto) {
         sysOrgService.delete(dto.getIds());
         return R.ok();
     }

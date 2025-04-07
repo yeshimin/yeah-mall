@@ -19,7 +19,6 @@ import java.util.List;
 /**
  * 系统资源相关
  */
-@Valid
 @RestController
 @RequestMapping("/sysRes")
 public class SysResController extends CrudController<SysResMapper, SysResEntity, SysResRepo> {
@@ -38,7 +37,7 @@ public class SysResController extends CrudController<SysResMapper, SysResEntity,
      * 创建
      */
     @PostMapping("/create")
-    public R<SysResEntity> create(@RequestBody SysResCreateDto dto) {
+    public R<SysResEntity> create(@Valid @RequestBody SysResCreateDto dto) {
         return R.ok(sysResService.create(dto));
     }
 
@@ -54,7 +53,7 @@ public class SysResController extends CrudController<SysResMapper, SysResEntity,
      * 更新
      */
     @PostMapping("/update")
-    public R<SysResEntity> update(@RequestBody SysResUpdateDto dto) {
+    public R<SysResEntity> update(@Valid @RequestBody SysResUpdateDto dto) {
         return R.ok(sysResService.update(dto));
     }
 
@@ -62,7 +61,7 @@ public class SysResController extends CrudController<SysResMapper, SysResEntity,
      * 删除
      */
     @PostMapping("/delete")
-    public R<Void> delete(@RequestBody IdsDto ids) {
+    public R<Void> delete(@Valid @RequestBody IdsDto ids) {
         sysResService.delete(ids.getIds());
         return R.ok();
     }

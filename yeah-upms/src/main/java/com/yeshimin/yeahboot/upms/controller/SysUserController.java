@@ -28,7 +28,6 @@ import java.util.List;
 /**
  * 系统用户相关
  */
-@Valid
 @RestController
 @RequestMapping("/sysUser")
 public class SysUserController extends CrudController<SysUserMapper, SysUserEntity, SysUserRepo> {
@@ -47,7 +46,7 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
      * 创建
      */
     @PostMapping("/create")
-    public R<SysUserEntity> create(@RequestBody SysUserCreateDto dto) {
+    public R<SysUserEntity> create(@Valid @RequestBody SysUserCreateDto dto) {
         return R.ok(sysUserService.create(dto));
     }
 
@@ -63,7 +62,7 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
      * 更新
      */
     @PostMapping("/update")
-    public R<SysUserEntity> update(@RequestBody SysUserUpdateDto dto) {
+    public R<SysUserEntity> update(@Valid @RequestBody SysUserUpdateDto dto) {
         return R.ok(sysUserService.update(dto));
     }
 
@@ -71,7 +70,7 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
      * 删除
      */
     @PostMapping("/delete")
-    public R<Void> delete(@RequestBody IdsDto dto) {
+    public R<Void> delete(@Valid @RequestBody IdsDto dto) {
         Long userId = WebContextUtils.getUserId();
         sysUserService.delete(userId, dto.getIds());
         return R.ok();
@@ -91,7 +90,7 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
      * 用户挂载角色（全部量操作）
      */
     @PostMapping("/setUserRoles")
-    public R<Boolean> setUserRoles(@RequestBody UserRoleSetDto dto) {
+    public R<Boolean> setUserRoles(@Valid @RequestBody UserRoleSetDto dto) {
         return R.ok(sysUserService.setUserRoles(dto));
     }
 
@@ -117,7 +116,7 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
      * 用户挂载组织（全部量操作）
      */
     @PostMapping("/setUserOrgs")
-    public R<Boolean> setUserOrgs(@RequestBody UserOrgSetDto dto) {
+    public R<Boolean> setUserOrgs(@Valid @RequestBody UserOrgSetDto dto) {
         return R.ok(sysUserService.setUserOrgs(dto));
     }
 

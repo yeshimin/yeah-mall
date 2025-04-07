@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * 鉴权相关
  */
@@ -31,7 +33,7 @@ public class AuthController extends BaseController {
      * 登录
      */
     @PostMapping("/login")
-    public R<LoginVo> login(@RequestBody LoginDto dto) {
+    public R<LoginVo> login(@Valid @RequestBody LoginDto dto) {
         if (BooleanUtil.isTrue(yeahBootProperties.getCaptchaEnabled())) {
             captchaService.checkCaptcha(dto.getKey(), dto.getCode());
         }

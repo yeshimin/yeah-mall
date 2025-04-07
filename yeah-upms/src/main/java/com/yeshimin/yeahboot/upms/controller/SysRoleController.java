@@ -18,7 +18,6 @@ import java.util.List;
 /**
  * 系统角色相关
  */
-@Valid
 @RestController
 @RequestMapping("/sysRole")
 public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEntity, SysRoleService> {
@@ -37,7 +36,7 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
      * 创建
      */
     @PostMapping("/create")
-    public R<SysRoleEntity> create(@RequestBody SysRoleCreateDto dto) {
+    public R<SysRoleEntity> create(@Valid @RequestBody SysRoleCreateDto dto) {
         return R.ok(sysRoleService.create(dto));
     }
 
@@ -45,7 +44,7 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
      * 更新
      */
     @PostMapping("/update")
-    public R<SysRoleEntity> update(@RequestBody SysRoleUpdateDto dto) {
+    public R<SysRoleEntity> update(@Valid @RequestBody SysRoleUpdateDto dto) {
         return R.ok(sysRoleService.update(dto));
     }
 
@@ -53,7 +52,7 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
      * 删除
      */
     @PostMapping("/delete")
-    public R<Void> delete(@RequestBody IdsDto dto) {
+    public R<Void> delete(@Valid @RequestBody IdsDto dto) {
         sysRoleService.delete(dto.getIds());
         return R.ok();
     }
@@ -72,7 +71,7 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
      * 角色挂载资源（全量操作）
      */
     @PostMapping("/setResources")
-    public R<Boolean> setResources(@RequestBody SysRoleResSetDto dto) {
+    public R<Boolean> setResources(@Valid @RequestBody SysRoleResSetDto dto) {
         return R.ok(sysRoleService.setResources(dto));
     }
 }

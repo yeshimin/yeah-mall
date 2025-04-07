@@ -1,5 +1,7 @@
 package com.yeshimin.yeahboot.upms.domain.dto;
 
+import com.yeshimin.yeahboot.upms.common.enums.ResTypeEnum;
+import com.yeshimin.yeahboot.upms.common.validation.EnumValue;
 import com.yeshimin.yeahboot.upms.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,6 +16,7 @@ public class SysResCreateDto extends BaseDomain {
     /**
      * 类型：1-菜单 2-页面 3-按钮 4-接口
      */
+    @EnumValue(enumClass = ResTypeEnum.class)
     @NotNull(message = "类型不能为空")
     private Integer type;
 

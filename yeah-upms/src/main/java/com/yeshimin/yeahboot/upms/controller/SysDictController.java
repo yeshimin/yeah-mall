@@ -19,7 +19,6 @@ import java.util.List;
 /**
  * 系统地点相关
  */
-@Valid
 @RestController
 @RequestMapping("/sysDict")
 public class SysDictController extends CrudController<SysDictMapper, SysDictEntity, SysDictRepo> {
@@ -36,7 +35,7 @@ public class SysDictController extends CrudController<SysDictMapper, SysDictEnti
      * 创建
      */
     @PostMapping("/create")
-    public R<SysDictEntity> create(@RequestBody SysDictCreateDto dto) {
+    public R<SysDictEntity> create(@Valid @RequestBody SysDictCreateDto dto) {
         return R.ok(sysDictService.create(dto));
     }
 
@@ -52,7 +51,7 @@ public class SysDictController extends CrudController<SysDictMapper, SysDictEnti
      * 更新
      */
     @PostMapping("/update")
-    public R<SysDictEntity> update(@RequestBody SysDictUpdateDto dto) {
+    public R<SysDictEntity> update(@Valid @RequestBody SysDictUpdateDto dto) {
         return R.ok(sysDictService.update(dto));
     }
 
@@ -60,7 +59,7 @@ public class SysDictController extends CrudController<SysDictMapper, SysDictEnti
      * 删除
      */
     @PostMapping("/delete")
-    public R<Void> delete(@RequestBody SysDictDeleteDto dto) {
+    public R<Void> delete(@Valid @RequestBody SysDictDeleteDto dto) {
         sysDictService.delete(dto.getIds(), dto.getForce());
         return R.ok();
     }
