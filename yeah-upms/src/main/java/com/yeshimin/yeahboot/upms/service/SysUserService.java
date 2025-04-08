@@ -7,10 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.upms.common.errors.BaseException;
 import com.yeshimin.yeahboot.upms.domain.base.IdNameVo;
-import com.yeshimin.yeahboot.upms.domain.dto.SysUserCreateDto;
-import com.yeshimin.yeahboot.upms.domain.dto.SysUserUpdateDto;
-import com.yeshimin.yeahboot.upms.domain.dto.UserOrgSetDto;
-import com.yeshimin.yeahboot.upms.domain.dto.UserRoleSetDto;
+import com.yeshimin.yeahboot.upms.domain.dto.*;
 import com.yeshimin.yeahboot.upms.domain.entity.*;
 import com.yeshimin.yeahboot.upms.domain.vo.MineVo;
 import com.yeshimin.yeahboot.upms.domain.vo.SysUserResTreeNodeVo;
@@ -37,6 +34,8 @@ public class SysUserService {
     private final SysRoleResRepo sysRoleResRepo;
     private final SysResRepo sysResRepo;
     private final SysUserOrgRepo sysUserOrgRepo;
+    private final SysPostRepo sysPostRepo;
+    private final SysUserPostRepo sysUserPostRepo;
 
     private final PasswordService passwordService;
 
@@ -364,5 +363,51 @@ public class SysUserService {
         vo.setOrgs(orgs);
         vo.setPermissions(permissions);
         return vo;
+    }
+
+    // ================================================================================
+
+    /**
+     * 查询用户岗位
+     */
+    public List<SysPostEntity> queryUserPosts(Long userId) {
+        // 检查：用户是否存在
+        SysUserEntity entity = sysUserRepo.findOneById(userId);
+        if (entity == null) {
+            throw new RuntimeException("用户未找到");
+        }
+
+        // 查询用户岗位ID集合
+        Set<Long> postIds = sysUserPostRepo.findListByUserId(userId)
+                .stream().map(SysUserPostEntity::getPostId).collect(Collectors.toSet());
+
+        return postIds.isEmpty() ? Collections.emptyList() : sysPostRepo.listByIds(postIds);
+    }
+
+    /**
+     * 用户挂载岗位（全量操作）
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean setUserPosts(UserPostSetDto dto) {
+        Long userId = dto.getUserId();
+        Set<Long> postIds = dto.getPostIds();
+
+        // 检查：用户是否存在
+        SysUserEntity sysUser = sysUserRepo.findOneById(userId);
+        if (sysUser == null) {
+            throw new RuntimeException("用户未找到");
+        }
+        if (CollUtil.isNotEmpty(postIds)) {
+            List<SysPostEntity> listPost = sysPostRepo.listByIds(postIds);
+            if (listPost.size() != postIds.size()) {
+                throw new RuntimeException("岗位ID不合法");
+            }
+        }
+
+        // clear
+        sysUserPostRepo.deleteByUserId(userId);
+
+        // add
+        return sysUserPostRepo.createUserPostRelations(userId, postIds);
     }
 }

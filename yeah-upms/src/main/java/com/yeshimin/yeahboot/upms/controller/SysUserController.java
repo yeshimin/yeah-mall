@@ -6,11 +6,9 @@ import com.yeshimin.yeahboot.upms.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.upms.controller.base.CrudController;
 import com.yeshimin.yeahboot.upms.domain.base.IdsDto;
 import com.yeshimin.yeahboot.upms.domain.base.R;
-import com.yeshimin.yeahboot.upms.domain.dto.SysUserCreateDto;
-import com.yeshimin.yeahboot.upms.domain.dto.SysUserUpdateDto;
-import com.yeshimin.yeahboot.upms.domain.dto.UserOrgSetDto;
-import com.yeshimin.yeahboot.upms.domain.dto.UserRoleSetDto;
+import com.yeshimin.yeahboot.upms.domain.dto.*;
 import com.yeshimin.yeahboot.upms.domain.entity.SysOrgEntity;
+import com.yeshimin.yeahboot.upms.domain.entity.SysPostEntity;
 import com.yeshimin.yeahboot.upms.domain.entity.SysRoleEntity;
 import com.yeshimin.yeahboot.upms.domain.entity.SysUserEntity;
 import com.yeshimin.yeahboot.upms.domain.vo.MineVo;
@@ -136,5 +134,23 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
     public R<List<SysUserResTreeNodeVo>> mineResources() {
         Long userId = WebContextUtils.getUserId();
         return R.ok(sysUserService.queryUserResources(userId));
+    }
+
+    // ================================================================================
+
+    /**
+     * 查询用户岗位
+     */
+    @GetMapping("/queryUserPosts")
+    public R<List<SysPostEntity>> queryUserPosts(@RequestParam Long userId) {
+        return R.ok(sysUserService.queryUserPosts(userId));
+    }
+
+    /**
+     * 用户挂载岗位（全部量操作）
+     */
+    @PostMapping("/setUserPosts")
+    public R<Boolean> setUserPosts(@Valid @RequestBody UserPostSetDto dto) {
+        return R.ok(sysUserService.setUserPosts(dto));
     }
 }
