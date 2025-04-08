@@ -9,7 +9,9 @@ import com.yeshimin.yeahboot.upms.domain.dto.SysRoleUpdateDto;
 import com.yeshimin.yeahboot.upms.domain.entity.SysRoleEntity;
 import com.yeshimin.yeahboot.upms.domain.vo.SysRoleResTreeNodeVo;
 import com.yeshimin.yeahboot.upms.mapper.SysRoleMapper;
+import com.yeshimin.yeahboot.upms.repository.SysRoleRepo;
 import com.yeshimin.yeahboot.upms.service.SysRoleService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,14 +22,14 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/sysRole")
-public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEntity, SysRoleService> {
+public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEntity, SysRoleRepo> {
 
-    private final SysRoleService sysRoleService;
+    @Autowired
+    private SysRoleService sysRoleService;
 
-    public SysRoleController(SysRoleService sysRoleService) {
+    public SysRoleController(SysRoleRepo sysRoleRepo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
-        super(sysRoleService);
-        this.sysRoleService = sysRoleService;
+        super(sysRoleRepo);
     }
 
     // ================================================================================
