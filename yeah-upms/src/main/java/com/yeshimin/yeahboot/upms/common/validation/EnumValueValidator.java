@@ -1,5 +1,7 @@
 package com.yeshimin.yeahboot.upms.common.validation;
 
+import com.yeshimin.yeahboot.upms.common.enums.base.IValueEnum;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
@@ -7,9 +9,9 @@ import java.util.Arrays;
 /**
  * 枚举值校验器
  */
-public class EnumValueValidator implements ConstraintValidator<EnumValue, Integer> {
+public class EnumValueValidator implements ConstraintValidator<EnumValue, Object> {
 
-    private Class<? extends Enum<?>> enumClass;
+    private Class<? extends IValueEnum> enumClass;
 
     @Override
     public void initialize(EnumValue constraintAnnotation) {
@@ -17,13 +19,13 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Intege
     }
 
     @Override
-    public boolean isValid(Integer value, ConstraintValidatorContext context) {
+    public boolean isValid(Object value, ConstraintValidatorContext context) {
         if (value == null) {
             return true;
         }
 
-        Enum<?>[] enumConstants = enumClass.getEnumConstants();
+        IValueEnum[] enumConstants = enumClass.getEnumConstants();
         return Arrays.stream(enumConstants)
-                .anyMatch(enumConstant -> enumConstant.ordinal() + 1 == value);
+                .anyMatch(enumConstant -> enumConstant.getValue().equals(value));
     }
 }

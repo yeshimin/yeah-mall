@@ -1,25 +1,43 @@
 package com.yeshimin.yeahboot.upms.domain.dto;
 
-import com.yeshimin.yeahboot.upms.common.config.mybatis.Query;
-import com.yeshimin.yeahboot.upms.common.config.mybatis.QueryField;
-import com.yeshimin.yeahboot.upms.domain.base.BaseQueryDto;
+import com.yeshimin.yeahboot.upms.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
+import java.util.Set;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Query(custom = true)
-public class SysUserQueryDto extends BaseQueryDto {
+public class SysUserQueryDto extends BaseDomain {
 
     /**
      * 用户名
      */
-    @QueryField(QueryField.Type.LIKE_RIGHT)
     private String username;
 
     /**
-     * 密码
+     * 手机号
      */
-    @QueryField(QueryField.Type.LIKE)
-    private String password;
+    private String mobile;
+
+    /**
+     * 状态：1-启用 2-禁用
+     */
+    private String status;
+
+    /**
+     * 创建日期Begin
+     */
+    private LocalDate createDateBegin;
+
+    /**
+     * 创建日期End
+     */
+    private LocalDate createDateEnd;
+
+    /**
+     * 组织ID集合
+     */
+    private Set<Long> orgIds;
 }

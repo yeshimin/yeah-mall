@@ -2,6 +2,8 @@ package com.yeshimin.yeahboot.upms.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yeshimin.yeahboot.upms.common.errors.BaseException;
 import com.yeshimin.yeahboot.upms.domain.dto.SysDictCreateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysDictUpdateDto;
@@ -47,15 +49,23 @@ public class SysDictService {
         }
 
         // 创建记录
-        return sysDictRepo.createOne(parent, dto.getCode(), dto.getName(), dto.getRemark());
+        return sysDictRepo.createOne(parent, dto.getCode(), dto.getName(), dto.getValue(), dto.getRemark());
     }
 
     /**
      * 查询树
      */
-    public List<SysDictTreeNodeVo> tree() {
-        // query all
-        List<SysDictEntity> listAll = sysDictRepo.list();
+    public List<SysDictTreeNodeVo> tree(String rootNodeCode) {
+        // query
+        LambdaQueryWrapper<SysDictEntity> wrapper = Wrappers.lambdaQuery();
+        // 查询指定节点下所有子节点
+        if (StrUtil.isNotBlank(rootNodeCode)) {
+            SysDictEntity pickedNode = sysDictRepo.findOneByRootNodeCode(rootNodeCode);
+            if (pickedNode != null) {
+                wrapper.likeRight(SysDictEntity::getPath, pickedNode.getPath());
+            }
+        }
+        List<SysDictEntity> listAll = sysDictRepo.list(wrapper);
 
         // entity to node vo
         List<SysDictTreeNodeVo> listAllVo = listAll.stream().map(e -> {
@@ -131,6 +141,9 @@ public class SysDictService {
         }
         if (StrUtil.isNotBlank(dto.getName())) {
             entity.setName(dto.getName());
+        }
+        if (StrUtil.isNotBlank(dto.getValue())) {
+            entity.setValue(dto.getValue());
         }
         entity.setRemark(dto.getRemark());
 

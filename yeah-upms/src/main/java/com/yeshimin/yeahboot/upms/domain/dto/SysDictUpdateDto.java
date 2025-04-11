@@ -32,6 +32,11 @@ public class SysDictUpdateDto extends BaseDomain {
     private String name;
 
     /**
+     * 值
+     */
+    private String value;
+
+    /**
      * 备注
      */
     private String remark;

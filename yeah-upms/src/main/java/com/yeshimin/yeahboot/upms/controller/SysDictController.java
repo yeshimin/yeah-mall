@@ -43,8 +43,9 @@ public class SysDictController extends CrudController<SysDictMapper, SysDictEnti
      * 查询树
      */
     @GetMapping("/tree")
-    public R<List<SysDictTreeNodeVo>> tree() {
-        return R.ok(sysDictService.tree());
+    public R<List<SysDictTreeNodeVo>> tree(
+            @RequestParam(value = "rootNodeCode", required = false) String rootNodeCode) {
+        return R.ok(sysDictService.tree(rootNodeCode));
     }
 
     /**

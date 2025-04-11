@@ -12,6 +12,11 @@ import java.util.List;
 public class SysUserVo extends SysUserEntity {
 
     /**
+     * 岗位
+     */
+    private List<IdNameVo> posts;
+
+    /**
      * 组织
      */
     private List<IdNameVo> orgs;

@@ -59,10 +59,18 @@ public class SysUserService {
         String encodedPassword = passwordService.encodePassword(dto.getPassword());
 
         // 创建用户记录
-        SysUserEntity entity = sysUserRepo.createOne(dto.getUsername(), encodedPassword, dto.getRemark());
+        SysUserEntity entity = BeanUtil.copyProperties(dto, SysUserEntity.class);
+        entity.setPassword(encodedPassword);
+        entity.insert();
 
         // 创建用户与组织关联记录
         sysUserOrgRepo.createUserOrgRelations(entity.getId(), dto.getOrgIds());
+
+        // 创建用户与岗位关联记录
+        sysUserPostRepo.createUserPostRelations(entity.getId(), dto.getPostIds());
+
+        // 创建用于角色关联记录
+        sysUserRoleRepo.createUserRoleRelations(entity.getId(), dto.getRoleIds());
 
         return entity;
     }
@@ -70,10 +78,18 @@ public class SysUserService {
     /**
      * 查询
      */
-    public IPage<SysUserVo> query(Page<SysUserEntity> page) {
+    public IPage<SysUserVo> query(Page<SysUserEntity> page, SysUserQueryDto dto) {
         // 查询用户
-        IPage<SysUserEntity> pageUser = sysUserRepo.page(page);
+        IPage<SysUserEntity> pageUser = sysUserRepo.query(page, dto);
         List<Long> userIds = pageUser.getRecords().stream().map(SysUserEntity::getId).collect(Collectors.toList());
+
+        // 查询用户岗位
+        List<SysUserPostEntity> listUserPost = sysUserPostRepo.findListByUserIds(userIds);
+        Map<Long, List<SysUserPostEntity>> mapUserPosts =
+                listUserPost.stream().collect(Collectors.groupingBy(SysUserPostEntity::getUserId));
+        List<Long> postIds = listUserPost.stream().map(SysUserPostEntity::getPostId).collect(Collectors.toList());
+        Map<Long, SysPostEntity> mapPost = sysPostRepo.findListByIds(postIds)
+                .stream().collect(Collectors.toMap(SysPostEntity::getId, v -> v));
 
         // 查询用户组织
         List<SysUserOrgEntity> listUserOrg = sysUserOrgRepo.findListByUserIds(userIds);
@@ -94,6 +110,16 @@ public class SysUserService {
         return pageUser.convert(e -> {
             SysUserVo vo = BeanUtil.copyProperties(e, SysUserVo.class);
 
+            // 岗位
+            List<SysUserPostEntity> userPosts = mapUserPosts.getOrDefault(e.getId(), Collections.emptyList());
+            vo.setPosts(userPosts.stream().map(r -> {
+                SysPostEntity sysPost = mapPost.get(r.getPostId());
+                if (sysPost == null) {
+                    return null;
+                }
+                return new IdNameVo(sysPost.getId(), sysPost.getName());
+            }).collect(Collectors.toList()));
+
             // 组织
             List<SysUserOrgEntity> userOrgs = mapUserOrgs.getOrDefault(e.getId(), Collections.emptyList());
             vo.setOrgs(userOrgs.stream().map(r -> {
@@ -106,16 +132,71 @@ public class SysUserService {
 
             // 角色
             List<SysUserRoleEntity> userRoles = mapUserRoles.getOrDefault(e.getId(), Collections.emptyList());
-            List<IdNameVo> listIdNameVo = userRoles.stream().map(r -> {
+            vo.setRoles(userRoles.stream().map(r -> {
                 SysRoleEntity sysRole = mapRole.get(r.getRoleId());
                 if (sysRole == null) {
                     return null;
                 }
                 return new IdNameVo(sysRole.getId(), sysRole.getName());
-            }).filter(Objects::nonNull).collect(Collectors.toList());
-            vo.setRoles(listIdNameVo);
+            }).filter(Objects::nonNull).collect(Collectors.toList()));
             return vo;
         });
+    }
+
+    /**
+     * 详情
+     */
+    public SysUserVo detail(Long id) {
+        // 检查：是否存在
+        SysUserEntity entity = sysUserRepo.getOneById(id);
+
+        // 查询用户岗位
+        List<SysUserPostEntity> listUserPost = sysUserPostRepo.findListByUserId(id);
+        Map<Long, SysPostEntity> mapPost = sysPostRepo.findListByIds(listUserPost.stream()
+                        .map(SysUserPostEntity::getPostId).collect(Collectors.toList()))
+                .stream().collect(Collectors.toMap(SysPostEntity::getId, v -> v));
+
+        // 查询用户组织
+        List<SysUserOrgEntity> listUserOrg = sysUserOrgRepo.findListByUserId(id);
+        Map<Long, SysOrgEntity> mapOrg = sysOrgRepo.findListByIds(listUserOrg.stream()
+                        .map(SysUserOrgEntity::getOrgId).collect(Collectors.toList()))
+                .stream().collect(Collectors.toMap(SysOrgEntity::getId, v -> v));
+
+        // 查询用户角色
+        List<SysUserRoleEntity> listUserRole = sysUserRoleRepo.findListByUserId(id);
+        Map<Long, SysRoleEntity> mapRole = sysRoleRepo.findListByIds(listUserRole.stream()
+                        .map(SysUserRoleEntity::getRoleId).collect(Collectors.toList()))
+                .stream().collect(Collectors.toMap(SysRoleEntity::getId, v -> v));
+
+        SysUserVo vo = BeanUtil.copyProperties(entity, SysUserVo.class);
+
+        // 岗位
+        vo.setPosts(listUserPost.stream().map(r -> {
+            SysPostEntity sysPost = mapPost.get(r.getPostId());
+            if (sysPost == null) {
+                return null;
+            }
+            return new IdNameVo(sysPost.getId(), sysPost.getName());
+        }).collect(Collectors.toList()));
+
+        // 组织
+        vo.setOrgs(listUserOrg.stream().map(r -> {
+            SysOrgEntity sysOrg = mapOrg.get(r.getOrgId());
+            if (sysOrg == null) {
+                return null;
+            }
+            return new IdNameVo(sysOrg.getId(), sysOrg.getName());
+        }).collect(Collectors.toList()));
+
+        // 角色
+        vo.setRoles(listUserRole.stream().map(r -> {
+            SysRoleEntity sysRole = mapRole.get(r.getRoleId());
+            if (sysRole == null) {
+                return null;
+            }
+            return new IdNameVo(sysRole.getId(), sysRole.getName());
+        }).filter(Objects::nonNull).collect(Collectors.toList()));
+        return vo;
     }
 
     /**
@@ -138,10 +219,21 @@ public class SysUserService {
             }
         }
 
-        // 清空用户与组织关联记录
-        sysUserOrgRepo.deleteByUserId(entity.getId());
-        // 创建用户与组织关联记录
-        sysUserOrgRepo.createUserOrgRelations(entity.getId(), dto.getOrgIds());
+        // 清空并重新创建用户与组织关联记录
+        if (dto.getOrgIds() != null) {
+            sysUserOrgRepo.deleteByUserId(entity.getId());
+            sysUserOrgRepo.createUserOrgRelations(entity.getId(), dto.getOrgIds());
+        }
+        // 清空并重新创建用户与岗位关联记录
+        if (dto.getPostIds() != null) {
+            sysUserPostRepo.deleteByUserId(entity.getId());
+            sysUserPostRepo.createUserPostRelations(entity.getId(), dto.getPostIds());
+        }
+        // 清空并重新创建用户与角色关联记录
+        if (dto.getRoleIds() != null) {
+            sysUserRoleRepo.deleteByUserId(entity.getId());
+            sysUserRoleRepo.createUserRoleRelations(entity.getId(), dto.getRoleIds());
+        }
 
         // 更新用户信息
         BeanUtil.copyProperties(dto, entity);

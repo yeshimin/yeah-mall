@@ -19,6 +19,10 @@ import java.util.List;
 @Slf4j
 public class QueryHelper<T> {
 
+    /**
+     * 生成QueryWrapper
+     * 只按查询类定义进行查询
+     */
     public static <T> QueryWrapper<T> getQueryWrapper(Object query) {
         return getQueryWrapper(query, Wrappers.query());
     }
@@ -36,7 +40,10 @@ public class QueryHelper<T> {
         return getQueryWrapper(query, wrapper);
     }
 
-    public static <T> QueryWrapper<T> getQueryWrapper(Object query, QueryWrapper<T> wrapper) {
+    /**
+     * 暂时不开放外部调用，后续有需要的场景再开放
+     */
+    private static <T> QueryWrapper<T> getQueryWrapper(Object query, QueryWrapper<T> wrapper) {
         // 获取@Query注解
         Query queryAnno = query.getClass().getAnnotation(Query.class);
         // 是否启用查询

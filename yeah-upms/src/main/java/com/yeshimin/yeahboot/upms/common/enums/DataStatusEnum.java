@@ -4,27 +4,30 @@ import com.yeshimin.yeahboot.upms.common.enums.base.IValueEnum;
 import lombok.Getter;
 
 /**
- * 系统资源类型枚举
+ * 数据状态枚举：1-启用 2-禁用
  */
 @Getter
-public enum ResTypeEnum implements IValueEnum {
+public enum DataStatusEnum implements IValueEnum {
 
-    // 类型：1-菜单 2-页面 3-按钮 4-接口
-    MENU("1", "菜单"),
-    PAGE("2", "页面"),
-    BUTTON("3", "按钮"),
-    API("4", "接口");
+    /**
+     * 启用
+     */
+    ENABLED("1", "启用"),
+    /**
+     * 禁用
+     */
+    DISABLED("2", "禁用");
 
     private final String value;
     private final String desc;
 
-    ResTypeEnum(String value, String desc) {
+    DataStatusEnum(String value, String desc) {
         this.value = value;
         this.desc = desc;
     }
 
-    public static ResTypeEnum of(String value) {
-        for (ResTypeEnum e : ResTypeEnum.values()) {
+    public static DataStatusEnum of(String value) {
+        for (DataStatusEnum e : DataStatusEnum.values()) {
             if (e.getValue().equals(value)) {
                 return e;
             }

@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.upms.repository;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yeshimin.yeahboot.upms.common.errors.BaseException;
@@ -41,7 +42,7 @@ public class SysDictRepo extends BaseRepo<SysDictMapper, SysDictEntity> {
     /**
      * createOne
      */
-    public SysDictEntity createOne(SysDictEntity parent, String code, String name, String remark) {
+    public SysDictEntity createOne(SysDictEntity parent, String code, String name, String value, String remark) {
         Long parentId = parent != null ? parent.getId() : 0L;
         Integer level = parent != null ? parent.getLevel() + 1 : 1;
         String path = parent != null ? parent.getPath() + "/" + code : "/" + code;
@@ -50,6 +51,7 @@ public class SysDictRepo extends BaseRepo<SysDictMapper, SysDictEntity> {
         entity.setParentId(parentId);
         entity.setCode(code);
         entity.setName(name);
+        entity.setValue(value);
         entity.setLevel(level);
         entity.setPath(path);
         entity.setRemark(remark);
@@ -151,5 +153,18 @@ public class SysDictRepo extends BaseRepo<SysDictMapper, SysDictEntity> {
         wrapper.likeRight(SysDictEntity::getPath, path);
         wrapper.eq(SysDictEntity::getId, id);
         return super.count(wrapper);
+    }
+
+    /**
+     * findOneByRootNodeCode
+     */
+    public SysDictEntity findOneByRootNodeCode(String code) {
+        if (StrUtil.isBlank(code)) {
+            throw new IllegalArgumentException("code不能为空");
+        }
+        LambdaQueryWrapper<SysDictEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(SysDictEntity::getCode, code);
+        wrapper.eq(SysDictEntity::getParentId, 0);
+        return super.getOne(wrapper);
     }
 }

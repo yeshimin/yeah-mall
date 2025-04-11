@@ -52,8 +52,16 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
      * 查询
      */
     @GetMapping("/query")
-    public R<IPage<SysUserVo>> query(Page<SysUserEntity> page) {
-        return R.ok(sysUserService.query(page));
+    public R<IPage<SysUserVo>> query(Page<SysUserEntity> page, SysUserQueryDto dto) {
+        return R.ok(sysUserService.query(page, dto));
+    }
+
+    /**
+     * 详情
+     */
+    @GetMapping("/detail")
+    public R<SysUserVo> detail(@RequestParam Long id) {
+        return R.ok(sysUserService.detail(id));
     }
 
     /**

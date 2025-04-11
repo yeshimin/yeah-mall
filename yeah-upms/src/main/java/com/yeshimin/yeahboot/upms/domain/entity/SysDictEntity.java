@@ -29,6 +29,11 @@ public class SysDictEntity extends ConditionBaseEntity<SysDictEntity> {
     private String name;
 
     /**
+     * 值
+     */
+    private String value;
+
+    /**
      * 层级
      */
     private Integer level;

@@ -1,5 +1,7 @@
 package com.yeshimin.yeahboot.upms.common.validation;
 
+import com.yeshimin.yeahboot.upms.common.enums.base.IValueEnum;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;
@@ -22,5 +24,5 @@ public @interface EnumValue {
     Class<? extends Payload>[] payload() default {};
 
     // 要校验的枚举类
-    Class<? extends Enum<?>> enumClass();
+    Class<? extends IValueEnum> enumClass();
 }

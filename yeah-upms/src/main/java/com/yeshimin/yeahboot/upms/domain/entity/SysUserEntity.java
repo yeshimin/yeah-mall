@@ -24,6 +24,31 @@ public class SysUserEntity extends ConditionBaseEntity<SysUserEntity> {
     private String password;
 
     /**
+     * 状态：1-启用 2-禁用
+     */
+    private String status;
+
+    /**
+     * 昵称
+     */
+    private String nickname;
+
+    /**
+     * 手机号
+     */
+    private String mobile;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 性别：1-男性 2-女性
+     */
+    private String gender;
+
+    /**
      * 备注
      */
     private String remark;
