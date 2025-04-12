@@ -14,9 +14,19 @@ import lombok.EqualsAndHashCode;
 public class SysRoleEntity extends ConditionBaseEntity<SysRoleEntity> {
 
     /**
+     * 编码
+     */
+    private String code;
+
+    /**
      * 名称
      */
     private String name;
+
+    /**
+     * 状态：1-启用 2-禁用
+     */
+    private String status;
 
     /**
      * 备注

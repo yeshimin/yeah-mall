@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.upms.common.errors.BaseException;
+import com.yeshimin.yeahboot.upms.domain.base.IdNameVo;
 import com.yeshimin.yeahboot.upms.domain.dto.SysRoleCreateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysRoleResSetDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysRoleUpdateDto;
@@ -11,6 +12,7 @@ import com.yeshimin.yeahboot.upms.domain.entity.SysResEntity;
 import com.yeshimin.yeahboot.upms.domain.entity.SysRoleEntity;
 import com.yeshimin.yeahboot.upms.domain.entity.SysRoleResEntity;
 import com.yeshimin.yeahboot.upms.domain.vo.SysRoleResTreeNodeVo;
+import com.yeshimin.yeahboot.upms.domain.vo.SysRoleVo;
 import com.yeshimin.yeahboot.upms.repository.SysResRepo;
 import com.yeshimin.yeahboot.upms.repository.SysRoleRepo;
 import com.yeshimin.yeahboot.upms.repository.SysRoleResRepo;
@@ -26,25 +28,67 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SysRoleService extends SysRoleRepo {
+public class SysRoleService {
 
+    private final SysRoleRepo sysRoleRepo;
     private final SysUserRoleRepo sysUserRoleRepo;
     private final SysRoleResRepo sysRoleResRepo;
     private final SysResRepo sysResRepo;
-    private final SysRoleRepo sysRoleRepo;
 
     /**
      * 创建
      */
     @Transactional(rollbackFor = Exception.class)
     public SysRoleEntity create(SysRoleCreateDto dto) {
-        // 检查：是否已存在
-        if (super.countByName(dto.getName()) > 0) {
-            throw new BaseException("已存在");
+        // 检查：编码是否已存在
+        if (sysRoleRepo.countByCode(dto.getCode()) > 0) {
+            throw new BaseException("编码已存在");
+        }
+        // 检查：名称是否已存在
+        if (sysRoleRepo.countByName(dto.getName()) > 0) {
+            throw new BaseException("名称已存在");
+        }
+        // 检查：资源是否存在
+        if (CollUtil.isNotEmpty(dto.getResIds())) {
+            if (sysResRepo.countByIds(dto.getResIds()) != dto.getResIds().size()) {
+                throw new BaseException("资源ID不正确");
+            }
         }
 
         // 创建记录
-        return super.createOne(dto.getName(), dto.getRemark());
+        SysRoleEntity entity = sysRoleRepo.createOne(dto.getCode(), dto.getName(), dto.getStatus(), dto.getRemark());
+
+        // 创建角色与资源的关联记录
+        sysRoleResRepo.createRoleResRelations(entity.getId(), dto.getResIds());
+
+        return entity;
+    }
+
+    /**
+     * 详情
+     */
+    public SysRoleVo detail(Long id) {
+        // 检查：是否存在
+        SysRoleEntity entity = sysRoleRepo.getOneById(id);
+
+        // 查询角色资源
+        List<SysRoleResEntity> listRoleRes = sysRoleResRepo.findListByRoleId(id);
+        Map<Long, SysResEntity> mapPost = sysResRepo.findListByIds(listRoleRes.stream()
+                        .map(SysRoleResEntity::getResId).collect(Collectors.toList()))
+                .stream().collect(Collectors.toMap(SysResEntity::getId, v -> v));
+
+        SysRoleVo vo = BeanUtil.copyProperties(entity, SysRoleVo.class);
+
+        // 资源
+        vo.setResources(listRoleRes.stream().map(r -> {
+            SysResEntity sysRes = mapPost.get(r.getResId());
+            if (sysRes == null) {
+                return null;
+            }
+            return new IdNameVo(sysRes.getId(), sysRes.getName());
+        }).collect(Collectors.toList()));
+
+        return vo;
     }
 
     /**
@@ -53,17 +97,35 @@ public class SysRoleService extends SysRoleRepo {
     @Transactional(rollbackFor = Exception.class)
     public SysRoleEntity update(SysRoleUpdateDto dto) {
         // 检查：是否存在
-        SysRoleEntity entity = super.getOneById(dto.getId());
-        // 检查：是否已存在
+        SysRoleEntity entity = sysRoleRepo.getOneById(dto.getId());
+        // 检查：编码是否已存在
+        if (StrUtil.isNotBlank(dto.getCode()) && !Objects.equals(dto.getCode(), entity.getCode())) {
+            if (sysRoleRepo.countByCode(dto.getCode()) > 0) {
+                throw new BaseException("编码已存在");
+            }
+        }
+        // 检查：名称是否已存在
         if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(dto.getName(), entity.getName())) {
-            if (super.countByName(dto.getName()) > 0) {
-                throw new BaseException("已存在同名数据");
+            if (sysRoleRepo.countByName(dto.getName()) > 0) {
+                throw new BaseException("名称已存在");
+            }
+        }
+        // 检查：资源是否存在
+        if (CollUtil.isNotEmpty(dto.getResIds())) {
+            if (sysResRepo.countByIds(dto.getResIds()) != dto.getResIds().size()) {
+                throw new BaseException("资源ID不正确");
             }
         }
 
-        SysRoleEntity forUpdate = BeanUtil.copyProperties(dto, SysRoleEntity.class);
-        forUpdate.updateById();
-        return forUpdate;
+        // 清空并重新创建角色与资源的关联记录
+        if (dto.getResIds() != null) {
+            sysRoleResRepo.deleteByRoleId(dto.getId());
+            sysRoleResRepo.createRoleResRelations(dto.getId(), dto.getResIds());
+        }
+
+        BeanUtil.copyProperties(dto, entity);
+        entity.updateById();
+        return entity;
     }
 
     /**
@@ -73,7 +135,7 @@ public class SysRoleService extends SysRoleRepo {
     public void delete(List<Long> ids) {
         for (Long id : ids) {
             // 检查：是否存在
-            SysRoleEntity entity = super.getOneById(id);
+            SysRoleEntity entity = sysRoleRepo.getOneById(id);
             // 检查：是否存在未解除的关联
             if (sysUserRoleRepo.countByRoleId(id) > 0) {
                 throw new BaseException("存在未解除的关联");

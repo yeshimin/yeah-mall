@@ -8,6 +8,7 @@ import com.yeshimin.yeahboot.upms.domain.dto.SysRoleResSetDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysRoleUpdateDto;
 import com.yeshimin.yeahboot.upms.domain.entity.SysRoleEntity;
 import com.yeshimin.yeahboot.upms.domain.vo.SysRoleResTreeNodeVo;
+import com.yeshimin.yeahboot.upms.domain.vo.SysRoleVo;
 import com.yeshimin.yeahboot.upms.mapper.SysRoleMapper;
 import com.yeshimin.yeahboot.upms.repository.SysRoleRepo;
 import com.yeshimin.yeahboot.upms.service.SysRoleService;
@@ -40,6 +41,14 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
     @PostMapping("/create")
     public R<SysRoleEntity> create(@Valid @RequestBody SysRoleCreateDto dto) {
         return R.ok(sysRoleService.create(dto));
+    }
+
+    /**
+     * 详情
+     */
+    @GetMapping("/detail")
+    public R<SysRoleVo> detail(@RequestParam Long id) {
+        return R.ok(sysRoleService.detail(id));
     }
 
     /**
