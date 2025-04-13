@@ -11,13 +11,32 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class QueryHelper<T> {
+
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    // yyyy-MM-dd
+    private static final Pattern DATE_PATTERN =
+            Pattern.compile("^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$");
+    // yyyy-MM-dd HH:mm:ss
+    private static final Pattern DATE_TIME_PATTERN =
+            Pattern.compile("^\\d{4}-(0[1-9]|1[0-2])-" +    // 年-月
+                    "(0[1-9]|[12]\\d|3[01]) " +                   // 日
+                    "([01]\\d|2[0-3]):" +                         // 时（00~23）
+                    "[0-5]\\d:" +                                 // 分（00~59）
+                    "[0-5]\\d$");                                 // 秒（00~59）
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
 
     /**
      * 生成QueryWrapper
@@ -205,6 +224,30 @@ public class QueryHelper<T> {
                         } else {
                             log.warn("{} is invalid, skip", fieldName);
                         }
+                    } else if (value instanceof String) {
+                        // 日期字符串数组：2025-04-10,2025-04-13 | 2025-04-10 09:11:22,2025-04-13 14:13:33
+                        String[] arr = ((String) value).split(",");
+                        if (arr.length == 2) {
+                            String begin = null;
+                            String end = null;
+                            if (DATE_PATTERN.matcher(arr[0]).matches()) {
+                                begin = arr[0] + " 00:00:00";
+                            } else if (DATE_TIME_PATTERN.matcher(arr[0]).matches()) {
+                                begin = arr[0];
+                            }
+                            if (DATE_PATTERN.matcher(arr[1]).matches()) {
+                                end = arr[1] + " 23:59:59";
+                            } else if (DATE_TIME_PATTERN.matcher(arr[1]).matches()) {
+                                end = arr[1];
+                            }
+                            if (begin != null && end != null) {
+                                wrapper.between(columnName, begin, end);
+                            } else {
+                                log.warn("{} is invalid, skip", fieldName);
+                            }
+                        } else {
+                            log.warn("{} is invalid, skip", fieldName);
+                        }
                     } else {
                         log.warn("{} is invalid, skip", fieldName);
                     }
@@ -223,6 +266,30 @@ public class QueryHelper<T> {
                         if (col.size() == 2) {
                             Iterator<?> iterator = col.iterator();
                             wrapper.notBetween(columnName, iterator.next(), iterator.next());
+                        } else {
+                            log.warn("{} is invalid, skip", fieldName);
+                        }
+                    } else if (value instanceof String) {
+                        // 日期字符串数组：2025-04-10,2025-04-13 | 2025-04-10 09:11:22,2025-04-13 14:13:33
+                        String[] arr = ((String) value).split(",");
+                        if (arr.length == 2) {
+                            String begin = null;
+                            String end = null;
+                            if (DATE_PATTERN.matcher(arr[0]).matches()) {
+                                begin = arr[0] + " 00:00:00";
+                            } else if (DATE_TIME_PATTERN.matcher(arr[0]).matches()) {
+                                begin = arr[0];
+                            }
+                            if (DATE_PATTERN.matcher(arr[1]).matches()) {
+                                end = arr[1] + " 23:59:59";
+                            } else if (DATE_TIME_PATTERN.matcher(arr[1]).matches()) {
+                                end = arr[1];
+                            }
+                            if (begin != null && end != null) {
+                                wrapper.notBetween(columnName, begin, end);
+                            } else {
+                                log.warn("{} is invalid, skip", fieldName);
+                            }
                         } else {
                             log.warn("{} is invalid, skip", fieldName);
                         }
@@ -253,6 +320,16 @@ public class QueryHelper<T> {
                 // not like right
                 case NOT_LIKE_RIGHT:
                     wrapper.notLikeRight(columnName, value);
+                    break;
+                // sort
+                case SORT:
+                    if ("asc".equalsIgnoreCase(value.toString())) {
+                        wrapper.orderByAsc(columnName);
+                    } else if ("desc".equalsIgnoreCase(value.toString())) {
+                        wrapper.orderByDesc(columnName);
+                    } else {
+                        log.warn("{} is invalid, skip", fieldName);
+                    }
                     break;
                 default:
                     break;
@@ -290,7 +367,11 @@ public class QueryHelper<T> {
         }
         String[] arr = conditions.split(";");
         for (String s : arr) {
-            String[] arr2 = s.split(":");
+            if (StrUtil.isBlank(s)) {
+                log.warn("condition [{}] is blank, ignore", s);
+                continue;
+            }
+            String[] arr2 = s.split(":", 3);
             if (arr2.length != 3) {
                 log.warn("condition [{}] is invalid, ignore", s);
                 continue;

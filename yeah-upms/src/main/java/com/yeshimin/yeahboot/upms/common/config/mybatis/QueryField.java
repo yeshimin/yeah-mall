@@ -38,7 +38,9 @@ public @interface QueryField {
         LIKE_RIGHT("右模糊", "likeRight"),
         NOT_LIKE("非模糊", "notLike"),
         NOT_LIKE_LEFT("非左模糊", "notLikeLeft"),
-        NOT_LIKE_RIGHT("非右模糊", "notLikeRight");
+        NOT_LIKE_RIGHT("非右模糊", "notLikeRight"),
+        // 排序，格式示例：id:sort:desc
+        SORT("排序", "sort");
 
         private final String desc;
         private final String exp;
