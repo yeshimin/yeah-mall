@@ -59,14 +59,14 @@ public class SysResEntity extends ConditionBaseEntity<SysResEntity> {
     private String linkUrl;
 
     /**
-     * 是否启用：1-是 0-否
+     * 状态：1-启用 2-禁用
      */
-    private Boolean enabled;
+    private String status;
 
     /**
-     * 是否展示：1-是 0-否
+     * 是否可见：1-是 0-否
      */
-    private Boolean displayed;
+    private Boolean visible;
 
     /**
      * 排序：自然数

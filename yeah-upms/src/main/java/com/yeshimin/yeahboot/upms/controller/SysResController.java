@@ -1,9 +1,11 @@
 package com.yeshimin.yeahboot.upms.controller;
 
+import com.yeshimin.yeahboot.upms.common.config.mybatis.QueryField;
 import com.yeshimin.yeahboot.upms.controller.base.CrudController;
 import com.yeshimin.yeahboot.upms.domain.base.IdsDto;
 import com.yeshimin.yeahboot.upms.domain.base.R;
 import com.yeshimin.yeahboot.upms.domain.dto.SysResCreateDto;
+import com.yeshimin.yeahboot.upms.domain.dto.SysResTreeQueryDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysResUpdateDto;
 import com.yeshimin.yeahboot.upms.domain.entity.SysResEntity;
 import com.yeshimin.yeahboot.upms.domain.vo.SysResTreeNodeVo;
@@ -45,8 +47,8 @@ public class SysResController extends CrudController<SysResMapper, SysResEntity,
      * 查询树
      */
     @GetMapping("/tree")
-    public R<List<SysResTreeNodeVo>> tree() {
-        return R.ok(sysResService.tree());
+    public R<List<SysResTreeNodeVo>> tree(SysResTreeQueryDto dto) {
+        return R.ok(sysResService.tree(dto));
     }
 
     /**

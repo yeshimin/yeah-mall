@@ -26,6 +26,6 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
 
         IValueEnum[] enumConstants = enumClass.getEnumConstants();
         return Arrays.stream(enumConstants)
-                .anyMatch(enumConstant -> enumConstant.getValue().equals(value));
+                .anyMatch(enumConstant -> enumConstant.getValue().equals(String.valueOf(value)));
     }
 }

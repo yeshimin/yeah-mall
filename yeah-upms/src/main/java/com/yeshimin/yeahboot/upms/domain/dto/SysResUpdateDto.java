@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.upms.domain.dto;
 
+import com.yeshimin.yeahboot.upms.common.enums.DataStatusEnum;
 import com.yeshimin.yeahboot.upms.common.enums.ResTypeEnum;
 import com.yeshimin.yeahboot.upms.common.validation.EnumValue;
 import com.yeshimin.yeahboot.upms.domain.base.BaseDomain;
@@ -65,14 +66,15 @@ public class SysResUpdateDto extends BaseDomain {
     private String linkUrl;
 
     /**
-     * 是否启用：1-是 0-否
+     * 状态：1-启用 2-禁用
      */
-    private Boolean enabled;
+    @EnumValue(enumClass = DataStatusEnum.class)
+    private String status;
 
     /**
-     * 是否展示：1-是 0-否
+     * 是否可见：1-是 0-否
      */
-    private Boolean displayed;
+    private Boolean visible;
 
     /**
      * 排序：自然数

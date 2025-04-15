@@ -2,8 +2,10 @@ package com.yeshimin.yeahboot.upms.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.yeshimin.yeahboot.upms.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.upms.common.errors.BaseException;
 import com.yeshimin.yeahboot.upms.domain.dto.SysResCreateDto;
+import com.yeshimin.yeahboot.upms.domain.dto.SysResTreeQueryDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysResUpdateDto;
 import com.yeshimin.yeahboot.upms.domain.entity.SysResEntity;
 import com.yeshimin.yeahboot.upms.domain.vo.SysResTreeNodeVo;
@@ -56,9 +58,9 @@ public class SysResService {
     /**
      * 查询树
      */
-    public List<SysResTreeNodeVo> tree() {
+    public List<SysResTreeNodeVo> tree(SysResTreeQueryDto dto) {
         // query all
-        List<SysResEntity> listAll = sysResRepo.list();
+        List<SysResEntity> listAll = sysResRepo.list(QueryHelper.getQueryWrapper(dto));
 
         // entity to node vo
         List<SysResTreeNodeVo> listAllVo = listAll.stream().map(e -> {
@@ -67,6 +69,11 @@ public class SysResService {
             vo.setChildren(new ArrayList<>());
             return vo;
         }).collect(Collectors.toList());
+
+        // 如果是搜索场景，直接返回列表形式的结果
+        if (dto.isQuery()) {
+            return listAllVo;
+        }
 
         // list to map
         Map<Long, SysResTreeNodeVo> mapAll =
