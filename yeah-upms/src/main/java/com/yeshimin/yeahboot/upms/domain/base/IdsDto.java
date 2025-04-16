@@ -11,7 +11,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class IdsDto extends BaseDomain {
 
-    @NotNull(message = "ID不能为空")
-    @NotEmpty(message = "ID不能为空")
+    @NotNull(message = "ID集合不能为空")
+    @NotEmpty(message = "ID集合不能为空")
     private List<Long> ids;
 }

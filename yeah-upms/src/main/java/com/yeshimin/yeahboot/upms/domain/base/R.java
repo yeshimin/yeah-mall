@@ -52,6 +52,10 @@ public class R<T> extends BaseDomain {
         return new R<>(errorCodeEnum.getCode(), errorCodeEnum.getDesc(), null);
     }
 
+    public static <T> R<T> fail(ErrorCodeEnum errorCodeEnum, String message) {
+        return new R<>(errorCodeEnum.getCode(), message, null);
+    }
+
     public static <T> R<T> fail(ErrorCodeEnum errorCodeEnum, T data) {
         return new R<>(errorCodeEnum.getCode(), errorCodeEnum.getDesc(), data);
     }
