@@ -4,6 +4,7 @@ import com.yeshimin.yeahboot.upms.controller.base.CrudController;
 import com.yeshimin.yeahboot.upms.domain.base.IdsDto;
 import com.yeshimin.yeahboot.upms.domain.base.R;
 import com.yeshimin.yeahboot.upms.domain.dto.SysOrgCreateDto;
+import com.yeshimin.yeahboot.upms.domain.dto.SysOrgTreeQueryDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysOrgUpdateDto;
 import com.yeshimin.yeahboot.upms.domain.entity.SysOrgEntity;
 import com.yeshimin.yeahboot.upms.domain.vo.SysOrgTreeNodeVo;
@@ -43,8 +44,8 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
      * 查询树
      */
     @GetMapping("/tree")
-    public R<List<SysOrgTreeNodeVo>> tree() {
-        return R.ok(sysOrgService.tree());
+    public R<List<SysOrgTreeNodeVo>> tree(SysOrgTreeQueryDto dto) {
+        return R.ok(sysOrgService.tree(dto));
     }
 
     /**

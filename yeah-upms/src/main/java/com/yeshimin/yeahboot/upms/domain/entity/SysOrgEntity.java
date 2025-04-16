@@ -24,6 +24,16 @@ public class SysOrgEntity extends ConditionBaseEntity<SysOrgEntity> {
     private String name;
 
     /**
+     * 状态：1-启用 2-禁用
+     */
+    private String status;
+
+    /**
+     * 排序：自然数
+     */
+    private Integer sort;
+
+    /**
      * 备注
      */
     private String remark;
