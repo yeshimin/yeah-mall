@@ -29,13 +29,19 @@ public class SysPostService {
      */
     @Transactional(rollbackFor = Exception.class)
     public SysPostEntity create(SysPostCreateDto dto) {
-        // 检查：是否已存在
+        // 检查：编码是否已存在
+        if (sysPostRepo.countByCode(dto.getCode()) > 0) {
+            throw new BaseException("编码已存在");
+        }
+        // 检查：名称是否已存在
         if (sysPostRepo.countByName(dto.getName()) > 0) {
-            throw new BaseException("已存在");
+            throw new BaseException("名称已存在");
         }
 
         // 创建记录
-        return sysPostRepo.createOne(dto.getName(), dto.getRemark());
+        SysPostEntity entity = BeanUtil.copyProperties(dto, SysPostEntity.class);
+        entity.insert();
+        return entity;
     }
 
     /**
@@ -45,10 +51,16 @@ public class SysPostService {
     public SysPostEntity update(SysPostUpdateDto dto) {
         // 检查：是否存在
         SysPostEntity entity = sysPostRepo.getOneById(dto.getId());
-        // 检查：是否已存在
+        // 检查：编码是否已存在
+        if (StrUtil.isNotBlank(dto.getCode()) && !Objects.equals(dto.getCode(), entity.getCode())) {
+            if (sysPostRepo.countByCode(dto.getCode()) > 0) {
+                throw new BaseException("编码已存在");
+            }
+        }
+        // 检查：名称已存在
         if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(dto.getName(), entity.getName())) {
             if (sysPostRepo.countByName(dto.getName()) > 0) {
-                throw new BaseException("已存在同名数据");
+                throw new BaseException("名称已存在");
             }
         }
 

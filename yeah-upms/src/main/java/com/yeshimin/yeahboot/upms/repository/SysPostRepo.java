@@ -13,6 +13,15 @@ import org.springframework.stereotype.Repository;
 public class SysPostRepo extends BaseRepo<SysPostMapper, SysPostEntity> {
 
     /**
+     * countByCode
+     */
+    public long countByCode(String code) {
+        LambdaQueryWrapper<SysPostEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(SysPostEntity::getCode, code);
+        return super.count(wrapper);
+    }
+
+    /**
      * countByName
      */
     public long countByName(String name) {

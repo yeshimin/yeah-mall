@@ -46,7 +46,9 @@ public class SysOrgService {
         }
 
         // 创建记录
-        return sysOrgRepo.createOne(dto.getParentId(), dto.getName(), dto.getRemark());
+        SysOrgEntity entity = BeanUtil.copyProperties(dto, SysOrgEntity.class);
+        entity.insert();
+        return entity;
     }
 
     /**
