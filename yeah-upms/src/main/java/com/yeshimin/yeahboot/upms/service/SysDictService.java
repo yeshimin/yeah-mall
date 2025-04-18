@@ -49,7 +49,9 @@ public class SysDictService {
         }
 
         // 创建记录
-        return sysDictRepo.createOne(parent, dto.getCode(), dto.getName(), dto.getValue(), dto.getRemark());
+        SysDictEntity entity = BeanUtil.copyProperties(dto, SysDictEntity.class);
+        entity.insert();
+        return entity;
     }
 
     /**
@@ -144,6 +146,9 @@ public class SysDictService {
         }
         if (StrUtil.isNotBlank(dto.getValue())) {
             entity.setValue(dto.getValue());
+        }
+        if (dto.getSort() != null) {
+            entity.setSort(dto.getSort());
         }
         entity.setRemark(dto.getRemark());
 

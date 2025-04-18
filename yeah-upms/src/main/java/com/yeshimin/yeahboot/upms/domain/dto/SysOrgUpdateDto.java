@@ -6,6 +6,7 @@ import com.yeshimin.yeahboot.upms.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -35,8 +36,9 @@ public class SysOrgUpdateDto extends BaseDomain {
     private String status;
 
     /**
-     * 排序：自然数
+     * 排序：大于等于1
      */
+    @Min(value = 1, message = "排序必须大于等于1")
     private Integer sort;
 
     /**

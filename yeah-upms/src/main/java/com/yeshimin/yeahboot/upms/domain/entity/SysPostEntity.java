@@ -29,7 +29,7 @@ public class SysPostEntity extends ConditionBaseEntity<SysPostEntity> {
     private String status;
 
     /**
-     * 排序：自然数
+     * 排序：大于等于1
      */
     private Integer sort;
 

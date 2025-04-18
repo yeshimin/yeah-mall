@@ -4,6 +4,7 @@ import com.yeshimin.yeahboot.upms.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -34,6 +35,12 @@ public class SysDictCreateDto extends BaseDomain {
      * 值
      */
     private String value;
+
+    /**
+     * 排序：大于等于1
+     */
+    @Min(value = 1, message = "排序必须大于等于1")
+    private Integer sort;
 
     /**
      * 备注

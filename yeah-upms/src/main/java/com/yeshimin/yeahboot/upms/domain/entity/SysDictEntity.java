@@ -44,6 +44,11 @@ public class SysDictEntity extends ConditionBaseEntity<SysDictEntity> {
     private String path;
 
     /**
+     * 排序：大于等于1
+     */
+    private Integer sort;
+
+    /**
      * 备注
      */
     private String remark;

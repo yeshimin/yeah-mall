@@ -69,7 +69,7 @@ public class SysResEntity extends ConditionBaseEntity<SysResEntity> {
     private Boolean visible;
 
     /**
-     * 排序：自然数
+     * 排序：大于等于1
      */
     private Integer sort;
 
