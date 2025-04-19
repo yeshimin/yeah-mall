@@ -45,6 +45,9 @@ public class AuthController extends BaseController {
      */
     @GetMapping("/captcha")
     public R<CaptchaVo> captcha() {
-        return R.ok(captchaService.generateCaptcha());
+        Boolean captchaEnabled = yeahBootProperties.getCaptchaEnabled();
+        CaptchaVo vo = captchaEnabled ? captchaService.generateCaptcha() : new CaptchaVo();
+        vo.setEnabled(captchaEnabled);
+        return R.ok(vo);
     }
 }

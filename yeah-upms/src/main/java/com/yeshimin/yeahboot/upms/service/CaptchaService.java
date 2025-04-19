@@ -109,9 +109,12 @@ public class CaptchaService {
         log.debug("verCode: {}, key: {}", verCode, key);
 
         String cacheKey = String.format(Common.CAPTCHA_KEY, key);
-        redisTemplate.opsForValue().set(cacheKey, verCode, 30, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(cacheKey, verCode, 30, TimeUnit.SECONDS);
 
-        return new CaptchaVo(key, captcha.toBase64());
+        CaptchaVo vo = new CaptchaVo();
+        vo.setKey(key);
+        vo.setImage(captcha.toBase64());
+        return vo;
     }
 
     /**

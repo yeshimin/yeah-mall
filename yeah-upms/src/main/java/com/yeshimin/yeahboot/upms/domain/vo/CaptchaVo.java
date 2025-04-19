@@ -1,7 +1,6 @@
 package com.yeshimin.yeahboot.upms.domain.vo;
 
 import com.yeshimin.yeahboot.upms.domain.base.BaseDomain;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -10,7 +9,6 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
 public class CaptchaVo extends BaseDomain {
 
     /**
@@ -22,4 +20,9 @@ public class CaptchaVo extends BaseDomain {
      * 验证码图片
      */
     private String image;
+
+    /**
+     * 是否启用
+     */
+    private Boolean enabled;
 }
