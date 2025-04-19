@@ -15,7 +15,8 @@ decorator:
   datasource:
     p6spy:
       enable-logging: true
-      log-format: "#%(connectionId) | t: %(currentTime) | took %(executionTime)ms | %(category) | sql: \n\t%(effectiveSql)"
+      log-format: "id: %(connectionId) | t: %(currentTime) | d: %(executionTime)ms | c: %(category) | sql: \n\t%(sql)"
+      exclude-categories: "info,debug,result,resultset,commit,rollback"
 
 # jwt相关
 jwt:
