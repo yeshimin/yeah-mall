@@ -31,6 +31,7 @@
         <jwt.version>4.5.0</jwt.version>
         <hutool.version>5.8.36</hutool.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
+        <p6spy.version>1.8.1</p6spy.version>
     </properties>
 
     <dependencyManagement>
@@ -77,6 +78,13 @@
                 <groupId>com.github.whvcse</groupId>
                 <artifactId>easy-captcha</artifactId>
                 <version>${easy-captcha.version}</version>
+            </dependency>
+
+            <!-- p6spy -->
+            <dependency>
+                <groupId>com.github.gavlyukovskiy</groupId>
+                <artifactId>p6spy-spring-boot-starter</artifactId>
+                <version>${p6spy.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

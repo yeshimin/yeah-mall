@@ -8,6 +8,13 @@ spring:
     username: root
     password: 123456
 
+# dataSource decorator by p6spy https://github.com/gavlyukovskiy/spring-boot-data-source-decorator
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+      log-format: "#%(connectionId) | t: %(currentTime) | took %(executionTime)ms | %(category) | sql: \n\t%(effectiveSql)"
+
 # jwt相关
 jwt:
   # 签发密钥
