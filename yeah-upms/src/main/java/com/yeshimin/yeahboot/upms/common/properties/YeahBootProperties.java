@@ -15,7 +15,7 @@ public class YeahBootProperties {
 
     @PostConstruct
     public void init() {
-        log.info("init...yeah.captchaEnabled: {}", captchaEnabled);
+        log.info("init [yeah] properties...captchaEnabled: {}", captchaEnabled);
     }
 
     /**

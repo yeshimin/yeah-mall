@@ -29,11 +29,7 @@ public class JwtService {
 
     @PostConstruct
     private void init() {
-        log.info("init()");
-
-        log.info("jwtSecret: {}", "******");
-        log.info("expireSeconds: {}", jwtProperties.getExpireSeconds());
-        log.info("defaultLeeway: {}", jwtProperties.getDefaultLeeway());
+        log.info("init [JwtService]...");
 
         // 初始化算法 HMAC
         algorithm = Algorithm.HMAC256(jwtProperties.getSecret());
