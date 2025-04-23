@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.upms.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.yeshimin.yeahboot.upms.domain.base.ConditionBaseEntity;
 import lombok.Data;
@@ -36,6 +37,7 @@ public class SysLogEntity extends ConditionBaseEntity<SysLogEntity> {
     /**
      * 输出
      */
+    @TableField("`output`")
     private String output;
 
     /**
