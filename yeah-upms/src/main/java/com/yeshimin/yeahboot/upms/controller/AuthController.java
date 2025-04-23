@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.upms.controller;
 
 import cn.hutool.core.util.BooleanUtil;
+import com.yeshimin.yeahboot.upms.common.log.SysLog;
 import com.yeshimin.yeahboot.upms.common.properties.YeahBootProperties;
 import com.yeshimin.yeahboot.upms.controller.base.BaseController;
 import com.yeshimin.yeahboot.upms.domain.base.R;
@@ -32,6 +33,7 @@ public class AuthController extends BaseController {
     /**
      * 登录
      */
+    @SysLog("登录")
     @PostMapping("/login")
     public R<LoginVo> login(@Valid @RequestBody LoginDto dto) {
         if (BooleanUtil.isTrue(yeahBootProperties.getCaptchaEnabled())) {
