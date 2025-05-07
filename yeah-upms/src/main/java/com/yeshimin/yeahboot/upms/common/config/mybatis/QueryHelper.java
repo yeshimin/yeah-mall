@@ -181,6 +181,17 @@ public class QueryHelper<T> {
                         } else {
                             log.warn("{} is empty, skip", fieldName);
                         }
+                    } else if (value instanceof String) {
+                        if (StrUtil.isNotBlank((String) value)) {
+                            String[] arr = ((String) value).split(",");
+                            if (arr.length > 0) {
+                                wrapper.in(columnName, (Object[]) arr);
+                            } else {
+                                log.warn("{} is empty, skip", fieldName);
+                            }
+                        } else {
+                            log.warn("{} is empty, skip", fieldName);
+                        }
                     }
                     break;
                 // not in
@@ -194,6 +205,17 @@ public class QueryHelper<T> {
                     } else if (value instanceof Collection) {
                         if (!((Collection<?>) value).isEmpty()) {
                             wrapper.notIn(columnName, (Collection<?>) value);
+                        } else {
+                            log.warn("{} is empty, skip", fieldName);
+                        }
+                    } else if (value instanceof String) {
+                        if (StrUtil.isNotBlank((String) value)) {
+                            String[] arr = ((String) value).split(",");
+                            if (arr.length > 0) {
+                                wrapper.notIn(columnName, (Object[]) arr);
+                            } else {
+                                log.warn("{} is empty, skip", fieldName);
+                            }
                         } else {
                             log.warn("{} is empty, skip", fieldName);
                         }
