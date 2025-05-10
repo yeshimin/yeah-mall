@@ -24,6 +24,13 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-upms</artifactId>
         </dependency>
+
+        <!-- Spring Boot Test (For Unit and Integration Tests) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

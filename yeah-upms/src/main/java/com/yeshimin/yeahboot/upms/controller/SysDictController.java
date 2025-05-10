@@ -31,6 +31,8 @@ public class SysDictController extends CrudController<SysDictMapper, SysDictEnti
         super(service);
     }
 
+    // ================================================================================
+
     /**
      * 创建
      */
