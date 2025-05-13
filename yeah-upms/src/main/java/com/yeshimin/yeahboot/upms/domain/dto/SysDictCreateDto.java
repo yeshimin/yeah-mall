@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.upms.domain.dto;
 
-import com.yeshimin.yeahboot.upms.domain.base.BaseDomain;
+import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

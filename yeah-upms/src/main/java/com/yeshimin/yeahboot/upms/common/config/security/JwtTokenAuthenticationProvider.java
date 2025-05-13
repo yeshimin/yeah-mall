@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.upms.common.config.security;
 
-import com.yeshimin.yeahboot.upms.common.enums.ErrorCodeEnum;
-import com.yeshimin.yeahboot.upms.common.errors.BaseException;
-import com.yeshimin.yeahboot.upms.common.utils.WebContextUtils;
+import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.upms.domain.dto.AuthDto;
 import com.yeshimin.yeahboot.upms.domain.vo.AuthVo;
 import com.yeshimin.yeahboot.upms.service.AuthService;

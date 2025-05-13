@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.upms.service;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.yeshimin.yeahboot.upms.common.enums.JwtSubjectEnum;
+import com.yeshimin.yeahboot.common.common.enums.JwtSubjectEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

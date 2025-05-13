@@ -1,12 +1,15 @@
 package com.yeshimin.yeahboot.upms.domain.dto;
 
+import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Data
-public class UserOrgSetDto {
+@EqualsAndHashCode(callSuper = true)
+public class UserOrgSetDto extends BaseDomain {
 
     /**
      * 用户ID

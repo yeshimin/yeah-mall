@@ -1,9 +1,9 @@
 package com.yeshimin.yeahboot.upms.domain.dto;
 
-import com.yeshimin.yeahboot.upms.common.enums.DataStatusEnum;
+import com.yeshimin.yeahboot.common.common.enums.DataStatusEnum;
 import com.yeshimin.yeahboot.upms.common.enums.ResTypeEnum;
-import com.yeshimin.yeahboot.upms.common.validation.EnumValue;
-import com.yeshimin.yeahboot.upms.domain.base.BaseDomain;
+import com.yeshimin.yeahboot.common.common.validation.EnumValue;
+import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

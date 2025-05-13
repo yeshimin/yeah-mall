@@ -2,10 +2,10 @@ package com.yeshimin.yeahboot.upms.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yeshimin.yeahboot.upms.common.utils.WebContextUtils;
-import com.yeshimin.yeahboot.upms.controller.base.CrudController;
-import com.yeshimin.yeahboot.upms.domain.base.IdsDto;
-import com.yeshimin.yeahboot.upms.domain.base.R;
+import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
+import com.yeshimin.yeahboot.common.controller.base.CrudController;
+import com.yeshimin.yeahboot.common.domain.base.IdsDto;
+import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.upms.domain.dto.*;
 import com.yeshimin.yeahboot.upms.domain.entity.SysOrgEntity;
 import com.yeshimin.yeahboot.upms.domain.entity.SysPostEntity;

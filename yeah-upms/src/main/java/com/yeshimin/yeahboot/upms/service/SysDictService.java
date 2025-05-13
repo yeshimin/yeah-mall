@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.yeshimin.yeahboot.upms.common.errors.BaseException;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.upms.domain.dto.SysDictCreateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysDictUpdateDto;
 import com.yeshimin.yeahboot.upms.domain.entity.SysDictEntity;

@@ -17,7 +17,9 @@
     <packaging>pom</packaging>
     <modules>
         <module>yeah-admin</module>
-        <module>yeah-business</module>
+        <module>yeah-app</module>
+        <module>yeah-basic</module>
+        <module>yeah-common</module>
         <module>yeah-upms</module>
     </modules>
 
@@ -70,6 +72,18 @@
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
                 <artifactId>yeah-upms</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <!-- basic module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-basic</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <!-- common module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-common</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <!-- ================================================================================ -->

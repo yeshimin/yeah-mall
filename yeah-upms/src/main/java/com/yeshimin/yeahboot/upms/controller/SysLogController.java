@@ -1,10 +1,10 @@
 package com.yeshimin.yeahboot.upms.controller;
 
-import com.yeshimin.yeahboot.upms.controller.base.CrudController;
-import com.yeshimin.yeahboot.upms.domain.entity.SysLogEntity;
-import com.yeshimin.yeahboot.upms.mapper.SysLogMapper;
+import com.yeshimin.yeahboot.common.controller.base.CrudController;
+import com.yeshimin.yeahboot.common.domain.entity.SysLogEntity;
+import com.yeshimin.yeahboot.common.mapper.SysLogMapper;
 import com.yeshimin.yeahboot.upms.repository.SysLogRepo;
-import com.yeshimin.yeahboot.upms.service.SysPostService;
+import com.yeshimin.yeahboot.upms.service.SysLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SysLogController extends CrudController<SysLogMapper, SysLogEntity, SysLogRepo> {
 
     @Autowired
-    private SysPostService sysPostService;
+    private SysLogService sysLogService;
 
     public SysLogController(SysLogRepo sysPostRepo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用

@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.upms.domain.dto.SysUserQueryDto;
 import com.yeshimin.yeahboot.upms.domain.entity.SysUserEntity;
 import com.yeshimin.yeahboot.upms.mapper.SysUserMapper;
-import com.yeshimin.yeahboot.upms.repository.base.BaseRepo;
+import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;

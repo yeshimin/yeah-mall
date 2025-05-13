@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yeshimin.yeahboot.upms.domain.entity.SysOrgEntity;
 import com.yeshimin.yeahboot.upms.mapper.SysOrgMapper;
-import com.yeshimin.yeahboot.upms.repository.base.BaseRepo;
+import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

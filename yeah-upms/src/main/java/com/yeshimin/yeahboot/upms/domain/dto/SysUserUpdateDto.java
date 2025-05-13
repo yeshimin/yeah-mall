@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.upms.domain.dto;
 
-import com.yeshimin.yeahboot.upms.common.enums.DataStatusEnum;
-import com.yeshimin.yeahboot.upms.common.validation.EnumValue;
+import com.yeshimin.yeahboot.common.common.enums.DataStatusEnum;
+import com.yeshimin.yeahboot.common.common.validation.EnumValue;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;

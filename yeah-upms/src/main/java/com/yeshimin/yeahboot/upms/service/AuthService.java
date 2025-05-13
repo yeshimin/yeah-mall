@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.upms.service;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.yeshimin.yeahboot.upms.common.enums.ErrorCodeEnum;
-import com.yeshimin.yeahboot.upms.common.errors.BaseException;
+import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.upms.domain.dto.AuthDto;
 import com.yeshimin.yeahboot.upms.domain.dto.AuthenticateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.LoginDto;

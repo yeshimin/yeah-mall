@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.upms.domain.dto;
 
-import com.yeshimin.yeahboot.upms.common.config.mybatis.Query;
-import com.yeshimin.yeahboot.upms.common.config.mybatis.QueryField;
-import com.yeshimin.yeahboot.upms.domain.base.BaseQueryDto;
+import com.yeshimin.yeahboot.common.common.config.mybatis.Query;
+import com.yeshimin.yeahboot.common.common.config.mybatis.QueryField;
+import com.yeshimin.yeahboot.common.domain.base.BaseQueryDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

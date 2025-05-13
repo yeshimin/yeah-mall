@@ -3,7 +3,7 @@ package com.yeshimin.yeahboot.upms.repository;
 import cn.hutool.core.collection.CollUtil;
 import com.yeshimin.yeahboot.upms.domain.entity.SysUserOrgEntity;
 import com.yeshimin.yeahboot.upms.mapper.SysUserOrgMapper;
-import com.yeshimin.yeahboot.upms.repository.base.BaseRepo;
+import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

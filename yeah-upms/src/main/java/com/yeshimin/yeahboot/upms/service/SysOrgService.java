@@ -2,8 +2,8 @@ package com.yeshimin.yeahboot.upms.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.yeshimin.yeahboot.upms.common.config.mybatis.QueryHelper;
-import com.yeshimin.yeahboot.upms.common.errors.BaseException;
+import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.upms.domain.dto.SysOrgCreateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysOrgTreeQueryDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysOrgUpdateDto;

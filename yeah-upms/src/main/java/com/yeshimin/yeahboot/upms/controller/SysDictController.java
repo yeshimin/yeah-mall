@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.upms.controller;
 
-import com.yeshimin.yeahboot.upms.controller.base.CrudController;
-import com.yeshimin.yeahboot.upms.domain.base.R;
+import com.yeshimin.yeahboot.common.controller.base.CrudController;
+import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.upms.domain.dto.SysDictCreateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysDictDeleteDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysDictUpdateDto;

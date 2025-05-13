@@ -3,7 +3,7 @@ package com.yeshimin.yeahboot.upms.service;
 import cn.hutool.core.util.StrUtil;
 import com.wf.captcha.*;
 import com.wf.captcha.base.Captcha;
-import com.yeshimin.yeahboot.upms.common.consts.Common;
+import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.upms.domain.vo.CaptchaVo;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -108,7 +108,7 @@ public class CaptchaService {
         String key = UUID.randomUUID().toString();
         log.debug("verCode: {}, key: {}", verCode, key);
 
-        String cacheKey = String.format(Common.CAPTCHA_KEY, key);
+        String cacheKey = String.format(CommonConsts.CAPTCHA_KEY, key);
         redisTemplate.opsForValue().set(cacheKey, verCode, 30, TimeUnit.SECONDS);
 
         CaptchaVo vo = new CaptchaVo();
@@ -128,7 +128,7 @@ public class CaptchaService {
             throw new RuntimeException("验证码key或验证码不能为空");
         }
 
-        String cacheKey = String.format(Common.CAPTCHA_KEY, key);
+        String cacheKey = String.format(CommonConsts.CAPTCHA_KEY, key);
         String cacheVerCode = redisTemplate.opsForValue().get(cacheKey);
         log.debug("cacheKey: {}, cacheVerCode: {}", cacheKey, cacheVerCode);
         if (StrUtil.isBlank(cacheVerCode)) {

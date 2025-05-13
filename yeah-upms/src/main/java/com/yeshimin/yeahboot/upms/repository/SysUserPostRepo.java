@@ -2,7 +2,7 @@ package com.yeshimin.yeahboot.upms.repository;
 
 import com.yeshimin.yeahboot.upms.domain.entity.SysUserPostEntity;
 import com.yeshimin.yeahboot.upms.mapper.SysUserPostMapper;
-import com.yeshimin.yeahboot.upms.repository.base.BaseRepo;
+import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

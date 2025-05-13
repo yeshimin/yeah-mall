@@ -19,10 +19,15 @@
     </properties>
 
     <dependencies>
-        <!-- upms -->
+        <!-- upms module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-upms</artifactId>
+        </dependency>
+        <!-- basic module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-basic</artifactId>
         </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->

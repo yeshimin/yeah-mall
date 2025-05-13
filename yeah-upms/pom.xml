@@ -13,6 +13,13 @@
     <artifactId>yeah-upms</artifactId>
 
     <dependencies>
+        <!-- common module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-common</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

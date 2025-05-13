@@ -1,10 +1,10 @@
 package com.yeshimin.yeahboot.upms.controller;
 
 import cn.hutool.core.util.BooleanUtil;
-import com.yeshimin.yeahboot.upms.common.log.SysLog;
-import com.yeshimin.yeahboot.upms.common.properties.YeahBootProperties;
-import com.yeshimin.yeahboot.upms.controller.base.BaseController;
-import com.yeshimin.yeahboot.upms.domain.base.R;
+import com.yeshimin.yeahboot.common.common.log.SysLog;
+import com.yeshimin.yeahboot.common.common.properties.YeahBootProperties;
+import com.yeshimin.yeahboot.common.controller.base.BaseController;
+import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.upms.domain.dto.LoginDto;
 import com.yeshimin.yeahboot.upms.domain.vo.CaptchaVo;
 import com.yeshimin.yeahboot.upms.domain.vo.LoginVo;

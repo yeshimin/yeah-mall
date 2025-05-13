@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.upms.common.config.security;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.yeshimin.yeahboot.upms.common.consts.Common;
-import com.yeshimin.yeahboot.upms.common.utils.WebContextUtils;
+import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
+import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -67,7 +67,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
      * Extract Authorization token from request
      */
     private String extractToken(HttpServletRequest request) {
-        String authHeader = request.getHeader(Common.TOKEN_HEADER_KEY);
+        String authHeader = request.getHeader(CommonConsts.TOKEN_HEADER_KEY);
         if (StringUtils.isBlank(authHeader)) {
             return null;
         } else {

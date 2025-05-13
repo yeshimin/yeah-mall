@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.upms.repository;
 
-import com.yeshimin.yeahboot.upms.domain.entity.SysLogEntity;
-import com.yeshimin.yeahboot.upms.mapper.SysLogMapper;
-import com.yeshimin.yeahboot.upms.repository.base.BaseRepo;
+import com.yeshimin.yeahboot.common.domain.entity.SysLogEntity;
+import com.yeshimin.yeahboot.common.mapper.SysLogMapper;
+import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
