@@ -20,6 +20,7 @@
         <module>yeah-app</module>
         <module>yeah-basic</module>
         <module>yeah-common</module>
+        <module>yeah-generator</module>
         <module>yeah-upms</module>
     </modules>
 
@@ -54,6 +55,12 @@
                 <version>${mybatis-plus.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- MyBatis Plus Generator -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-generator</artifactId>
+                <version>${mybatis-plus.version}</version>
             </dependency>
             <!-- Jwt -->
             <dependency>
