@@ -10,7 +10,7 @@ import javax.annotation.PostConstruct;
 @Slf4j
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "yeah")
+@ConfigurationProperties(prefix = "yeah-boot")
 public class YeahBootProperties {
 
     @PostConstruct
