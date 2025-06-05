@@ -35,3 +35,11 @@ jwt:
 yeah-boot:
   # 是否开启验证码校验
   captcha-enabled: false
+  # 代码生成器
+  code-generator:
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    author: yeshimin
+    pack: com.yeshimin.yeahboot
+    module: shop

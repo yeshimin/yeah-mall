@@ -76,6 +76,12 @@
             </dependency>
 
             <!-- ================================================================================ -->
+            <!-- common module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-common</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
             <!-- upms module -->
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
@@ -88,10 +94,10 @@
                 <artifactId>yeah-basic</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            <!-- common module -->
+            <!-- generator module -->
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
-                <artifactId>yeah-common</artifactId>
+                <artifactId>yeah-generator</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <!-- ================================================================================ -->

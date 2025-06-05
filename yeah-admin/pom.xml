@@ -29,12 +29,23 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-basic</artifactId>
         </dependency>
+        <!-- generator module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-generator</artifactId>
+        </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- 模板引擎 -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
         </dependency>
     </dependencies>
 
