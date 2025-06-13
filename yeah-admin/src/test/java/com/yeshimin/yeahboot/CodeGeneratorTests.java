@@ -17,7 +17,7 @@ public class CodeGeneratorTests {
     private final CodeGenerator codeGenerator;
 
     @Test
-    public void test() {
-        codeGenerator.test();
+    public void testGenerate() {
+        codeGenerator.generate();
     }
 }
