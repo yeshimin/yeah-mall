@@ -33,7 +33,7 @@ public class CodeGenerator {
                 )
                 .packageConfig(builder -> builder
                         .parent(properties.getPack())
-                        .moduleName("default")
+                        .moduleName(properties.getModule())
                 )
                 .strategyConfig(builder -> builder
                         .entityBuilder().disable()
@@ -45,6 +45,7 @@ public class CodeGenerator {
                 .injectionConfig(builder -> {
                     Map<String, Object> customMap = new HashMap<>();
                     customMap.put("baseEntityFields", BASE_ENTITY_FIELDS);
+                    customMap.put("basePackage", properties.getPack());
                     builder.customMap(customMap);
 
                     List<CustomFile> customFiles = new ArrayList<>();
@@ -52,7 +53,7 @@ public class CodeGenerator {
                     customFiles.add(new CustomFile.Builder()
                             .fileName("Entity.java")
                             .templatePath("/templates/entity.java.ftl")
-                            .packageName("com.yeshimin.yeahboot.domain.entity")
+                            .packageName(properties.getPack() + ".domain.entity")
                             .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
                             .formatNameFunction(CodeGenerator::formatNameFunction)
                             .enableFileOverride()
@@ -61,7 +62,16 @@ public class CodeGenerator {
                     customFiles.add(new CustomFile.Builder()
                             .fileName("Mapper.java")
                             .templatePath("/templates/mapper.java.ftl")
-                            .packageName("com.yeshimin.yeahboot.mapper")
+                            .packageName(properties.getPack() + ".mapper")
+                            .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
+                            .formatNameFunction(CodeGenerator::formatNameFunction)
+                            .enableFileOverride()
+                            .build());
+                    // mapper xml
+                    customFiles.add(new CustomFile.Builder()
+                            .fileName("Mapper.xml")
+                            .templatePath("/templates/mapper.xml.ftl")
+                            .packageName(properties.getPack() + ".mapper.xml")
                             .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
                             .formatNameFunction(CodeGenerator::formatNameFunction)
                             .enableFileOverride()
@@ -70,7 +80,7 @@ public class CodeGenerator {
                     customFiles.add(new CustomFile.Builder()
                             .fileName("Repo.java")
                             .templatePath("/templates/repository.java.ftl")
-                            .packageName("com.yeshimin.yeahboot.repository")
+                            .packageName(properties.getPack() + ".repository")
                             .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
                             .formatNameFunction(CodeGenerator::formatNameFunction)
                             .enableFileOverride()
@@ -79,7 +89,7 @@ public class CodeGenerator {
                     customFiles.add(new CustomFile.Builder()
                             .fileName("Service.java")
                             .templatePath("/templates/service.java.ftl")
-                            .packageName("com.yeshimin.yeahboot.service")
+                            .packageName(properties.getPack() + ".service")
                             .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
                             .formatNameFunction(CodeGenerator::formatNameFunction)
                             .enableFileOverride()
@@ -88,7 +98,7 @@ public class CodeGenerator {
                     customFiles.add(new CustomFile.Builder()
                             .fileName("Controller.java")
                             .templatePath("/templates/controller.java.ftl")
-                            .packageName("com.yeshimin.yeahboot.controller")
+                            .packageName(properties.getPack() + ".controller")
                             .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
                             .formatNameFunction(CodeGenerator::formatNameFunction)
                             .enableFileOverride()
