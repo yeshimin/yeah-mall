@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 @Slf4j
 @Data
@@ -16,7 +17,9 @@ public class CodeGeneratorProperties {
     @PostConstruct
     public void init() {
         log.info("init [yeah-boot.code-generator] properties..." +
-                "url: {}, username: {}, author: {}, pack: {}, module: {}", url, username, author, pack, module);
+                        "url: {}, username: {}, author: {}, pack: {}, module: {}, " +
+                        "tablePrefix: {}, baseEntityFields: {}",
+                url, username, author, pack, module, tablePrefix, baseEntityFields);
     }
 
     private String url;
@@ -30,4 +33,8 @@ public class CodeGeneratorProperties {
     private String pack;
 
     private String module;
+
+    private List<String> tablePrefix;
+
+    private List<String> baseEntityFields;
 }
