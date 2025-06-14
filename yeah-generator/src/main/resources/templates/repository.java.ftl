@@ -1,8 +1,8 @@
 package ${package.Repo};
 
-import com.yeshimin.yeahboot.basic.domain.entity.AreaCityEntity;
-import com.yeshimin.yeahboot.basic.mapper.AreaCityMapper;
-import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
+import ${package.Entity}.${table.entityName}Entity;
+import ${basePackage}.${moduleName}.mapper.${table.entityName}Mapper;
+import ${basePackage}.common.repository.base.BaseRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

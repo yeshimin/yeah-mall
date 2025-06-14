@@ -1,7 +1,7 @@
 package ${package.Entity};
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
+import ${basePackage}.common.domain.base.ConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

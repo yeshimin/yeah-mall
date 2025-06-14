@@ -1,17 +1,17 @@
 package ${package.Controller};
 
-import com.yeshimin.yeahboot.basic.domain.entity.AreaCityEntity;
-import com.yeshimin.yeahboot.basic.mapper.AreaCityMapper;
-import com.yeshimin.yeahboot.basic.repository.AreaCityRepo;
-import com.yeshimin.yeahboot.basic.service.AreaCityService;
-import com.yeshimin.yeahboot.common.controller.base.CrudController;
+import ${package.Entity}.${table.entityName}Entity;
+import ${basePackage}.${moduleName}.mapper.${table.entityName}Mapper;
+import ${basePackage}.${moduleName}.repository.${table.entityName}Repo;
+import ${basePackage}.${moduleName}.service.${table.entityName}Service;
+import ${basePackage}.common.controller.base.CrudController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
-* ${table.comment}
-*/
+ * ${table.comment!}
+ */
 @RestController
 @RequestMapping("/${table.entityName?uncap_first}")
 public class ${table.entityName}Controller extends CrudController<${table.entityName}Mapper, ${table.entityName}Entity, ${table.entityName}Repo> {
