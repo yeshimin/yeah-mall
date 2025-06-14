@@ -42,4 +42,15 @@ yeah-boot:
     password: ${spring.datasource.password}
     author: yeshimin
     pack: com.yeshimin.yeahboot
-    module: shop
+    module: admin
+    table-prefix:
+      - t_
+      - s_
+    base-entity-fields:
+      - id
+      - deleteTime
+      - deleted
+      - createTime
+      - createBy
+      - updateTime
+      - updateBy
