@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.generator;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.builder.CustomFile;
+import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 import com.yeshimin.yeahboot.common.common.properties.CodeGeneratorProperties;
 import lombok.RequiredArgsConstructor;
@@ -53,15 +54,7 @@ public class CodeGenerator {
                             .templatePath("/templates/entity.java.ftl")
                             .packageName("com.yeshimin.yeahboot.domain.entity")
                             .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
-                            .formatNameFunction(tableInfo -> {
-                                for (String prefix : TABLE_PREFIX) {
-                                    if (tableInfo.getName().startsWith(prefix)) {
-                                        String camelCase = StrUtil.toCamelCase(prefix);
-                                        return tableInfo.getEntityName().replaceAll("^" + camelCase, "");
-                                    }
-                                }
-                                return tableInfo.getEntityName();
-                            })
+                            .formatNameFunction(CodeGenerator::formatNameFunction)
                             .enableFileOverride()
                             .build());
                     // mapper
@@ -70,15 +63,7 @@ public class CodeGenerator {
                             .templatePath("/templates/mapper.java.ftl")
                             .packageName("com.yeshimin.yeahboot.mapper")
                             .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
-                            .formatNameFunction(tableInfo -> {
-                                for (String prefix : TABLE_PREFIX) {
-                                    if (tableInfo.getName().startsWith(prefix)) {
-                                        String camelCase = StrUtil.toCamelCase(prefix);
-                                        return tableInfo.getMapperName().replaceAll("^" + camelCase, "");
-                                    }
-                                }
-                                return tableInfo.getMapperName();
-                            })
+                            .formatNameFunction(CodeGenerator::formatNameFunction)
                             .enableFileOverride()
                             .build());
                     // repository
@@ -87,15 +72,7 @@ public class CodeGenerator {
                             .templatePath("/templates/repository.java.ftl")
                             .packageName("com.yeshimin.yeahboot.repository")
                             .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
-                            .formatNameFunction(tableInfo -> {
-                                for (String prefix : TABLE_PREFIX) {
-                                    if (tableInfo.getName().startsWith(prefix)) {
-                                        String camelCase = StrUtil.toCamelCase(prefix);
-                                        return tableInfo.getEntityName().replaceAll("^" + camelCase, "") + "Repo";
-                                    }
-                                }
-                                return tableInfo.getEntityName() + "Repo";
-                            })
+                            .formatNameFunction(CodeGenerator::formatNameFunction)
                             .enableFileOverride()
                             .build());
                     // service
@@ -104,36 +81,32 @@ public class CodeGenerator {
                             .templatePath("/templates/service.java.ftl")
                             .packageName("com.yeshimin.yeahboot.service")
                             .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
-                            .formatNameFunction(tableInfo -> {
-                                for (String prefix : TABLE_PREFIX) {
-                                    if (tableInfo.getName().startsWith(prefix)) {
-                                        String camelCase = StrUtil.toCamelCase(prefix);
-                                        return tableInfo.getServiceName().replaceAll("^" + camelCase, "");
-                                    }
-                                }
-                                return tableInfo.getServiceName();
-                            })
+                            .formatNameFunction(CodeGenerator::formatNameFunction)
                             .enableFileOverride()
                             .build());
-                    // service
+                    // controller
                     customFiles.add(new CustomFile.Builder()
                             .fileName("Controller.java")
                             .templatePath("/templates/controller.java.ftl")
                             .packageName("com.yeshimin.yeahboot.controller")
                             .filePath(Paths.get(System.getProperty("user.dir")) + "/target/autogen")
-                            .formatNameFunction(tableInfo -> {
-                                for (String prefix : TABLE_PREFIX) {
-                                    if (tableInfo.getName().startsWith(prefix)) {
-                                        String camelCase = StrUtil.toCamelCase(prefix);
-                                        return tableInfo.getControllerName().replaceAll("^" + camelCase, "");
-                                    }
-                                }
-                                return tableInfo.getControllerName();
-                            })
+                            .formatNameFunction(CodeGenerator::formatNameFunction)
                             .enableFileOverride()
                             .build());
                     builder.customFile(customFiles);
                 })
                 .execute();
+    }
+
+    // format name function
+    private static String formatNameFunction(TableInfo tableInfo) {
+        for (String prefix : TABLE_PREFIX) {
+            if (tableInfo.getName().startsWith(prefix)) {
+                String fixed = tableInfo.getName().replaceFirst(prefix, "");
+                tableInfo.setEntityName(StrUtil.upperFirst(StrUtil.toCamelCase(fixed)));
+                return tableInfo.getEntityName();
+            }
+        }
+        return tableInfo.getEntityName();
     }
 }

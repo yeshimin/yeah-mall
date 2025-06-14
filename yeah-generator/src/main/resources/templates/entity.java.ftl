@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("${table.name}")
-public class ${entity}Entity extends ConditionBaseEntity<${entity}Entity> {
+public class ${table.entityName}Entity extends ConditionBaseEntity<${table.entityName}Entity> {
 <#-- ----------  BEGIN 字段循环遍历  ---------->
 <#list table.fields as field>
     <#if !(baseEntityFields?seq_contains(field.propertyName))>

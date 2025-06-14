@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
-public class ${entity}Repo extends BaseRepo<${table.mapperName}, ${entity}Entity> {
+public class ${table.entityName}Repo extends BaseRepo<${table.entityName}Mapper, ${table.entityName}Entity> {
 }
