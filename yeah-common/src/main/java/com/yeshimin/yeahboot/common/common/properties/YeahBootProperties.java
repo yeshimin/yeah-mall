@@ -10,12 +10,12 @@ import javax.annotation.PostConstruct;
 @Slf4j
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "yeah")
+@ConfigurationProperties(prefix = "yeah-boot")
 public class YeahBootProperties {
 
     @PostConstruct
     public void init() {
-        log.info("init [yeah] properties...captchaEnabled: {}", captchaEnabled);
+        log.info("init [yeah-boot] properties...captchaEnabled: {}", captchaEnabled);
     }
 
     /**

@@ -1,0 +1,251 @@
+packagexx com.yeshimin.yeahboot.default.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+/**
+ * <p>
+ * 系统日志表
+ * </p>
+ *
+ * @author yeshimin
+ * @since 2025-06-12
+ */
+@TableName("sys_log")
+public class SysLog implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键ID
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
+
+    /**
+     * 删除时间
+     */
+    private LocalDateTime deleteTime;
+
+    /**
+     * 是否删除：1-是 0-否
+     */
+    private Boolean deleted;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 创建者
+     */
+    private String createBy;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
+
+    /**
+     * 更新者
+     */
+    private String updateBy;
+
+    /**
+     * 触发类型：1-系统自动 2-用户手动
+     */
+    private String triggerType;
+
+    /**
+     * 事件类型：1-鉴权相关（登录、登出、续期等） 2-数据操作 3-定时任务
+     */
+    private String category;
+
+    /**
+     * 事件
+     */
+    private String event;
+
+    /**
+     * 输入
+     */
+    private String input;
+
+    /**
+     * 输出
+     */
+    private String output;
+
+    /**
+     * 耗时（毫秒）
+     */
+    private Integer time;
+
+    /**
+     * 是否成功
+     */
+    private String success;
+
+    /**
+     * 额外信息（json字符串）
+     */
+    private String extra;
+
+    /**
+     * 备注信息
+     */
+    private String comment;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getDeleteTime() {
+        return deleteTime;
+    }
+
+    public void setDeleteTime(LocalDateTime deleteTime) {
+        this.deleteTime = deleteTime;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public String getUpdateBy() {
+        return updateBy;
+    }
+
+    public void setUpdateBy(String updateBy) {
+        this.updateBy = updateBy;
+    }
+
+    public String getTriggerType() {
+        return triggerType;
+    }
+
+    public void setTriggerType(String triggerType) {
+        this.triggerType = triggerType;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public void setEvent(String event) {
+        this.event = event;
+    }
+
+    public String getInput() {
+        return input;
+    }
+
+    public void setInput(String input) {
+        this.input = input;
+    }
+
+    public String getOutput() {
+        return output;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
+    }
+
+    public Integer getTime() {
+        return time;
+    }
+
+    public void setTime(Integer time) {
+        this.time = time;
+    }
+
+    public String getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(String success) {
+        this.success = success;
+    }
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    @Override
+    public String toString() {
+        return "SysLog{" +
+            "id = " + id +
+            ", deleteTime = " + deleteTime +
+            ", deleted = " + deleted +
+            ", createTime = " + createTime +
+            ", createBy = " + createBy +
+            ", updateTime = " + updateTime +
+            ", updateBy = " + updateBy +
+            ", triggerType = " + triggerType +
+            ", category = " + category +
+            ", event = " + event +
+            ", input = " + input +
+            ", output = " + output +
+            ", time = " + time +
+            ", success = " + success +
+            ", extra = " + extra +
+            ", comment = " + comment +
+        "}";
+    }
+}

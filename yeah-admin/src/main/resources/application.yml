@@ -32,6 +32,14 @@ jwt:
   # 时间校验偏差（秒）
   default-leeway: 60
 
-yeah:
+yeah-boot:
   # 是否开启验证码校验
   captcha-enabled: false
+  # 代码生成器
+  code-generator:
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    author: yeshimin
+    pack: com.yeshimin.yeahboot
+    module: shop
