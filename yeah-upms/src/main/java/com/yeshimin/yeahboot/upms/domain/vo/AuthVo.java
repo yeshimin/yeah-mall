@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.upms.domain.vo;
 
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
+import com.yeshimin.yeahboot.upms.domain.entity.SysUserEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -25,6 +26,11 @@ public class AuthVo extends BaseDomain {
      * 主题（子系统）
      */
     private String subject;
+
+    /**
+     * 用户信息
+     */
+    private SysUserEntity user;
 
     /**
      * 角色列表

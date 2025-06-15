@@ -409,8 +409,8 @@ public class SysUserService {
      */
     public UserRolesAndResourcesVo queryUserRolesAndResources(Long userId) {
         // 检查：用户是否存在
-        SysUserEntity entity = sysUserRepo.findOneById(userId);
-        if (entity == null) {
+        SysUserEntity user = sysUserRepo.findOneById(userId);
+        if (user == null) {
             throw new BaseException("用户未找到");
         }
 
@@ -427,6 +427,7 @@ public class SysUserService {
                 sysResRepo.listByIds(resIds).stream().map(SysResEntity::getName).collect(Collectors.toList());
 
         UserRolesAndResourcesVo vo = new UserRolesAndResourcesVo();
+        vo.setUser(user);
         vo.setRoles(roles);
         vo.setResources(resources);
         return vo;

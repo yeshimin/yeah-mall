@@ -42,10 +42,6 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     }
 
     private String getOperator() {
-        Long userId = WebContextUtils.getUserId();
-        if (userId == null) {
-            return "";
-        }
-        return "user-" + userId;
+        return WebContextUtils.getUsername();
     }
 }

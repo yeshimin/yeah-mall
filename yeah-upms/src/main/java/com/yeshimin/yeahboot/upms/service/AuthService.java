@@ -68,10 +68,10 @@ public class AuthService {
             authVo.setSubject(decodedJWT.getSubject());
         }
 
-        // 是否只进行认证
-        if (dto.getOnlyAuthenticate()) {
-            return authVo;
-        }
+//        // 是否只进行认证
+//        if (dto.getOnlyAuthenticate()) {
+//            return authVo;
+//        }
 
         Long userId = Long.valueOf(decodedJWT.getAudience().get(0));
 
@@ -82,6 +82,7 @@ public class AuthService {
         }
 
         authVo.setAuthenticated(true);
+        authVo.setUser(resultVo.getUser());
         authVo.setRoles(resultVo.getRoles());
         authVo.setResources(resultVo.getResources());
         return authVo;
