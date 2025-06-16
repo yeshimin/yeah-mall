@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * 鉴权服务
  */
@@ -45,6 +47,10 @@ public class AuthService {
 
         // 生成token
         String token = tokenService.generateToken(String.valueOf(authenticateVo.getUserId()));
+
+        // 缓存token
+        tokenService.cacheToken(String.valueOf(authenticateVo.getUserId()), token);
+
         LoginVo loginVo = new LoginVo();
         loginVo.setToken(token);
         loginVo.setUsername(loginDto.getUsername());
@@ -60,6 +66,11 @@ public class AuthService {
         // 认证
         DecodedJWT decodedJWT = tokenService.decodeToken(dto.getToken());
         if (decodedJWT == null) {
+            log.error("token decode fail");
+            authVo.setAuthenticated(false);
+            return authVo;
+        } else if (!Objects.equals(dto.getToken(), tokenService.getCacheToken(decodedJWT.getAudience().get(0)))) {
+            log.error("token cache validation fail");
             authVo.setAuthenticated(false);
             return authVo;
         } else {

@@ -7,6 +7,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * 实体类字段填充处理器
@@ -42,6 +43,6 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     }
 
     private String getOperator() {
-        return WebContextUtils.getUsername();
+        return Optional.ofNullable(WebContextUtils.getUsername()).orElse("");
     }
 }

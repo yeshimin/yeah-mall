@@ -33,4 +33,7 @@ public class CommonConsts {
 
     // 验证码缓存key
     public static final String CAPTCHA_KEY = "captcha_key:%s";
+
+    // 用户token过期时间（3600s）
+    public static final long USER_TOKEN_EXPIRE_SECONDS = 3600;
 }
