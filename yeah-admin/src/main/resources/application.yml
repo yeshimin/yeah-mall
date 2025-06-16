@@ -57,3 +57,7 @@ yeah-boot:
       - createBy
       - updateTime
       - updateBy
+  # ID编号生成器
+  id-generator:
+    alphabet: GQT0FNR3taz1vDVEjsSJ2biZmLB8qk6OCMndohlKf4IAw7xr9eYgXWPcuHpU5y
+    min-length: 8

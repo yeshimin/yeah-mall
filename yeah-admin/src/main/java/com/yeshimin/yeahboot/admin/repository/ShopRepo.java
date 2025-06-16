@@ -9,4 +9,11 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 public class ShopRepo extends BaseRepo<ShopMapper, ShopEntity> {
+
+    /**
+     * countByShopNo
+     */
+    public long countByShopNo(String shopNo) {
+        return lambdaQuery().eq(ShopEntity::getShopNo, shopNo).count();
+    }
 }

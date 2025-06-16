@@ -36,6 +36,7 @@
         <easy-captcha.version>1.6.2</easy-captcha.version>
         <p6spy.version>1.8.1</p6spy.version>
         <fastjson2.version>2.0.57</fastjson2.version>
+        <sqids.version>0.1.0</sqids.version>
     </properties>
 
     <dependencyManagement>
@@ -121,6 +122,13 @@
                 <groupId>com.alibaba.fastjson2</groupId>
                 <artifactId>fastjson2</artifactId>
                 <version>${fastjson2.version}</version>
+            </dependency>
+
+            <!-- Sqids -->
+            <dependency>
+                <groupId>org.sqids</groupId>
+                <artifactId>sqids</artifactId>
+                <version>${sqids.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

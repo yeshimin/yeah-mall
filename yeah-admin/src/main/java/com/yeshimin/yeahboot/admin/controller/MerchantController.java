@@ -1,13 +1,19 @@
 package com.yeshimin.yeahboot.admin.controller;
 
+import com.yeshimin.yeahboot.admin.domain.dto.MerchantCreateDto;
 import com.yeshimin.yeahboot.admin.entity.MerchantEntity;
 import com.yeshimin.yeahboot.admin.mapper.MerchantMapper;
 import com.yeshimin.yeahboot.admin.repository.MerchantRepo;
 import com.yeshimin.yeahboot.admin.service.MerchantService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
+import com.yeshimin.yeahboot.common.domain.base.R;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 /**
  * 商家表
@@ -25,4 +31,12 @@ public class MerchantController extends CrudController<MerchantMapper, MerchantE
     }
 
     // ================================================================================
+
+    /**
+     * 创建
+     */
+    @PostMapping("/create")
+    public R<MerchantEntity> create(@Valid @RequestBody MerchantCreateDto dto) {
+        return R.ok(service.create(dto));
+    }
 }
