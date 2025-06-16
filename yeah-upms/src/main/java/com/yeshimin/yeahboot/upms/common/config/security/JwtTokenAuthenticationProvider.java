@@ -14,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +46,10 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
         // set web context
         WebContextUtils.setToken(token);
         WebContextUtils.setUserId(authVo.getUserId());
+        Optional.ofNullable(authVo.getUser()).ifPresent(user -> {
+            WebContextUtils.setUsername(user.getUsername());
+            WebContextUtils.setNickname(user.getNickname());
+        });
 
         // role
         List<String> listAuthority = authVo.getRoles().stream().map(s -> "ROLE_" + s).collect(Collectors.toList());
