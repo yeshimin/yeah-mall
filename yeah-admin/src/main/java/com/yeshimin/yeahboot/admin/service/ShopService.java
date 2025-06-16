@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.admin.domain.dto.ShopCreateDto;
 import com.yeshimin.yeahboot.admin.domain.dto.ShopUpdateDto;
 import com.yeshimin.yeahboot.admin.entity.ShopEntity;
+import com.yeshimin.yeahboot.admin.repository.MerchantRepo;
 import com.yeshimin.yeahboot.admin.repository.ShopRepo;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class ShopService {
 
     private final ShopRepo shopRepo;
+    private final MerchantRepo merchantRepo;
+
     private final IdService idService;
 
     /**
@@ -25,6 +28,11 @@ public class ShopService {
      */
     @Transactional(rollbackFor = Exception.class)
     public ShopEntity create(ShopCreateDto dto) {
+        // 检查：商家是否存在
+        if (merchantRepo.countById(dto.getMerchantId()) == 0) {
+            throw new BaseException("商家未找到");
+        }
+
         // 检查：编码是否已存在
         if (shopRepo.countByShopNo(dto.getShopNo()) > 0) {
             throw new BaseException("店铺编号已存在");
