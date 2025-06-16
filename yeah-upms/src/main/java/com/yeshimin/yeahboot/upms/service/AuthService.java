@@ -88,10 +88,12 @@ public class AuthService {
         return authVo;
     }
 
+    // ================================================================================
+
     /**
      * 认证（账号密码方式）
      */
-    public AuthenticateVo authenticate(AuthenticateDto authenticateDto) {
+    private AuthenticateVo authenticate(AuthenticateDto authenticateDto) {
         AuthenticateVo vo = new AuthenticateVo();
 
         // 查找系统用户
