@@ -55,8 +55,9 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
         List<String> listAuthority = authVo.getRoles().stream().map(s -> "ROLE_" + s).collect(Collectors.toList());
         // add resource
         listAuthority.addAll(authVo.getResources());
-        // add subject(sub-system)
+        // add subject(sub-system) and terminal
         listAuthority.add(authVo.getSubject());
+        listAuthority.add(authVo.getTerminal());
         String commaSeparatedRoles = String.join(",", listAuthority);
 
         // set authorities

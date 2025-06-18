@@ -28,6 +28,11 @@ public class AuthVo extends BaseDomain {
     private String subject;
 
     /**
+     * 终端
+     */
+    private String terminal;
+
+    /**
      * 用户信息
      */
     private SysUserEntity user;

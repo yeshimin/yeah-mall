@@ -10,12 +10,12 @@ import javax.annotation.PostConstruct;
 @Slf4j
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "jwt")
+@ConfigurationProperties(prefix = "auth.token.jwt")
 public class JwtProperties {
 
     @PostConstruct
     private void init() {
-        log.info("init [jwt] properties...secret: {}, expiredSeconds: {}, defaultLeeway: {}",
+        log.info("init [auth.token.jwt] properties...secret: {}, expiredSeconds: {}, defaultLeeway: {}",
                 "******", expireSeconds, defaultLeeway);
     }
 

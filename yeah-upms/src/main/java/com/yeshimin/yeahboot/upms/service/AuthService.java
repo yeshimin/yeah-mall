@@ -1,16 +1,14 @@
 package com.yeshimin.yeahboot.upms.service;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
+import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
+import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.upms.domain.dto.AuthDto;
 import com.yeshimin.yeahboot.upms.domain.dto.AuthenticateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.LoginDto;
 import com.yeshimin.yeahboot.upms.domain.entity.SysUserEntity;
-import com.yeshimin.yeahboot.upms.domain.vo.AuthVo;
-import com.yeshimin.yeahboot.upms.domain.vo.AuthenticateVo;
-import com.yeshimin.yeahboot.upms.domain.vo.LoginVo;
-import com.yeshimin.yeahboot.upms.domain.vo.UserRolesAndResourcesVo;
+import com.yeshimin.yeahboot.upms.domain.vo.*;
 import com.yeshimin.yeahboot.upms.repository.SysUserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,11 +43,13 @@ public class AuthService {
             throw new BaseException(ErrorCodeEnum.FAIL);
         }
 
-        // 生成token
-        String token = tokenService.generateToken(String.valueOf(authenticateVo.getUserId()));
+        // 生成token admin系统、web端
+        String subject = AuthSubjectEnum.ADMIN.getValue();
+        String terminal = AuthTerminalEnum.WEB.getValue();
+        String token = tokenService.generateToken(String.valueOf(authenticateVo.getUserId()), subject, terminal);
 
         // 缓存token
-        tokenService.cacheToken(String.valueOf(authenticateVo.getUserId()), token);
+        tokenService.cacheToken(subject, String.valueOf(authenticateVo.getUserId()), terminal, token);
 
         LoginVo loginVo = new LoginVo();
         loginVo.setToken(token);
@@ -64,19 +64,21 @@ public class AuthService {
         AuthVo authVo = new AuthVo();
 
         // 认证
-        DecodedJWT decodedJWT = tokenService.decodeToken(dto.getToken());
-        if (decodedJWT == null) {
+        JwtPayloadVo decodedResult = tokenService.decodeToken(dto.getToken());
+        if (decodedResult == null) {
             log.error("token decode fail");
             authVo.setAuthenticated(false);
             return authVo;
-        } else if (!Objects.equals(dto.getToken(), tokenService.getCacheToken(decodedJWT.getAudience().get(0)))) {
+        } else if (!Objects.equals(dto.getToken(),
+                tokenService.getCacheToken(decodedResult.getSub(), decodedResult.getAud(), decodedResult.getTerm()))) {
             log.error("token cache validation fail");
             authVo.setAuthenticated(false);
             return authVo;
         } else {
             authVo.setAuthenticated(true);
-            authVo.setUserId(Long.valueOf(decodedJWT.getAudience().get(0)));
-            authVo.setSubject(decodedJWT.getSubject());
+            authVo.setUserId(Long.valueOf(decodedResult.getAud()));
+            authVo.setSubject(decodedResult.getSub());
+            authVo.setTerminal(decodedResult.getTerm());
         }
 
 //        // 是否只进行认证
@@ -84,7 +86,7 @@ public class AuthService {
 //            return authVo;
 //        }
 
-        Long userId = Long.valueOf(decodedJWT.getAudience().get(0));
+        Long userId = Long.valueOf(decodedResult.getAud());
 
         // 授权
         UserRolesAndResourcesVo resultVo = sysUserService.queryUserRolesAndResources(userId);

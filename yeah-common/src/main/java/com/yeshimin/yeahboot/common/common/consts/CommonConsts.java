@@ -36,4 +36,7 @@ public class CommonConsts {
 
     // 用户token过期时间（3600s）
     public static final long USER_TOKEN_EXPIRE_SECONDS = 3600;
+
+    // jwt token 'terminal' claim name
+    public static final String JWT_CLAIM_TERMINAL = "term";
 }
