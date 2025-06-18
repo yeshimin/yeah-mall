@@ -26,14 +26,34 @@ decorator:
       # see https://p6spy.readthedocs.io/en/latest/configandusage.html#excludecategories
       exclude-categories: "info,debug,result,resultset,commit,rollback"
 
-# jwt相关
-jwt:
-  # 签发密钥
-  secret: Dooleiw4hah0yae2Aquah5ahgaix4noJ
-  # 过期时间（秒）
-  expire-seconds: 36000
-  # 时间校验偏差（秒）
-  default-leeway: 60
+# auth相关
+auth:
+  token:
+    # 全局jwt配置（subject中可覆盖）
+    jwt:
+      # 签发密钥
+      secret: Dooleiw4hah0yae2Aquah5ahgaix4noJ
+      # 过期时间（秒）
+      expire-seconds: 36000
+      # 时间校验偏差（秒）
+      default-leeway: 60
+    subjects:
+      - name: user
+        jwt:
+          # 签发密钥
+          secret: mi8thaeTahphuatimae9xieghei2iboe
+          # 过期时间（秒）
+          expire-seconds: 36000
+          # 时间校验偏差（秒）
+          default-leeway: 60
+        terminals:
+          - name: app
+            # 同一个账号在该终端的最大在线token数量（默认-1，表示不限制）（不可超过总的最大在线token数量）
+            max-online-token-count: 1
+        # 同一个账号的最大在线token数量（默认-1，表示不限制）
+        max-online-token-count: -1
+        # 同一个账号的最大在线终端数量（默认-1，表示不限制）
+        max-online-terminal-count: -1
 
 yeah:
   # 是否开启验证码校验

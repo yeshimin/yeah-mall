@@ -19,6 +19,12 @@
     </properties>
 
     <dependencies>
+        <!-- common module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-common</artifactId>
+        </dependency>
+
         <!-- Spring Boot Test (For Unit and Integration Tests) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
