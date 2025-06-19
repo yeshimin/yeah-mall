@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.upms.common.config.security;
+package com.yeshimin.yeahboot.common.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

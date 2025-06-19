@@ -1,6 +1,6 @@
-package com.yeshimin.yeahboot.upms.common.config.security;
+package com.yeshimin.yeahboot.auth.config.security;
 
-import com.yeshimin.yeahboot.upms.service.AuthService;
+import com.yeshimin.yeahboot.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;

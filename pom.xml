@@ -18,6 +18,7 @@
     <modules>
         <module>yeah-admin</module>
         <module>yeah-app</module>
+        <module>yeah-auth</module>
         <module>yeah-basic</module>
         <module>yeah-common</module>
         <module>yeah-generator</module>
@@ -86,6 +87,12 @@
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
                 <artifactId>yeah-upms</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <!-- auth module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-auth</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <!-- basic module -->

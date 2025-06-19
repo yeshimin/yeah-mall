@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.upms.service;
+package com.yeshimin.yeahboot.auth.service;
 
 import cn.hutool.core.codec.Base64;
 import com.alibaba.fastjson2.JSON;
@@ -8,10 +8,10 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.common.common.properties.AuthTokenProperties;
 import com.yeshimin.yeahboot.common.common.properties.JwtProperties;
-import com.yeshimin.yeahboot.upms.domain.vo.JwtPayloadVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

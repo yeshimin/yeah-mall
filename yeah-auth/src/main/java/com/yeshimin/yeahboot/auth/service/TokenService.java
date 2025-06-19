@@ -1,10 +1,11 @@
-package com.yeshimin.yeahboot.upms.service;
+package com.yeshimin.yeahboot.auth.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
 import com.yeshimin.yeahboot.common.common.consts.CacheKeyConsts;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
-import com.yeshimin.yeahboot.upms.domain.vo.JwtPayloadVo;
+import com.yeshimin.yeahboot.common.service.CacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -8,7 +8,9 @@ public class WebContextUtils {
     private static final ThreadLocal<String> TOKEN = new ThreadLocal<>();
     private static final ThreadLocal<Long> USER_ID = new ThreadLocal<>();
     private static final ThreadLocal<String> USERNAME = new ThreadLocal<>();
-    private static final ThreadLocal<String> NICKNAME = new ThreadLocal<>();
+    private static final ThreadLocal<String> SUBJECT = new ThreadLocal<>();
+    // 值可能为空
+    private static final ThreadLocal<String> TERMINAL = new ThreadLocal<>();
 
     public static String getToken() {
         return TOKEN.get();
@@ -52,16 +54,31 @@ public class WebContextUtils {
 
     // ================================================================================
 
-    public static String getNickname() {
-        return NICKNAME.get();
+    public static String getSubject() {
+        return SUBJECT.get();
     }
 
-    public static void setNickname(String nickname) {
-        NICKNAME.set(nickname);
+    public static void setSubject(String subject) {
+        SUBJECT.set(subject);
     }
 
-    public static void removeNickname() {
-        NICKNAME.remove();
+    public static void removeSubject() {
+        SUBJECT.remove();
+    }
+
+    // ================================================================================
+    // terminal值可能为空
+
+    public static String getTerminal() {
+        return TERMINAL.get();
+    }
+
+    public static void setTerminal(String terminal) {
+        TERMINAL.set(terminal);
+    }
+
+    public static void removeTerminal() {
+        TERMINAL.remove();
     }
 
     // ================================================================================
@@ -69,5 +86,8 @@ public class WebContextUtils {
     public static void clear() {
         removeToken();
         removeUserId();
+        removeUsername();
+        removeSubject();
+        removeTerminal();
     }
 }

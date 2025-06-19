@@ -1,15 +1,15 @@
-package com.yeshimin.yeahboot.upms.controller;
+package com.yeshimin.yeahboot.admin.controller;
 
 import cn.hutool.core.util.BooleanUtil;
+import com.yeshimin.yeahboot.admin.service.AdminAuthService;
+import com.yeshimin.yeahboot.auth.domain.vo.CaptchaVo;
+import com.yeshimin.yeahboot.auth.service.CaptchaService;
 import com.yeshimin.yeahboot.common.common.log.SysLog;
 import com.yeshimin.yeahboot.common.common.properties.YeahBootProperties;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.upms.domain.dto.LoginDto;
-import com.yeshimin.yeahboot.upms.domain.vo.CaptchaVo;
 import com.yeshimin.yeahboot.upms.domain.vo.LoginVo;
-import com.yeshimin.yeahboot.upms.service.AuthService;
-import com.yeshimin.yeahboot.upms.service.CaptchaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class AuthController extends BaseController {
 
-    private final AuthService authService;
+    private final AdminAuthService adminAuthService;
     private final CaptchaService captchaService;
 
     private final YeahBootProperties yeahBootProperties;
@@ -39,7 +39,7 @@ public class AuthController extends BaseController {
         if (BooleanUtil.isTrue(yeahBootProperties.getCaptchaEnabled())) {
             captchaService.checkCaptcha(dto.getKey(), dto.getCode());
         }
-        return R.ok(authService.login(dto));
+        return R.ok(adminAuthService.login(dto));
     }
 
     /**

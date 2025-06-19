@@ -1,10 +1,10 @@
-package com.yeshimin.yeahboot.upms.service;
+package com.yeshimin.yeahboot.auth.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.wf.captcha.*;
 import com.wf.captcha.base.Captcha;
+import com.yeshimin.yeahboot.auth.domain.vo.CaptchaVo;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
-import com.yeshimin.yeahboot.upms.domain.vo.CaptchaVo;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

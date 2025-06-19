@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.upms.common.config.security;
+package com.yeshimin.yeahboot.auth.config.security;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;

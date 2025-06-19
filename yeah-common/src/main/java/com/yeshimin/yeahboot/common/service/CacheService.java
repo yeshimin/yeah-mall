@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.upms.service;
+package com.yeshimin.yeahboot.common.service;
 
 import com.alibaba.fastjson2.JSON;
 import lombok.RequiredArgsConstructor;

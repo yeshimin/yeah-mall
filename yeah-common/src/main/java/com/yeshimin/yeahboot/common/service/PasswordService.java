@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.upms.service;
+package com.yeshimin.yeahboot.common.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

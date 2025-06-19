@@ -1,11 +1,11 @@
-package com.yeshimin.yeahboot.upms.common.config.security;
+package com.yeshimin.yeahboot.auth.config.security;
 
+import com.yeshimin.yeahboot.auth.domain.dto.AuthDto;
+import com.yeshimin.yeahboot.auth.domain.vo.AuthVo;
+import com.yeshimin.yeahboot.auth.service.AuthService;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
-import com.yeshimin.yeahboot.upms.domain.dto.AuthDto;
-import com.yeshimin.yeahboot.upms.domain.vo.AuthVo;
-import com.yeshimin.yeahboot.upms.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -14,7 +14,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -46,18 +45,21 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
         // set web context
         WebContextUtils.setToken(token);
         WebContextUtils.setUserId(authVo.getUserId());
-        Optional.ofNullable(authVo.getUser()).ifPresent(user -> {
-            WebContextUtils.setUsername(user.getUsername());
-            WebContextUtils.setNickname(user.getNickname());
-        });
+        WebContextUtils.setSubject(authVo.getSubject());
+        WebContextUtils.setTerminal(authVo.getTerminal());
+        WebContextUtils.setUsername(authVo.getUsername());
+//        Optional.ofNullable(authVo.getUser()).ifPresent(user -> {
+//            WebContextUtils.setUsername(user.getUsername());
+//            WebContextUtils.setNickname(user.getNickname());
+//        });
 
         // role
         List<String> listAuthority = authVo.getRoles().stream().map(s -> "ROLE_" + s).collect(Collectors.toList());
         // add resource
         listAuthority.addAll(authVo.getResources());
-        // add subject(sub-system) and terminal
-        listAuthority.add(authVo.getSubject());
-        listAuthority.add(authVo.getTerminal());
+//        // add subject(sub-system) and terminal
+//        listAuthority.add(authVo.getSubject());
+//        listAuthority.add(authVo.getTerminal());
         String commaSeparatedRoles = String.join(",", listAuthority);
 
         // set authorities

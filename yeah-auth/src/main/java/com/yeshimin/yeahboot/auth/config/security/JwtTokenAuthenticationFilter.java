@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.upms.common.config.security;
+package com.yeshimin.yeahboot.auth.config.security;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
