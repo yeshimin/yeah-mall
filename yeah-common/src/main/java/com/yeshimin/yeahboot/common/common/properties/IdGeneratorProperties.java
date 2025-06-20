@@ -15,7 +15,7 @@ public class IdGeneratorProperties {
 
     @PostConstruct
     public void init() {
-        log.info("init [yeah-boot.id-generator] properties..." + "alphabet: {}, minLength: {}", alphabet, minLength);
+        log.info("init [yeah-boot.id-generator] properties..." + "alphabet: {}, minLength: {}", "******", minLength);
     }
 
     private String alphabet;
