@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.app.domain.dto;
+package com.yeshimin.yeahboot.app.auth;
 
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;

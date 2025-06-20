@@ -1,8 +1,6 @@
-package com.yeshimin.yeahboot.app.service;
+package com.yeshimin.yeahboot.app.auth;
 
-import com.yeshimin.yeahboot.app.domain.dto.LoginDto;
 import com.yeshimin.yeahboot.app.domain.entity.AppUserEntity;
-import com.yeshimin.yeahboot.app.domain.vo.LoginVo;
 import com.yeshimin.yeahboot.app.repository.AppUserRepo;
 import com.yeshimin.yeahboot.auth.service.TokenService;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;

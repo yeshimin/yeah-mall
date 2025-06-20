@@ -1,7 +1,6 @@
-package com.yeshimin.yeahboot.admin.controller;
+package com.yeshimin.yeahboot.admin.auth;
 
 import cn.hutool.core.util.BooleanUtil;
-import com.yeshimin.yeahboot.admin.service.AdminAuthService;
 import com.yeshimin.yeahboot.auth.domain.vo.CaptchaVo;
 import com.yeshimin.yeahboot.auth.service.CaptchaService;
 import com.yeshimin.yeahboot.common.common.log.SysLog;

@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 public class AppUserService {
 
     private final AppUserRepo appUserRepo;
-//    private final PasswordService passwordService;
-//    private final TokenService tokenService;
 
     public AppUserEntity queryByUserId(Long userId) {
         return appUserRepo.findOneById(userId);

@@ -1,8 +1,5 @@
-package com.yeshimin.yeahboot.app.controller;
+package com.yeshimin.yeahboot.app.auth;
 
-import com.yeshimin.yeahboot.app.domain.dto.LoginDto;
-import com.yeshimin.yeahboot.app.domain.vo.LoginVo;
-import com.yeshimin.yeahboot.app.service.AppAuthService;
 import com.yeshimin.yeahboot.common.common.log.SysLog;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;

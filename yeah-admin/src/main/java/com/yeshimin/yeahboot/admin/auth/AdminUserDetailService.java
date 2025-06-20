@@ -1,6 +1,5 @@
-package com.yeshimin.yeahboot.admin.service;
+package com.yeshimin.yeahboot.admin.auth;
 
-import com.yeshimin.yeahboot.admin.domain.model.AdminUserDetail;
 import com.yeshimin.yeahboot.auth.domain.model.UserDetail;
 import com.yeshimin.yeahboot.auth.service.UserDetailService;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;

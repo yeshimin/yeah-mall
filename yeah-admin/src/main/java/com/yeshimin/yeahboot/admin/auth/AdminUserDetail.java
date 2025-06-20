@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.admin.domain.model;
+package com.yeshimin.yeahboot.admin.auth;
 
 import com.yeshimin.yeahboot.auth.domain.model.UserDetail;
 import lombok.Setter;
