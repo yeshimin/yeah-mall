@@ -21,7 +21,7 @@ import javax.validation.Valid;
  * 系统岗位相关
  */
 @RestController
-@RequestMapping("/sysPost")
+@RequestMapping("/admin/sysPost")
 public class SysPostController extends CrudController<SysPostMapper, SysPostEntity, SysPostRepo> {
 
     @Autowired

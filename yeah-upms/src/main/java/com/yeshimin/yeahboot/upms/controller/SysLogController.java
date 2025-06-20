@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 系统日志相关
  */
 @RestController
-@RequestMapping("/sysLog")
+@RequestMapping("/admin/sysLog")
 public class SysLogController extends CrudController<SysLogMapper, SysLogEntity, SysLogRepo> {
 
     @Autowired

@@ -21,7 +21,7 @@ import java.util.List;
  * 系统组织相关
  */
 @RestController
-@RequestMapping("/sysOrg")
+@RequestMapping("/admin/sysOrg")
 public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity, SysOrgRepo> {
 
     @Autowired

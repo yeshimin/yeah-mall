@@ -21,7 +21,7 @@ import java.util.List;
  * 系统资源相关
  */
 @RestController
-@RequestMapping("/sysRes")
+@RequestMapping("/admin/sysRes")
 public class SysResController extends CrudController<SysResMapper, SysResEntity, SysResRepo> {
 
     @Autowired
