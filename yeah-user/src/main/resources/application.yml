@@ -1,13 +1,13 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   application:
-    name: yeah-admin
+    name: yeah-app
   # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/yeah_shop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useUnicode=true&zeroDateTimeBehavior=CONVERT_TO_NULL&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&allowMultiQueries=false&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true&useAffectedRows=false
+    url: jdbc:mysql://localhost:3306/yeah_boot?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useUnicode=true&zeroDateTimeBehavior=CONVERT_TO_NULL&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&allowMultiQueries=false&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true&useAffectedRows=false
     username: root
     password: 123456
   # redis
@@ -39,34 +39,16 @@ auth:
     # 全局jwt配置（subject中可覆盖）
     jwt:
       # 签发密钥
-      secret: AitiRuchungien0joh3aekaeshoh6nie
+      secret: Dooleiw4hah0yae2Aquah5ahgaix4noJ
       # 过期时间（秒）
       expire-seconds: 36000
       # 时间校验偏差（秒）
       default-leeway: 60
     subjects:
-      - name: admin
-        api-prefix: '!/user'
-        jwt:
-          # 签发密钥
-          secret: wee8Deonee4egh5taif8noim8pee1aiJ
-          # 过期时间（秒）
-          expire-seconds: 36000
-          # 时间校验偏差（秒）
-          default-leeway: 60
-        terminals:
-          - name: web
-            # 同一个账号在该终端的最大在线token数量（默认-1，表示不限制）（不可超过总的最大在线token数量）
-            max-online-token-count: -1
-        # 同一个账号的最大在线token数量（默认-1，表示不限制）
-        max-online-token-count: -1
-        # 同一个账号的最大在线终端数量（默认-1，表示不限制）
-        max-online-terminal-count: -1
       - name: user
-        api-prefix: /user
         jwt:
           # 签发密钥
-          secret: caiQueipae5Phaeph7gaethae5ash6bu
+          secret: mi8thaeTahphuatimae9xieghei2iboe
           # 过期时间（秒）
           expire-seconds: 36000
           # 时间校验偏差（秒）
@@ -80,29 +62,6 @@ auth:
         # 同一个账号的最大在线终端数量（默认-1，表示不限制）
         max-online-terminal-count: -1
 
-yeah-boot:
+yeah:
   # 是否开启验证码校验
   captcha-enabled: false
-  # 代码生成器
-  code-generator:
-    url: ${spring.datasource.url}
-    username: ${spring.datasource.username}
-    password: ${spring.datasource.password}
-    author: yeshimin
-    pack: com.yeshimin.yeahboot
-    module: admin
-    table-prefix:
-      - t_
-      - s_
-    base-entity-fields:
-      - id
-      - deleteTime
-      - deleted
-      - createTime
-      - createBy
-      - updateTime
-      - updateBy
-  # ID编号生成器
-  id-generator:
-    alphabet: GQT0FNR3taz1vDVEjsSJ2biZmLB8qk6OCMndohlKf4IAw7xr9eYgXWPcuHpU5y
-    min-length: 8

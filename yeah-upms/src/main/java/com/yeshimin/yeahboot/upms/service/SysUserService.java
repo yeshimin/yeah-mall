@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.domain.base.IdNameVo;
+import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.upms.domain.dto.*;
 import com.yeshimin.yeahboot.upms.domain.entity.*;
 import com.yeshimin.yeahboot.upms.domain.vo.MineVo;

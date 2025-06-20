@@ -17,7 +17,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>yeah-admin</module>
-        <module>yeah-app</module>
+        <module>yeah-user</module>
+        <module>yeah-auth</module>
         <module>yeah-basic</module>
         <module>yeah-common</module>
         <module>yeah-generator</module>
@@ -89,6 +90,12 @@
                 <artifactId>yeah-upms</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
+            <!-- auth module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-auth</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
             <!-- basic module -->
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
@@ -99,6 +106,12 @@
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
                 <artifactId>yeah-generator</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <!-- app module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-user</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <!-- ================================================================================ -->
