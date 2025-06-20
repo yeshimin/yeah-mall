@@ -22,7 +22,7 @@ import java.util.List;
  * 系统角色相关
  */
 @RestController
-@RequestMapping("/sysRole")
+@RequestMapping("/admin/sysRole")
 public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEntity, SysRoleRepo> {
 
     @Autowired

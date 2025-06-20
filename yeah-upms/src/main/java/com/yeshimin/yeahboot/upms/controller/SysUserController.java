@@ -27,7 +27,7 @@ import java.util.List;
  * 系统用户相关
  */
 @RestController
-@RequestMapping("/sysUser")
+@RequestMapping("/admin/sysUser")
 public class SysUserController extends CrudController<SysUserMapper, SysUserEntity, SysUserRepo> {
 
     @Autowired

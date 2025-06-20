@@ -20,7 +20,7 @@ import java.util.List;
  * 系统地点相关
  */
 @RestController
-@RequestMapping("/sysDict")
+@RequestMapping("/admin/sysDict")
 public class SysDictController extends CrudController<SysDictMapper, SysDictEntity, SysDictRepo> {
 
     @Autowired
