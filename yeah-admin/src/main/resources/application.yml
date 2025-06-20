@@ -7,7 +7,7 @@ spring:
   # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/yeah_shop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useUnicode=true&zeroDateTimeBehavior=CONVERT_TO_NULL&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&allowMultiQueries=false&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true&useAffectedRows=false
+    url: jdbc:mysql://localhost:3306/yeah_mall?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useUnicode=true&zeroDateTimeBehavior=CONVERT_TO_NULL&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&allowMultiQueries=false&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true&useAffectedRows=false
     username: root
     password: 123456
   # redis
