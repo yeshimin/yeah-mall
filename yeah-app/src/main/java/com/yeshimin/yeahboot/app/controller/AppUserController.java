@@ -5,6 +5,7 @@ import com.yeshimin.yeahboot.app.mapper.AppUserMapper;
 import com.yeshimin.yeahboot.app.repository.AppUserRepo;
 import com.yeshimin.yeahboot.app.service.AppUserService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,8 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * app端用户表
  */
+@Slf4j
 @RestController
-@RequestMapping("/appUser")
+@RequestMapping("/user/appUser")
 public class AppUserController extends CrudController<AppUserMapper, AppUserEntity, AppUserRepo> {
 
     @Autowired

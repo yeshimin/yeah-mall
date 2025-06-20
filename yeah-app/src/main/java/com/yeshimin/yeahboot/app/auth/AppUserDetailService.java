@@ -4,6 +4,7 @@ import com.yeshimin.yeahboot.app.domain.entity.AppUserEntity;
 import com.yeshimin.yeahboot.app.service.AppUserService;
 import com.yeshimin.yeahboot.auth.domain.model.UserDetail;
 import com.yeshimin.yeahboot.auth.service.UserDetailService;
+import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +28,10 @@ public class AppUserDetailService implements UserDetailService {
         AppUserDetail userDetail = new AppUserDetail();
         userDetail.setUsername(user.getMobile());
         return userDetail;
+    }
+
+    @Override
+    public String getSubject() {
+        return AuthSubjectEnum.USER.getValue();
     }
 }

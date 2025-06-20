@@ -30,7 +30,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterAfter(new JwtTokenAuthenticationFilter(authenticationManagerBean()), LogoutFilter.class);
 
         http.authorizeRequests()
-                .antMatchers("/auth/login", "/auth/captcha")
+                .antMatchers("/**/auth/login", "/admin/auth/captcha")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()

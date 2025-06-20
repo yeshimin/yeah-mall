@@ -107,6 +107,12 @@
                 <artifactId>yeah-generator</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
+            <!-- app module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-app</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
             <!-- ================================================================================ -->
 
             <!-- Easy Captcha -->

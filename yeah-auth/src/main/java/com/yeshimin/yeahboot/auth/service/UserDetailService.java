@@ -8,4 +8,6 @@ import com.yeshimin.yeahboot.auth.domain.model.UserDetail;
 public interface UserDetailService {
 
     UserDetail getUserDetail(String userId);
+
+    String getSubject();
 }

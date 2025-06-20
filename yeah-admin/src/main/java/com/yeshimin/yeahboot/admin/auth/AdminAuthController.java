@@ -20,9 +20,9 @@ import javax.validation.Valid;
  */
 @Slf4j
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/admin/auth")
 @RequiredArgsConstructor
-public class AuthController extends BaseController {
+public class AdminAuthController extends BaseController {
 
     private final AdminAuthService adminAuthService;
     private final CaptchaService captchaService;

@@ -17,9 +17,9 @@ import javax.validation.Valid;
  */
 @Slf4j
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/user/auth")
 @RequiredArgsConstructor
-public class AuthController extends BaseController {
+public class AppAuthController extends BaseController {
 
     private final AppAuthService appAuthService;
 

@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.admin.auth;
 
 import com.yeshimin.yeahboot.auth.domain.model.UserDetail;
 import com.yeshimin.yeahboot.auth.service.UserDetailService;
+import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.upms.domain.vo.UserRolesAndResourcesVo;
@@ -29,5 +30,10 @@ public class AdminUserDetailService implements UserDetailService {
         userDetail.setRoles(resultVo.getRoles());
         userDetail.setResources(resultVo.getResources());
         return userDetail;
+    }
+
+    @Override
+    public String getSubject() {
+        return AuthSubjectEnum.ADMIN.getValue();
     }
 }

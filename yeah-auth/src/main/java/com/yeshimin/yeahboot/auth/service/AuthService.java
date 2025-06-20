@@ -5,6 +5,7 @@ import com.yeshimin.yeahboot.auth.domain.dto.AuthDto;
 import com.yeshimin.yeahboot.auth.domain.model.UserDetail;
 import com.yeshimin.yeahboot.auth.domain.vo.AuthVo;
 import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.properties.AuthTokenProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 鉴权服务
@@ -25,9 +30,17 @@ public class AuthService {
 
     private final TokenService tokenService;
 
-    private final UserDetailService userDetailService;
+    //    private final UserDetailService userDetailService;
+    private final List<UserDetailService> userDetailServices;
+    private Map<String, UserDetailService> mapUserDetailService;
 
     private final AuthTokenProperties authTokenProperties;
+
+    @PostConstruct
+    public void init() {
+        mapUserDetailService = userDetailServices.stream().collect(
+                Collectors.toMap(UserDetailService::getSubject, userDetailService -> userDetailService));
+    }
 
     /**
      * 鉴权（认证和授权）（token方式）
@@ -67,13 +80,24 @@ public class AuthService {
         String userId = decodedResult.getAud();
 
         // 授权
-        UserDetail userDetail = userDetailService.getUserDetail(userId);
+        UserDetail userDetail = this.getUserDetailService(decodedResult.getSub()).getUserDetail(userId);
+//        UserDetail userDetail = userDetailService.getUserDetail(userId);
 
         authVo.setAuthenticated(true);
         authVo.setUsername(userDetail.getUsername());
         authVo.setRoles(userDetail.getRoles());
         authVo.setResources(userDetail.getResources());
         return authVo;
+    }
+
+    // ================================================================================
+
+    private UserDetailService getUserDetailService(String subject) {
+        UserDetailService userDetailService = mapUserDetailService.get(subject);
+        if (userDetailService == null) {
+            throw new BaseException("UserDetailService for subject: " + subject + " not found");
+        }
+        return userDetailService;
     }
 
     private boolean checkApiPrivilegeEscape(String subject) {

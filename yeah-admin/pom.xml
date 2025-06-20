@@ -39,6 +39,11 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-generator</artifactId>
         </dependency>
+        <!-- app module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-app</artifactId>
+        </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->
         <dependency>
