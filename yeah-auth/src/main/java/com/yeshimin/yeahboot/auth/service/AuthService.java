@@ -1,13 +1,18 @@
 package com.yeshimin.yeahboot.auth.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.auth.domain.dto.AuthDto;
 import com.yeshimin.yeahboot.auth.domain.model.UserDetail;
 import com.yeshimin.yeahboot.auth.domain.vo.AuthVo;
 import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
+import com.yeshimin.yeahboot.common.common.properties.AuthTokenProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
 /**
@@ -21,6 +26,8 @@ public class AuthService {
     private final TokenService tokenService;
 
     private final UserDetailService userDetailService;
+
+    private final AuthTokenProperties authTokenProperties;
 
     /**
      * 鉴权（认证和授权）（token方式）
@@ -46,6 +53,12 @@ public class AuthService {
             authVo.setTerminal(decodedResult.getTerm());
         }
 
+        // 接口越权检查
+        if (!this.checkApiPrivilegeEscape(decodedResult.getSub())) {
+            authVo.setAuthenticated(false);
+            return authVo;
+        }
+
 //        // 是否只进行认证
 //        if (dto.getOnlyAuthenticate()) {
 //            return authVo;
@@ -61,5 +74,38 @@ public class AuthService {
         authVo.setRoles(userDetail.getRoles());
         authVo.setResources(userDetail.getResources());
         return authVo;
+    }
+
+    private boolean checkApiPrivilegeEscape(String subject) {
+        AuthTokenProperties.Subject subjectObj = authTokenProperties.getMapSubject().get(subject);
+        String apiPrefix = subjectObj.getApiPrefix();
+        if (StrUtil.isBlank(apiPrefix)) {
+            log.info("subject: {}, apiPrefix is not set, skip", subject);
+            return true;
+        }
+
+        boolean isEqOp = true;
+        if (apiPrefix.startsWith("!")) {
+            isEqOp = false;
+            apiPrefix = apiPrefix.substring(1);
+        }
+
+        String requestUri = this.getRequest().getRequestURI();
+
+        boolean success = false;
+        if (isEqOp) {
+            success = requestUri.startsWith(apiPrefix);
+        } else {
+            success = !requestUri.startsWith(apiPrefix);
+        }
+
+        log.info("isEqOp: {}, apiPrefix: {}, requestUri: {}, success: {}", isEqOp, apiPrefix, requestUri, success);
+
+        return success;
+    }
+
+    private HttpServletRequest getRequest() {
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return Objects.requireNonNull(attrs).getRequest();
     }
 }
