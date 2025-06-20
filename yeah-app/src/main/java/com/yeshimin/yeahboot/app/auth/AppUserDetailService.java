@@ -32,6 +32,6 @@ public class AppUserDetailService implements UserDetailService {
 
     @Override
     public String getSubject() {
-        return AuthSubjectEnum.USER.getValue();
+        return AuthSubjectEnum.APP.getValue();
     }
 }

@@ -10,8 +10,8 @@ public enum AuthSubjectEnum {
 
     // admin
     ADMIN("admin", "管理端"),
-    // user
-    USER("user", "用户端");
+    // app
+    APP("app", "App端");
 
     private final String value;
     private final String desc;

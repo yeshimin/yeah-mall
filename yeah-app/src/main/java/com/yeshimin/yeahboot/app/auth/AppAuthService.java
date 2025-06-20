@@ -42,7 +42,7 @@ public class AppAuthService {
         }
 
         // 生成token user系统、app端
-        String subject = AuthSubjectEnum.USER.getValue();
+        String subject = AuthSubjectEnum.APP.getValue();
         String terminal = AuthTerminalEnum.APP.getValue();
         String token = tokenService.generateToken(String.valueOf(appUser.getId()), subject, terminal);
 

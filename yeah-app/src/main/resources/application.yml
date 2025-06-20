@@ -45,7 +45,7 @@ auth:
       # 时间校验偏差（秒）
       default-leeway: 60
     subjects:
-      - name: user
+      - name: app
         jwt:
           # 签发密钥
           secret: mi8thaeTahphuatimae9xieghei2iboe
