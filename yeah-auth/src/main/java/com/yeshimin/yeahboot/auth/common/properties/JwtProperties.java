@@ -1,5 +1,7 @@
-package com.yeshimin.yeahboot.common.common.properties;
+package com.yeshimin.yeahboot.auth.common.properties;
 
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.yeshimin.yeahboot.common.common.serialize.DefaultDesensitizeSerializer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -22,6 +24,7 @@ public class JwtProperties {
     /**
      * 签发密钥
      */
+    @JSONField(serializeUsing = DefaultDesensitizeSerializer.class)
     private String secret;
 
     /**

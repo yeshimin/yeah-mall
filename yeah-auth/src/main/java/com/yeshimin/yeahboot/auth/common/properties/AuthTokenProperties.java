@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.common.common.properties;
+package com.yeshimin.yeahboot.auth.common.properties;
 
 import com.alibaba.fastjson2.JSON;
 import lombok.Data;

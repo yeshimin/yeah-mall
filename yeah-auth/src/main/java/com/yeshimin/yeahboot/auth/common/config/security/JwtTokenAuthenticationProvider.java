@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.auth.config.security;
+package com.yeshimin.yeahboot.auth.common.config.security;
 
 import com.yeshimin.yeahboot.auth.domain.dto.AuthDto;
 import com.yeshimin.yeahboot.auth.domain.vo.AuthVo;

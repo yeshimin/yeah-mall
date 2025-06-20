@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.builder.CustomFile;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
-import com.yeshimin.yeahboot.common.common.properties.CodeGeneratorProperties;
+import com.yeshimin.yeahboot.generator.common.properties.CodeGeneratorProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.common.common.properties;
+package com.yeshimin.yeahboot.generator.common.properties;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

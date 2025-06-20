@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.auth.config.security;
+package com.yeshimin.yeahboot.auth.common.config.security;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
