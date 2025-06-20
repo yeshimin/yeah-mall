@@ -3,7 +3,7 @@ package com.yeshimin.yeahboot;
 import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.admin.YeahAdminApplication;
 import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
-import com.yeshimin.yeahboot.upms.service.JwtService;
+import com.yeshimin.yeahboot.auth.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;

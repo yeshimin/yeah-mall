@@ -114,7 +114,6 @@ public class JwtService {
 //        return Objects.equals(audience, decodedJWT.getAudience().get(0));
 //    }
 
-
     /**
      * 解码Jwt
      */
