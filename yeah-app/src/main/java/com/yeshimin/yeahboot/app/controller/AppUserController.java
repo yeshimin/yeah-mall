@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
-@RequestMapping("/user/appUser")
+@RequestMapping("/app/appUser")
 public class AppUserController extends CrudController<AppUserMapper, AppUserEntity, AppUserRepo> {
 
     @Autowired
