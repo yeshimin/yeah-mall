@@ -42,7 +42,7 @@
         <!-- app module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>
-            <artifactId>yeah-user</artifactId>
+            <artifactId>yeah-app</artifactId>
         </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->
