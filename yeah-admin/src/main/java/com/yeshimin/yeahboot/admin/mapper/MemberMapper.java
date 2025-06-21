@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.admin.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.yeshimin.yeahboot.admin.entity.MemberEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.MemberEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

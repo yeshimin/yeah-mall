@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.admin.repository;
 
-import com.yeshimin.yeahboot.admin.entity.ShopEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.admin.mapper.ShopMapper;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import lombok.extern.slf4j.Slf4j;

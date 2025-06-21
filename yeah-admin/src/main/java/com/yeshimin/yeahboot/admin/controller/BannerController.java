@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.admin.controller;
 
-import com.yeshimin.yeahboot.admin.entity.BannerEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.BannerEntity;
 import com.yeshimin.yeahboot.admin.mapper.BannerMapper;
 import com.yeshimin.yeahboot.admin.repository.BannerRepo;
 import com.yeshimin.yeahboot.admin.service.BannerService;

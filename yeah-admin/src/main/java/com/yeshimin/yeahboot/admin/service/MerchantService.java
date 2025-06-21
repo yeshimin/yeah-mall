@@ -2,7 +2,7 @@ package com.yeshimin.yeahboot.admin.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.yeshimin.yeahboot.admin.domain.dto.MerchantCreateDto;
-import com.yeshimin.yeahboot.admin.entity.MerchantEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.MerchantEntity;
 import com.yeshimin.yeahboot.admin.repository.MerchantRepo;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.admin.entity;
+package com.yeshimin.yeahboot.admin.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
@@ -6,20 +6,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 订单表
+ * 商家表
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("s_banner")
-public class BannerEntity extends ConditionBaseEntity<BannerEntity> {
+@TableName("s_merchant")
+public class MerchantEntity extends ConditionBaseEntity<MerchantEntity> {
 
     /**
-     * 店铺ID
+     * 登录账号
      */
-    private Long shopId;
+    private String loginAccount;
 
     /**
-     * 图片URL
+     * 登录密码
      */
-    private String imageUrl;
+    private String loginPassword;
 }

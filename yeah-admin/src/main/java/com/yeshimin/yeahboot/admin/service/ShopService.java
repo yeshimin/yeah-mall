@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.admin.domain.dto.ShopCreateDto;
 import com.yeshimin.yeahboot.admin.domain.dto.ShopUpdateDto;
-import com.yeshimin.yeahboot.admin.entity.ShopEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.admin.repository.MerchantRepo;
 import com.yeshimin.yeahboot.admin.repository.ShopRepo;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;

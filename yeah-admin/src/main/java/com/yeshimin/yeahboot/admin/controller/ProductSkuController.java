@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.admin.controller;
 
-import com.yeshimin.yeahboot.admin.entity.ProductSkuEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.admin.mapper.ProductSkuMapper;
 import com.yeshimin.yeahboot.admin.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.admin.service.ProductSkuService;

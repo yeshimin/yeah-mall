@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.admin.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.yeshimin.yeahboot.admin.entity.MerchantEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.MerchantEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

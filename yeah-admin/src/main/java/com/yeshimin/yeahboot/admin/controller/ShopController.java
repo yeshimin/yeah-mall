@@ -2,7 +2,7 @@ package com.yeshimin.yeahboot.admin.controller;
 
 import com.yeshimin.yeahboot.admin.domain.dto.ShopCreateDto;
 import com.yeshimin.yeahboot.admin.domain.dto.ShopUpdateDto;
-import com.yeshimin.yeahboot.admin.entity.ShopEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.admin.mapper.ShopMapper;
 import com.yeshimin.yeahboot.admin.repository.ShopRepo;
 import com.yeshimin.yeahboot.admin.service.ShopService;

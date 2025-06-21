@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.admin.controller;
 
-import com.yeshimin.yeahboot.admin.entity.MemberEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.MemberEntity;
 import com.yeshimin.yeahboot.admin.mapper.MemberMapper;
 import com.yeshimin.yeahboot.admin.repository.MemberRepo;
 import com.yeshimin.yeahboot.admin.service.MemberService;

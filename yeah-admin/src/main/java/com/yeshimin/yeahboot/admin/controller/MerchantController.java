@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.admin.controller;
 
 import com.yeshimin.yeahboot.admin.domain.dto.MerchantCreateDto;
-import com.yeshimin.yeahboot.admin.entity.MerchantEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.MerchantEntity;
 import com.yeshimin.yeahboot.admin.mapper.MerchantMapper;
 import com.yeshimin.yeahboot.admin.repository.MerchantRepo;
 import com.yeshimin.yeahboot.admin.service.MerchantService;

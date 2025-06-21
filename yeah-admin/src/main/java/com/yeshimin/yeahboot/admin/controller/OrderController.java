@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.admin.controller;
 
-import com.yeshimin.yeahboot.admin.entity.OrderEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.admin.mapper.OrderMapper;
 import com.yeshimin.yeahboot.admin.repository.OrderRepo;
 import com.yeshimin.yeahboot.admin.service.OrderService;

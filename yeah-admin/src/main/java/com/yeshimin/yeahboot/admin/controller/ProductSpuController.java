@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.admin.controller;
 
-import com.yeshimin.yeahboot.admin.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.admin.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.admin.mapper.ProductSpuMapper;
 import com.yeshimin.yeahboot.admin.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.admin.service.ProductSpuService;

@@ -11,7 +11,9 @@ public enum AuthSubjectEnum {
     // admin
     ADMIN("admin", "管理端"),
     // app
-    APP("app", "App端");
+    APP("app", "App端"),
+    // merchant
+    MERCHANT("merchant", "商家端");
 
     private final String value;
     private final String desc;
