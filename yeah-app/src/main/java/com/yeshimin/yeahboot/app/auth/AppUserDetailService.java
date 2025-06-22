@@ -1,12 +1,12 @@
 package com.yeshimin.yeahboot.app.auth;
 
-import com.yeshimin.yeahboot.app.domain.entity.AppUserEntity;
-import com.yeshimin.yeahboot.app.service.AppUserService;
 import com.yeshimin.yeahboot.auth.domain.model.UserDetail;
 import com.yeshimin.yeahboot.auth.service.UserDetailService;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.data.domain.entity.AppUserEntity;
+import com.yeshimin.yeahboot.data.repository.AppUserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,11 +16,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AppUserDetailService implements UserDetailService {
 
-    private final AppUserService appUserService;
+    private final AppUserRepo appUserRepo;
 
     @Override
     public UserDetail getUserDetail(String userId) {
-        AppUserEntity user = appUserService.queryByUserId(Long.valueOf(userId));
+        AppUserEntity user = appUserRepo.findOneById(Long.valueOf(userId));
         if (user == null) {
             throw new BaseException(ErrorCodeEnum.FAIL);
         }

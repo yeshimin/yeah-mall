@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.app.domain.entity;
+package com.yeshimin.yeahboot.data.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;

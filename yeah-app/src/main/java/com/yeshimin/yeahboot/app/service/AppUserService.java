@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.app.service;
 
-import com.yeshimin.yeahboot.app.domain.entity.AppUserEntity;
-import com.yeshimin.yeahboot.app.repository.AppUserRepo;
+import com.yeshimin.yeahboot.data.domain.entity.AppUserEntity;
+import com.yeshimin.yeahboot.data.repository.AppUserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ public class AppUserService {
 
     private final AppUserRepo appUserRepo;
 
-    public AppUserEntity queryByUserId(Long userId) {
+    public AppUserEntity detail(Long userId) {
         return appUserRepo.findOneById(userId);
     }
 }

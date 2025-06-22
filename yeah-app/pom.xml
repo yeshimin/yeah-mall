@@ -29,10 +29,10 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-auth</artifactId>
         </dependency>
-        <!-- common data module -->
+        <!-- app data module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>
-            <artifactId>yeah-common-data</artifactId>
+            <artifactId>yeah-app-data</artifactId>
         </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->

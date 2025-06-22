@@ -1,9 +1,9 @@
-package com.yeshimin.yeahboot.app.repository;
+package com.yeshimin.yeahboot.data.repository;
 
 import cn.hutool.core.util.StrUtil;
-import com.yeshimin.yeahboot.app.domain.entity.AppUserEntity;
-import com.yeshimin.yeahboot.app.mapper.AppUserMapper;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
+import com.yeshimin.yeahboot.data.domain.entity.AppUserEntity;
+import com.yeshimin.yeahboot.data.mapper.AppUserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

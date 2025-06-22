@@ -1,13 +1,13 @@
 package com.yeshimin.yeahboot.app.auth;
 
-import com.yeshimin.yeahboot.app.domain.entity.AppUserEntity;
-import com.yeshimin.yeahboot.app.repository.AppUserRepo;
 import com.yeshimin.yeahboot.auth.service.TokenService;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.service.PasswordService;
+import com.yeshimin.yeahboot.data.domain.entity.AppUserEntity;
+import com.yeshimin.yeahboot.data.repository.AppUserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
