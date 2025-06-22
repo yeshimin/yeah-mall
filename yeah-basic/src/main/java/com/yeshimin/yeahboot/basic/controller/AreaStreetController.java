@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.basic.controller;
 
-import com.yeshimin.yeahboot.basic.domain.entity.AreaStreetEntity;
-import com.yeshimin.yeahboot.basic.mapper.AreaStreetMapper;
-import com.yeshimin.yeahboot.basic.repository.AreaStreetRepo;
+import com.yeshimin.yeahboot.data.domain.entity.AreaStreetEntity;
+import com.yeshimin.yeahboot.data.mapper.AreaStreetMapper;
+import com.yeshimin.yeahboot.data.repository.AreaStreetRepo;
 import com.yeshimin.yeahboot.basic.service.AreaStreetService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.basic.controller;
 
-import com.yeshimin.yeahboot.basic.domain.entity.AreaVillageEntity;
-import com.yeshimin.yeahboot.basic.mapper.AreaVillageMapper;
-import com.yeshimin.yeahboot.basic.repository.AreaVillageRepo;
+import com.yeshimin.yeahboot.data.domain.entity.AreaVillageEntity;
+import com.yeshimin.yeahboot.data.mapper.AreaVillageMapper;
+import com.yeshimin.yeahboot.data.repository.AreaVillageRepo;
 import com.yeshimin.yeahboot.basic.service.AreaVillageService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import org.springframework.beans.factory.annotation.Autowired;

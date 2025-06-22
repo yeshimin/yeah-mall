@@ -23,6 +23,7 @@
         <module>yeah-common</module>
         <module>yeah-generator</module>
         <module>yeah-upms</module>
+        <module>yeah-common-data</module>
     </modules>
 
     <properties>
@@ -111,6 +112,12 @@
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
                 <artifactId>yeah-app</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <!-- common data module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-common-data</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <!-- ================================================================================ -->

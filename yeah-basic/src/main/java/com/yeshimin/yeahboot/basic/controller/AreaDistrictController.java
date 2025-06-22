@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.basic.controller;
 
-import com.yeshimin.yeahboot.basic.domain.entity.AreaDistrictEntity;
-import com.yeshimin.yeahboot.basic.mapper.AreaDistrictMapper;
-import com.yeshimin.yeahboot.basic.repository.AreaDistrictRepo;
+import com.yeshimin.yeahboot.data.domain.entity.AreaDistrictEntity;
+import com.yeshimin.yeahboot.data.mapper.AreaDistrictMapper;
+import com.yeshimin.yeahboot.data.repository.AreaDistrictRepo;
 import com.yeshimin.yeahboot.basic.service.AreaDistrictService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import org.springframework.beans.factory.annotation.Autowired;

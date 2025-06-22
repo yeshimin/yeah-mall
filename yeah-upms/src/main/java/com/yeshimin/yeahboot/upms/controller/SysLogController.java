@@ -3,7 +3,7 @@ package com.yeshimin.yeahboot.upms.controller;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.entity.SysLogEntity;
 import com.yeshimin.yeahboot.common.mapper.SysLogMapper;
-import com.yeshimin.yeahboot.upms.repository.SysLogRepo;
+import com.yeshimin.yeahboot.data.repository.SysLogRepo;
 import com.yeshimin.yeahboot.upms.service.SysLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;

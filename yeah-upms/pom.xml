@@ -19,6 +19,11 @@
             <artifactId>yeah-common</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- common data module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-common-data</artifactId>
+        </dependency>
 
         <!-- MySQL Connector -->
         <dependency>
