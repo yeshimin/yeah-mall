@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 会员表
  */
 @RestController
-@RequestMapping("/member")
+@RequestMapping("/admin/member")
 public class MemberAdminController extends CrudController<MemberMapper, MemberEntity, MemberRepo> {
 
     @Autowired

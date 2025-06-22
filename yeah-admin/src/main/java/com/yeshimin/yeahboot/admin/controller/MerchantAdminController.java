@@ -19,7 +19,7 @@ import javax.validation.Valid;
  * 商家表
  */
 @RestController
-@RequestMapping("/merchant")
+@RequestMapping("/admin/merchant")
 public class MerchantAdminController extends CrudController<MerchantMapper, MerchantEntity, MerchantRepo> {
 
     @Autowired

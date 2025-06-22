@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 商品SKU表
  */
 @RestController
-@RequestMapping("/productSku")
+@RequestMapping("/admin/productSku")
 public class ProductSkuAdminController extends CrudController<ProductSkuMapper, ProductSkuEntity, ProductSkuRepo> {
 
     @Autowired

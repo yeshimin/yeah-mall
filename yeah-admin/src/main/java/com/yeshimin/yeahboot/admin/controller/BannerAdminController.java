@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 订单表
  */
 @RestController
-@RequestMapping("/banner")
+@RequestMapping("/admin/banner")
 public class BannerAdminController extends CrudController<BannerMapper, BannerEntity, BannerRepo> {
 
     @Autowired

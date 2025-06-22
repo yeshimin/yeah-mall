@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 商品SPU表
  */
 @RestController
-@RequestMapping("/productSpu")
+@RequestMapping("/admin/productSpu")
 public class ProductSpuAdminController extends CrudController<ProductSpuMapper, ProductSpuEntity, ProductSpuRepo> {
 
     @Autowired

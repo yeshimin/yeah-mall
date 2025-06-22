@@ -17,7 +17,7 @@ import javax.validation.Valid;
  */
 @Slf4j
 @RestController
-@RequestMapping("/merchant/auth")
+@RequestMapping("/mct/auth")
 @RequiredArgsConstructor
 public class MerchantAuthController extends BaseController {
 

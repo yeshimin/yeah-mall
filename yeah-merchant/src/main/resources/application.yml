@@ -45,7 +45,7 @@ auth:
       # 时间校验偏差（秒）
       default-leeway: 60
     subjects:
-      - name: merchant
+      - name: mct
         jwt:
           # 签发密钥
           secret: mi8thaeTahphuatimae9xieghei2iboe
@@ -56,7 +56,7 @@ auth:
         terminals:
           - name: web
             # 同一个账号在该终端的最大在线token数量（默认-1，表示不限制）（不可超过总的最大在线token数量）
-            max-online-token-count: 1
+            max-online-token-count: -1
         # 同一个账号的最大在线token数量（默认-1，表示不限制）
         max-online-token-count: -1
         # 同一个账号的最大在线终端数量（默认-1，表示不限制）

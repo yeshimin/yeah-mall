@@ -14,10 +14,10 @@ import javax.validation.constraints.NotBlank;
 public class LoginDto extends BaseDomain {
 
     /**
-     * 手机号
+     * 用户名
      */
-    @NotBlank(message = "手机号不能为空")
-    private String mobile;
+    @NotBlank(message = "用户名不能为空")
+    private String username;
 
     /**
      * 密码

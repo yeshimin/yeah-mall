@@ -20,7 +20,7 @@ import javax.validation.Valid;
  * 店铺表
  */
 @RestController
-@RequestMapping("/shop")
+@RequestMapping("/admin/shop")
 public class ShopAdminController extends CrudController<ShopMapper, ShopEntity, ShopRepo> {
 
     @Autowired

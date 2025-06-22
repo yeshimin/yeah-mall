@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 订单明细表
  */
 @RestController
-@RequestMapping("/orderItem")
+@RequestMapping("/admin/orderItem")
 public class OrderItemAdminController extends CrudController<OrderItemMapper, OrderItemEntity, OrderItemRepo> {
 
     @Autowired
