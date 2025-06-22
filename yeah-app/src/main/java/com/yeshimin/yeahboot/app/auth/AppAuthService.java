@@ -29,7 +29,7 @@ public class AppAuthService {
      * 登录
      */
     public LoginVo login(LoginDto loginDto) {
-        // 查找app端用户
+        // 查找用户
         AppUserEntity appUser = appUserRepo.findOneByMobile(loginDto.getMobile());
         if (appUser == null) {
             throw new BaseException(ErrorCodeEnum.FAIL, "用户未找到");
@@ -41,7 +41,7 @@ public class AppAuthService {
             throw new BaseException(ErrorCodeEnum.FAIL, "密码不正确");
         }
 
-        // 生成token user系统、app端
+        // 生成token
         String subject = AuthSubjectEnum.APP.getValue();
         String terminal = AuthTerminalEnum.APP.getValue();
         String token = tokenService.generateToken(String.valueOf(appUser.getId()), subject, terminal);
