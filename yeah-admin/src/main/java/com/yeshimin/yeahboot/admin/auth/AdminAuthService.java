@@ -1,17 +1,17 @@
 package com.yeshimin.yeahboot.admin.auth;
 
-import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.auth.service.TokenService;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.service.PasswordService;
+import com.yeshimin.yeahboot.data.domain.entity.SysUserEntity;
+import com.yeshimin.yeahboot.data.repository.SysUserRepo;
 import com.yeshimin.yeahboot.upms.domain.dto.AuthenticateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.LoginDto;
-import com.yeshimin.yeahboot.data.domain.entity.SysUserEntity;
 import com.yeshimin.yeahboot.upms.domain.vo.AuthenticateVo;
 import com.yeshimin.yeahboot.upms.domain.vo.LoginVo;
-import com.yeshimin.yeahboot.data.repository.SysUserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class AdminAuthService {
             throw new BaseException(ErrorCodeEnum.FAIL);
         }
 
-        // 生成token admin系统、web端
+        // 生成token
         String subject = AuthSubjectEnum.ADMIN.getValue();
         String terminal = AuthTerminalEnum.WEB.getValue();
         String token = tokenService.generateToken(String.valueOf(authenticateVo.getUserId()), subject, terminal);
