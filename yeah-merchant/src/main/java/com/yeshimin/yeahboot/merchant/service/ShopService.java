@@ -25,7 +25,7 @@ public class ShopService {
     /**
      * 详情
      */
-    public ShopEntity detail(Long userId, String shopNo) {
-        return shopRepo.findOneByMerchantIdAndShopNo(userId, shopNo);
+    public ShopEntity detail(Long userId, Long id) {
+        return shopRepo.findOneByMerchantIdAndId(userId, id);
     }
 }

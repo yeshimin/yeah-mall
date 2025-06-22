@@ -1,6 +1,5 @@
 package com.yeshimin.yeahboot.merchant.data.repository;
 
-import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.merchant.data.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.merchant.data.mapper.ShopMapper;
@@ -19,12 +18,22 @@ public class ShopRepo extends BaseRepo<ShopMapper, ShopEntity> {
     }
 
     /**
-     * findOneByMerchantIdAndShopNo
+     * findOneByMerchantIdAndId
      */
-    public ShopEntity findOneByMerchantIdAndShopNo(Long merchantId, String shopNo) {
-        if (merchantId == null || StrUtil.isBlank(shopNo)) {
+    public ShopEntity findOneByMerchantIdAndId(Long merchantId, Long id) {
+        if (merchantId == null || id == null) {
             throw new IllegalArgumentException("merchantId和shopNo不能为空");
         }
-        return lambdaQuery().eq(ShopEntity::getMerchantId, merchantId).eq(ShopEntity::getShopNo, shopNo).one();
+        return lambdaQuery().eq(ShopEntity::getMerchantId, merchantId).eq(ShopEntity::getId, id).one();
+    }
+
+    /**
+     * countByMerchantIdAndId
+     */
+    public Long countByMerchantIdAndId(Long merchantId, Long id) {
+        if (merchantId == null || id == null) {
+            throw new IllegalArgumentException("merchantId和shopNo不能为空");
+        }
+        return lambdaQuery().eq(ShopEntity::getMerchantId, merchantId).eq(ShopEntity::getId, id).count();
     }
 }

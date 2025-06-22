@@ -17,6 +17,6 @@ public class MerchantService {
      * 详情
      */
     public MerchantEntity detail(Long id) {
-        return merchantRepo.findOneById(id);
+        return merchantRepo.getOneById(id);
     }
 }

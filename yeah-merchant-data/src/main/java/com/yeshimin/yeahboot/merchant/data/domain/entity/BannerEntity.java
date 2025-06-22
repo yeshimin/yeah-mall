@@ -5,6 +5,8 @@ import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * Banner表
  */
@@ -16,6 +18,7 @@ public class BannerEntity extends ConditionBaseEntity<BannerEntity> {
     /**
      * 店铺ID
      */
+    @NotNull(message = "店铺ID不能为空")
     private Long shopId;
 
     /**
