@@ -26,6 +26,7 @@
         <module>yeah-upms</module>
         <module>yeah-common-data</module>
         <module>yeah-app-data</module>
+        <module>yeah-merchant-data</module>
     </modules>
 
     <properties>
@@ -133,6 +134,12 @@
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
                 <artifactId>yeah-app-data</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <!-- merchant data module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-merchant-data</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <!-- ================================================================================ -->

@@ -56,12 +56,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Sqids -->
-        <dependency>
-            <groupId>org.sqids</groupId>
-            <artifactId>sqids</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
