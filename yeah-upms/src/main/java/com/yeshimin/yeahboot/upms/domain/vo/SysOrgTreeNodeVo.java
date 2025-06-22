@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.upms.domain.vo;
 
-import com.yeshimin.yeahboot.upms.domain.entity.SysOrgEntity;
+import com.yeshimin.yeahboot.data.domain.entity.SysOrgEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

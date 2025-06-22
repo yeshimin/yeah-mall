@@ -1,9 +1,9 @@
 package com.yeshimin.yeahboot.upms.domain.vo;
 
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
-import com.yeshimin.yeahboot.upms.domain.entity.SysOrgEntity;
-import com.yeshimin.yeahboot.upms.domain.entity.SysRoleEntity;
-import com.yeshimin.yeahboot.upms.domain.entity.SysUserEntity;
+import com.yeshimin.yeahboot.data.domain.entity.SysOrgEntity;
+import com.yeshimin.yeahboot.data.domain.entity.SysRoleEntity;
+import com.yeshimin.yeahboot.data.domain.entity.SysUserEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

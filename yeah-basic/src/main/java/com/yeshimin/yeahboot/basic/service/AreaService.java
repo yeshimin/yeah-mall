@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.basic.service;
 
-import com.yeshimin.yeahboot.basic.domain.entity.*;
 import com.yeshimin.yeahboot.basic.domain.vo.AreaVo;
-import com.yeshimin.yeahboot.basic.repository.*;
+import com.yeshimin.yeahboot.data.domain.entity.*;
+import com.yeshimin.yeahboot.data.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

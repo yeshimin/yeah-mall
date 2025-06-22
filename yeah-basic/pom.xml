@@ -18,6 +18,12 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-common</artifactId>
         </dependency>
+
+        <!-- common data module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-common-data</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
