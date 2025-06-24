@@ -31,8 +31,6 @@ public class ShopController extends BaseController {
     @GetMapping("/query")
     public R<Page<ShopEntity>> query(Page<ShopEntity> page, ShopEntity query) {
         Long userId = WebContextUtils.getUserId();
-        // check permission
-        permissionService.checkUserId(userId, query.getMerchantId());
         // 权限控制
         query.setMerchantId(userId);
         return R.ok(shopService.query(page, query));

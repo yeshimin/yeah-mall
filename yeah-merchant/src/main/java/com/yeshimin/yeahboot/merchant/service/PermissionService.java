@@ -20,6 +20,9 @@ public class PermissionService {
      * 获取用户的店铺，如果不属于该用户，则抛出异常
      */
     public ShopEntity getShop(Long merchantId, Long shopId) {
+        if (merchantId == null || shopId == null) {
+            throw new IllegalArgumentException("商户ID或店铺ID不能为空");
+        }
         ShopEntity entity = shopRepo.findOneByMerchantIdAndId(merchantId, shopId);
         if (entity == null) {
             throw new RuntimeException("无店铺权限");
@@ -31,18 +34,21 @@ public class PermissionService {
      * 统计用户的店铺，如果不属于该用户，则抛出异常
      */
     public void checkShop(Long merchantId, Long shopId) {
+        if (merchantId == null || shopId == null) {
+            throw new IllegalArgumentException("商户ID或店铺ID不能为空");
+        }
         long count = shopRepo.countByMerchantIdAndId(merchantId, shopId);
         if (count == 0) {
             throw new RuntimeException("无店铺权限");
         }
     }
 
-    /**
-     * 检查用户ID，如果会话用户ID与参数指定的用户ID不一致，则抛出异常
-     */
-    public void checkUserId(Long merchantId, Long paramId) {
-        if (paramId != null && !Objects.equals(merchantId, paramId)) {
-            throw new RuntimeException("无操作权限");
-        }
-    }
+//    /**
+//     * 检查用户ID，如果会话用户ID与参数指定的用户ID不一致，则抛出异常
+//     */
+//    public void checkUserId(Long merchantId, Long paramMerchantId) {
+//        if (paramMerchantId != null && !Objects.equals(merchantId, paramMerchantId)) {
+//            throw new RuntimeException("无操作权限");
+//        }
+//    }
 }
