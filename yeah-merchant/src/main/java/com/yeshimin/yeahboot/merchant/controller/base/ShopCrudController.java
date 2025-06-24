@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 /**
- * 提供基础的CRUD接口 for merchant shop
+ * 提供基础的CRUD接口 for merchant shop data
  *
  * @param <M> BaseMapper
  * @param <E> Entity
