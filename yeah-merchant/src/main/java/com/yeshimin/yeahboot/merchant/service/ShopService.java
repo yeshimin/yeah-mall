@@ -26,6 +26,6 @@ public class ShopService {
      * 详情
      */
     public ShopEntity detail(Long userId, Long id) {
-        return shopRepo.findOneByMerchantIdAndId(userId, id);
+        return shopRepo.findOneByMchIdAndId(userId, id);
     }
 }

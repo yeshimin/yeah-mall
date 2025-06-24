@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.merchant.data.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
+import com.yeshimin.yeahboot.merchant.data.domain.base.ShopConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("s_order")
-public class OrderEntity extends ConditionBaseEntity<OrderEntity> {
+public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
 
     /**
      * 订单编号

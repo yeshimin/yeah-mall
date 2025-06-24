@@ -30,7 +30,7 @@ public class ShopAdminService {
     @Transactional(rollbackFor = Exception.class)
     public ShopEntity create(ShopCreateDto dto) {
         // 检查：商家是否存在
-        if (merchantRepo.countById(dto.getMerchantId()) == 0) {
+        if (merchantRepo.countById(dto.getMchId()) == 0) {
             throw new BaseException("商家未找到");
         }
 

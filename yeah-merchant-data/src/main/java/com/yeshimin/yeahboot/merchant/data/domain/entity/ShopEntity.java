@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.merchant.data.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
+import com.yeshimin.yeahboot.merchant.data.domain.base.MchConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,12 +11,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("s_shop")
-public class ShopEntity extends ConditionBaseEntity<ShopEntity> {
-
-    /**
-     * 商家ID
-     */
-    private Long merchantId;
+public class ShopEntity extends MchConditionBaseEntity<ShopEntity> {
 
     /**
      * 店铺编号

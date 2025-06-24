@@ -79,8 +79,8 @@ auth:
         max-online-token-count: -1
         # 同一个账号的最大在线终端数量（默认-1，表示不限制）
         max-online-terminal-count: -1
-      - name: mct
-        api-prefix: /mct
+      - name: mch
+        api-prefix: /mch
         jwt:
           # 签发密钥
           secret: MuQuii1euhao6feez0foo5ooNe3Eit0e

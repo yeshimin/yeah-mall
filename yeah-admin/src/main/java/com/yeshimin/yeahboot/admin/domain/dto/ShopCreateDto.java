@@ -14,7 +14,7 @@ public class ShopCreateDto extends BaseDomain {
      * 商家ID
      */
     @NotNull(message = "商家ID不能为空")
-    private Long merchantId;
+    private Long mchId;
 
     /**
      * 店铺编号

@@ -18,22 +18,22 @@ public class ShopRepo extends BaseRepo<ShopMapper, ShopEntity> {
     }
 
     /**
-     * findOneByMerchantIdAndId
+     * findOneByMchIdAndId
      */
-    public ShopEntity findOneByMerchantIdAndId(Long merchantId, Long id) {
-        if (merchantId == null || id == null) {
-            throw new IllegalArgumentException("merchantId和shopNo不能为空");
+    public ShopEntity findOneByMchIdAndId(Long mchId, Long id) {
+        if (mchId == null || id == null) {
+            throw new IllegalArgumentException("mchId和shopNo不能为空");
         }
-        return lambdaQuery().eq(ShopEntity::getMerchantId, merchantId).eq(ShopEntity::getId, id).one();
+        return lambdaQuery().eq(ShopEntity::getMchId, mchId).eq(ShopEntity::getId, id).one();
     }
 
     /**
-     * countByMerchantIdAndId
+     * countByMchIdAndId
      */
-    public Long countByMerchantIdAndId(Long merchantId, Long id) {
-        if (merchantId == null || id == null) {
-            throw new IllegalArgumentException("merchantId和shopNo不能为空");
+    public Long countByMchIdAndId(Long mchId, Long id) {
+        if (mchId == null || id == null) {
+            throw new IllegalArgumentException("mchId和shopNo不能为空");
         }
-        return lambdaQuery().eq(ShopEntity::getMerchantId, merchantId).eq(ShopEntity::getId, id).count();
+        return lambdaQuery().eq(ShopEntity::getMchId, mchId).eq(ShopEntity::getId, id).count();
     }
 }

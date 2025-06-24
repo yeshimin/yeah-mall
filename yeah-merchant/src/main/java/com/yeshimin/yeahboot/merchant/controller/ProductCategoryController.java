@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
-import com.yeshimin.yeahboot.common.controller.base.CrudController;
+import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.data.domain.entity.ProductCategoryEntity;
 import com.yeshimin.yeahboot.merchant.data.mapper.ProductCategoryMapper;
 import com.yeshimin.yeahboot.merchant.data.repository.ProductCategoryRepo;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/productCategory")
-public class ProductCategoryController extends CrudController<ProductCategoryMapper, ProductCategoryEntity, ProductCategoryRepo> {
+public class ProductCategoryController extends ShopCrudController<ProductCategoryMapper, ProductCategoryEntity, ProductCategoryRepo> {
 
     @Autowired
     private ProductCategoryService service;

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 商家表
  */
 @RestController
-@RequestMapping("/mct/merchant")
+@RequestMapping("/mch/merchant")
 @RequiredArgsConstructor
 public class MerchantController extends BaseController {
 

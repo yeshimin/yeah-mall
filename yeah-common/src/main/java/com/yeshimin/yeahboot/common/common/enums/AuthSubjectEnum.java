@@ -13,7 +13,7 @@ public enum AuthSubjectEnum {
     // app
     APP("app", "App端"),
     // merchant
-    MERCHANT("mct", "商家端");
+    MERCHANT("mch", "商家端");
 
     private final String value;
     private final String desc;
