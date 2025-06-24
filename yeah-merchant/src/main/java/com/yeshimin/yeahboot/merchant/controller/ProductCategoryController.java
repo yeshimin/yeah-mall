@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 商品分类表
  */
 @RestController
-@RequestMapping("/productCategory")
+@RequestMapping("/mch/productCategory")
 public class ProductCategoryController extends ShopCrudController<ProductCategoryMapper, ProductCategoryEntity, ProductCategoryRepo> {
 
     @Autowired
