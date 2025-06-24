@@ -120,7 +120,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
             throw new RuntimeException("数据错误（店铺ID为空），请联系管理员！");
         }
         if (paramShopId != null && !Objects.equals(shopId, paramShopId)) {
-            throw new RuntimeException("无该店铺权限");
+            throw new RuntimeException("店铺ID不一致");
         }
     }
 }
