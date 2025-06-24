@@ -29,12 +29,21 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
 
     private final S service;
 
+    private boolean createDisabled = false;
+    private boolean queryDisabled = false;
+    private boolean detailDisabled = false;
+    private boolean updateDisabled = false;
+    private boolean deleteDisabled = false;
+
     /**
      * CRUD-创建
      */
     @PostMapping("/crud/create")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudCreate(@RequestBody E e) {
+        if (createDisabled) {
+            return R.fail("该接口已被禁用");
+        }
         boolean r = service.save(e);
         log.debug("crudCreate.result: {}", r);
         return R.ok(e);
@@ -45,6 +54,9 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
      */
     @GetMapping("/crud/query")
     public R<Page<E>> crudQuery(Page<E> page, E query) {
+        if (queryDisabled) {
+            return R.fail("该接口已被禁用");
+        }
         @SuppressWarnings("unchecked")
         Class<E> clazz = (Class<E>) query.getClass();
         return R.ok(service.page(page, QueryHelper.getQueryWrapper(query, clazz)));
@@ -55,6 +67,9 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
      */
     @GetMapping("/crud/detail")
     public R<E> crudDetail(Long id) {
+        if (detailDisabled) {
+            return R.fail("该接口已被禁用");
+        }
         E e = service.getById(id);
         if (e == null) {
             return R.fail("数据未找到");
@@ -68,6 +83,9 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     @PostMapping("/crud/update")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudUpdate(@RequestBody E e) {
+        if (updateDisabled) {
+            return R.fail("该接口已被禁用");
+        }
         boolean r = service.updateById(e);
         log.debug("crudUpdate.result: {}", r);
         if (!r) {
@@ -82,8 +100,53 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     @PostMapping("/crud/delete")
     @Transactional(rollbackFor = Exception.class)
     public R<Void> crudDelete(@RequestBody Collection<Long> ids) {
+        if (deleteDisabled) {
+            return R.fail("该接口已被禁用");
+        }
         boolean r = service.removeBatchByIds(ids);
         log.debug("crudDelete.result: {}", r);
         return R.ok();
+    }
+
+    // ================================================================================
+
+    /**
+     * disable create
+     */
+    public CrudController<M, E, S> disableCreate() {
+        createDisabled = true;
+        return this;
+    }
+
+    /**
+     * disable query
+     */
+    public CrudController<M, E, S> disableQuery() {
+        queryDisabled = true;
+        return this;
+    }
+
+    /**
+     * disable detail
+     */
+    public CrudController<M, E, S> disableDetail() {
+        detailDisabled = true;
+        return this;
+    }
+
+    /**
+     * disable update
+     */
+    public CrudController<M, E, S> disableUpdate() {
+        updateDisabled = true;
+        return this;
+    }
+
+    /**
+     * disable delete
+     */
+    public CrudController<M, E, S> disableDelete() {
+        deleteDisabled = true;
+        return this;
     }
 }
