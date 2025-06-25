@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.merchant.data.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.yeshimin.yeahboot.common.controller.validation.Create;
+import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.merchant.data.domain.base.ShopConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,7 +23,7 @@ public class ProductSkuEntity extends ShopConditionBaseEntity<ProductSkuEntity> 
     /**
      * 商品SPU ID
      */
-    @NotNull(message = "商品SPU ID不能为空", groups = {Create.class})
+    @NotNull(message = "商品SPU ID不能为空", groups = {Create.class, Query.class})
     private Long spuId;
 
     /**

@@ -3,12 +3,16 @@ package com.yeshimin.yeahboot.merchant.controller.base;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yeshimin.yeahboot.common.controller.validation.Create;
+import com.yeshimin.yeahboot.common.controller.validation.Query;
+import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.merchant.data.domain.base.ShopConditionBaseEntity;
 import com.yeshimin.yeahboot.merchant.service.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,7 +47,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
      */
     @PostMapping("/crud/create")
     @Transactional(rollbackFor = Exception.class)
-    public R<E> crudCreate(@RequestBody E e) {
+    public R<E> crudCreate(@Validated(Create.class) @RequestBody E e) {
         if (super.isCreateDisabled()) {
             return R.fail("该接口已被禁用");
         }
@@ -59,7 +63,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
      * CRUD-查询
      */
     @GetMapping("/crud/query")
-    public R<Page<E>> crudQuery(Page<E> page, E query) {
+    public R<Page<E>> crudQuery(Page<E> page, @Validated(Query.class) E query) {
         if (super.isQueryDisabled()) {
             return R.fail("该接口已被禁用");
         }
@@ -87,7 +91,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
      */
     @PostMapping("/crud/update")
     @Transactional(rollbackFor = Exception.class)
-    public R<E> crudUpdate(@RequestBody E e) {
+    public R<E> crudUpdate(@Validated(Update.class) @RequestBody E e) {
         if (super.isUpdateDisabled()) {
             return R.fail("该接口已被禁用");
         }
