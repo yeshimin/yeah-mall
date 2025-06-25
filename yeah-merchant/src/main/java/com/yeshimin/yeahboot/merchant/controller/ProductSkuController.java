@@ -1,11 +1,17 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
+import com.yeshimin.yeahboot.common.controller.validation.Create;
+import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.merchant.data.mapper.ProductSkuMapper;
 import com.yeshimin.yeahboot.merchant.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.merchant.service.ProductSkuService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,4 +32,14 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     }
 
     // ================================================================================
+
+    /**
+     * 创建
+     */
+    @PostMapping("/create")
+    @Transactional(rollbackFor = Exception.class)
+    public R<ProductSkuEntity> create(@Validated(Create.class) @RequestBody ProductSkuEntity e) {
+        Long userId = super.getUserId();
+        return R.ok(service.create(userId, e));
+    }
 }

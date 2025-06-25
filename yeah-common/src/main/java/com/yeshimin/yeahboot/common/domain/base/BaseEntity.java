@@ -3,9 +3,11 @@ package com.yeshimin.yeahboot.common.domain.base;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yeshimin.yeahboot.common.controller.validation.Update;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,6 +18,7 @@ public abstract class BaseEntity<T extends Model<T>> extends Model<T> {
      * 主键ID
      */
     @TableId(type = IdType.AUTO)
+    @NotNull(message = "ID不能为空", groups = {Update.class})
     private Long id;
 
     /**
