@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.domain.base.BaseEntity;
 import com.yeshimin.yeahboot.common.domain.base.R;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,10 +30,15 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
 
     private final S service;
 
+    @Getter
     private boolean createDisabled = false;
+    @Getter
     private boolean queryDisabled = false;
+    @Getter
     private boolean detailDisabled = false;
+    @Getter
     private boolean updateDisabled = false;
+    @Getter
     private boolean deleteDisabled = false;
 
     /**

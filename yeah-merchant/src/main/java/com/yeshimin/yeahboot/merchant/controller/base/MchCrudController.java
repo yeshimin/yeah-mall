@@ -5,11 +5,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
-import com.yeshimin.yeahboot.common.controller.base.BaseController;
+import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.merchant.data.domain.base.MchConditionBaseEntity;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,11 +26,15 @@ import java.util.Objects;
  * @param <S> ServiceImpl
  */
 @Slf4j
-@RequiredArgsConstructor
 public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBaseEntity<E>, S extends ServiceImpl<M, E>>
-        extends BaseController {
+        extends CrudController<M, E, S> {
 
-    private final S service;
+    @Autowired
+    private S service;
+
+    public MchCrudController(S service) {
+        super(service);
+    }
 
     /**
      * CRUD-创建
@@ -38,6 +42,9 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
     @PostMapping("/crud/create")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudCreate(@RequestBody E e) {
+        if (super.isCreateDisabled()) {
+            return R.fail("该接口已被禁用");
+        }
         if (e.getMchId() != null) {
             this.checkUserId(super.getUserId(), e.getMchId());
         } else {
@@ -55,6 +62,9 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
      */
     @GetMapping("/crud/query")
     public R<Page<E>> crudQuery(Page<E> page, E query) {
+        if (super.isQueryDisabled()) {
+            return R.fail("该接口已被禁用");
+        }
         if (query.getMchId() != null) {
             this.checkUserId(super.getUserId(), query.getMchId());
         } else {
@@ -72,6 +82,9 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
      */
     @GetMapping("/crud/detail")
     public R<E> crudDetail(Long id) {
+        if (super.isDetailDisabled()) {
+            return R.fail("该接口已被禁用");
+        }
         if (id == null) {
             return R.fail("ID不能为空");
         }
@@ -91,6 +104,9 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
     @PostMapping("/crud/update")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudUpdate(@RequestBody E e) {
+        if (super.isUpdateDisabled()) {
+            return R.fail("该接口已被禁用");
+        }
         if (e.getId() == null) {
             return R.fail("ID不能为空");
         }
@@ -117,6 +133,9 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
     @PostMapping("/crud/delete")
     @Transactional(rollbackFor = Exception.class)
     public R<Void> crudDelete(@RequestBody Collection<Long> ids) {
+        if (super.isDeleteDisabled()) {
+            return R.fail("该接口已被禁用");
+        }
         if (ids == null || ids.isEmpty()) {
             return R.fail("IDs不能为空");
         }

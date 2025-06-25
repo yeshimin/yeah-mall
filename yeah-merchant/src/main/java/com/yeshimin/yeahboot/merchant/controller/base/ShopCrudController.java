@@ -44,6 +44,9 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     @PostMapping("/crud/create")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudCreate(@RequestBody E e) {
+        if (super.isCreateDisabled()) {
+            return R.fail("该接口已被禁用");
+        }
         if (e.getShopId() == null) {
             return R.fail("店铺ID不能为空");
         }
@@ -57,6 +60,9 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
      */
     @GetMapping("/crud/query")
     public R<Page<E>> crudQuery(Page<E> page, E query) {
+        if (super.isQueryDisabled()) {
+            return R.fail("该接口已被禁用");
+        }
         if (query.getShopId() == null) {
             return R.fail("店铺ID不能为空");
         }
@@ -70,6 +76,9 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
      */
     @GetMapping("/crud/detail")
     public R<E> crudDetail(Long id) {
+        if (super.isDetailDisabled()) {
+            return R.fail("该接口已被禁用");
+        }
         return super.crudDetail(id);
     }
 
@@ -79,6 +88,9 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     @PostMapping("/crud/update")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudUpdate(@RequestBody E e) {
+        if (super.isUpdateDisabled()) {
+            return R.fail("该接口已被禁用");
+        }
         if (e.getId() == null) {
             return R.fail("ID不能为空");
         }
@@ -107,6 +119,9 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     @PostMapping("/crud/delete")
     @Transactional(rollbackFor = Exception.class)
     public R<Void> crudDelete(@RequestBody Collection<Long> ids) {
+        if (super.isDeleteDisabled()) {
+            return R.fail("该接口已被禁用");
+        }
         return super.crudDelete(ids);
     }
 
