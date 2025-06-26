@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.domain.base.BaseEntity;
 import com.yeshimin.yeahboot.common.domain.base.R;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,10 +31,17 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
 
     private final S service;
 
+    private String module;
+
+    @Getter
     private boolean createDisabled = false;
+    @Getter
     private boolean queryDisabled = false;
+    @Getter
     private boolean detailDisabled = false;
+    @Getter
     private boolean updateDisabled = false;
+    @Getter
     private boolean deleteDisabled = false;
 
     /**
@@ -52,6 +61,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     /**
      * CRUD-查询
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
     @GetMapping("/crud/query")
     public R<Page<E>> crudQuery(Page<E> page, E query) {
         if (queryDisabled) {
@@ -114,7 +124,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
      * disable create
      */
     public CrudController<M, E, S> disableCreate() {
-        createDisabled = true;
+        this.createDisabled = true;
         return this;
     }
 
@@ -122,7 +132,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
      * disable query
      */
     public CrudController<M, E, S> disableQuery() {
-        queryDisabled = true;
+        this.queryDisabled = true;
         return this;
     }
 
@@ -130,7 +140,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
      * disable detail
      */
     public CrudController<M, E, S> disableDetail() {
-        detailDisabled = true;
+        this.detailDisabled = true;
         return this;
     }
 
@@ -138,7 +148,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
      * disable update
      */
     public CrudController<M, E, S> disableUpdate() {
-        updateDisabled = true;
+        this.updateDisabled = true;
         return this;
     }
 
@@ -146,7 +156,21 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
      * disable delete
      */
     public CrudController<M, E, S> disableDelete() {
-        deleteDisabled = true;
+        this.deleteDisabled = true;
+        return this;
+    }
+
+    // ================================================================================
+
+    public String getModule() {
+        if (this.module == null || this.module.isEmpty()) {
+            throw new IllegalArgumentException("module不能为空，需要在controller构造函数中调用super.setModule方法进行设置");
+        }
+        return this.module;
+    }
+
+    public CrudController<M, E, S> setModule(String module) {
+        this.module = module;
         return this;
     }
 }
