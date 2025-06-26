@@ -11,6 +11,13 @@ import org.springframework.stereotype.Repository;
 public class ProductSkuRepo extends BaseRepo<ProductSkuMapper, ProductSkuEntity> {
 
     /**
+     * findOneByIdAndShopId
+     */
+    public ProductSkuEntity findOneByIdAndShopId(Long id, Long shopId) {
+        return lambdaQuery().eq(ProductSkuEntity::getId, id).eq(ProductSkuEntity::getShopId, shopId).one();
+    }
+
+    /**
      * countByIdAndShopId
      */
     public long countByIdAndShopId(Long id, Long shopId) {

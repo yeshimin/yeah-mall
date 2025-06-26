@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
 import com.yeshimin.yeahboot.common.controller.validation.Create;
+import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.data.domain.entity.ProductSkuEntity;
@@ -28,7 +29,7 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     public ProductSkuController(ProductSkuRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
-        super.disableCreate();
+        super.disableCreate().disableUpdate();
     }
 
     // ================================================================================
@@ -37,9 +38,18 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
      * 创建
      */
     @PostMapping("/create")
-    @Transactional(rollbackFor = Exception.class)
     public R<ProductSkuEntity> create(@Validated(Create.class) @RequestBody ProductSkuEntity e) {
         Long userId = super.getUserId();
         return R.ok(service.create(userId, e));
+    }
+
+    /**
+     * 更新
+     */
+    @PostMapping("/update")
+    @Transactional(rollbackFor = Exception.class)
+    public R<ProductSkuEntity> update(@Validated(Update.class) @RequestBody ProductSkuEntity e) {
+        Long userId = super.getUserId();
+        return R.ok(service.update(userId, e));
     }
 }

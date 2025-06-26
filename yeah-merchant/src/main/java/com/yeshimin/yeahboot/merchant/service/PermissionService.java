@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.merchant.service;
 
 import com.yeshimin.yeahboot.merchant.data.domain.base.ShopConditionBaseEntity;
+import com.yeshimin.yeahboot.merchant.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.merchant.data.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.merchant.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.merchant.data.repository.ShopRepo;
@@ -66,11 +67,28 @@ public class PermissionService {
     }
 
     /**
+     * 检查并获取SKU，如果不属于该店铺，则抛出异常
+     */
+    public ProductSkuEntity getSku(Long shopId, Long skuId) {
+        if (shopId == null || skuId == null) {
+            throw new IllegalArgumentException("店铺ID或SKU ID不能为空");
+        }
+        ProductSkuEntity entity = productSkuRepo.findOneByIdAndShopId(skuId, shopId);
+        if (entity == null) {
+            throw new RuntimeException("无该SKU权限");
+        }
+        return entity;
+    }
+
+    /**
      * 检查SKU ID权限
      */
     public void checkSku(Long shopId, Long skuId) {
-        if (shopId == null || skuId == null) {
-            throw new IllegalArgumentException("店铺ID或SKU ID不能为空");
+        if (shopId == null) {
+            throw new IllegalArgumentException("店铺ID不能为空");
+        }
+        if (skuId == null) {
+            return;
         }
         long count = productSkuRepo.countByIdAndShopId(skuId, shopId);
         if (count == 0) {
