@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.admin.controller;
 
-import com.yeshimin.yeahboot.merchant.data.domain.entity.OrderEntity;
-import com.yeshimin.yeahboot.merchant.data.mapper.OrderMapper;
-import com.yeshimin.yeahboot.merchant.data.repository.OrderRepo;
+import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
+import com.yeshimin.yeahboot.data.mapper.OrderMapper;
+import com.yeshimin.yeahboot.data.repository.OrderRepo;
 import com.yeshimin.yeahboot.admin.service.OrderAdminService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.admin.controller;
 
-import com.yeshimin.yeahboot.merchant.data.domain.entity.MemberEntity;
-import com.yeshimin.yeahboot.merchant.data.mapper.MemberMapper;
-import com.yeshimin.yeahboot.merchant.data.repository.MemberRepo;
+import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
+import com.yeshimin.yeahboot.data.mapper.MemberMapper;
+import com.yeshimin.yeahboot.data.repository.MemberRepo;
 import com.yeshimin.yeahboot.admin.service.MemberAdminService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import org.springframework.beans.factory.annotation.Autowired;

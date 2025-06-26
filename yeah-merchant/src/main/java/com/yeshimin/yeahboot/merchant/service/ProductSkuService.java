@@ -2,8 +2,8 @@ package com.yeshimin.yeahboot.merchant.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.merchant.data.domain.entity.ProductSkuEntity;
-import com.yeshimin.yeahboot.merchant.data.repository.ProductSkuRepo;
+import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
+import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

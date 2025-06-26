@@ -3,7 +3,7 @@ package com.yeshimin.yeahboot.merchant.controller;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
-import com.yeshimin.yeahboot.merchant.data.domain.entity.MerchantEntity;
+import com.yeshimin.yeahboot.data.domain.entity.MerchantEntity;
 import com.yeshimin.yeahboot.merchant.service.MerchantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

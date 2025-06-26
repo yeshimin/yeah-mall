@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.admin.controller;
 
-import com.yeshimin.yeahboot.merchant.data.domain.entity.ProductSpuEntity;
-import com.yeshimin.yeahboot.merchant.data.mapper.ProductSpuMapper;
-import com.yeshimin.yeahboot.merchant.data.repository.ProductSpuRepo;
+import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.data.mapper.ProductSpuMapper;
+import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.admin.service.ProductSpuAdminService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import org.springframework.beans.factory.annotation.Autowired;

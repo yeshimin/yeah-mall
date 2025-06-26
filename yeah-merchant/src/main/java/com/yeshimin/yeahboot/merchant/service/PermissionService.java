@@ -1,10 +1,10 @@
 package com.yeshimin.yeahboot.merchant.service;
 
-import com.yeshimin.yeahboot.merchant.data.domain.base.ShopConditionBaseEntity;
-import com.yeshimin.yeahboot.merchant.data.domain.entity.ProductSkuEntity;
-import com.yeshimin.yeahboot.merchant.data.domain.entity.ShopEntity;
-import com.yeshimin.yeahboot.merchant.data.repository.ProductSkuRepo;
-import com.yeshimin.yeahboot.merchant.data.repository.ShopRepo;
+import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
+import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
+import com.yeshimin.yeahboot.data.repository.ShopRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

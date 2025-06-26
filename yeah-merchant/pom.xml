@@ -29,10 +29,10 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-auth</artifactId>
         </dependency>
-        <!-- merchant data module -->
+        <!-- biz data module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>
-            <artifactId>yeah-merchant-data</artifactId>
+            <artifactId>yeah-biz-data</artifactId>
         </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->

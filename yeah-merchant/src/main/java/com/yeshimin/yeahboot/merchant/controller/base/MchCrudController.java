@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.R;
-import com.yeshimin.yeahboot.merchant.data.domain.base.MchConditionBaseEntity;
+import com.yeshimin.yeahboot.data.domain.base.MchConditionBaseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

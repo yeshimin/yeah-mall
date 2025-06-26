@@ -2,8 +2,8 @@ package com.yeshimin.yeahboot.merchant.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
-import com.yeshimin.yeahboot.merchant.data.domain.entity.BannerEntity;
-import com.yeshimin.yeahboot.merchant.data.repository.BannerRepo;
+import com.yeshimin.yeahboot.data.domain.entity.BannerEntity;
+import com.yeshimin.yeahboot.data.repository.BannerRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

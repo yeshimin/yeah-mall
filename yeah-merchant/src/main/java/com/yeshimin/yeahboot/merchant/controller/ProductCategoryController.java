@@ -1,9 +1,9 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
+import com.yeshimin.yeahboot.data.domain.entity.ProductCategoryEntity;
+import com.yeshimin.yeahboot.data.mapper.ProductCategoryMapper;
+import com.yeshimin.yeahboot.data.repository.ProductCategoryRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
-import com.yeshimin.yeahboot.merchant.data.domain.entity.ProductCategoryEntity;
-import com.yeshimin.yeahboot.merchant.data.mapper.ProductCategoryMapper;
-import com.yeshimin.yeahboot.merchant.data.repository.ProductCategoryRepo;
 import com.yeshimin.yeahboot.merchant.service.ProductCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;

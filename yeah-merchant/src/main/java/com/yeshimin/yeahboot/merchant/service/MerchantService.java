@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.merchant.service;
 
-import com.yeshimin.yeahboot.merchant.data.domain.entity.MerchantEntity;
-import com.yeshimin.yeahboot.merchant.data.repository.MerchantRepo;
+import com.yeshimin.yeahboot.data.domain.entity.MerchantEntity;
+import com.yeshimin.yeahboot.data.repository.MerchantRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

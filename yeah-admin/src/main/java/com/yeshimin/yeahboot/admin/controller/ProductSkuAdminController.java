@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.admin.controller;
 
-import com.yeshimin.yeahboot.merchant.data.domain.entity.ProductSkuEntity;
-import com.yeshimin.yeahboot.merchant.data.mapper.ProductSkuMapper;
-import com.yeshimin.yeahboot.merchant.data.repository.ProductSkuRepo;
+import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
+import com.yeshimin.yeahboot.data.mapper.ProductSkuMapper;
+import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.admin.service.ProductSkuAdminService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import org.springframework.beans.factory.annotation.Autowired;

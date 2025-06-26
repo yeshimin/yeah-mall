@@ -7,7 +7,7 @@ import com.yeshimin.yeahboot.common.controller.validation.Create;
 import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
-import com.yeshimin.yeahboot.merchant.data.domain.base.ShopConditionBaseEntity;
+import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
 import com.yeshimin.yeahboot.merchant.service.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
