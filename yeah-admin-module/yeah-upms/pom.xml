@@ -4,19 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.yeshimin</groupId>
-        <artifactId>yeah-boot</artifactId>
+        <groupId>com.yeshimin.yeahboot</groupId>
+        <artifactId>yeah-admin-module</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.yeshimin.yeahboot</groupId>
     <artifactId>yeah-upms</artifactId>
 
     <dependencies>
         <!-- common module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>
-            <artifactId>yeah-common</artifactId>
+            <artifactId>yeah-common-core</artifactId>
         </dependency>
         <!-- common data module -->
         <dependency>

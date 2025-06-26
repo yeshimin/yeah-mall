@@ -22,7 +22,7 @@
         <!-- common module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>
-            <artifactId>yeah-common</artifactId>
+            <artifactId>yeah-common-core</artifactId>
         </dependency>
         <!-- auth module -->
         <dependency>

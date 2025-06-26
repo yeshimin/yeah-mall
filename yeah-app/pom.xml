@@ -22,7 +22,7 @@
         <!-- common module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>
-            <artifactId>yeah-common</artifactId>
+            <artifactId>yeah-common-core</artifactId>
         </dependency>
         <!-- auth module -->
         <dependency>
@@ -32,7 +32,7 @@
         <!-- app data module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>
-            <artifactId>yeah-app-data</artifactId>
+            <artifactId>yeah-biz-data</artifactId>
         </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->
