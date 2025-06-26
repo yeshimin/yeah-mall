@@ -3,15 +3,23 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-admin-module/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-admin-module/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-admin-module/yeah-basic/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-admin-module/yeah-upms/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/yeah-admin/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/yeah-app-data/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/yeah-app/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/yeah-auth/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/yeah-basic/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-biz-data/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/yeah-business/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-common-core/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/yeah-common-data/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/yeah-common/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/yeah-generator/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-common/yeah-auth/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-common/yeah-common-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-common/yeah-common-data/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/yeah-common/yeah-generator/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/yeah-upms/src/main/java" charset="UTF-8" />
   </component>
 </project>

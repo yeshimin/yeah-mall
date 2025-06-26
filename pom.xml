@@ -17,14 +17,10 @@
     <packaging>pom</packaging>
     <modules>
         <module>yeah-admin</module>
+        <module>yeah-admin-module</module>
         <module>yeah-app</module>
-        <module>yeah-auth</module>
-        <module>yeah-basic</module>
+        <module>yeah-biz-data</module>
         <module>yeah-common</module>
-        <module>yeah-generator</module>
-        <module>yeah-upms</module>
-        <module>yeah-common-data</module>
-        <module>yeah-app-data</module>
     </modules>
 
     <properties>
@@ -79,10 +75,16 @@
             </dependency>
 
             <!-- ================================================================================ -->
+            <!-- admin (sub)module(s) -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-admin-module</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
             <!-- common module -->
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
-                <artifactId>yeah-common</artifactId>
+                <artifactId>yeah-common-core</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <!-- upms module -->
@@ -124,7 +126,7 @@
             <!-- app data module -->
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
-                <artifactId>yeah-app-data</artifactId>
+                <artifactId>yeah-biz-data</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <!-- ================================================================================ -->
