@@ -14,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -48,19 +49,21 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
         WebContextUtils.setSubject(authVo.getSubject());
         WebContextUtils.setTerminal(authVo.getTerminal());
         WebContextUtils.setUsername(authVo.getUsername());
+        WebContextUtils.setRoles(authVo.getRoles());
+        WebContextUtils.setResources(authVo.getResources());
 //        Optional.ofNullable(authVo.getUser()).ifPresent(user -> {
 //            WebContextUtils.setUsername(user.getUsername());
 //            WebContextUtils.setNickname(user.getNickname());
 //        });
 
         // role
-        List<String> listAuthority = authVo.getRoles().stream().map(s -> "ROLE_" + s).collect(Collectors.toList());
+        Set<String> authoritySet = authVo.getRoles().stream().map(s -> "ROLE_" + s).collect(Collectors.toSet());
         // add resource
-        listAuthority.addAll(authVo.getResources());
+        authoritySet.addAll(authVo.getResources());
 //        // add subject(sub-system) and terminal
-//        listAuthority.add(authVo.getSubject());
-//        listAuthority.add(authVo.getTerminal());
-        String commaSeparatedRoles = String.join(",", listAuthority);
+//        authoritySet.add(authVo.getSubject());
+//        authoritySet.add(authVo.getTerminal());
+        String commaSeparatedRoles = String.join(",", authoritySet);
 
         // set authorities
         List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(commaSeparatedRoles);

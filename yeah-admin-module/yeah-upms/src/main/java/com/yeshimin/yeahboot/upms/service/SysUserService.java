@@ -417,16 +417,18 @@ public class SysUserService {
         }
 
         // 查询角色
-        Set<Long> roleIds = sysUserRoleRepo.findListByUserId(userId)
-                .stream().map(SysUserRoleEntity::getRoleId).collect(Collectors.toSet());
-        List<String> roles = roleIds.isEmpty() ? Collections.emptyList() :
-                sysRoleRepo.listByIds(roleIds).stream().map(SysRoleEntity::getName).collect(Collectors.toList());
+        List<Long> roleIds = sysUserRoleRepo.findListByUserId(userId)
+                .stream().map(SysUserRoleEntity::getRoleId).collect(Collectors.toList());
+        Set<String> roles = roleIds.isEmpty() ? Collections.emptySet() :
+                sysRoleRepo.listByIds(roleIds).stream()
+                        .map(SysRoleEntity::getCode).filter(StrUtil::isNotBlank).collect(Collectors.toSet());
 
         // 查询资源
         List<Long> resIds = sysRoleResRepo.findListByRoleIds(roleIds)
                 .stream().map(SysRoleResEntity::getResId).distinct().collect(Collectors.toList());
-        List<String> resources = resIds.isEmpty() ? Collections.emptyList() :
-                sysResRepo.listByIds(resIds).stream().map(SysResEntity::getName).collect(Collectors.toList());
+        Set<String> resources = resIds.isEmpty() ? Collections.emptySet() :
+                sysResRepo.listByIds(resIds).stream()
+                        .map(SysResEntity::getPermission).filter(StrUtil::isNotBlank).collect(Collectors.toSet());
 
         UserRolesAndResourcesVo vo = new UserRolesAndResourcesVo();
         vo.setUser(user);

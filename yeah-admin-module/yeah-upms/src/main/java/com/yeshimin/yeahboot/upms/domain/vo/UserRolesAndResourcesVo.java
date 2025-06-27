@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -19,10 +20,10 @@ public class UserRolesAndResourcesVo extends BaseDomain {
     /**
      * 角色列表
      */
-    private List<String> roles;
+    private Set<String> roles;
 
     /**
      * 资源列表
      */
-    private List<String> resources;
+    private Set<String> resources;
 }
