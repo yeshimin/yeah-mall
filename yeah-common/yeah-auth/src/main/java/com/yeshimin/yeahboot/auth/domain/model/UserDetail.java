@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.auth.domain.model;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 /**
  * 鉴权用户详情
@@ -10,11 +10,11 @@ public interface UserDetail {
 
     String getUsername();
 
-    default List<String> getRoles() {
-        return Collections.emptyList();
+    default Set<String> getRoles() {
+        return Collections.emptySet();
     }
 
-    default List<String> getResources() {
-        return Collections.emptyList();
+    default Set<String> getResources() {
+        return Collections.emptySet();
     }
 }

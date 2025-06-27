@@ -47,6 +47,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     /**
      * CRUD-创建
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
     @PostMapping("/crud/create")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudCreate(@RequestBody E e) {
@@ -75,6 +76,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     /**
      * CRUD-详情
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:detail')")
     @GetMapping("/crud/detail")
     public R<E> crudDetail(Long id) {
         if (detailDisabled) {
@@ -90,6 +92,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     /**
      * CRUD-更新
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/crud/update")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudUpdate(@RequestBody E e) {
@@ -107,6 +110,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     /**
      * CRUD-删除
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:delete')")
     @PostMapping("/crud/delete")
     @Transactional(rollbackFor = Exception.class)
     public R<Void> crudDelete(@RequestBody Collection<Long> ids) {

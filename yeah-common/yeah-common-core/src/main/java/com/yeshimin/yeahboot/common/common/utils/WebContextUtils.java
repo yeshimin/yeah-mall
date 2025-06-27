@@ -1,5 +1,8 @@
 package com.yeshimin.yeahboot.common.common.utils;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Web上下文工具
  */
@@ -9,8 +12,12 @@ public class WebContextUtils {
     private static final ThreadLocal<Long> USER_ID = new ThreadLocal<>();
     private static final ThreadLocal<String> USERNAME = new ThreadLocal<>();
     private static final ThreadLocal<String> SUBJECT = new ThreadLocal<>();
-    // 值可能为空
+    // 设备终端，值可能为空
     private static final ThreadLocal<String> TERMINAL = new ThreadLocal<>();
+    // 用户角色集合
+    private static final ThreadLocal<Set<String>> ROLES = new ThreadLocal<>();
+    // 用户资源集合
+    private static final ThreadLocal<Set<String>> RESOURCES = new ThreadLocal<>();
 
     public static String getToken() {
         return TOKEN.get();
@@ -82,6 +89,35 @@ public class WebContextUtils {
     }
 
     // ================================================================================
+    // 用户角色和资源
+
+    public static Set<String> getRoles() {
+        Set<String> roles = ROLES.get();
+        return roles == null ? new HashSet<>(0) : roles;
+    }
+
+    public static void setRoles(Set<String> roles) {
+        ROLES.set(roles);
+    }
+
+    public static void removeRoles() {
+        ROLES.remove();
+    }
+
+    public static Set<String> getResources() {
+        Set<String> resources = RESOURCES.get();
+        return resources == null ? new HashSet<>(0) : resources;
+    }
+
+    public static void setResources(Set<String> resources) {
+        RESOURCES.set(resources);
+    }
+
+    public static void removeResources() {
+        RESOURCES.remove();
+    }
+
+    // ================================================================================
 
     public static void clear() {
         removeToken();
@@ -89,5 +125,7 @@ public class WebContextUtils {
         removeUsername();
         removeSubject();
         removeTerminal();
+        removeRoles();
+        removeResources();
     }
 }

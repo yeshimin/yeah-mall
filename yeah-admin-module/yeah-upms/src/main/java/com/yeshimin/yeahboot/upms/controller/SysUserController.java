@@ -7,16 +7,16 @@ import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.IdsDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.dto.SysUserQueryDto;
-import com.yeshimin.yeahboot.upms.domain.dto.*;
 import com.yeshimin.yeahboot.data.domain.entity.SysOrgEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysPostEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysRoleEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysUserEntity;
+import com.yeshimin.yeahboot.data.mapper.SysUserMapper;
+import com.yeshimin.yeahboot.data.repository.SysUserRepo;
+import com.yeshimin.yeahboot.upms.domain.dto.*;
 import com.yeshimin.yeahboot.upms.domain.vo.MineVo;
 import com.yeshimin.yeahboot.upms.domain.vo.SysUserResTreeNodeVo;
 import com.yeshimin.yeahboot.upms.domain.vo.SysUserVo;
-import com.yeshimin.yeahboot.data.mapper.SysUserMapper;
-import com.yeshimin.yeahboot.data.repository.SysUserRepo;
 import com.yeshimin.yeahboot.upms.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +37,7 @@ public class SysUserController extends CrudController<SysUserMapper, SysUserEnti
     public SysUserController(SysUserRepo sysUserRepo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(sysUserRepo);
+        setModule("admin:sysUser");
     }
 
     // ================================================================================

@@ -22,4 +22,9 @@ public class YeahBootProperties {
      * 是否开启验证码校验
      */
     private Boolean captchaEnabled;
+
+    /**
+     * 是否安全模式
+     */
+    private Boolean safeMode;
 }
