@@ -11,6 +11,7 @@ import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
 import com.yeshimin.yeahboot.merchant.service.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +46,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     /**
      * CRUD-创建
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
     @PostMapping("/crud/create")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudCreate(@Validated(Create.class) @RequestBody E e) {
@@ -62,6 +64,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     /**
      * CRUD-查询
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
     @GetMapping("/crud/query")
     public R<Page<E>> crudQuery(Page<E> page, @Validated(Query.class) E query) {
         if (super.isQueryDisabled()) {
@@ -78,6 +81,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     /**
      * CRUD-详情
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:detail')")
     @GetMapping("/crud/detail")
     public R<E> crudDetail(Long id) {
         if (super.isDetailDisabled()) {
@@ -89,6 +93,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     /**
      * CRUD-更新
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/crud/update")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudUpdate(@Validated(Update.class) @RequestBody E e) {
@@ -120,6 +125,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     /**
      * CRUD-删除
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:delete')")
     @PostMapping("/crud/delete")
     @Transactional(rollbackFor = Exception.class)
     public R<Void> crudDelete(@RequestBody Collection<Long> ids) {

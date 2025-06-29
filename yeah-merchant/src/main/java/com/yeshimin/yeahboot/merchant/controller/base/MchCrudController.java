@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.base.MchConditionBaseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +40,7 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
     /**
      * CRUD-创建
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
     @PostMapping("/crud/create")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudCreate(@RequestBody E e) {
@@ -60,6 +62,7 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
     /**
      * CRUD-查询
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
     @GetMapping("/crud/query")
     public R<Page<E>> crudQuery(Page<E> page, E query) {
         if (super.isQueryDisabled()) {
@@ -80,6 +83,7 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
     /**
      * CRUD-详情
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:detail')")
     @GetMapping("/crud/detail")
     public R<E> crudDetail(Long id) {
         if (super.isDetailDisabled()) {
@@ -101,6 +105,7 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
     /**
      * CRUD-更新
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/crud/update")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudUpdate(@RequestBody E e) {
@@ -130,6 +135,7 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
     /**
      * CRUD-删除
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:delete')")
     @PostMapping("/crud/delete")
     @Transactional(rollbackFor = Exception.class)
     public R<Void> crudDelete(@RequestBody Collection<Long> ids) {

@@ -29,7 +29,7 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     public ProductSkuController(ProductSkuRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
-        super.disableCreate().disableUpdate();
+        super.setModule("mch:productSku").disableCreate().disableUpdate();
     }
 
     // ================================================================================
