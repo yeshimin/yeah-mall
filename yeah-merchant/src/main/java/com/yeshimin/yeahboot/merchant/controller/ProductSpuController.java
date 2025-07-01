@@ -3,7 +3,6 @@ package com.yeshimin.yeahboot.merchant.controller;
 import com.yeshimin.yeahboot.common.controller.validation.Create;
 import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSpuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
