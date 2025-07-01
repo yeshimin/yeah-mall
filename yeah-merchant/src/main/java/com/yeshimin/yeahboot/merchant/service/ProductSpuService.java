@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.merchant.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
@@ -7,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -29,6 +32,25 @@ public class ProductSpuService {
 
         boolean r = productSpuRepo.save(e);
         log.debug("save.result：{}", r);
+        return e;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ProductSpuEntity update(Long userId, ProductSpuEntity e) {
+        // 权限检查和控制
+        permissionService.checkMchAndShop(userId, e);
+
+        ProductSpuEntity old = productSpuRepo.getOneById(e.getId());
+
+        // 检查：同一个商品SPU下，SKU名称不能重复
+        if (StrUtil.isNotBlank(e.getName()) && !Objects.equals(old.getName(), e.getName())) {
+            if (productSpuRepo.countByShopIdAndName(e.getShopId(), e.getName()) > 0) {
+                throw new BaseException("同一个店铺下，SPU名称不能重复");
+            }
+        }
+
+        boolean r = productSpuRepo.updateById(e);
+        log.debug("update.result：{}", r);
         return e;
     }
 }
