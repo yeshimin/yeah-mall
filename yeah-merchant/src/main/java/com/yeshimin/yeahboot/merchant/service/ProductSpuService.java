@@ -3,12 +3,14 @@ package com.yeshimin.yeahboot.merchant.service;
 import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Objects;
 
 @Slf4j
@@ -19,6 +21,7 @@ public class ProductSpuService {
     private final PermissionService permissionService;
 
     private final ProductSpuRepo productSpuRepo;
+    private final ProductSkuRepo productSkuRepo;
 
     @Transactional(rollbackFor = Exception.class)
     public ProductSpuEntity create(Long userId, ProductSpuEntity e) {
@@ -52,5 +55,18 @@ public class ProductSpuService {
         boolean r = productSpuRepo.updateById(e);
         log.debug("update.result：{}", r);
         return e;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(Long userId, Collection<Long> ids) {
+        // 检查权限
+        if (productSpuRepo.countByIdsAndNotUserId(userId, ids) > 0) {
+            throw new BaseException("包含无权限数据");
+        }
+
+        // 删除sku
+        productSkuRepo.deleteBySpuIds(ids);
+        // 删除spu
+        productSpuRepo.removeByIds(ids);
     }
 }

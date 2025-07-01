@@ -6,6 +6,8 @@ import com.yeshimin.yeahboot.data.mapper.ProductSkuMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+
 @Slf4j
 @Repository
 public class ProductSkuRepo extends BaseRepo<ProductSkuMapper, ProductSkuEntity> {
@@ -29,5 +31,15 @@ public class ProductSkuRepo extends BaseRepo<ProductSkuMapper, ProductSkuEntity>
      */
     public long countBySpuIdAndName(Long spuId, String name) {
         return lambdaQuery().eq(ProductSkuEntity::getSpuId, spuId).eq(ProductSkuEntity::getName, name).count();
+    }
+
+    /**
+     * deleteBySpuIds
+     */
+    public boolean deleteBySpuIds(Collection<Long> spuIds) {
+        if (spuIds == null || spuIds.isEmpty()) {
+            return false;
+        }
+        return lambdaUpdate().in(ProductSkuEntity::getSpuId, spuIds).remove();
     }
 }
