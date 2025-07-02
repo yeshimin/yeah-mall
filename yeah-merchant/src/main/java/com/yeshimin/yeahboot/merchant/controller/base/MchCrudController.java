@@ -1,6 +1,5 @@
 package com.yeshimin.yeahboot.merchant.controller.base;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -146,12 +146,21 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
             return R.fail("IDs不能为空");
         }
 
-        LambdaQueryWrapper<E> wrapper = new LambdaQueryWrapper<>();
-        wrapper.in(E::getId, ids);
-        wrapper.ne(E::getMchId, super.getUserId());
-        long count = service.count(wrapper);
-        if (count > 0) {
-            return R.fail("存在无权限的数据");
+        // com.baomidou.mybatisplus.core.exceptions.MybatisPlusException: can not find lambda cache for this entity [com.yeshimin.yeahboot.data.domain.base.MchConditionBaseEntity]
+//        LambdaQueryWrapper<E> wrapper = new LambdaQueryWrapper<>();
+//        wrapper.in(E::getId, ids);
+//        wrapper.ne(E::getMchId, super.getUserId());
+//        long count = service.count(wrapper);
+//        if (count > 0) {
+//            return R.fail("存在无权限的数据");
+//        }
+
+        List<E> list = service.listByIds(ids);
+        Long mchId = super.getUserId();
+        for (E e : list) {
+            if (!Objects.equals(e.getMchId(), mchId)) {
+                return R.fail("存在无权限的数据");
+            }
         }
 
         boolean r = service.removeByIds(ids);

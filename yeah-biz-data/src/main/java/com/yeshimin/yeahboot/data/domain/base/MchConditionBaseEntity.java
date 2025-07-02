@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class MchConditionBaseEntity<T extends ConditionBaseEntity<T>> extends ConditionBaseEntity<T> {
+public abstract class MchConditionBaseEntity<T extends ConditionBaseEntity<T>> extends ConditionBaseEntity<T> {
 
     /**
      * 商户ID

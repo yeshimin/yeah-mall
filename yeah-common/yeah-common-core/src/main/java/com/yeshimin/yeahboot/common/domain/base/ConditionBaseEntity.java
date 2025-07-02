@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Query(custom = true)
-public class ConditionBaseEntity<T extends BaseEntity<T>> extends BaseEntity<T> {
+public abstract class ConditionBaseEntity<T extends BaseEntity<T>> extends BaseEntity<T> {
 
     /**
      * 客户端自定义查询条件，需要在@Query中显式开启
