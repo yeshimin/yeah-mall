@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collection;
+
 /**
  * 商品SPU表
  */
@@ -29,7 +31,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     public ProductSpuController(ProductSpuRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
-        super.setModule("mch:productSpu").disableCreate().disableUpdate();
+        super.setModule("mch:productSpu").disableCreate().disableUpdate().disableDelete();
     }
 
     // ================================================================================
@@ -52,5 +54,16 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     public R<ProductSpuEntity> update(@Validated(Update.class) @RequestBody ProductSpuEntity e) {
         Long userId = super.getUserId();
         return R.ok(service.update(userId, e));
+    }
+
+    /**
+     * 删除
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
+    @PostMapping("/delete")
+    public R<Void> delete(@RequestBody Collection<Long> ids) {
+        Long userId = super.getUserId();
+        service.delete(userId, ids);
+        return R.ok();
     }
 }
