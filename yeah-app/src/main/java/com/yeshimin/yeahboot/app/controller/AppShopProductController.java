@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -26,7 +27,15 @@ public class AppShopProductController extends BaseController {
      * 查询
      */
     @GetMapping("/query")
-    public R<IPage<ShopProductVo>> query(Page<ProductSpuEntity> page, Long shopId) {
+    public R<IPage<ShopProductVo>> query(Page<ProductSpuEntity> page, @RequestParam Long shopId) {
         return R.ok(service.query(page, shopId));
+    }
+
+    /**
+     * 详情
+     */
+    @GetMapping("/detail")
+    public R<ShopProductVo> detail(@RequestParam Long id) {
+        return R.ok(service.detail(id));
     }
 }

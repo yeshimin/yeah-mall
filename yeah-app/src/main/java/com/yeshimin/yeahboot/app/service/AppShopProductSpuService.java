@@ -27,4 +27,12 @@ public class AppShopProductSpuService {
                 .orderByDesc(ProductSpuEntity::getCreateTime);
         return productSpuRepo.page(page, wrapper).convert(e -> BeanUtil.copyProperties(e, ShopProductVo.class));
     }
+
+    /**
+     * detail
+     */
+    public ShopProductVo detail(Long id) {
+        ProductSpuEntity entity = productSpuRepo.getOneById(id);
+        return BeanUtil.copyProperties(entity, ShopProductVo.class);
+    }
 }
