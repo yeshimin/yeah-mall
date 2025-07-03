@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.app.domain.vo.ShopProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.ShopProductVo;
 import com.yeshimin.yeahboot.app.service.AppShopProductSpuService;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
@@ -35,7 +36,7 @@ public class AppShopProductController extends BaseController {
      * 详情
      */
     @GetMapping("/detail")
-    public R<ShopProductVo> detail(@RequestParam Long id) {
+    public R<ShopProductDetailVo> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));
     }
 }

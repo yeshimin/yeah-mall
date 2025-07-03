@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.app.domain.vo.ShopProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.ShopProductVo;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
@@ -31,8 +32,8 @@ public class AppShopProductSpuService {
     /**
      * detail
      */
-    public ShopProductVo detail(Long id) {
+    public ShopProductDetailVo detail(Long id) {
         ProductSpuEntity entity = productSpuRepo.getOneById(id);
-        return BeanUtil.copyProperties(entity, ShopProductVo.class);
+        return BeanUtil.copyProperties(entity, ShopProductDetailVo.class);
     }
 }
