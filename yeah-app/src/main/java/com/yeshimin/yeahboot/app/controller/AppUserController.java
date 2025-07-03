@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AppUserController extends BaseController {
 
-    private final AppUserService appUserService;
+    private final AppUserService service;
 
     /**
      * 详情
@@ -28,6 +28,6 @@ public class AppUserController extends BaseController {
     @GetMapping("/detail")
     public R<AppUserEntity> detail() {
         Long userId = WebContextUtils.getUserId();
-        return R.ok(appUserService.detail(userId));
+        return R.ok(service.detail(userId));
     }
 }
