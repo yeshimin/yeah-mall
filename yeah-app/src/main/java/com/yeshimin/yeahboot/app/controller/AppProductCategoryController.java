@@ -5,6 +5,7 @@ import com.yeshimin.yeahboot.app.service.AppProductCategoryService;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +25,7 @@ public class AppProductCategoryController extends BaseController {
     /**
      * 查询
      */
-    @RequestMapping("/query")
+    @GetMapping("/query")
     public R<List<ProductCategoryVo>> query(@RequestParam Long shopId) {
         return R.ok(service.query(shopId));
     }
