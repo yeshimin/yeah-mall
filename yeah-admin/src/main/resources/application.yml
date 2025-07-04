@@ -109,7 +109,7 @@ yeah-boot:
     password: ${spring.datasource.password}
     author: yeshimin
     pack: com.yeshimin.yeahboot
-    module: admin
+    module: data
     table-prefix:
       - t_
       - s_
