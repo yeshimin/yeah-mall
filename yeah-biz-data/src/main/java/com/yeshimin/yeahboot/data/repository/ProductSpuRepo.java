@@ -20,12 +20,12 @@ public class ProductSpuRepo extends BaseRepo<ProductSpuMapper, ProductSpuEntity>
     }
 
     /**
-     * 统计ids中不属于userId的数据
+     * 统计ids中不属于mchId的数据
      */
-    public long countByIdsAndNotUserId(Long userId, Collection<Long> ids) {
+    public long countByIdsAndNotMchId(Long mchId, Collection<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             throw new IllegalArgumentException("ids不能为空");
         }
-        return lambdaQuery().in(ProductSpuEntity::getId, ids).ne(ProductSpuEntity::getMchId, userId).count();
+        return lambdaQuery().in(ProductSpuEntity::getId, ids).ne(ProductSpuEntity::getMchId, mchId).count();
     }
 }

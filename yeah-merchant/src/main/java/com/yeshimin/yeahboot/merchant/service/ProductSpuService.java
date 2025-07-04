@@ -60,7 +60,7 @@ public class ProductSpuService {
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long userId, Collection<Long> ids) {
         // 检查权限
-        if (productSpuRepo.countByIdsAndNotUserId(userId, ids) > 0) {
+        if (productSpuRepo.countByIdsAndNotMchId(userId, ids) > 0) {
             throw new BaseException("包含无权限数据");
         }
 

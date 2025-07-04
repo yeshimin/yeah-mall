@@ -6,6 +6,8 @@ import com.yeshimin.yeahboot.data.mapper.ProductSpecDefMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+
 @Slf4j
 @Repository
 public class ProductSpecDefRepo extends BaseRepo<ProductSpecDefMapper, ProductSpecDefEntity> {
@@ -18,5 +20,15 @@ public class ProductSpecDefRepo extends BaseRepo<ProductSpecDefMapper, ProductSp
                 .eq(ProductSpecDefEntity::getShopId, shopId)
                 .eq(ProductSpecDefEntity::getSpecName, specName)
                 .count();
+    }
+
+    /**
+     * 统计ids中不属于mchId的数据
+     */
+    public long countByIdsAndNotMchId(Long mchId, Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("ids不能为空");
+        }
+        return lambdaQuery().in(ProductSpecDefEntity::getId, ids).ne(ProductSpecDefEntity::getMchId, mchId).count();
     }
 }

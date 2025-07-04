@@ -21,7 +21,7 @@ public class PermissionService {
     private final ProductSkuRepo productSkuRepo;
 
     /**
-     * 获取用户的店铺，如果不属于该用户，则抛出异常
+     * 获取商家的店铺，如果不属于该商家，则抛出异常
      */
     public ShopEntity getShop(Long mchId, Long shopId) {
         if (mchId == null || shopId == null) {
@@ -35,7 +35,7 @@ public class PermissionService {
     }
 
     /**
-     * 统计用户的店铺，如果不属于该用户，则抛出异常
+     * 统计商家的店铺，如果不属于该商家，则抛出异常
      */
     public void checkShop(Long mchId, Long shopId) {
         if (mchId == null || shopId == null) {
@@ -48,21 +48,41 @@ public class PermissionService {
     }
 
     /**
-     * 检查用户ID，如果会话用户ID与参数指定的用户ID不一致，则抛出异常
+     * 检查商家ID，如果当前商家ID与参数指定的商家ID不一致，则抛出异常
      */
-    public void checkUserId(Long mchId, Long paramMchId) {
+    public void checkMchId(Long mchId, Long paramMchId) {
         if (paramMchId != null && !Objects.equals(mchId, paramMchId)) {
             throw new RuntimeException("无该商户权限");
         }
     }
 
     public void checkMchAndShop(Long mchId, ShopConditionBaseEntity<?> e) {
-        this.checkShop(mchId, e.getShopId());
+        // 检查或自动填充mchId
         if (e.getMchId() != null) {
-            this.checkUserId(mchId, e.getMchId());
+            this.checkMchId(mchId, e.getMchId());
         } else {
             // 权限控制
             e.setMchId(mchId);
+        }
+
+        // 场景：更新
+        if (e.getId() != null) {
+            ShopConditionBaseEntity<?> entity = (ShopConditionBaseEntity<?>) e.selectById();
+            if (entity == null) {
+                throw new RuntimeException("数据未找到");
+            }
+
+            // shopId不允许变更
+            if (e.getShopId() != null && !Objects.equals(entity.getShopId(), e.getShopId())) {
+                throw new RuntimeException("店铺ID不允许变更");
+            } else {
+                // 填充shopId
+                e.setShopId(entity.getShopId());
+            }
+        }
+        // 场景：创建、查询
+        else {
+            this.checkShop(mchId, e.getShopId());
         }
     }
 
