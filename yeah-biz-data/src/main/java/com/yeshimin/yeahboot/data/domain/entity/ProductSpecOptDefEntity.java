@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.data.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.yeshimin.yeahboot.common.controller.validation.Create;
+import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,7 +21,7 @@ public class ProductSpecOptDefEntity extends ShopConditionBaseEntity<ProductSpec
     /**
      * 规格ID
      */
-    @NotNull(message = "规格ID不能为空", groups = {Create.class})
+    @NotNull(message = "规格ID不能为空", groups = {Create.class, Query.class})
     private Long specId;
 
     /**

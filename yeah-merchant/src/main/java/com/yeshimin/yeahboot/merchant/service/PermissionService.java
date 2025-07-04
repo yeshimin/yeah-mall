@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.merchant.service;
 
+import com.yeshimin.yeahboot.data.domain.base.MchConditionBaseEntity;
 import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
@@ -48,9 +49,33 @@ public class PermissionService {
     }
 
     /**
+     * 检查店铺ID
+     */
+    public void checkShopId(Long shopId, Long paramShopId) {
+        if (shopId == null) {
+            throw new RuntimeException("数据错误（店铺ID为空），请联系管理员！");
+        }
+        if (paramShopId != null && !Objects.equals(shopId, paramShopId)) {
+            throw new RuntimeException("店铺ID不一致");
+        }
+    }
+
+    public void checkMch(Long mchId, MchConditionBaseEntity<?> e) {
+        if (e.getMchId() != null) {
+            this.checkMchId(mchId, e.getMchId());
+        } else {
+            // 权限控制
+            e.setMchId(mchId);
+        }
+    }
+
+    /**
      * 检查商家ID，如果当前商家ID与参数指定的商家ID不一致，则抛出异常
      */
     public void checkMchId(Long mchId, Long paramMchId) {
+        if (mchId == null) {
+            throw new RuntimeException("数据错误（商户ID为空），请联系管理员！");
+        }
         if (paramMchId != null && !Objects.equals(mchId, paramMchId)) {
             throw new RuntimeException("无该商户权限");
         }

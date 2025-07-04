@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Collection;
-import java.util.Objects;
 
 /**
  * 提供基础的CRUD接口 for merchant shop data
@@ -73,7 +72,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
         if (query.getShopId() == null) {
             return R.fail("店铺ID不能为空");
         }
-        // check permission
+        // check permission for shop
         permissionService.checkShop(super.getUserId(), query.getShopId());
         return super.crudQuery(page, query);
     }
@@ -109,10 +108,10 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
             return R.fail("数据未找到");
         }
         // 检查权限
-        super.checkUserId(super.getUserId(), e0.getMchId());
-        super.checkUserId(e0.getMchId(), e.getMchId());
+        permissionService.checkMchId(super.getUserId(), e0.getMchId());
+        permissionService.checkMchId(e0.getMchId(), e.getMchId());
 
-        this.checkShopId(e0.getShopId(), e.getShopId());
+        permissionService.checkShopId(e0.getShopId(), e.getShopId());
 
         boolean r = service.updateById(e);
         log.debug("crudUpdate.result: {}", r);
@@ -133,19 +132,5 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
             return R.fail("该接口已被禁用");
         }
         return super.crudDelete(ids);
-    }
-
-    // ================================================================================
-
-    /**
-     * 检查店铺ID
-     */
-    public void checkShopId(Long shopId, Long paramShopId) {
-        if (shopId == null) {
-            throw new RuntimeException("数据错误（店铺ID为空），请联系管理员！");
-        }
-        if (paramShopId != null && !Objects.equals(shopId, paramShopId)) {
-            throw new RuntimeException("店铺ID不一致");
-        }
     }
 }

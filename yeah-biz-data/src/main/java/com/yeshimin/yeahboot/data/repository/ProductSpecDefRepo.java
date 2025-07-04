@@ -31,4 +31,14 @@ public class ProductSpecDefRepo extends BaseRepo<ProductSpecDefMapper, ProductSp
         }
         return lambdaQuery().in(ProductSpecDefEntity::getId, ids).ne(ProductSpecDefEntity::getMchId, mchId).count();
     }
+
+    /**
+     * countByIdAndShopId
+     */
+    public long countByIdAndShopId(Long id, Long shopId) {
+        return lambdaQuery()
+                .eq(ProductSpecDefEntity::getId, id)
+                .eq(ProductSpecDefEntity::getShopId, shopId)
+                .count();
+    }
 }

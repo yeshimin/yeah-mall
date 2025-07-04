@@ -7,6 +7,7 @@ import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.base.MchConditionBaseEntity;
+import com.yeshimin.yeahboot.merchant.service.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,10 +33,14 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
 
     @Autowired
     private S service;
+    @Autowired
+    private PermissionService permissionService;
 
     public MchCrudController(S service) {
         super(service);
     }
+
+    // ================================================================================
 
     /**
      * CRUD-创建
@@ -47,12 +52,8 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
         if (super.isCreateDisabled()) {
             return R.fail("该接口已被禁用");
         }
-        if (e.getMchId() != null) {
-            this.checkUserId(super.getUserId(), e.getMchId());
-        } else {
-            // 权限控制
-            e.setMchId(super.getUserId());
-        }
+        // check permission for mch
+        permissionService.checkMch(super.getUserId(), e);
 
         boolean r = service.save(e);
         log.debug("crudCreate.result: {}", r);
@@ -68,12 +69,8 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
         if (super.isQueryDisabled()) {
             return R.fail("该接口已被禁用");
         }
-        if (query.getMchId() != null) {
-            this.checkUserId(super.getUserId(), query.getMchId());
-        } else {
-            // 权限控制
-            query.setMchId(super.getUserId());
-        }
+        // check permission for mch
+        permissionService.checkMch(super.getUserId(), query);
 
         @SuppressWarnings("unchecked")
         Class<E> clazz = (Class<E>) query.getClass();
@@ -98,7 +95,7 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
             return R.fail("数据未找到");
         }
         // 检查权限
-        this.checkUserId(super.getUserId(), e.getMchId());
+        permissionService.checkMchId(super.getUserId(), e.getMchId());
         return R.ok(e);
     }
 
@@ -121,8 +118,8 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
             return R.fail("数据未找到");
         }
         // 检查权限
-        this.checkUserId(super.getUserId(), e0.getMchId());
-        this.checkUserId(e0.getMchId(), e.getMchId());
+        permissionService.checkMchId(super.getUserId(), e0.getMchId());
+        permissionService.checkMchId(e0.getMchId(), e.getMchId());
 
         boolean r = service.updateById(e);
         log.debug("crudUpdate.result: {}", r);
@@ -166,19 +163,5 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
         boolean r = service.removeByIds(ids);
         log.debug("crudDelete.result: {}", r);
         return R.ok();
-    }
-
-    // ================================================================================
-
-    /**
-     * 检查用户ID，如果会话用户ID与参数指定的用户ID不一致，则抛出异常
-     */
-    public void checkUserId(Long mchId, Long paramMchId) {
-        if (mchId == null) {
-            throw new RuntimeException("数据错误（商户ID为空），请联系管理员！");
-        }
-        if (paramMchId != null && !Objects.equals(mchId, paramMchId)) {
-            throw new RuntimeException("无该商户权限");
-        }
     }
 }
