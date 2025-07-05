@@ -60,6 +60,9 @@ public class PermissionService {
         }
     }
 
+    /**
+     * check and set mch
+     */
     public void checkMch(Long mchId, MchConditionBaseEntity<?> e) {
         if (e.getMchId() != null) {
             this.checkMchId(mchId, e.getMchId());
@@ -81,6 +84,9 @@ public class PermissionService {
         }
     }
 
+    /**
+     * check and set (mch and shop)
+     */
     public void checkMchAndShop(Long mchId, ShopConditionBaseEntity<?> e) {
         // 检查或自动填充mchId
         if (e.getMchId() != null) {

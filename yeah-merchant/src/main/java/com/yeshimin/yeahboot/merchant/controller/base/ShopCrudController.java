@@ -55,7 +55,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
         if (e.getShopId() == null) {
             return R.fail("店铺ID不能为空");
         }
-        // check permission
+        // check permission for shop
         permissionService.checkShop(super.getUserId(), e.getShopId());
         return super.crudCreate(e);
     }
@@ -107,10 +107,10 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
         if (e0 == null) {
             return R.fail("数据未找到");
         }
-        // 检查权限
-        permissionService.checkMchId(super.getUserId(), e0.getMchId());
-        permissionService.checkMchId(e0.getMchId(), e.getMchId());
-
+        // 检查权限 for mch
+        permissionService.checkMchId(super.getUserId(), e0.getMchId()); // 检查e0数据权限，即当前商家是否对指定id的数据有权限
+        permissionService.checkMch(e0.getMchId(), e); // 检查e数据权限，即当前商家是否要变更了mchId参数，这是不允许的
+        // 检查权限 for shop
         permissionService.checkShopId(e0.getShopId(), e.getShopId());
 
         boolean r = service.updateById(e);

@@ -117,9 +117,9 @@ public class MchCrudController<M extends BaseMapper<E>, E extends MchConditionBa
         if (e0 == null) {
             return R.fail("数据未找到");
         }
-        // 检查权限
-        permissionService.checkMchId(super.getUserId(), e0.getMchId());
-        permissionService.checkMchId(e0.getMchId(), e.getMchId());
+        // 检查权限 for mch
+        permissionService.checkMchId(super.getUserId(), e0.getMchId()); // 检查e0数据权限，即当前商家是否对指定id的数据有权限
+        permissionService.checkMch(e0.getMchId(), e); // 检查e数据权限，即当前商家是否要变更了mchId参数，这是不允许的
 
         boolean r = service.updateById(e);
         log.debug("crudUpdate.result: {}", r);
