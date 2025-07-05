@@ -30,7 +30,8 @@ public class ProductSpecOptDefController extends ShopCrudController<ProductSpecO
     public ProductSpecOptDefController(ProductSpecOptDefRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
-        super.setModule("mch:productSpecOptDef").disableCreate().disableQuery().disableDetail();
+        super.setModule("mch:productSpecOptDef")
+                .disableCreate().disableQuery().disableDetail().disableUpdate().disableDelete();
     }
 
     // ================================================================================
