@@ -88,13 +88,8 @@ public class PermissionService {
      * check and set (mch and shop)
      */
     public void checkMchAndShop(Long mchId, ShopConditionBaseEntity<?> e) {
-        // 检查或自动填充mchId
-        if (e.getMchId() != null) {
-            this.checkMchId(mchId, e.getMchId());
-        } else {
-            // 权限控制
-            e.setMchId(mchId);
-        }
+        // 检查并填充mchId
+        this.checkMch(mchId, e);
 
         // 场景：更新
         if (e.getId() != null) {
