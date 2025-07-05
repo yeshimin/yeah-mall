@@ -27,6 +27,7 @@ public class BannerController extends ShopCrudController<BannerMapper, BannerEnt
     public BannerController(BannerRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
+        super.setModule("mch:banner");
     }
 
     // ================================================================================

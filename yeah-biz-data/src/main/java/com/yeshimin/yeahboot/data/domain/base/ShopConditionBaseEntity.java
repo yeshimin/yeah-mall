@@ -17,6 +17,6 @@ public class ShopConditionBaseEntity<T extends MchConditionBaseEntity<T>> extend
      * 店铺ID
      */
     @NotNull(message = "店铺ID不能为空", groups = {Create.class, Query.class})
-    @Null(message = "店铺ID必须为空", groups = {Update.class})
+//    @Null(message = "店铺ID必须为空", groups = {Update.class})
     private Long shopId;
 }

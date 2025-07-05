@@ -15,8 +15,8 @@ public abstract class MchConditionBaseEntity<T extends ConditionBaseEntity<T>> e
 
     /**
      * 商户ID
-     * 操作商家的数据，都不需要指定mchId，会自动填充
+//     * 操作商家的数据，都不需要指定mchId，会自动填充
      */
-    @Null(message = "商家ID必须为空", groups = {Create.class, Query.class, Update.class})
+//    @Null(message = "商家ID必须为空", groups = {Create.class, Query.class, Update.class})
     private Long mchId;
 }

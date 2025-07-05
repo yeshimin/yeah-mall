@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.merchant.controller;
 
 import com.yeshimin.yeahboot.common.controller.validation.Create;
 import com.yeshimin.yeahboot.common.controller.validation.Query;
+import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpecOptDefEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSpecOptDefMapper;
@@ -52,6 +53,16 @@ public class ProductSpecOptDefController extends ShopCrudController<ProductSpecO
     public R<List<ProductSpecOptDefEntity>> query(@Validated(Query.class) ProductSpecOptDefEntity query) {
         Long userId = super.getUserId();
         return R.ok(service.query(userId, query));
+    }
+
+    /**
+     * 更新
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':update')")
+    @PostMapping("/update")
+    public R<ProductSpecOptDefEntity> update(@Validated(Update.class) @RequestBody ProductSpecOptDefEntity e) {
+        Long userId = super.getUserId();
+        return R.ok(service.update(userId, e));
     }
 
     /**
