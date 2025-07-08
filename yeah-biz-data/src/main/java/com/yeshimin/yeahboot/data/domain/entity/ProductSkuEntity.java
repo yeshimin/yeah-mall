@@ -29,13 +29,8 @@ public class ProductSkuEntity extends ShopConditionBaseEntity<ProductSkuEntity> 
     /**
      * 名称
      */
-    @NotBlank(message = "名称不能为空", groups = {Create.class})
+//    @NotBlank(message = "名称不能为空", groups = {Create.class})
     private String name;
-
-    /**
-     * 规格
-     */
-    private String specs;
 
     /**
      * 价格

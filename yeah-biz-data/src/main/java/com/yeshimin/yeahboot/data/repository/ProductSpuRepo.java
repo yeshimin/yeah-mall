@@ -28,4 +28,18 @@ public class ProductSpuRepo extends BaseRepo<ProductSpuMapper, ProductSpuEntity>
         }
         return lambdaQuery().in(ProductSpuEntity::getId, ids).ne(ProductSpuEntity::getMchId, mchId).count();
     }
+
+    /**
+     * countByIdAndShopId
+     */
+    public long countByIdAndShopId(Long id, Long shopId) {
+        return lambdaQuery().eq(ProductSpuEntity::getId, id).eq(ProductSpuEntity::getShopId, shopId).count();
+    }
+
+    /**
+     * findOneByIdAndShopId
+     */
+    public ProductSpuEntity findOneByIdAndShopId(Long id, Long shopId) {
+        return lambdaQuery().eq(ProductSpuEntity::getId, id).eq(ProductSpuEntity::getShopId, shopId).one();
+    }
 }

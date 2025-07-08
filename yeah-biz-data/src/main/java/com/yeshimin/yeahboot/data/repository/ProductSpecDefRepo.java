@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Repository
@@ -40,5 +43,45 @@ public class ProductSpecDefRepo extends BaseRepo<ProductSpecDefMapper, ProductSp
                 .eq(ProductSpecDefEntity::getId, id)
                 .eq(ProductSpecDefEntity::getShopId, shopId)
                 .count();
+    }
+
+    /**
+     * countByIdsAndShopId
+     */
+    public long countByIdsAndShopId(Collection<Long> ids, Long shopId) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("ids不能为空");
+        }
+        // distinct
+        Set<Long> distinctIds = new HashSet<>(ids);
+        if (distinctIds.size() != ids.size()) {
+            throw new IllegalArgumentException("ids不能重复");
+        }
+        return lambdaQuery()
+                .in(ProductSpecDefEntity::getId, ids)
+                .eq(ProductSpecDefEntity::getShopId, shopId)
+                .count();
+    }
+
+    /**
+     * findListByIdsAndShopId
+     */
+    public List<ProductSpecDefEntity> findListByIdsAndShopId(Collection<Long> ids, Long shopId) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("规格ids不能为空");
+        }
+        // distinct
+        Set<Long> distinctIds = new HashSet<>(ids);
+        if (distinctIds.size() != ids.size()) {
+            throw new IllegalArgumentException("规格ids不能重复");
+        }
+        List<ProductSpecDefEntity> list = lambdaQuery()
+                .in(ProductSpecDefEntity::getId, ids)
+                .eq(ProductSpecDefEntity::getShopId, shopId)
+                .list();
+        if (list.size() != ids.size()) {
+            throw new IllegalArgumentException("包含无权限的规格ID");
+        }
+        return list;
     }
 }

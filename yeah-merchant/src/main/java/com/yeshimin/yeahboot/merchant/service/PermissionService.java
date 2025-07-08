@@ -3,9 +3,12 @@ package com.yeshimin.yeahboot.merchant.service;
 import com.yeshimin.yeahboot.data.domain.base.MchConditionBaseEntity;
 import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
+import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.data.repository.ShopRepo;
+import com.yeshimin.yeahboot.merchant.domain.base.ShopDataBaseDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,7 @@ public class PermissionService {
 
     private final ShopRepo shopRepo;
     private final ProductSkuRepo productSkuRepo;
+    private final ProductSpuRepo productSpuRepo;
 
     /**
      * 获取商家的店铺，如果不属于该商家，则抛出异常
@@ -113,6 +117,22 @@ public class PermissionService {
     }
 
     /**
+     * check and set (mch and shop)
+     */
+    public void checkMchAndShop(Long mchId, ShopDataBaseDomain e) {
+        // 检查并填充mchId
+        if (e.getMchId() != null && !Objects.equals(mchId, e.getMchId())) {
+            throw new RuntimeException("无该商户权限");
+        } else {
+            // 权限控制
+            e.setMchId(mchId);
+        }
+
+        // 检查shopId
+        this.checkShop(mchId, e.getShopId());
+    }
+
+    /**
      * 检查并获取SKU，如果不属于该店铺，则抛出异常
      */
     public ProductSkuEntity getSku(Long shopId, Long skuId) {
@@ -140,5 +160,33 @@ public class PermissionService {
         if (count == 0) {
             throw new RuntimeException("无该SKU权限");
         }
+    }
+
+    /**
+     * 检查SPU
+     */
+    public void checkSpu(Long shopId, Long spuId) {
+        if (shopId == null || spuId == null) {
+            throw new IllegalArgumentException("店铺ID或SPU ID不能为空");
+        }
+
+        long count = productSpuRepo.countByIdAndShopId(spuId, shopId);
+        if (count == 0) {
+            throw new RuntimeException("无该SPU权限");
+        }
+    }
+
+    /**
+     * 检查并获取SPU，如果不属于该店铺，则抛出异常
+     */
+    public ProductSpuEntity getSpu(Long shopId, Long spuId) {
+        if (shopId == null || spuId == null) {
+            throw new IllegalArgumentException("店铺ID或SPU ID不能为空");
+        }
+        ProductSpuEntity entity = productSpuRepo.findOneByIdAndShopId(spuId, shopId);
+        if (entity == null) {
+            throw new RuntimeException("无该SPU权限");
+        }
+        return entity;
     }
 }

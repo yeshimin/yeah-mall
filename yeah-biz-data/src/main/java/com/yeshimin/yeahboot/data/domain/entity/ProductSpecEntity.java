@@ -14,9 +14,9 @@ import lombok.EqualsAndHashCode;
 public class ProductSpecEntity extends ShopConditionBaseEntity<ProductSpecEntity> {
 
     /**
-     * 商品ID
+     * 商品SPU ID
      */
-    private Long productId;
+    private Long spuId;
 
     /**
      * 规格ID

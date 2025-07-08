@@ -6,17 +6,22 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 商品规格选项表
+ * 商品SKU规格选项配置表
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("s_product_spec_opt")
-public class ProductSpecOptEntity extends ShopConditionBaseEntity<ProductSpecOptEntity> {
+@TableName("s_product_sku_spec")
+public class ProductSkuSpecEntity extends ShopConditionBaseEntity<ProductSkuSpecEntity> {
 
     /**
      * 商品SPU ID
      */
     private Long spuId;
+
+    /**
+     * 商品SKU ID
+     */
+    private Long skuId;
 
     /**
      * 规格ID
