@@ -24,6 +24,11 @@ public class ProductSpecVo extends BaseDomain {
     private String specName;
 
     /**
+     * 排序（自然序，从1开始）
+     */
+    private Integer sort;
+
+    /**
      * 选项集合
      */
     private List<ProductSpecOptVo> opts;

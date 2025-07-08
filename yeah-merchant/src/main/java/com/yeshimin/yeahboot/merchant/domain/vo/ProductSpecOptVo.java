@@ -20,4 +20,9 @@ public class ProductSpecOptVo extends BaseDomain {
      * 选项名称
      */
     private String optName;
+
+    /**
+     * 排序（自然序，从1开始）
+     */
+    private Integer sort;
 }

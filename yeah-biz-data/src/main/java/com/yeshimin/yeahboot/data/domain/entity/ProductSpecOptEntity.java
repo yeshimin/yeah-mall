@@ -27,4 +27,9 @@ public class ProductSpecOptEntity extends ShopConditionBaseEntity<ProductSpecOpt
      * 选项ID
      */
     private Long optId;
+
+    /**
+     * 排序（自然序，从1开始）
+     */
+    private Integer sort;
 }

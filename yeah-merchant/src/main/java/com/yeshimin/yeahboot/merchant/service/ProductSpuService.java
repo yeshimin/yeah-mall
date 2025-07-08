@@ -107,6 +107,7 @@ public class ProductSpuService {
         List<ProductSpecOptEntity> listProductSpecOpt = new ArrayList<>();
 
         // 检查规格下选项ID是否引用到其他规格ID
+        int specIdx = 0;
         for (SpecOptDto specOptDto : dto.getSpecs()) {
             // add spec
             ProductSpecEntity productSpec = new ProductSpecEntity();
@@ -114,8 +115,10 @@ public class ProductSpuService {
             productSpec.setShopId(dto.getShopId());
             productSpec.setSpuId(dto.getSpuId());
             productSpec.setSpecId(specOptDto.getSpecId());
+            productSpec.setSort(++specIdx);
             listProductSpec.add(productSpec);
 
+            int optIdx = 0;
             for (Long optId : specOptDto.getOptIds()) {
                 Long specId = mapOpt.get(optId);
                 if (!Objects.equals(specId, specOptDto.getSpecId())) {
@@ -130,6 +133,7 @@ public class ProductSpuService {
                 productSpecOpt.setSpuId(dto.getSpuId());
                 productSpecOpt.setSpecId(specOptDto.getSpecId());
                 productSpecOpt.setOptId(optId);
+                productSpecOpt.setSort(++optIdx);
                 listProductSpecOpt.add(productSpecOpt);
             }
         }
@@ -153,10 +157,17 @@ public class ProductSpuService {
         permissionService.checkSpu(userId, query.getSpuId());
 
         // 查询规格
-        List<Long> specIds = productSpecRepo.findSpecIdListBySpuId(query.getSpuId());
+        List<ProductSpecEntity> listProductSpec = productSpecRepo.findListBySpuId(query.getSpuId());
+        Map<Long, Integer> mapSpecSort = listProductSpec.stream()
+                .collect(Collectors.toMap(ProductSpecEntity::getSpecId, ProductSpecEntity::getSort));
+        List<Long> specIds = listProductSpec.stream().map(ProductSpecEntity::getSpecId).collect(Collectors.toList());
         List<ProductSpecDefEntity> listSpec = productSpecDefRepo.findListByIds(specIds);
         // 查询选项
-        List<Long> optIds = productSpecOptRepo.findOptIdListBySpuId(query.getSpuId());
+        List<ProductSpecOptEntity> listProductSpecOpt = productSpecOptRepo.findListBySpuId(query.getSpuId());
+        Map<Long, Integer> mapOptSort = listProductSpecOpt.stream()
+                .collect(Collectors.toMap(ProductSpecOptEntity::getOptId, ProductSpecOptEntity::getSort));
+        List<Long> optIds = listProductSpecOpt.stream()
+                .map(ProductSpecOptEntity::getOptId).collect(Collectors.toList());
         List<ProductSpecOptDefEntity> listOpt = productSpecOptDefRepo.findListByIds(optIds);
         Map<Long, List<ProductSpecOptDefEntity>> mapListOpt =
                 listOpt.stream().collect(Collectors.groupingBy(ProductSpecOptDefEntity::getSpecId));
@@ -166,6 +177,7 @@ public class ProductSpuService {
             ProductSpecVo specVo = new ProductSpecVo();
             specVo.setSpecId(spec.getId());
             specVo.setSpecName(spec.getSpecName());
+            specVo.setSort(mapSpecSort.get(spec.getId()));
 
             // 选项
             List<ProductSpecOptVo> listOptVo = mapListOpt.getOrDefault(spec.getId(), new ArrayList<>())
@@ -173,11 +185,12 @@ public class ProductSpuService {
                         ProductSpecOptVo optVo = new ProductSpecOptVo();
                         optVo.setOptId(opt.getId());
                         optVo.setOptName(opt.getOptName());
+                        optVo.setSort(mapOptSort.get(opt.getId()));
                         return optVo;
-                    }).collect(Collectors.toList());
+                    }).sorted(Comparator.comparing(ProductSpecOptVo::getSort)).collect(Collectors.toList());
             specVo.setOpts(listOptVo);
 
             return specVo;
-        }).collect(Collectors.toList());
+        }).sorted(Comparator.comparing(ProductSpecVo::getSort)).collect(Collectors.toList());
     }
 }

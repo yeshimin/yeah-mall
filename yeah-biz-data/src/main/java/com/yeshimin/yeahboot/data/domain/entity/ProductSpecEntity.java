@@ -22,4 +22,9 @@ public class ProductSpecEntity extends ShopConditionBaseEntity<ProductSpecEntity
      * 规格ID
      */
     private Long specId;
+
+    /**
+     * 排序（自然序，从1开始）
+     */
+    private Integer sort;
 }
