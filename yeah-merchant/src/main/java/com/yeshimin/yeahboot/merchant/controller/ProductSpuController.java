@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
 import com.yeshimin.yeahboot.common.controller.validation.Create;
+import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpecOptDefEntity;
@@ -8,17 +9,17 @@ import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSpuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuSpecQueryDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuSpecSetDto;
+import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
 import com.yeshimin.yeahboot.merchant.service.ProductSpuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * 商品SPU表
@@ -78,5 +79,16 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
         Long userId = super.getUserId();
         service.setSpec(userId, dto);
         return R.ok();
+    }
+
+    /**
+     * 查询商品spu规格
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':querySpec')")
+    @GetMapping("/querySpec")
+    public R<List<ProductSpecVo>> querySpec(@Validated(Query.class) ProductSpuSpecQueryDto query) {
+        Long userId = super.getUserId();
+        List<ProductSpecVo> list = service.querySpec(userId, query);
+        return R.ok(list);
     }
 }

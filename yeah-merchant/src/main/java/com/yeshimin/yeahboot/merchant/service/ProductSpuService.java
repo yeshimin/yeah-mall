@@ -2,13 +2,13 @@ package com.yeshimin.yeahboot.merchant.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpecEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpecOptDefEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpecOptEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.repository.*;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuSpecQueryDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuSpecSetDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.SpecOptDto;
+import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecOptVo;
+import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -78,6 +78,9 @@ public class ProductSpuService {
         productSpuRepo.removeByIds(ids);
     }
 
+    /**
+     * 设置商品spu规格
+     */
     @Transactional(rollbackFor = Exception.class)
     public void setSpec(Long userId, ProductSpuSpecSetDto dto) {
         // 检查权限
@@ -90,7 +93,7 @@ public class ProductSpuService {
         List<Long> specIds = dto.getSpecs().stream().map(SpecOptDto::getSpecId).collect(Collectors.toList());
         List<Long> optIds = dto.getSpecs().stream().map(SpecOptDto::getOptIds).flatMap(Collection::stream).collect(Collectors.toList());
         // 检查规格
-        if (!Objects.equals(specIds.size(), productSpecDefRepo.countByIdsAndShopId(specIds, dto.getShopId()))) {
+        if (specIds.size() != productSpecDefRepo.countByIdsAndShopId(specIds, dto.getShopId())) {
             throw new BaseException("包含无权限的规格ID");
         }
         // 检查选项
@@ -132,10 +135,49 @@ public class ProductSpuService {
         }
 
         // 全量操作，先删除再添加
-        productSpecRepo.removeByIds(specIds);
-        productSpecOptRepo.removeByIds(optIds);
+        productSpecRepo.deleteBySpuId(dto.getSpuId());
+        productSpecOptRepo.deleteBySpuId(dto.getSpuId());
 
         productSpecRepo.saveBatch(listProductSpec);
         productSpecOptRepo.saveBatch(listProductSpecOpt);
+    }
+
+    /**
+     * 查询商品spu规格
+     */
+    public List<ProductSpecVo> querySpec(Long userId, ProductSpuSpecQueryDto query) {
+        // 检查权限
+        permissionService.checkMchAndShop(userId, query);
+
+        // 检查spu权限
+        permissionService.checkSpu(userId, query.getSpuId());
+
+        // 查询规格
+        List<Long> specIds = productSpecRepo.findSpecIdListBySpuId(query.getSpuId());
+        List<ProductSpecDefEntity> listSpec = productSpecDefRepo.findListByIds(specIds);
+        // 查询选项
+        List<Long> optIds = productSpecOptRepo.findOptIdListBySpuId(query.getSpuId());
+        List<ProductSpecOptDefEntity> listOpt = productSpecOptDefRepo.findListByIds(optIds);
+        Map<Long, List<ProductSpecOptDefEntity>> mapListOpt =
+                listOpt.stream().collect(Collectors.groupingBy(ProductSpecOptDefEntity::getSpecId));
+
+        return listSpec.stream().map(spec -> {
+            // 规格
+            ProductSpecVo specVo = new ProductSpecVo();
+            specVo.setSpecId(spec.getId());
+            specVo.setSpecName(spec.getSpecName());
+
+            // 选项
+            List<ProductSpecOptVo> listOptVo = mapListOpt.getOrDefault(spec.getId(), new ArrayList<>())
+                    .stream().map(opt -> {
+                        ProductSpecOptVo optVo = new ProductSpecOptVo();
+                        optVo.setOptId(opt.getId());
+                        optVo.setOptName(opt.getOptName());
+                        return optVo;
+                    }).collect(Collectors.toList());
+            specVo.setOpts(listOptVo);
+
+            return specVo;
+        }).collect(Collectors.toList());
     }
 }

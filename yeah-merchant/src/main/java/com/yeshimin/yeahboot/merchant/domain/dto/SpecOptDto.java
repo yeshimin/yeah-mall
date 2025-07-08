@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * 规格与选项
+ * 规格与选项DTO
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

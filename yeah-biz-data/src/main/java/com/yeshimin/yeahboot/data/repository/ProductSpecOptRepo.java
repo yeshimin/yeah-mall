@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -30,5 +32,37 @@ public class ProductSpecOptRepo extends BaseRepo<ProductSpecOptMapper, ProductSp
             throw new IllegalArgumentException("specIds不能为空");
         }
         return lambdaQuery().in(ProductSpecOptEntity::getSpecId, specIds).count();
+    }
+
+    /**
+     * findListBySpuId
+     */
+    public List<ProductSpecOptEntity> findListBySpuId(Long spuId) {
+        if (spuId == null) {
+            throw new IllegalArgumentException("spuId不能为空");
+        }
+        return lambdaQuery().eq(ProductSpecOptEntity::getSpuId, spuId).list();
+    }
+
+    /**
+     * findOptIdListBySpuId
+     */
+    public List<Long> findOptIdListBySpuId(Long spuId) {
+        if (spuId == null) {
+            throw new IllegalArgumentException("spuId不能为空");
+        }
+        return lambdaQuery().select(ProductSpecOptEntity::getOptId)
+                .eq(ProductSpecOptEntity::getSpuId, spuId).list()
+                .stream().map(ProductSpecOptEntity::getOptId).collect(Collectors.toList());
+    }
+
+    /**
+     * deleteBySpuId
+     */
+    public boolean deleteBySpuId(Long spuId) {
+        if (spuId == null) {
+            throw new IllegalArgumentException("spuId不能为空");
+        }
+        return lambdaUpdate().eq(ProductSpecOptEntity::getSpuId, spuId).remove();
     }
 }

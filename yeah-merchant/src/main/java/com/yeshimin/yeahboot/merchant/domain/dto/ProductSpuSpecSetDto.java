@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * 商品spu规格设置
+ * 商品spu规格设置DTO
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
