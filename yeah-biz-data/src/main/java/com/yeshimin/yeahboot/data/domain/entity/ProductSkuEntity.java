@@ -28,7 +28,6 @@ public class ProductSkuEntity extends ShopConditionBaseEntity<ProductSkuEntity> 
     /**
      * 名称
      */
-//    @NotBlank(message = "名称不能为空", groups = {Create.class})
     private String name;
 
     /**
