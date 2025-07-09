@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
@@ -31,6 +30,11 @@ public class ProductSkuEntity extends ShopConditionBaseEntity<ProductSkuEntity> 
      */
 //    @NotBlank(message = "名称不能为空", groups = {Create.class})
     private String name;
+
+    /**
+     * 规格编码
+     */
+    private String specCode;
 
     /**
      * 价格

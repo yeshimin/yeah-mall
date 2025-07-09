@@ -83,11 +83,11 @@ public class ProductSpuService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void setSpec(Long userId, ProductSpuSpecSetDto dto) {
-        // 检查权限
+        // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
 
         // 检查spu权限
-        permissionService.checkSpu(userId, dto.getSpuId());
+        permissionService.checkSpu(dto.getShopId(), dto.getSpuId());
 
         // 检查规格ID和选项ID权限
         List<Long> specIds = dto.getSpecs().stream().map(SpecOptDto::getSpecId).collect(Collectors.toList());
@@ -150,11 +150,11 @@ public class ProductSpuService {
      * 查询商品spu规格
      */
     public List<ProductSpecVo> querySpec(Long userId, ProductSpuSpecQueryDto query) {
-        // 检查权限
+        // 权限检查和控制
         permissionService.checkMchAndShop(userId, query);
 
         // 检查spu权限
-        permissionService.checkSpu(userId, query.getSpuId());
+        permissionService.checkSpu(query.getShopId(), query.getSpuId());
 
         // 查询规格
         List<ProductSpecEntity> listProductSpec = productSpecRepo.findListBySpuId(query.getSpuId());

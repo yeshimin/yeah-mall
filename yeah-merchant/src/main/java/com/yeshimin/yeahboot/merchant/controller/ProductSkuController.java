@@ -1,15 +1,14 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
-import com.yeshimin.yeahboot.common.controller.validation.Create;
 import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSkuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuCreateDto;
 import com.yeshimin.yeahboot.merchant.service.ProductSkuService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,16 +37,15 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
      * 创建
      */
     @PostMapping("/create")
-    public R<ProductSkuEntity> create(@Validated(Create.class) @RequestBody ProductSkuEntity e) {
+    public R<ProductSkuEntity> create(@Validated @RequestBody ProductSkuCreateDto dto) {
         Long userId = super.getUserId();
-        return R.ok(service.create(userId, e));
+        return R.ok(service.create(userId, dto));
     }
 
     /**
      * 更新
      */
     @PostMapping("/update")
-    @Transactional(rollbackFor = Exception.class)
     public R<ProductSkuEntity> update(@Validated(Update.class) @RequestBody ProductSkuEntity e) {
         Long userId = super.getUserId();
         return R.ok(service.update(userId, e));
