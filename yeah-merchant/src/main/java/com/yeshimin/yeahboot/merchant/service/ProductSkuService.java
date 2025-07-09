@@ -2,14 +2,8 @@ package com.yeshimin.yeahboot.merchant.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSkuSpecEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpecEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpecOptEntity;
-import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
-import com.yeshimin.yeahboot.data.repository.ProductSkuSpecRepo;
-import com.yeshimin.yeahboot.data.repository.ProductSpecOptRepo;
-import com.yeshimin.yeahboot.data.repository.ProductSpecRepo;
+import com.yeshimin.yeahboot.data.domain.entity.*;
+import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuCreateDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +24,7 @@ public class ProductSkuService {
     private final ProductSpecRepo productSpecRepo;
     private final ProductSpecOptRepo productSpecOptRepo;
     private final ProductSkuSpecRepo productSkuSpecRepo;
+    private final ProductSpecOptDefRepo productSpecOptDefRepo;
 
     /**
      * 创建
@@ -56,6 +51,9 @@ public class ProductSkuService {
         // 查询spu规格选项配置
         List<ProductSpecEntity> listProductSpec = productSpecRepo.findListBySpuId(dto.getSpuId());
         List<ProductSpecOptEntity> listProductSpecOpt = productSpecOptRepo.findListBySpuId(dto.getSpuId());
+        // list to map
+        Map<Long, ProductSpecOptEntity> mapProductSpecOpt = listProductSpecOpt.stream()
+                .collect(Collectors.toMap(ProductSpecOptEntity::getOptId, v -> v));
         // group by specId
         Map<Long, List<ProductSpecOptEntity>> groupProductSpecOpt =
                 listProductSpecOpt.stream().collect(Collectors.groupingBy(ProductSpecOptEntity::getSpecId));
@@ -84,7 +82,7 @@ public class ProductSkuService {
         sku.setMchId(userId);
         sku.setShopId(dto.getShopId());
         sku.setSpuId(dto.getSpuId());
-        sku.setName(dto.getName());
+        sku.setName(this.generateSkuSpecName(dto.getName(), dto.getOptIds()));
         sku.setSpecCode(productSkuRepo.generateSpecCode(dto.getOptIds()));
         sku.setPrice(dto.getPrice());
         sku.setStock(dto.getStock());
@@ -128,5 +126,21 @@ public class ProductSkuService {
         boolean r = productSkuRepo.updateById(e);
         log.debug("update.result：{}", r);
         return e;
+    }
+
+    // ================================================================================
+
+    private String generateSkuSpecName(String outerName, List<Long> optIds) {
+        if (StrUtil.isNotBlank(outerName)) {
+            return outerName;
+        }
+
+        if (optIds == null || optIds.isEmpty()) {
+            throw new BaseException("规格选项ID集合不能为空");
+        }
+
+        return productSpecOptDefRepo.findListByIds(optIds).stream()
+                .map(ProductSpecOptDefEntity::getOptName)
+                .collect(Collectors.joining("-"));
     }
 }
