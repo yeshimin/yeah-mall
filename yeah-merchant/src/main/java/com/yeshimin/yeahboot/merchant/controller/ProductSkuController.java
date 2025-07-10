@@ -1,12 +1,12 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
-import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSkuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuCreateDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuUpdateDto;
 import com.yeshimin.yeahboot.merchant.service.ProductSkuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -46,8 +46,8 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
      * 更新
      */
     @PostMapping("/update")
-    public R<ProductSkuEntity> update(@Validated(Update.class) @RequestBody ProductSkuEntity e) {
+    public R<ProductSkuEntity> update(@Validated @RequestBody ProductSkuUpdateDto dto) {
         Long userId = super.getUserId();
-        return R.ok(service.update(userId, e));
+        return R.ok(service.update(userId, dto));
     }
 }

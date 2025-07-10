@@ -9,4 +9,14 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 public class ProductSkuSpecRepo extends BaseRepo<ProductSkuSpecMapper, ProductSkuSpecEntity> {
+
+    /**
+     * deleteBySkuId
+     */
+    public boolean deleteBySkuId(Long skuId) {
+        if (skuId == null) {
+            throw new IllegalArgumentException("skuId不能为空");
+        }
+        return lambdaUpdate().eq(ProductSkuSpecEntity::getSkuId, skuId).remove();
+    }
 }

@@ -56,6 +56,19 @@ public class ProductSkuRepo extends BaseRepo<ProductSkuMapper, ProductSkuEntity>
             throw new IllegalArgumentException("optIds不能为空");
         }
         String specCode = StrUtil.join("-", optIds);
+        return this.countBySpuIdAndSpecCode(spuId, specCode);
+    }
+
+    /**
+     * countBySpuIdAndSpecCode
+     */
+    public long countBySpuIdAndSpecCode(Long spuId, String specCode) {
+        if (spuId == null) {
+            throw new IllegalArgumentException("spuId不能为空");
+        }
+        if (StrUtil.isBlank(specCode)) {
+            throw new IllegalArgumentException("specCode不能为空");
+        }
         return lambdaQuery().eq(ProductSkuEntity::getSpuId, spuId).eq(ProductSkuEntity::getSpecCode, specCode).count();
     }
 
