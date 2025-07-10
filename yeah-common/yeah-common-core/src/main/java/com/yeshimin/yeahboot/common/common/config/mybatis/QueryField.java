@@ -29,6 +29,8 @@ public @interface QueryField {
         LE("小于等于", "le"),
         IN("包含", "in"),
         NOT_IN("非包含", "notIn"),
+        IS_BLANK("为空串", "isBlank"),
+        IS_EMPTY("为空串", "isEmpty"),
         IS_NULL("为null", "isNull"),
         IS_NOT_NULL("非null", "isNotNull"),
         BETWEEN("区间", "between"),

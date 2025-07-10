@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
+import com.yeshimin.yeahboot.common.controller.validation.Create;
+import com.yeshimin.yeahboot.common.controller.validation.Query;
+import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.BaseEntity;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import lombok.Getter;
@@ -11,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,7 +54,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
     @PostMapping("/crud/create")
     @Transactional(rollbackFor = Exception.class)
-    public R<E> crudCreate(@RequestBody E e) {
+    public R<E> crudCreate(@Validated(Create.class) @RequestBody E e) {
         if (createDisabled) {
             return R.fail("该接口已被禁用");
         }
@@ -64,7 +68,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
      */
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
     @GetMapping("/crud/query")
-    public R<Page<E>> crudQuery(Page<E> page, E query) {
+    public R<Page<E>> crudQuery(Page<E> page, @Validated(Query.class) E query) {
         if (queryDisabled) {
             return R.fail("该接口已被禁用");
         }
@@ -95,7 +99,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/crud/update")
     @Transactional(rollbackFor = Exception.class)
-    public R<E> crudUpdate(@RequestBody E e) {
+    public R<E> crudUpdate(@Validated(Update.class) @RequestBody E e) {
         if (updateDisabled) {
             return R.fail("该接口已被禁用");
         }
