@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuUpdateDto;
 import com.yeshimin.yeahboot.merchant.service.ProductSkuService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,6 +37,7 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     /**
      * 创建
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
     @PostMapping("/create")
     public R<ProductSkuEntity> create(@Validated @RequestBody ProductSkuCreateDto dto) {
         Long userId = super.getUserId();
@@ -45,6 +47,7 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     /**
      * 更新
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/update")
     public R<ProductSkuEntity> update(@Validated @RequestBody ProductSkuUpdateDto dto) {
         Long userId = super.getUserId();
