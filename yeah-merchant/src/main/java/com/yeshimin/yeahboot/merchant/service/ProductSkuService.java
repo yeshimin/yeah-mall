@@ -136,6 +136,25 @@ public class ProductSkuService {
         return old;
     }
 
+    /**
+     * 删除
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public boolean delete(Long userId, Collection<Long> ids) {
+        // 批量检查：SKU ID权限
+        if (productSkuRepo.countByIdsAndNotMchId(userId, ids) > 0) {
+            throw new BaseException("包含无权限数据");
+        }
+
+        // 检查：引用？
+        // TODO
+
+        // 删除sku规格配置
+        productSkuSpecRepo.deleteBySkuIds(ids);
+        // 删除sku
+        return productSkuRepo.removeByIds(ids);
+    }
+
     // ================================================================================
 
     private String generateSkuSpecName(String outerName, List<Long> optIds) {

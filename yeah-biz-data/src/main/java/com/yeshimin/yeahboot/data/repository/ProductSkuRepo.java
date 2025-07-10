@@ -81,4 +81,14 @@ public class ProductSkuRepo extends BaseRepo<ProductSkuMapper, ProductSkuEntity>
         }
         return StrUtil.join("-", optIds);
     }
+
+    /**
+     * 统计ids中不属于mchId的数据
+     */
+    public long countByIdsAndNotMchId(Long mchId, Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("ids不能为空");
+        }
+        return lambdaQuery().in(ProductSkuEntity::getId, ids).ne(ProductSkuEntity::getMchId, mchId).count();
+    }
 }
