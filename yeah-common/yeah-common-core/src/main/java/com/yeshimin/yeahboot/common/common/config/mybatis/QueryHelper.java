@@ -221,6 +221,11 @@ public class QueryHelper<T> {
                         }
                     }
                     break;
+                // is blank or is empty
+                case IS_BLANK:
+                case IS_EMPTY:
+                    wrapper.eq(columnName, "");
+                    break;
                 // is null
                 case IS_NULL:
                     wrapper.isNull(columnName);
@@ -394,6 +399,10 @@ public class QueryHelper<T> {
                 continue;
             }
             String[] arr2 = s.split(":", 3);
+            // if length 2, padding to 3 with ""
+            if (arr2.length == 2) {
+                arr2 = new String[]{arr2[0], arr2[1], ""};
+            }
             if (arr2.length != 3) {
                 log.warn("condition [{}] is invalid, ignore", s);
                 continue;
