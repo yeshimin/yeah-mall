@@ -9,4 +9,17 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 public class CartItemRepo extends BaseRepo<CartItemMapper, CartItemEntity> {
+
+    /**
+     * findOneByMemberIdAndSkuId
+     */
+    public CartItemEntity findOneByMemberIdAndSkuId(Long memberId, Long skuId) {
+        if (memberId == null || skuId == null) {
+            throw new NullPointerException("memberId or skuId is null");
+        }
+        return lambdaQuery()
+                .eq(CartItemEntity::getMemberId, memberId)
+                .eq(CartItemEntity::getSkuId, skuId)
+                .one();
+    }
 }

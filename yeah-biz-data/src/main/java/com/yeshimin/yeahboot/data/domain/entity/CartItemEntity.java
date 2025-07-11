@@ -37,4 +37,9 @@ public class CartItemEntity extends ConditionBaseEntity<CartItemEntity> {
      * 商品SKU ID
      */
     private Long skuId;
+
+    /**
+     * 数量
+     */
+    private Integer quantity;
 }
