@@ -6,8 +6,8 @@ import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.service.PasswordService;
-import com.yeshimin.yeahboot.data.domain.entity.AppUserEntity;
-import com.yeshimin.yeahboot.data.repository.AppUserRepo;
+import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
+import com.yeshimin.yeahboot.data.repository.MemberRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AppAuthService {
 
-    private final AppUserRepo appUserRepo;
+    //    private final AppUserRepo appUserRepo;
+    private final MemberRepo memberRepo;
 
     private final PasswordService passwordService;
     private final TokenService tokenService;
@@ -30,13 +31,13 @@ public class AppAuthService {
      */
     public LoginVo login(LoginDto loginDto) {
         // 查找用户
-        AppUserEntity appUser = appUserRepo.findOneByMobile(loginDto.getMobile());
-        if (appUser == null) {
+        MemberEntity member = memberRepo.findOneByMobile(loginDto.getMobile());
+        if (member == null) {
             throw new BaseException(ErrorCodeEnum.FAIL, "用户未找到");
         }
 
         // 校验密码
-        boolean success = passwordService.validatePassword(loginDto.getPassword(), appUser.getPassword());
+        boolean success = passwordService.validatePassword(loginDto.getPassword(), member.getPassword());
         if (!success) {
             throw new BaseException(ErrorCodeEnum.FAIL, "密码不正确");
         }
@@ -44,10 +45,10 @@ public class AppAuthService {
         // 生成token
         String subject = AuthSubjectEnum.APP.getValue();
         String terminal = AuthTerminalEnum.APP.getValue();
-        String token = tokenService.generateToken(String.valueOf(appUser.getId()), subject, terminal);
+        String token = tokenService.generateToken(String.valueOf(member.getId()), subject, terminal);
 
         // 缓存token
-        tokenService.cacheToken(subject, String.valueOf(appUser.getId()), terminal, token);
+        tokenService.cacheToken(subject, String.valueOf(member.getId()), terminal, token);
 
         LoginVo loginVo = new LoginVo();
         loginVo.setToken(token);

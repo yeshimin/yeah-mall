@@ -14,12 +14,12 @@ import lombok.EqualsAndHashCode;
 public class MemberEntity extends ConditionBaseEntity<MemberEntity> {
 
     /**
-     * 用户名
+     * 手机号
      */
-    private String username;
+    private String mobile;
 
     /**
-     * 密码
+     * 登录密码
      */
     private String password;
 }
