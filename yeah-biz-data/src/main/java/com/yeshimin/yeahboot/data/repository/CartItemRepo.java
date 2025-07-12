@@ -6,6 +6,8 @@ import com.yeshimin.yeahboot.data.mapper.CartItemMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Slf4j
 @Repository
 public class CartItemRepo extends BaseRepo<CartItemMapper, CartItemEntity> {
@@ -21,5 +23,15 @@ public class CartItemRepo extends BaseRepo<CartItemMapper, CartItemEntity> {
                 .eq(CartItemEntity::getMemberId, memberId)
                 .eq(CartItemEntity::getSkuId, skuId)
                 .one();
+    }
+
+    /**
+     * findListByMemberId
+     */
+    public List<CartItemEntity> findListByMemberId(Long memberId) {
+        if (memberId == null) {
+            throw new IllegalArgumentException("memberId不能为空");
+        }
+        return lambdaQuery().eq(CartItemEntity::getMemberId, memberId).list();
     }
 }

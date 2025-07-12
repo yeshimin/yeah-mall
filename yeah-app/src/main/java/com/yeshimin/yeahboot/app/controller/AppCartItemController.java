@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.controller;
 
 import com.yeshimin.yeahboot.app.domain.dto.CartItemCreateDto;
+import com.yeshimin.yeahboot.app.domain.vo.ShopCartItemVo;
 import com.yeshimin.yeahboot.app.service.AppCartItemService;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
@@ -10,6 +11,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * app端购物车商品项表
@@ -29,5 +32,14 @@ public class AppCartItemController extends BaseController {
         Long userId = WebContextUtils.getUserId();
         service.create(userId, dto);
         return R.ok();
+    }
+
+    /**
+     * 查询
+     */
+    @RequestMapping("/query")
+    public R<List<ShopCartItemVo>> query() {
+        Long userId = WebContextUtils.getUserId();
+        return R.ok(service.query(userId));
     }
 }
