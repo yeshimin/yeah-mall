@@ -182,6 +182,7 @@ public class ProductSkuService {
             skuSpec.setSkuId(skuId);
             skuSpec.setSpecId(listProductSpec.get(i).getSpecId());
             skuSpec.setOptId(optIds.get(i));
+            skuSpec.setSort(listProductSpec.get(i).getSort());
             listSkuSpec.add(skuSpec);
         }
         boolean r = productSkuSpecRepo.saveBatch(listSkuSpec);

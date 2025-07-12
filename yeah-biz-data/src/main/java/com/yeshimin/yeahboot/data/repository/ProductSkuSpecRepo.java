@@ -6,7 +6,9 @@ import com.yeshimin.yeahboot.data.mapper.ProductSkuSpecMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Repository
@@ -30,5 +32,25 @@ public class ProductSkuSpecRepo extends BaseRepo<ProductSkuSpecMapper, ProductSk
             throw new IllegalArgumentException("skuIds不能为空");
         }
         return lambdaUpdate().in(ProductSkuSpecEntity::getSkuId, skuIds).remove();
+    }
+
+    /**
+     * findListBySkuId
+     */
+    public List<ProductSkuSpecEntity> findListBySkuId(Long skuId) {
+        if (skuId == null) {
+            throw new IllegalArgumentException("skuId不能为空");
+        }
+        return lambdaQuery().eq(ProductSkuSpecEntity::getSkuId, skuId).list();
+    }
+
+    /**
+     * findListBySkuIds
+     */
+    public List<ProductSkuSpecEntity> findListBySkuIds(Collection<Long> skuIds) {
+        if (skuIds == null || skuIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return lambdaQuery().in(ProductSkuSpecEntity::getSkuId, skuIds).list();
     }
 }

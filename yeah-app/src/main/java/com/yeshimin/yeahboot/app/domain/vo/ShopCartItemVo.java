@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -43,7 +44,7 @@ public class ShopCartItemVo extends BaseDomain {
     /**
      * 规格
      */
-    private String specs; // TODO
+    private List<ProductSpecOptVo> specs;
 
     /**
      * 价格（单价）

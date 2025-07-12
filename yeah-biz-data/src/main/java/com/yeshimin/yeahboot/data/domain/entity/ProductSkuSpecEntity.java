@@ -32,4 +32,9 @@ public class ProductSkuSpecEntity extends ShopConditionBaseEntity<ProductSkuSpec
      * 选项ID
      */
     private Long optId;
+
+    /**
+     * 排序（自然序，从1开始）
+     */
+    private Integer sort;
 }

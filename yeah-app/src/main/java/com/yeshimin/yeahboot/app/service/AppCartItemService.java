@@ -1,21 +1,16 @@
 package com.yeshimin.yeahboot.app.service;
 
 import com.yeshimin.yeahboot.app.domain.dto.CartItemCreateDto;
+import com.yeshimin.yeahboot.app.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.app.domain.vo.ShopCartItemVo;
-import com.yeshimin.yeahboot.data.domain.entity.CartItemEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
-import com.yeshimin.yeahboot.data.repository.CartItemRepo;
-import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
-import com.yeshimin.yeahboot.data.repository.ProductSkuSpecRepo;
-import com.yeshimin.yeahboot.data.repository.ShopRepo;
+import com.yeshimin.yeahboot.data.domain.entity.*;
+import com.yeshimin.yeahboot.data.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,9 +19,12 @@ import java.util.stream.Collectors;
 public class AppCartItemService {
 
     private final CartItemRepo cartItemRepo;
+    private final ProductSpuRepo productSpuRepo;
     private final ProductSkuRepo productSkuRepo;
     private final ShopRepo shopRepo;
     private final ProductSkuSpecRepo productSkuSpecRepo;
+    private final ProductSpecDefRepo productSpecDefRepo;
+    private final ProductSpecOptDefRepo productSpecOptDefRepo;
 
     /**
      * 创建
@@ -70,23 +68,35 @@ public class AppCartItemService {
         List<CartItemEntity> listCartItem = cartItemRepo.findListByMemberId(userId);
 
         // 查询店铺信息
-        List<Long> shopIds = listCartItem.stream().map(CartItemEntity::getShopId).distinct().collect(Collectors.toList());
+        Set<Long> shopIds = listCartItem.stream().map(CartItemEntity::getShopId).collect(Collectors.toSet());
         List<ShopEntity> listShop = shopRepo.findListByIds(shopIds);
         // list to map
         Map<Long, ShopEntity> mapShop = listShop.stream().collect(Collectors.toMap(ShopEntity::getId, shop -> shop));
 
         // 查询spu信息
-        List<Long> spuIds = listCartItem.stream().map(CartItemEntity::getSpuId).distinct().collect(Collectors.toList());
-        List<ProductSkuEntity> listSpu = productSkuRepo.findListByIds(spuIds);
-        Map<Long, ProductSkuEntity> mapSpu = listSpu.stream().collect(Collectors.toMap(ProductSkuEntity::getId, spu -> spu));
+        Set<Long> spuIds = listCartItem.stream().map(CartItemEntity::getSpuId).collect(Collectors.toSet());
+        List<ProductSpuEntity> listSpu = productSpuRepo.findListByIds(spuIds);
+        Map<Long, ProductSpuEntity> mapSpu =
+                listSpu.stream().collect(Collectors.toMap(ProductSpuEntity::getId, spu -> spu));
 
         // 查询sku信息
-        List<Long> skuIds = listCartItem.stream().map(CartItemEntity::getSkuId).distinct().collect(Collectors.toList());
+        Set<Long> skuIds = listCartItem.stream().map(CartItemEntity::getSkuId).collect(Collectors.toSet());
         List<ProductSkuEntity> listSku = productSkuRepo.findListByIds(skuIds);
-        Map<Long, ProductSkuEntity> mapSku = listSku.stream().collect(Collectors.toMap(ProductSkuEntity::getId, sku -> sku));
+        Map<Long, ProductSkuEntity> mapSku =
+                listSku.stream().collect(Collectors.toMap(ProductSkuEntity::getId, sku -> sku));
 
         // 查询sku规格
-//        productSkuSpecRepo.deleteBySkuIds()
+        List<ProductSkuSpecEntity> listSkuSpec = productSkuSpecRepo.findListBySkuIds(skuIds);
+        Map<Long, List<ProductSkuSpecEntity>> mapSkuSpecs =
+                listSkuSpec.stream().collect(Collectors.groupingBy(ProductSkuSpecEntity::getSkuId));
+        // 查询specs
+        Set<Long> specIds = listSkuSpec.stream().map(ProductSkuSpecEntity::getSpecId).collect(Collectors.toSet());
+        Map<Long, ProductSpecDefEntity> mapSpecDef = productSpecDefRepo.findListByIds(specIds)
+                .stream().collect(Collectors.toMap(ProductSpecDefEntity::getId, v -> v));
+        // 查询opts
+        Set<Long> optIds = listSkuSpec.stream().map(ProductSkuSpecEntity::getOptId).collect(Collectors.toSet());
+        Map<Long, ProductSpecOptDefEntity> mapOptDef = productSpecOptDefRepo.findListByIds(optIds)
+                .stream().collect(Collectors.toMap(ProductSpecOptDefEntity::getId, v -> v));
 
         return listCartItem.stream().map(cartItem -> {
             ShopCartItemVo vo = new ShopCartItemVo();
@@ -96,9 +106,30 @@ public class AppCartItemService {
             vo.setSpuName(mapSpu.get(cartItem.getSpuId()).getName());
             vo.setSkuId(cartItem.getSkuId());
             vo.setSkuName(mapSku.get(cartItem.getSkuId()).getName());
-            // todo specs
             vo.setPrice(mapSku.get(cartItem.getSkuId()).getPrice());
             vo.setQuantity(cartItem.getQuantity());
+
+            // specs
+            List<ProductSkuSpecEntity> skuSpecs =
+                    mapSkuSpecs.getOrDefault(cartItem.getSkuId(), Collections.emptyList());
+            List<ProductSpecOptVo> listSpecOptVo = skuSpecs.stream().map(skuSpec -> {
+                ProductSpecOptVo optVo = new ProductSpecOptVo();
+                // set spec
+                Optional.ofNullable(mapSpecDef.get(skuSpec.getSpecId())).ifPresent(specDef -> {
+                    optVo.setSpecId(specDef.getId());
+                    optVo.setSpecName(specDef.getSpecName());
+                });
+                // set opt
+                Optional.ofNullable(mapOptDef.get(skuSpec.getOptId())).ifPresent(optDef -> {
+                    optVo.setOptId(optDef.getId());
+                    optVo.setOptName(optDef.getOptName());
+                });
+                // set sort
+                optVo.setSort(skuSpec.getSort());
+                return optVo;
+            }).collect(Collectors.toList());
+            vo.setSpecs(listSpecOptVo);
+
             return vo;
         }).collect(Collectors.toList());
     }
