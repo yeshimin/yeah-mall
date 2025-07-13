@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.service;
 
 import com.yeshimin.yeahboot.app.domain.dto.CartItemCreateDto;
+import com.yeshimin.yeahboot.app.domain.vo.CartShopVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.app.domain.vo.ShopCartItemVo;
 import com.yeshimin.yeahboot.data.domain.entity.*;
@@ -63,7 +64,7 @@ public class AppCartItemService {
     /**
      * 查询
      */
-    public List<ShopCartItemVo> query(Long userId) {
+    public List<CartShopVo> query(Long userId) {
         // 查询购物车商品项
         List<CartItemEntity> listCartItem = cartItemRepo.findListByMemberId(userId);
 
@@ -98,7 +99,7 @@ public class AppCartItemService {
         Map<Long, ProductSpecOptDefEntity> mapOptDef = productSpecOptDefRepo.findListByIds(optIds)
                 .stream().collect(Collectors.toMap(ProductSpecOptDefEntity::getId, v -> v));
 
-        return listCartItem.stream().map(cartItem -> {
+        List<ShopCartItemVo> listShopCartItemVo = listCartItem.stream().map(cartItem -> {
             ShopCartItemVo vo = new ShopCartItemVo();
             vo.setShopId(cartItem.getShopId());
             vo.setShopName(mapShop.get(cartItem.getShopId()).getShopName());
@@ -132,5 +133,22 @@ public class AppCartItemService {
 
             return vo;
         }).collect(Collectors.toList());
+
+        // group by shop
+        Map<Long, List<ShopCartItemVo>> groupShopCartItemVo =
+                listShopCartItemVo.stream().collect(Collectors.groupingBy(ShopCartItemVo::getShopId));
+        List<CartShopVo> listCartShopVo = new ArrayList<>();
+        for (Map.Entry<Long, List<ShopCartItemVo>> entry : groupShopCartItemVo.entrySet()) {
+            Long shopId = entry.getKey();
+            List<ShopCartItemVo> items = entry.getValue();
+
+            CartShopVo shopVo = new CartShopVo();
+            shopVo.setShopId(shopId);
+            shopVo.setShopName(items.get(0).getShopName());
+            shopVo.setItems(items);
+            listCartShopVo.add(shopVo);
+        }
+
+        return listCartShopVo;
     }
 }

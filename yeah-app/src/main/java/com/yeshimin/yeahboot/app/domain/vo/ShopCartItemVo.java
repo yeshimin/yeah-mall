@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.app.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,11 +15,13 @@ public class ShopCartItemVo extends BaseDomain {
     /**
      * 店铺ID
      */
+    @JsonIgnore
     private Long shopId;
 
     /**
      * 店铺名称
      */
+    @JsonIgnore
     private String shopName;
 
     /**

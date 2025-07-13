@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.app.controller;
 
 import com.yeshimin.yeahboot.app.domain.dto.CartItemCreateDto;
-import com.yeshimin.yeahboot.app.domain.vo.ShopCartItemVo;
+import com.yeshimin.yeahboot.app.domain.vo.CartShopVo;
 import com.yeshimin.yeahboot.app.service.AppCartItemService;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
@@ -38,7 +38,7 @@ public class AppCartItemController extends BaseController {
      * 查询
      */
     @RequestMapping("/query")
-    public R<List<ShopCartItemVo>> query() {
+    public R<List<CartShopVo>> query() {
         Long userId = WebContextUtils.getUserId();
         return R.ok(service.query(userId));
     }
