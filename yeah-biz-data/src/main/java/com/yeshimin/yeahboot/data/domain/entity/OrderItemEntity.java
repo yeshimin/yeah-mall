@@ -16,6 +16,11 @@ import java.math.BigDecimal;
 public class OrderItemEntity extends ShopConditionBaseEntity<OrderItemEntity> {
 
     /**
+     * 会员ID
+     */
+    private Long memberId;
+
+    /**
      * 订单ID
      */
     private Long orderId;

@@ -60,12 +60,6 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- Sqids -->
-        <dependency>
-            <groupId>org.sqids</groupId>
-            <artifactId>sqids</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

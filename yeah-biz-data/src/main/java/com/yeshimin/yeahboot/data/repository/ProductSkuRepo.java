@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSkuMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,10 @@ import java.util.List;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class ProductSkuRepo extends BaseRepo<ProductSkuMapper, ProductSkuEntity> {
+
+    private final ProductSkuMapper productSkuMapper;
 
     /**
      * findOneByIdAndShopId
@@ -90,5 +94,15 @@ public class ProductSkuRepo extends BaseRepo<ProductSkuMapper, ProductSkuEntity>
             throw new IllegalArgumentException("ids不能为空");
         }
         return lambdaQuery().in(ProductSkuEntity::getId, ids).ne(ProductSkuEntity::getMchId, mchId).count();
+    }
+
+    /**
+     * 扣减库存
+     */
+    public boolean occurStock(Long id, Integer quantity) {
+        if (id == null || quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("id和quantity不能为空且quantity必须大于0");
+        }
+        return productSkuMapper.occurStock(id, quantity);
     }
 }

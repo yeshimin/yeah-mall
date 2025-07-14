@@ -70,6 +70,12 @@
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
         </dependency>
+
+        <!-- Sqids -->
+        <dependency>
+            <groupId>org.sqids</groupId>
+            <artifactId>sqids</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

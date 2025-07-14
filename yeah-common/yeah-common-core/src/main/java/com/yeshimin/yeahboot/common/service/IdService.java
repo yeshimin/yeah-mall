@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.merchant.service;
+package com.yeshimin.yeahboot.common.service;
 
 import cn.hutool.core.util.IdUtil;
 import com.yeshimin.yeahboot.common.common.properties.IdGeneratorProperties;

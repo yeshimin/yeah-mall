@@ -8,9 +8,7 @@ import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,7 +25,7 @@ public class AppCartItemController extends BaseController {
     /**
      * 创建
      */
-    @RequestMapping("/create")
+    @PostMapping("/create")
     public R<Void> create(@Validated @RequestBody CartItemCreateDto dto) {
         Long userId = WebContextUtils.getUserId();
         service.create(userId, dto);
@@ -37,7 +35,7 @@ public class AppCartItemController extends BaseController {
     /**
      * 查询
      */
-    @RequestMapping("/query")
+    @GetMapping("/query")
     public R<List<CartShopVo>> query() {
         Long userId = WebContextUtils.getUserId();
         return R.ok(service.query(userId));

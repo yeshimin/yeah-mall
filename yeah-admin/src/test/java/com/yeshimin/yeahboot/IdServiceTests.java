@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot;
 
 import com.yeshimin.yeahboot.admin.YeahAdminApplication;
-import com.yeshimin.yeahboot.merchant.service.IdService;
+import com.yeshimin.yeahboot.common.service.IdService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;

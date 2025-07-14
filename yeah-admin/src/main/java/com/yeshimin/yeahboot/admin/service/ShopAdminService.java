@@ -8,7 +8,7 @@ import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.data.repository.MerchantRepo;
 import com.yeshimin.yeahboot.data.repository.ShopRepo;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.merchant.service.IdService;
+import com.yeshimin.yeahboot.common.service.IdService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
