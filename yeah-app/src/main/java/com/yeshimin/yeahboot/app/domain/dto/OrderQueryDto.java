@@ -13,8 +13,8 @@ import lombok.EqualsAndHashCode;
 public class OrderQueryDto extends BaseQueryDto {
 
     /**
-     * 订单状态：订单表
+     * 订单状态：同订单表
      */
-    @EnumValue(enumClass = OrderStatusEnum.class)
+    @EnumValue(enumClass = OrderStatusEnum.class, message = "订单状态不正确")
     private String status;
 }
