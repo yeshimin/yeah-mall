@@ -9,4 +9,11 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
+
+    /**
+     * findOneByOrderNo
+     */
+    public OrderEntity findOneByOrderNo(String orderNo) {
+        return lambdaQuery().eq(OrderEntity::getOrderNo, orderNo).one();
+    }
 }
