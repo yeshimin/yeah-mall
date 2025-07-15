@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.common.common.config.mybatis;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
@@ -42,7 +43,7 @@ public class QueryHelper<T> {
      * 生成QueryWrapper
      * 只按查询类定义进行查询
      */
-    public static <T> QueryWrapper<T> getQueryWrapper(Object query) {
+    public static <T> LambdaQueryWrapper<T> getQueryWrapper(Object query) {
         return getQueryWrapper(query, Wrappers.query());
     }
 
@@ -51,7 +52,7 @@ public class QueryHelper<T> {
      *
      * @param clazz 实体类Class，用于设置按实体类查询
      */
-    public static <T> QueryWrapper<T> getQueryWrapper(Object query, Class<T> clazz) {
+    public static <T> LambdaQueryWrapper<T> getQueryWrapper(Object query, Class<T> clazz) {
         QueryWrapper<T> wrapper = new QueryWrapper<>();
         if (clazz.isInstance(query)) {
             wrapper.setEntity(clazz.cast(query));
@@ -62,7 +63,7 @@ public class QueryHelper<T> {
     /**
      * 暂时不开放外部调用，后续有需要的场景再开放
      */
-    private static <T> QueryWrapper<T> getQueryWrapper(Object query, QueryWrapper<T> wrapper) {
+    private static <T> LambdaQueryWrapper<T> getQueryWrapper(Object query, QueryWrapper<T> wrapper) {
         // 获取@Query注解
         Query queryAnno = query.getClass().getAnnotation(Query.class);
         // 是否启用查询
@@ -71,7 +72,7 @@ public class QueryHelper<T> {
         boolean queryCustom = queryAnno != null && queryAnno.custom();
         if (!queryEnabled) {
             log.debug("class: [{}], @Query is not enabled, skip", query.getClass().getName());
-            return wrapper;
+            return wrapper.lambda();
         }
 
         // 解析自定义查询条件
@@ -363,7 +364,7 @@ public class QueryHelper<T> {
             }
         }
 
-        return wrapper;
+        return wrapper.lambda();
     }
 
     private static List<Condition> parseConditions(boolean queryCustom, Object query) {
