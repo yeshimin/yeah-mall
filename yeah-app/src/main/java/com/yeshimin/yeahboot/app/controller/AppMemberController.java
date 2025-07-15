@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/app/member")
 @RequiredArgsConstructor
-public class AdminMemberController extends BaseController {
+public class AppMemberController extends BaseController {
 
     private final AppMemberService service;
 
