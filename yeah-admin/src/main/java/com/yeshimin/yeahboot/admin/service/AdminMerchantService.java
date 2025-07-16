@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.admin.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.yeshimin.yeahboot.admin.domain.dto.MerchantCreateDto;
+import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.data.domain.entity.MerchantEntity;
 import com.yeshimin.yeahboot.data.repository.MerchantRepo;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
@@ -17,6 +18,8 @@ public class AdminMerchantService {
 
     private final MerchantRepo merchantRepo;
 
+    private final PasswordService passwordService;
+
     /**
      * 创建
      */
@@ -29,6 +32,7 @@ public class AdminMerchantService {
 
         // 创建记录
         MerchantEntity entity = BeanUtil.copyProperties(dto, MerchantEntity.class);
+        entity.setLoginPassword(passwordService.encodePassword(dto.getLoginPassword()));
         entity.insert();
         return entity;
     }
