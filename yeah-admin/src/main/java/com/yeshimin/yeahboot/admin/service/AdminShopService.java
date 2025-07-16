@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ShopAdminService {
+public class AdminShopService {
 
     private final ShopRepo shopRepo;
     private final MerchantRepo merchantRepo;

@@ -5,7 +5,7 @@ import com.yeshimin.yeahboot.admin.domain.dto.ShopUpdateDto;
 import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.data.mapper.ShopMapper;
 import com.yeshimin.yeahboot.data.repository.ShopRepo;
-import com.yeshimin.yeahboot.admin.service.ShopAdminService;
+import com.yeshimin.yeahboot.admin.service.AdminShopService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +21,12 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/admin/shop")
-public class ShopAdminController extends CrudController<ShopMapper, ShopEntity, ShopRepo> {
+public class AdminShopController extends CrudController<ShopMapper, ShopEntity, ShopRepo> {
 
     @Autowired
-    private ShopAdminService service;
+    private AdminShopService service;
 
-    public ShopAdminController(ShopRepo repo) {
+    public AdminShopController(ShopRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
     }

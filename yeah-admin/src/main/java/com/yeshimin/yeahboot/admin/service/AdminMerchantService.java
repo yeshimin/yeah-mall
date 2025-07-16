@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MerchantAdminService {
+public class AdminMerchantService {
 
     private final MerchantRepo merchantRepo;
 
