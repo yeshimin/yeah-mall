@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.admin.controller;
 
-import com.yeshimin.yeahboot.admin.service.AppUserAdminService;
+import com.yeshimin.yeahboot.admin.service.AdminAppUserService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.data.domain.entity.AppUserEntity;
 import com.yeshimin.yeahboot.data.mapper.AppUserMapper;
@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/admin/appUser")
-public class AppUserAdminController extends CrudController<AppUserMapper, AppUserEntity, AppUserRepo> {
+public class AdminAppUserController extends CrudController<AppUserMapper, AppUserEntity, AppUserRepo> {
 
     @Autowired
-    private AppUserAdminService service;
+    private AdminAppUserService service;
 
-    public AppUserAdminController(AppUserRepo repo) {
+    public AdminAppUserController(AppUserRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
         super.setModule("admin:appUser");
