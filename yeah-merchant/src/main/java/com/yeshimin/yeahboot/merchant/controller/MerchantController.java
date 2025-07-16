@@ -4,6 +4,7 @@ import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.MerchantEntity;
+import com.yeshimin.yeahboot.merchant.domain.vo.MchRoleResTreeNodeVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.MerchantMineVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.MerchantResourceVo;
 import com.yeshimin.yeahboot.merchant.service.MerchantService;
@@ -46,7 +47,7 @@ public class MerchantController extends BaseController {
      * mineResource
      */
     @GetMapping("/mineResources")
-    public R<List<MerchantResourceVo>> mineResources() {
+    public R<List<MchRoleResTreeNodeVo>> mineResources() {
         Long userId = WebContextUtils.getUserId();
         return R.ok(service.mineResources(userId));
     }
