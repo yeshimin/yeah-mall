@@ -5,11 +5,11 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.data.domain.entity.SysDictEntity;
+import com.yeshimin.yeahboot.data.repository.SysDictRepo;
 import com.yeshimin.yeahboot.upms.domain.dto.SysDictCreateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysDictUpdateDto;
-import com.yeshimin.yeahboot.data.domain.entity.SysDictEntity;
 import com.yeshimin.yeahboot.upms.domain.vo.SysDictTreeNodeVo;
-import com.yeshimin.yeahboot.data.repository.SysDictRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +50,10 @@ public class SysDictService {
 
         // 创建记录
         SysDictEntity entity = BeanUtil.copyProperties(dto, SysDictEntity.class);
+
+        // 设置层级和路径
+        sysDictRepo.setLevelAndPath(entity, parent);
+
         entity.insert();
         return entity;
     }

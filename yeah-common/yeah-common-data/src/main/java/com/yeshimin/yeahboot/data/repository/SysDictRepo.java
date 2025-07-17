@@ -4,9 +4,9 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.domain.entity.SysDictEntity;
 import com.yeshimin.yeahboot.data.mapper.SysDictMapper;
-import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -166,5 +166,22 @@ public class SysDictRepo extends BaseRepo<SysDictMapper, SysDictEntity> {
         wrapper.eq(SysDictEntity::getCode, code);
         wrapper.eq(SysDictEntity::getParentId, 0);
         return super.getOne(wrapper);
+    }
+
+    /**
+     * 设置层级和路径
+     */
+    public void setLevelAndPath(SysDictEntity entity, SysDictEntity parent) {
+        if (entity == null) {
+            throw new IllegalArgumentException("entity不能为空");
+        }
+
+        if (parent != null) {
+            entity.setLevel(parent.getLevel() + 1);
+            entity.setPath(parent.getPath() + "/" + entity.getCode());
+        } else {
+            entity.setLevel(1);
+            entity.setPath(entity.getCode());
+        }
     }
 }
