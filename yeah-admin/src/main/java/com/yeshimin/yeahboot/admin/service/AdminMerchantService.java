@@ -8,11 +8,13 @@ import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.data.domain.entity.MerchantEntity;
 import com.yeshimin.yeahboot.data.repository.MerchantRepo;
+import com.yeshimin.yeahboot.data.repository.ShopRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Objects;
 
 @Slf4j
@@ -21,6 +23,7 @@ import java.util.Objects;
 public class AdminMerchantService {
 
     private final MerchantRepo merchantRepo;
+    private final ShopRepo shopRepo;
 
     private final PasswordService passwordService;
 
@@ -64,5 +67,22 @@ public class AdminMerchantService {
         }
 
         merchant.updateById();
+    }
+
+    /**
+     * 删除
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(Collection<Long> ids) {
+        for (Long id : ids) {
+            // 检查：数据是否存在
+            merchantRepo.getOneById(id);
+            // 检查：是否有关联店铺
+            if (shopRepo.countByMchId(id) > 0) {
+                throw new BaseException("该商户下存在关联店铺，不可删除");
+            }
+        }
+
+        merchantRepo.removeByIds(ids);
     }
 }

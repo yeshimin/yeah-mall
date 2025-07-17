@@ -36,4 +36,14 @@ public class ShopRepo extends BaseRepo<ShopMapper, ShopEntity> {
         }
         return lambdaQuery().eq(ShopEntity::getId, id).eq(ShopEntity::getMchId, mchId).count();
     }
+
+    /**
+     * countByMchId
+     */
+    public Long countByMchId(Long mchId) {
+        if (mchId == null) {
+            throw new IllegalArgumentException("mchId不能为空");
+        }
+        return lambdaQuery().eq(ShopEntity::getMchId, mchId).count();
+    }
 }

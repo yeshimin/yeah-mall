@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collection;
+
 /**
  * 商家表
  */
@@ -50,6 +52,16 @@ public class AdminMerchantController extends CrudController<MerchantMapper, Merc
     @PostMapping("/update")
     public R<Void> update(@Validated @RequestBody MerchantUpdateDto dto) {
         service.update(dto);
+        return R.ok();
+    }
+
+    /**
+     * 删除
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
+    @PostMapping("/delete")
+    public R<Void> delete(@RequestBody Collection<Long> ids) {
+        service.delete(ids);
         return R.ok();
     }
 }
