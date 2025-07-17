@@ -19,6 +19,11 @@ public class ProductCategoryEntity extends ShopConditionBaseEntity<ProductCatego
     private Long parentId;
 
     /**
+     * 编码
+     */
+    private String code;
+
+    /**
      * 分类名称
      */
     private String name;
@@ -29,7 +34,12 @@ public class ProductCategoryEntity extends ShopConditionBaseEntity<ProductCatego
     private Integer level;
 
     /**
-     * 排序：自然数
+     * 路径
+     */
+    private String path;
+
+    /**
+     * 排序：大于等于1
      */
     private Integer sort;
 
