@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 public class MerchantEntity extends ConditionBaseEntity<MerchantEntity> {
 
     /**
-     * 登录账号
+     * 登录帐号
      */
     private String loginAccount;
 
