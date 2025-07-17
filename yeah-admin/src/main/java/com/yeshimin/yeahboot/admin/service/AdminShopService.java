@@ -70,7 +70,6 @@ public class AdminShopService {
     public IPage<ShopVo> query(Page<ShopEntity> page, ShopQueryDto query) {
         // 查询店铺
         LambdaQueryWrapper<ShopEntity> wrapper = QueryHelper.getQueryWrapper(query, ShopEntity.class);
-        wrapper.eq(query.getMchId() != null, ShopEntity::getMchId, query.getMchId());
         Page<ShopEntity> pageResult = shopRepo.page(page, wrapper);
 
         // 查询商家信息
