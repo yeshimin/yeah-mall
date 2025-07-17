@@ -1,2 +1,2 @@
 # yeah-boot
-Java / Spring Boot 快速开发框架
+基于yeah-boot框架开发的商城系统
