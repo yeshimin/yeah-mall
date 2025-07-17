@@ -2,17 +2,29 @@ package com.yeshimin.yeahboot.admin.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.admin.domain.dto.ShopCreateDto;
+import com.yeshimin.yeahboot.admin.domain.dto.ShopQueryDto;
 import com.yeshimin.yeahboot.admin.domain.dto.ShopUpdateDto;
+import com.yeshimin.yeahboot.admin.domain.vo.ShopDetailVo;
+import com.yeshimin.yeahboot.admin.domain.vo.ShopVo;
+import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.service.IdService;
+import com.yeshimin.yeahboot.data.domain.entity.MerchantEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.data.repository.MerchantRepo;
 import com.yeshimin.yeahboot.data.repository.ShopRepo;
-import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.common.service.IdService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -50,6 +62,44 @@ public class AdminShopService {
         entity.setShopNo(shopNo);
         entity.insert();
         return entity;
+    }
+
+    /**
+     * 查询
+     */
+    public IPage<ShopVo> query(Page<ShopEntity> page, ShopQueryDto query) {
+        // 查询店铺
+        LambdaQueryWrapper<ShopEntity> wrapper = QueryHelper.getQueryWrapper(query, ShopEntity.class);
+        wrapper.eq(query.getMchId() != null, ShopEntity::getMchId, query.getMchId());
+        Page<ShopEntity> pageResult = shopRepo.page(page, wrapper);
+
+        // 查询商家信息
+        Set<Long> mchIds = pageResult.getRecords().stream().map(ShopEntity::getMchId).collect(Collectors.toSet());
+        Map<Long, MerchantEntity> mapMch = merchantRepo.findListByIds(mchIds)
+                .stream().collect(Collectors.toMap(MerchantEntity::getId, merchant -> merchant));
+
+        return pageResult.convert(e -> {
+            ShopVo vo = new ShopVo();
+            BeanUtil.copyProperties(e, vo);
+            vo.setMchName(mapMch.get(e.getMchId()).getLoginAccount());
+            return vo;
+        });
+    }
+
+
+    /**
+     * 详情
+     */
+    public ShopDetailVo detail(Long id) {
+        // 查询店铺
+        ShopEntity entity = shopRepo.getOneById(id);
+
+        // 查询商家
+        MerchantEntity merchant = merchantRepo.getOneById(entity.getMchId());
+
+        ShopDetailVo vo = BeanUtil.copyProperties(entity, ShopDetailVo.class);
+        vo.setMchName(merchant.getLoginAccount());
+        return vo;
     }
 
     /**
