@@ -18,6 +18,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+
 /**
  * 店铺表
  */
@@ -70,5 +72,15 @@ public class AdminShopController extends CrudController<ShopMapper, ShopEntity, 
     @PostMapping("/update")
     public R<ShopEntity> update(@Validated @RequestBody ShopUpdateDto dto) {
         return R.ok(service.update(dto));
+    }
+
+    /**
+     * 删除
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':shop:delete')")
+    @PostMapping("/delete")
+    public R<Void> delete(@RequestBody Collection<Long> ids) {
+        service.delete(ids);
+        return R.ok();
     }
 }

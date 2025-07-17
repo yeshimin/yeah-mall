@@ -16,12 +16,14 @@ import com.yeshimin.yeahboot.common.service.IdService;
 import com.yeshimin.yeahboot.data.domain.entity.MerchantEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.data.repository.MerchantRepo;
+import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.data.repository.ShopRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +35,7 @@ public class AdminShopService {
 
     private final ShopRepo shopRepo;
     private final MerchantRepo merchantRepo;
+    private final ProductSpuRepo productSpuRepo;
 
     private final IdService idService;
 
@@ -102,7 +105,7 @@ public class AdminShopService {
     }
 
     /**
-     * 创建
+     * 更新
      */
     @Transactional(rollbackFor = Exception.class)
     public ShopEntity update(ShopUpdateDto dto) {
@@ -112,5 +115,23 @@ public class AdminShopService {
         BeanUtil.copyProperties(dto, entity);
         entity.updateById();
         return entity;
+    }
+
+    /**
+     * 删除
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(Collection<Long> ids) {
+        for (Long id : ids) {
+            // 检查：数据是否存在
+            ShopEntity entity = shopRepo.getOneById(id);
+
+            // 检查：店铺下是否有商品spu
+            if (productSpuRepo.countByShopId(id) > 0) {
+                throw new BaseException("该店铺下存在商品SPU，不可删除");
+            }
+        }
+
+        shopRepo.removeByIds(ids);
     }
 }

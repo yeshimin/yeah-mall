@@ -42,4 +42,14 @@ public class ProductSpuRepo extends BaseRepo<ProductSpuMapper, ProductSpuEntity>
     public ProductSpuEntity findOneByIdAndShopId(Long id, Long shopId) {
         return lambdaQuery().eq(ProductSpuEntity::getId, id).eq(ProductSpuEntity::getShopId, shopId).one();
     }
+
+    /**
+     * countByShopId
+     */
+    public long countByShopId(Long shopId) {
+        if (shopId == null) {
+            throw new IllegalArgumentException("shopId不能为空");
+        }
+        return lambdaQuery().eq(ProductSpuEntity::getShopId, shopId).count();
+    }
 }
