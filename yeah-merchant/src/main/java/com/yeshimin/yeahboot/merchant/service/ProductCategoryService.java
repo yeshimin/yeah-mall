@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.data.domain.entity.ProductCategoryEntity;
 import com.yeshimin.yeahboot.data.repository.ProductCategoryRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductCategoryCreateDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductCategoryTreeDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductCategoryUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductCategoryTreeNodeVo;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,8 @@ public class ProductCategoryService {
             if (parent == null) {
                 throw new BaseException("父节点未找到");
             }
+            // 检查：父节点权限
+            permissionService.checkShopId(dto.getShopId(), parent.getShopId());
         }
         // 检查：同一个父节点下是否存在相同编码
         if (productCategoryRepo.countByParentIdAndCode(dto.getParentId(), dto.getCode()) > 0) {
@@ -67,9 +70,16 @@ public class ProductCategoryService {
     /**
      * 查询树
      */
-    public List<ProductCategoryTreeNodeVo> tree(String rootNodeCode) {
+    public List<ProductCategoryTreeNodeVo> tree(Long userId, ProductCategoryTreeDto query) {
+        // 权限检查和控制
+        permissionService.checkMchAndShop(userId, query);
+
+        final String rootNodeCode = query.getRootNodeCode();
+
         // query
         LambdaQueryWrapper<ProductCategoryEntity> wrapper = Wrappers.lambdaQuery();
+        // 指定店铺ID
+        wrapper.eq(ProductCategoryEntity::getShopId, query.getShopId());
         // 查询指定节点下所有子节点
         if (StrUtil.isNotBlank(rootNodeCode)) {
             ProductCategoryEntity pickedNode = productCategoryRepo.findOneByRootNodeCode(rootNodeCode);
@@ -112,6 +122,8 @@ public class ProductCategoryService {
 
         // 检查：是否存在
         ProductCategoryEntity entity = productCategoryRepo.getOneById(dto.getId());
+        // 检查：店铺数据权限
+        permissionService.checkShopId(dto.getShopId(), entity.getShopId());
         // 检查：父节点是否存在 ; 父节点不能是自己
         ProductCategoryEntity parent;
         if (dto.getParentId() != null && dto.getParentId() > 0) {
@@ -122,6 +134,8 @@ public class ProductCategoryService {
             if (parent == null) {
                 throw new BaseException("父节点未找到");
             }
+            // 检查：父节点权限
+            permissionService.checkShopId(dto.getShopId(), parent.getShopId());
             // 检查：不能挂载到子节点
             if (productCategoryRepo.countByChildrenMatched(entity.getPath(), dto.getParentId()) > 0) {
                 throw new BaseException("不能挂载到子节点");

@@ -6,6 +6,7 @@ import com.yeshimin.yeahboot.data.mapper.ProductCategoryMapper;
 import com.yeshimin.yeahboot.data.repository.ProductCategoryRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductCategoryCreateDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductCategoryTreeDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductCategoryUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductCategoryTreeNodeVo;
 import com.yeshimin.yeahboot.merchant.service.ProductCategoryService;
@@ -47,9 +48,9 @@ public class ProductCategoryController extends ShopCrudController<ProductCategor
      * 查询树
      */
     @GetMapping("/tree")
-    public R<List<ProductCategoryTreeNodeVo>> tree(
-            @RequestParam(value = "rootNodeCode", required = false) String rootNodeCode) {
-        return R.ok(service.tree(rootNodeCode));
+    public R<List<ProductCategoryTreeNodeVo>> tree(@Validated ProductCategoryTreeDto query) {
+        Long userId = super.getUserId();
+        return R.ok(service.tree(userId, query));
     }
 
     /**

@@ -43,8 +43,11 @@ public class ProductCategoryRepo extends BaseRepo<ProductCategoryMapper, Product
      * countByParentIdAndName
      */
     public long countByParentIdAndName(Long parentId, String name) {
-        if (parentId == null || name == null) {
-            throw new IllegalArgumentException("parentId和name不能为空");
+        if (parentId == null) {
+            throw new IllegalArgumentException("parentId不能为空");
+        }
+        if (StrUtil.isBlank(name)) {
+            throw new IllegalArgumentException("name不能为空");
         }
         return lambdaQuery().eq(ProductCategoryEntity::getParentId, parentId)
                 .eq(ProductCategoryEntity::getName, name).count();
