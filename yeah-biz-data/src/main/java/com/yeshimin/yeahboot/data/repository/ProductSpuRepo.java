@@ -52,4 +52,14 @@ public class ProductSpuRepo extends BaseRepo<ProductSpuMapper, ProductSpuEntity>
         }
         return lambdaQuery().eq(ProductSpuEntity::getShopId, shopId).count();
     }
+
+    /**
+     * countByCategoryId
+     */
+    public long countByCategoryId(Long categoryId) {
+        if (categoryId == null) {
+            throw new IllegalArgumentException("categoryId不能为空");
+        }
+        return lambdaQuery().eq(ProductSpuEntity::getCategoryId, categoryId).count();
+    }
 }

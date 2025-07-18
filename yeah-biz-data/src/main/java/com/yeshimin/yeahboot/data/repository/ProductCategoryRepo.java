@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.data.mapper.ProductCategoryMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -137,5 +138,15 @@ public class ProductCategoryRepo extends BaseRepo<ProductCategoryMapper, Product
             entity.setLevel(1);
             entity.setPath(entity.getCode());
         }
+    }
+
+    /**
+     * 统计ids中不属于mchId的数据
+     */
+    public long countByIdsAndNotMchId(Long mchId, Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("ids不能为空");
+        }
+        return lambdaQuery().in(ProductCategoryEntity::getId, ids).ne(ProductCategoryEntity::getMchId, mchId).count();
     }
 }

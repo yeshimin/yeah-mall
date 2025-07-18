@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,7 +29,7 @@ public class ProductCategoryController extends ShopCrudController<ProductCategor
     public ProductCategoryController(ProductCategoryRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
-        super.setModule("mch:productCategory").disableCreate().disableQuery().disableUpdate().disableDelete();
+        super.setModule("mch:productCategory").disableCreate().disableUpdate().disableDelete();
     }
 
     // ================================================================================
@@ -58,5 +59,15 @@ public class ProductCategoryController extends ShopCrudController<ProductCategor
     public R<ProductCategoryEntity> update(@Validated @RequestBody ProductCategoryUpdateDto dto) {
         Long userId = super.getUserId();
         return R.ok(service.update(userId, dto));
+    }
+
+    /**
+     * 删除
+     */
+    @PostMapping("/delete")
+    public R<Void> delete(@Validated @RequestBody Collection<Long> ids) {
+        Long userId = super.getUserId();
+        service.delete(userId, ids);
+        return R.ok();
     }
 }

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.entity.ProductCategoryEntity;
 import com.yeshimin.yeahboot.data.repository.ProductCategoryRepo;
+import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductCategoryCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductCategoryUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductCategoryTreeNodeVo;
@@ -15,10 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,6 +25,7 @@ import java.util.stream.Collectors;
 public class ProductCategoryService {
 
     private final ProductCategoryRepo productCategoryRepo;
+    private final ProductSpuRepo productSpuRepo;
 
     private final PermissionService permissionService;
 
@@ -170,5 +169,28 @@ public class ProductCategoryService {
 
         entity.updateById();
         return entity;
+    }
+
+    /**
+     * 删除
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(Long userId, Collection<Long> ids) {
+        // 批量检查：SKU ID权限
+        if (productCategoryRepo.countByIdsAndNotMchId(userId, ids) > 0) {
+            throw new BaseException("包含无权限数据");
+        }
+
+        for (Long id : ids) {
+            // 检查：是否存在
+            productCategoryRepo.getOneById(id);
+
+            // 检查：是否被spu引用
+            if (productSpuRepo.countByCategoryId(id) > 0) {
+                throw new BaseException("该分类下已存在商品，不可删除");
+            }
+        }
+
+        productCategoryRepo.removeByIds(ids);
     }
 }
