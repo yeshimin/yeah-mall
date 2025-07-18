@@ -149,4 +149,14 @@ public class ProductCategoryRepo extends BaseRepo<ProductCategoryMapper, Product
         }
         return lambdaQuery().in(ProductCategoryEntity::getId, ids).ne(ProductCategoryEntity::getMchId, mchId).count();
     }
+
+    /**
+     * countByParentId
+     */
+    public long countByParentId(Long parentId) {
+        if (parentId == null) {
+            throw new IllegalArgumentException("parentId不能为空");
+        }
+        return lambdaQuery().eq(ProductCategoryEntity::getParentId, parentId).count();
+    }
 }

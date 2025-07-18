@@ -185,6 +185,11 @@ public class ProductCategoryService {
             // 检查：是否存在
             productCategoryRepo.getOneById(id);
 
+            // 检查：是否有子分类
+            if (productCategoryRepo.countByParentId(id) > 0) {
+                throw new BaseException("存在子分类，不可删除");
+            }
+
             // 检查：是否被spu引用
             if (productSpuRepo.countByCategoryId(id) > 0) {
                 throw new BaseException("该分类下已存在商品，不可删除");
