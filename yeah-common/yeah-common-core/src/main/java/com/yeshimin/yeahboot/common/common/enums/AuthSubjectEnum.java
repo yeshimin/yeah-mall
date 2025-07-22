@@ -1,12 +1,13 @@
 package com.yeshimin.yeahboot.common.common.enums;
 
+import com.yeshimin.yeahboot.common.common.enums.base.IValueEnum;
 import lombok.Getter;
 
 /**
  * 授权相关-主题（子系统/模块）枚举
  */
 @Getter
-public enum AuthSubjectEnum {
+public enum AuthSubjectEnum implements IValueEnum {
 
     // admin
     ADMIN("admin", "管理端"),

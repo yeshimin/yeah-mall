@@ -1,5 +1,7 @@
 package com.yeshimin.yeahboot.app.auth;
 
+import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
+import com.yeshimin.yeahboot.common.common.validation.EnumValue;
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,4 +26,10 @@ public class LoginDto extends BaseDomain {
      */
     @NotBlank(message = "密码不能为空")
     private String password;
+
+    /**
+     * 终端
+     */
+    @EnumValue(enumClass = AuthTerminalEnum.class, message = "终端不正确")
+    private String terminal;
 }

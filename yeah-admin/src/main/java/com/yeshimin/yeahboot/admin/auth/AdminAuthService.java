@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.admin.auth;
 
-import com.yeshimin.yeahboot.auth.service.TokenService;
+import cn.hutool.core.util.StrUtil;
+import com.yeshimin.yeahboot.auth.service.TerminalAndTokenControlService;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
@@ -27,7 +28,7 @@ public class AdminAuthService {
     private final SysUserRepo sysUserRepo;
 
     private final PasswordService passwordService;
-    private final TokenService tokenService;
+    private final TerminalAndTokenControlService controlService;
 
     /**
      * 登录
@@ -41,13 +42,12 @@ public class AdminAuthService {
             throw new BaseException(ErrorCodeEnum.FAIL);
         }
 
-        // 生成token
-        String subject = AuthSubjectEnum.ADMIN.getValue();
-        String terminal = AuthTerminalEnum.WEB.getValue();
-        String token = tokenService.generateToken(String.valueOf(authenticateVo.getUserId()), subject, terminal);
+        String userId = String.valueOf(authenticateVo.getUserId());
+        String subValue = AuthSubjectEnum.ADMIN.getValue();
+        String termValue = StrUtil.isNotBlank(loginDto.getTerminal()) ?
+                loginDto.getTerminal() : AuthTerminalEnum.WEB.getValue();
 
-        // 缓存token
-        tokenService.cacheToken(subject, String.valueOf(authenticateVo.getUserId()), terminal, token);
+        String token = controlService.doControl(userId, subValue, termValue);
 
         LoginVo loginVo = new LoginVo();
         loginVo.setToken(token);
