@@ -8,10 +8,10 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
-import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.auth.common.properties.AuthTokenProperties;
 import com.yeshimin.yeahboot.auth.common.properties.JwtProperties;
+import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
+import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +36,8 @@ public class JwtService {
     private Algorithm algorithm;
     // map<subject-terminal, Algorithm>
     private final Map<String, Algorithm> algorithms = new HashMap<>();
+    // map<subject, jwt config>
+    private final Map<String, JwtProperties> jwtConfigs = new HashMap<>();
 
     @PostConstruct
     private void init() {
@@ -56,6 +58,15 @@ public class JwtService {
                         algorithms.put(key, Algorithm.HMAC256(secret));
                     }
                 }
+
+                // jwt配置
+                if (subject.getJwt() != null) {
+                    // 如果jwt配置不为空，则使用该配置
+                    jwtConfigs.put(subject.getName(), subject.getJwt());
+                } else {
+                    // 否则使用全局jwt配置
+                    jwtConfigs.put(subject.getName(), jwtProperties);
+                }
             }
         }
 
@@ -68,7 +79,10 @@ public class JwtService {
      * 签发Jwt
      */
     public String signJwt(String userId, String subject, String terminal) {
+        JwtProperties jwtProp = jwtConfigs.get(subject);
+
         Date now = new Date();
+        Date exp = new Date(now.getTime() + jwtProp.getExpireSeconds() * 1000);
         JWTCreator.Builder builder = JWT.create()
                 // 受众（用户标识）
                 .withAudience(userId)
@@ -77,12 +91,16 @@ public class JwtService {
                 // 主题：区分（子）系统/模块
                 .withSubject(subject)
                 // 过期时间
-                .withExpiresAt(new Date(now.getTime() + jwtProperties.getExpireSeconds() * 1000));
+//                .withExpiresAt(exp)  // 由缓存过期机制控制
+                ;
 
         // 终端
         if (terminal != null) {
             builder.withClaim(CommonConsts.JWT_CLAIM_TERMINAL, terminal);
         }
+        // 毫秒时间
+        builder.withClaim(CommonConsts.JWT_CLAIM_IAT_MS, now.getTime());
+        builder.withClaim(CommonConsts.JWT_CLAIM_EXP_MS, exp.getTime());
 
         // 获取算法
         Algorithm algorithm = algorithms.get(subject + "-" + terminal);
@@ -118,6 +136,8 @@ public class JwtService {
      * 解码Jwt
      */
     public DecodedJWT decodeJwt(String jwt, String subject, String terminal) {
+        JwtProperties jwtProp = jwtConfigs.get(subject);
+
         // 获取算法
         Algorithm algorithm = algorithms.get(subject + "-" + terminal);
         if (algorithm == null) {
@@ -126,7 +146,7 @@ public class JwtService {
 
         JWTVerifier verifier = JWT.require(algorithm)
                 // 时间校验偏差
-                .acceptLeeway(jwtProperties.getDefaultLeeway())
+                .acceptLeeway(jwtProp.getDefaultLeeway())
                 .build();
 
         try {
@@ -147,6 +167,11 @@ public class JwtService {
         if (payloadVo == null) {
             throw new IllegalArgumentException("jwt is invalid");
         }
+        payloadVo.setExp((int) (payloadVo.getExpMs() / 1000));
         return payloadVo;
+    }
+
+    public Integer getExpireSeconds(String subject) {
+        return jwtConfigs.get(subject).getExpireSeconds();
     }
 }

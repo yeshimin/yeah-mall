@@ -30,7 +30,6 @@ public class AuthService {
 
     private final TokenService tokenService;
 
-    //    private final UserDetailService userDetailService;
     private final List<UserDetailService> userDetailServices;
     private Map<String, UserDetailService> mapUserDetailService;
 
@@ -54,8 +53,8 @@ public class AuthService {
             log.error("token decode fail");
             authVo.setAuthenticated(false);
             return authVo;
-        } else if (!Objects.equals(dto.getToken(),
-                tokenService.getCacheToken(decodedResult.getSub(), decodedResult.getAud(), decodedResult.getTerm()))) {
+        } else if (!Objects.equals(dto.getToken(), tokenService.getCacheToken(
+                decodedResult.getSub(), decodedResult.getAud(), decodedResult.getTerm(), decodedResult.getIatMs()))) {
             log.error("token cache validation fail");
             authVo.setAuthenticated(false);
             return authVo;
@@ -71,6 +70,10 @@ public class AuthService {
             authVo.setAuthenticated(false);
             return authVo;
         }
+
+        // 刷新token过期时间
+        tokenService.refreshTokenExpire(decodedResult.getSub(), decodedResult.getAud(),
+                decodedResult.getTerm(), decodedResult.getIatMs());
 
 //        // 是否只进行认证
 //        if (dto.getOnlyAuthenticate()) {

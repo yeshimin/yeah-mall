@@ -1,13 +1,15 @@
 package com.yeshimin.yeahboot.auth.service;
 
-import cn.hutool.core.util.StrUtil;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
 import com.yeshimin.yeahboot.common.common.consts.CacheKeyConsts;
-import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Token相关
@@ -18,13 +20,6 @@ public class TokenService {
 
     private final JwtService jwtService;
     private final CacheService cacheService;
-
-    /**
-     * 生成token
-     */
-//    public String generateToken(String userId) {
-//        return jwtService.signJwt(userId, AuthSubjectEnum.DEFAULT.getValue(), null);
-//    }
 
     /**
      * 生成token
@@ -45,22 +40,105 @@ public class TokenService {
     /**
      * 缓存token
      */
-    public void cacheToken(String subject, String userId, String terminal, String token) {
+    public void cacheToken(String subject, String userId, String terminal, String token, Long timestampMs) {
         // 区分是否有终端
-        final String key = StrUtil.isBlank(terminal) ? String.format(CacheKeyConsts.USER_TOKEN, subject, userId) :
-                String.format(CacheKeyConsts.USER_TOKEN_TERM, subject, userId, terminal);
-        cacheService.set(key, token, CommonConsts.USER_TOKEN_EXPIRE_SECONDS);
+        final String key = String.format(CacheKeyConsts.USER_TERMINAL_TOKEN, subject, userId, terminal, timestampMs);
+        cacheService.set(key, token, jwtService.getExpireSeconds(subject));
     }
 
     /**
      * 获取缓存的token
      */
-    public String getCacheToken(String subject, String userId, String terminal) {
-        // 无终端的
-        if (StrUtil.isBlank(terminal)) {
-            return cacheService.get(String.format(CacheKeyConsts.USER_TOKEN, subject, userId));
-        }
+    public String getCacheToken(String subject, String userId, String terminal, Long iatMs) {
         // 有终端的
-        return cacheService.get(String.format(CacheKeyConsts.USER_TOKEN_TERM, subject, userId, terminal));
+        return cacheService.get(String.format(CacheKeyConsts.USER_TERMINAL_TOKEN, subject, userId, terminal, iatMs));
+    }
+
+    /**
+     * 获取sub下用户所有终端信息
+     * hash类型
+     */
+    public Map<String, String> getSubjectTerminalInfo(String subject, String userId) {
+        Map<Object, Object> map =
+                cacheService.getHash(String.format(CacheKeyConsts.USER_SUBJECT_TERMINAL_INFO, subject, userId));
+        // convert to map<String, String>
+        return map.entrySet().stream()
+                .collect(Collectors.toMap(entry -> entry.getKey().toString(), entry -> entry.getValue().toString()));
+    }
+
+    /**
+     * 获取终端下token信息
+     * hash类型
+     */
+    public Map<String, String> getTerminalTokenInfo(String subject, String userId, String terminal) {
+        Map<Object, Object> map =
+                cacheService.getHash(String.format(CacheKeyConsts.USER_TERMINAL_TOKEN_INFO, subject, userId, terminal));
+        // convert to map<String, String>
+        return map.entrySet().stream()
+                .collect(Collectors.toMap(entry -> entry.getKey().toString(), entry -> entry.getValue().toString()));
+    }
+
+    /**
+     * 删除token
+     */
+    public void deleteToken(String subject, String userId, String terminal) {
+        cacheService.delete(String.format(CacheKeyConsts.USER_TOKEN_TERM, subject, userId, terminal));
+    }
+
+    /**
+     * 设置sub下用户终端信息
+     */
+    public void setSubjectTerminalInfo(String subject, String userId, String terminal, Long iatMs, Long expMs) {
+        String key = String.format(CacheKeyConsts.USER_SUBJECT_TERMINAL_INFO, subject, userId);
+        if (cacheService.exists(key)) {
+            cacheService.setHash(key, terminal, iatMs + "," + expMs);
+        } else {
+            Map<String, String> map = new HashMap<>();
+            map.put(terminal, iatMs + "," + expMs);
+            cacheService.setHash(key, map);
+        }
+        Long expire = cacheService.getExpire(key);
+        Integer configExpireSeconds = jwtService.getExpireSeconds(subject);
+        cacheService.expire(key, expire == null || configExpireSeconds > expire ? configExpireSeconds : expire);
+    }
+
+    /**
+     * 设置终端下token信息
+     */
+    public void setTerminalTokenInfo(String subject, String userId, String terminal, Long iatMs, Long expMs) {
+        String key = String.format(CacheKeyConsts.USER_TERMINAL_TOKEN_INFO, subject, userId, terminal);
+        if (cacheService.exists(key)) {
+            cacheService.setHash(key, String.valueOf(iatMs), String.valueOf(expMs));
+        } else {
+            Map<String, String> map = new HashMap<>();
+            map.put(String.valueOf(iatMs), String.valueOf(expMs));
+            cacheService.setHash(key, map);
+        }
+        Long expire = cacheService.getExpire(key);
+        Integer configExpireSeconds = jwtService.getExpireSeconds(subject);
+        cacheService.expire(key, expire == null || configExpireSeconds > expire ? configExpireSeconds : expire);
+    }
+
+    /**
+     * 刷新token过期时间（以及token信息和对应终端信息）
+     * NOTE 如何操作频率太高出现性能问题，可降低刷新频率，比如过期时间在10分钟以内才刷新
+     */
+    public void refreshTokenExpire(String subject, String userId, String terminal, Long iatMs) {
+        Integer configExpireSeconds = jwtService.getExpireSeconds(subject);
+        Long expireMs = System.currentTimeMillis() + configExpireSeconds * 1000;
+
+        // 刷新token过期时间
+        String tokenKey = String.format(CacheKeyConsts.USER_TERMINAL_TOKEN, subject, userId, terminal, iatMs);
+        cacheService.expire(tokenKey, configExpireSeconds);
+
+        // 刷新token信息过期时间
+        String tokenInfoKey = String.format(CacheKeyConsts.USER_TERMINAL_TOKEN_INFO, subject, userId, terminal);
+        cacheService.setHash(tokenInfoKey, String.valueOf(iatMs), String.valueOf(expireMs));
+        cacheService.expire(tokenInfoKey, configExpireSeconds);
+
+        // 刷新终端信息过期时间
+        String terminalInfoKey = String.format(CacheKeyConsts.USER_SUBJECT_TERMINAL_INFO, subject, userId);
+        cacheService.setHash(terminalInfoKey, terminal, iatMs + "," + expireMs);
+        cacheService.expire(terminalInfoKey, configExpireSeconds);
     }
 }

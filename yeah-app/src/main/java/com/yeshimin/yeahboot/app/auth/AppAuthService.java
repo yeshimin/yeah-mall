@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.auth;
 
-import com.yeshimin.yeahboot.auth.service.TokenService;
+import cn.hutool.core.util.StrUtil;
+import com.yeshimin.yeahboot.auth.service.TerminalAndTokenControlService;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
@@ -24,7 +25,7 @@ public class AppAuthService {
     private final MemberRepo memberRepo;
 
     private final PasswordService passwordService;
-    private final TokenService tokenService;
+    private final TerminalAndTokenControlService controlService;
 
     /**
      * 登录
@@ -42,13 +43,12 @@ public class AppAuthService {
             throw new BaseException(ErrorCodeEnum.FAIL, "密码不正确");
         }
 
-        // 生成token
-        String subject = AuthSubjectEnum.APP.getValue();
-        String terminal = AuthTerminalEnum.APP.getValue();
-        String token = tokenService.generateToken(String.valueOf(member.getId()), subject, terminal);
+        String userId = String.valueOf(member.getId());
+        String subValue = AuthSubjectEnum.APP.getValue();
+        String termValue = StrUtil.isNotBlank(loginDto.getTerminal()) ?
+                loginDto.getTerminal() : AuthTerminalEnum.APP.getValue();
 
-        // 缓存token
-        tokenService.cacheToken(subject, String.valueOf(member.getId()), terminal, token);
+        String token = controlService.doControl(userId, subValue, termValue);
 
         LoginVo loginVo = new LoginVo();
         loginVo.setToken(token);
