@@ -24,13 +24,6 @@ public class TokenService {
     /**
      * 生成token
      */
-//    public String generateToken(String userId) {
-//        return jwtService.signJwt(userId, AuthSubjectEnum.DEFAULT.getValue(), null);
-//    }
-
-    /**
-     * 生成token
-     */
     public String generateToken(String userId, String subject, String terminal) {
         return jwtService.signJwt(userId, subject, terminal);
     }
@@ -49,8 +42,7 @@ public class TokenService {
      */
     public void cacheToken(String subject, String userId, String terminal, String token, Long timestampMs) {
         // 区分是否有终端
-        final String key = //StrUtil.isBlank(terminal) ? String.format(CacheKeyConsts.USER_TOKEN, subject, userId) :
-                String.format(CacheKeyConsts.USER_TERMINAL_TOKEN, subject, userId, terminal, timestampMs);
+        final String key = String.format(CacheKeyConsts.USER_TERMINAL_TOKEN, subject, userId, terminal, timestampMs);
         cacheService.set(key, token, jwtService.getExpireSeconds(subject));
     }
 
@@ -58,10 +50,6 @@ public class TokenService {
      * 获取缓存的token
      */
     public String getCacheToken(String subject, String userId, String terminal) {
-        // 无终端的
-//        if (StrUtil.isBlank(terminal)) {
-//            return cacheService.get(String.format(CacheKeyConsts.USER_TOKEN, subject, userId));
-//        }
         // 有终端的
         return cacheService.get(String.format(CacheKeyConsts.USER_TOKEN_TERM, subject, userId, terminal));
     }
@@ -94,9 +82,7 @@ public class TokenService {
      * 删除token
      */
     public void deleteToken(String subject, String userId, String terminal) {
-        cacheService.delete(// StrUtil.isBlank(terminal) ?
-//                String.format(CacheKeyConsts.USER_TOKEN, subject, userId) :
-                String.format(CacheKeyConsts.USER_TOKEN_TERM, subject, userId, terminal));
+        cacheService.delete(String.format(CacheKeyConsts.USER_TOKEN_TERM, subject, userId, terminal));
     }
 
     /**
