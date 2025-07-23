@@ -162,4 +162,17 @@ public class ProductCategoryRepo extends BaseRepo<ProductCategoryMapper, Product
         }
         return lambdaQuery().eq(ProductCategoryEntity::getParentId, parentId).count();
     }
+
+    /**
+     * countByIdAndShopId
+     */
+    public long countByIdAndShopId(Long id, Long shopId) {
+        if (id == null) {
+            throw new IllegalArgumentException("id不能为空");
+        }
+        if (shopId == null) {
+            throw new IllegalArgumentException("shopId不能为空");
+        }
+        return lambdaQuery().eq(ProductCategoryEntity::getId, id).eq(ProductCategoryEntity::getShopId, shopId).count();
+    }
 }

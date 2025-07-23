@@ -4,9 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.repository.*;
-import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuSpecQueryDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuSpecSetDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.SpecOptDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
 import lombok.RequiredArgsConstructor;
@@ -30,39 +28,73 @@ public class ProductSpuService {
     private final ProductSpecOptDefRepo productSpecOptDefRepo;
     private final ProductSpecRepo productSpecRepo;
     private final ProductSpecOptRepo productSpecOptRepo;
+    private final ProductCategoryRepo productCategoryRepo;
 
     @Transactional(rollbackFor = Exception.class)
-    public ProductSpuEntity create(Long userId, ProductSpuEntity e) {
+    public ProductSpuEntity create(Long userId, ProductSpuCreateDto dto) {
         // 权限检查和控制
-        permissionService.checkMchAndShop(userId, e);
+        permissionService.checkMchAndShop(userId, dto);
 
+        // 检查：商品分类是否存在
+        if (productCategoryRepo.countByIdAndShopId(dto.getCategoryId(), dto.getShopId()) == 0) {
+            throw new BaseException("商品分类未找到");
+        }
         // 检查：同一个店铺下，SPU名称不能重复
-        if (productSpuRepo.countByShopIdAndName(e.getShopId(), e.getName()) > 0) {
+        if (productSpuRepo.countByShopIdAndName(dto.getShopId(), dto.getName()) > 0) {
             throw new BaseException("同一个店铺下，SPU名称不能重复");
         }
 
-        boolean r = productSpuRepo.save(e);
-        log.debug("save.result：{}", r);
-        return e;
+        ProductSpuEntity spu = new ProductSpuEntity();
+        spu.setMchId(userId);
+        spu.setShopId(dto.getShopId());
+        spu.setCategoryId(dto.getCategoryId());
+        spu.setName(dto.getName());
+        boolean r = productSpuRepo.save(spu);
+        log.debug("spu.save.result：{}", r);
+
+        ProductSpuSpecSetDto specs = new ProductSpuSpecSetDto();
+        specs.setMchId(dto.getMchId());
+        specs.setShopId(dto.getShopId());
+        specs.setSpuId(spu.getId());
+        specs.setSpecs(dto.getSpecs());
+        this.setSpec(userId, specs);
+
+        return spu;
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ProductSpuEntity update(Long userId, ProductSpuEntity e) {
+    public Boolean update(Long userId, ProductSpuUpdateDto dto) {
         // 权限检查和控制
-        permissionService.checkMchAndShop(userId, e);
+        permissionService.checkMchAndShop(userId, dto);
 
-        ProductSpuEntity old = productSpuRepo.getOneById(e.getId());
+        ProductSpuEntity old = productSpuRepo.getOneById(dto.getId());
 
+        // 检查：商品分类是否存在
+        if (dto.getCategoryId() != null && !Objects.equals(dto.getCategoryId(), old.getCategoryId())) {
+            if (productCategoryRepo.countByIdAndShopId(dto.getCategoryId(), dto.getShopId()) == 0) {
+                throw new BaseException("商品分类未找到");
+            }
+        }
         // 检查：同一个商品SPU下，SKU名称不能重复
-        if (StrUtil.isNotBlank(e.getName()) && !Objects.equals(old.getName(), e.getName())) {
-            if (productSpuRepo.countByShopIdAndName(e.getShopId(), e.getName()) > 0) {
+        if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(old.getName(), dto.getName())) {
+            if (productSpuRepo.countByShopIdAndName(dto.getShopId(), dto.getName()) > 0) {
                 throw new BaseException("同一个店铺下，SPU名称不能重复");
             }
         }
 
-        boolean r = productSpuRepo.updateById(e);
+        old.setCategoryId(dto.getCategoryId());
+        old.setName(dto.getName());
+        boolean r = productSpuRepo.updateById(old);
         log.debug("update.result：{}", r);
-        return e;
+
+        ProductSpuSpecSetDto specs = new ProductSpuSpecSetDto();
+        specs.setMchId(dto.getMchId());
+        specs.setShopId(dto.getShopId());
+        specs.setSpuId(old.getId());
+        specs.setSpecs(dto.getSpecs());
+        this.setSpec(userId, specs);
+
+        return r;
     }
 
     @Transactional(rollbackFor = Exception.class)

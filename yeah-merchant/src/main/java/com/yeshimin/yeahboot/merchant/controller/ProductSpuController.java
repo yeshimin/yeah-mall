@@ -9,8 +9,10 @@ import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSpuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuSpecQueryDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuSpecSetDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
 import com.yeshimin.yeahboot.merchant.service.ProductSpuService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +46,9 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
      */
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':create')")
     @PostMapping("/create")
-    public R<ProductSpuEntity> crudCreate(@Validated(Create.class) @RequestBody ProductSpuEntity e) {
+    public R<ProductSpuEntity> crudCreate(@Validated(Create.class) @RequestBody ProductSpuCreateDto dto) {
         Long userId = super.getUserId();
-        return R.ok(service.create(userId, e));
+        return R.ok(service.create(userId, dto));
     }
 
     /**
@@ -54,9 +56,9 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
      */
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':update')")
     @PostMapping("/update")
-    public R<ProductSpuEntity> update(@Validated(Update.class) @RequestBody ProductSpuEntity e) {
+    public R<Boolean> update(@Validated(Update.class) @RequestBody ProductSpuUpdateDto dto) {
         Long userId = super.getUserId();
-        return R.ok(service.update(userId, e));
+        return R.ok(service.update(userId, dto));
     }
 
     /**
