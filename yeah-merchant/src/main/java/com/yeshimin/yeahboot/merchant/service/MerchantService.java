@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.merchant.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.yeshimin.yeahboot.data.domain.entity.MchResEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MerchantEntity;
 import com.yeshimin.yeahboot.data.repository.MchResRepo;
 import com.yeshimin.yeahboot.data.repository.MerchantRepo;
@@ -10,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -57,8 +55,9 @@ public class MerchantService {
 //                .stream().map(SysRoleResEntity::getResId).collect(Collectors.toSet());
 
         // 2.查询资源树
-        List<MchRoleResTreeNodeVo> listAllVo = mchResRepo.list()
-                .stream().map(e -> {
+        List<MchRoleResTreeNodeVo> listAllVo = mchResRepo.list().stream()
+                .sorted(Comparator.comparingInt(MchResEntity::getSort))
+                .map(e -> {
                     MchRoleResTreeNodeVo vo = BeanUtil.copyProperties(e, MchRoleResTreeNodeVo.class);
                     // 初始化子节点集合对象
                     vo.setChildren(new ArrayList<>());

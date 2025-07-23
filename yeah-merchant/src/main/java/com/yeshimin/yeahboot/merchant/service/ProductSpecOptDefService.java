@@ -2,7 +2,6 @@ package com.yeshimin.yeahboot.merchant.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpecDefEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpecOptDefEntity;
 import com.yeshimin.yeahboot.data.repository.ProductSpecDefRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSpecOptDefRepo;
@@ -66,14 +65,13 @@ public class ProductSpecOptDefService {
         permissionService.checkMchAndShop(userId, e);
 
         ProductSpecOptDefEntity old = productSpecOptDefRepo.getOneById(e.getId());
-        // todo
 
-        // 检查：同一个店铺下，规格定义名称不能重复
-//        if (StrUtil.isNotBlank(e.getSpecName()) && !Objects.equals(old.getSpecName(), e.getSpecName())) {
-//            if (productSpecDefRepo.countByShopIdAndSpecName(e.getShopId(), e.getSpecName()) > 0) {
-//                throw new BaseException("同一个店铺下，规格定义名称不能重复");
-//            }
-//        }
+        // 检查：同一个规格下，选项名称不能重复
+        if (StrUtil.isNotBlank(e.getOptName()) && !Objects.equals(old.getOptName(), e.getOptName())) {
+            if (productSpecOptDefRepo.countBySpecIdAndOptName(e.getShopId(), e.getOptName()) > 0) {
+                throw new BaseException("同一个规格下，选项名称不能重复");
+            }
+        }
 
         boolean r = productSpecOptDefRepo.updateById(e);
         log.debug("update.result：{}", r);
@@ -96,6 +94,6 @@ public class ProductSpecOptDefService {
         }
 
         // 删除opt
-        productSpecOptDefRepo.deleteBySpecIds(ids);
+        productSpecOptDefRepo.removeByIds(ids);
     }
 }
