@@ -49,9 +49,9 @@ public class TokenService {
     /**
      * 获取缓存的token
      */
-    public String getCacheToken(String subject, String userId, String terminal) {
+    public String getCacheToken(String subject, String userId, String terminal, Long iatMs) {
         // 有终端的
-        return cacheService.get(String.format(CacheKeyConsts.USER_TOKEN_TERM, subject, userId, terminal));
+        return cacheService.get(String.format(CacheKeyConsts.USER_TERMINAL_TOKEN, subject, userId, terminal, iatMs));
     }
 
     /**
@@ -117,5 +117,28 @@ public class TokenService {
         Long expire = cacheService.getExpire(key);
         Integer configExpireSeconds = jwtService.getExpireSeconds(subject);
         cacheService.expire(key, expire == null || configExpireSeconds > expire ? configExpireSeconds : expire);
+    }
+
+    /**
+     * 刷新token过期时间（以及token信息和对应终端信息）
+     * NOTE 如何操作频率太高出现性能问题，可降低刷新频率，比如过期时间在10分钟以内才刷新
+     */
+    public void refreshTokenExpire(String subject, String userId, String terminal, Long iatMs) {
+        Integer configExpireSeconds = jwtService.getExpireSeconds(subject);
+        Long expireMs = System.currentTimeMillis() + configExpireSeconds * 1000;
+
+        // 刷新token过期时间
+        String tokenKey = String.format(CacheKeyConsts.USER_TERMINAL_TOKEN, subject, userId, terminal, iatMs);
+        cacheService.expire(tokenKey, configExpireSeconds);
+
+        // 刷新token信息过期时间
+        String tokenInfoKey = String.format(CacheKeyConsts.USER_TERMINAL_TOKEN_INFO, subject, userId, terminal);
+        cacheService.setHash(tokenInfoKey, String.valueOf(iatMs), String.valueOf(expireMs));
+        cacheService.expire(tokenInfoKey, configExpireSeconds);
+
+        // 刷新终端信息过期时间
+        String terminalInfoKey = String.format(CacheKeyConsts.USER_SUBJECT_TERMINAL_INFO, subject, userId);
+        cacheService.setHash(terminalInfoKey, terminal, iatMs + "," + expireMs);
+        cacheService.expire(terminalInfoKey, configExpireSeconds);
     }
 }
