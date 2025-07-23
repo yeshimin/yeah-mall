@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -86,8 +87,22 @@ public class CacheService {
     /**
      * expire
      */
-    public Boolean expire(String key, long timeout) {
-        return redisTemplate.expire(key, timeout, TimeUnit.SECONDS);
+    public Boolean expire(String key, long timeoutSeconds) {
+        return redisTemplate.expire(key, timeoutSeconds, TimeUnit.SECONDS);
+    }
+
+    /**
+     * expireAt
+     */
+    public Boolean expireAt(String key, int expireAtS) {
+        return redisTemplate.expireAt(key, new Date(expireAtS * 1000L));
+    }
+
+    /**
+     * getExpire seconds
+     */
+    public Long getExpire(String key) {
+        return redisTemplate.getExpire(key, TimeUnit.SECONDS);
     }
 
     /**

@@ -10,7 +10,11 @@ public class JwtPayloadVo extends BaseDomain {
 
     private Integer iat;
 
+    private Long iatMs;
+
     private Integer exp;
+
+    private Long expMs;
 
     private String aud;
 

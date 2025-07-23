@@ -3,7 +3,6 @@ package com.yeshimin.yeahboot.auth.service;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
 import com.yeshimin.yeahboot.common.common.consts.CacheKeyConsts;
-import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -48,11 +47,11 @@ public class TokenService {
     /**
      * 缓存token
      */
-    public void cacheToken(String subject, String userId, String terminal, String token, Integer timestampS) {
+    public void cacheToken(String subject, String userId, String terminal, String token, Long timestampMs) {
         // 区分是否有终端
         final String key = //StrUtil.isBlank(terminal) ? String.format(CacheKeyConsts.USER_TOKEN, subject, userId) :
-                String.format(CacheKeyConsts.USER_TERMINAL_TOKEN, subject, userId, terminal, timestampS);
-        cacheService.set(key, token, CommonConsts.USER_TOKEN_EXPIRE_SECONDS);
+                String.format(CacheKeyConsts.USER_TERMINAL_TOKEN, subject, userId, terminal, timestampMs);
+        cacheService.set(key, token, jwtService.getExpireSeconds(subject));
     }
 
     /**
@@ -101,59 +100,36 @@ public class TokenService {
     }
 
     /**
-     * 删除终端下token信息
-     */
-    public void deleteTerminalTokenInfo(String subject, String userId, String terminal) {
-        cacheService.delete(String.format(CacheKeyConsts.USER_TERMINAL_TOKEN_INFO, subject, userId, terminal));
-    }
-
-    /**
-     * 删除终端和token信息
-     */
-
-    /**
-     * 删除sub下用户所有终端信息
-     */
-    public void deleteSubjectTerminalInfo(String subject, String userId) {
-        cacheService.delete(String.format(CacheKeyConsts.USER_SUBJECT_TERMINAL_INFO, subject, userId));
-    }
-
-    /**
      * 设置sub下用户终端信息
      */
-    public void setSubjectTerminalInfo(String subject, String userId, Map<String, String> terminalInfo) {
-        String key = String.format(CacheKeyConsts.USER_SUBJECT_TERMINAL_INFO, subject, userId);
-        cacheService.setHash(key, terminalInfo);
-        cacheService.expire(key, CommonConsts.USER_TOKEN_EXPIRE_SECONDS);
-    }
-
-    /**
-     * 设置sub下用户终端信息
-     */
-    public void setSubjectTerminalInfo(String subject, String userId, String terminal, Integer iat, Integer exp) {
+    public void setSubjectTerminalInfo(String subject, String userId, String terminal, Long iatMs, Long expMs) {
         String key = String.format(CacheKeyConsts.USER_SUBJECT_TERMINAL_INFO, subject, userId);
         if (cacheService.exists(key)) {
-            cacheService.setHash(key, terminal, iat + "," + exp);
+            cacheService.setHash(key, terminal, iatMs + "," + expMs);
         } else {
             Map<String, String> map = new HashMap<>();
-            map.put(terminal, iat + "," + exp);
+            map.put(terminal, iatMs + "," + expMs);
             cacheService.setHash(key, map);
         }
-        cacheService.expire(key, CommonConsts.USER_TOKEN_EXPIRE_SECONDS);
+        Long expire = cacheService.getExpire(key);
+        Integer configExpireSeconds = jwtService.getExpireSeconds(subject);
+        cacheService.expire(key, expire == null || configExpireSeconds > expire ? configExpireSeconds : expire);
     }
 
     /**
      * 设置终端下token信息
      */
-    public void setTerminalTokenInfo(String subject, String userId, String terminal, Integer iat, Integer exp) {
+    public void setTerminalTokenInfo(String subject, String userId, String terminal, Long iatMs, Long expMs) {
         String key = String.format(CacheKeyConsts.USER_TERMINAL_TOKEN_INFO, subject, userId, terminal);
         if (cacheService.exists(key)) {
-            cacheService.setHash(key, String.valueOf(iat), String.valueOf(exp));
+            cacheService.setHash(key, String.valueOf(iatMs), String.valueOf(expMs));
         } else {
             Map<String, String> map = new HashMap<>();
-            map.put(String.valueOf(iat), String.valueOf(exp));
+            map.put(String.valueOf(iatMs), String.valueOf(expMs));
             cacheService.setHash(key, map);
         }
-        cacheService.expire(key, CommonConsts.USER_TOKEN_EXPIRE_SECONDS);
+        Long expire = cacheService.getExpire(key);
+        Integer configExpireSeconds = jwtService.getExpireSeconds(subject);
+        cacheService.expire(key, expire == null || configExpireSeconds > expire ? configExpireSeconds : expire);
     }
 }

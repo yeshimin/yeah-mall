@@ -39,4 +39,8 @@ public class CommonConsts {
 
     // jwt token 'terminal' claim name
     public static final String JWT_CLAIM_TERMINAL = "term";
+    // jwt iat ms
+    public static final String JWT_CLAIM_IAT_MS = "iatMs";
+    // jwt exp ms
+    public static final String JWT_CLAIM_EXP_MS = "expMs";
 }

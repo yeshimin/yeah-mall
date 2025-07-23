@@ -41,8 +41,12 @@ public class TerminalAndTokenControlService {
 
         // --------------------------------------------------------------------------------
 
-        // 当前时间戳（秒）
-        int timestampS = (int) (System.currentTimeMillis() / 1000);
+
+        // 添加token及终端信息
+        String token = tokenService.generateToken(userId, subValue, termValue);
+        JwtPayloadVo jwtPayloadVo = jwtService.decodePayload(token);
+        // token创建时间戳（毫秒）
+        long timestampMs = jwtPayloadVo.getIatMs();
 
         // 查询终端信息
         Map<String, String> mapTerminalInfo = tokenService.getSubjectTerminalInfo(subValue, userId);
@@ -51,8 +55,8 @@ public class TerminalAndTokenControlService {
         // 区分是否过期
         mapTerminalInfo.forEach((term, termInfo) -> {
             // termInfo格式为 "iat,expTime"，其中iat为登录时间戳，expTime为过期时间戳
-            int expTime = Integer.parseInt(termInfo.split(",")[1]);
-            if (timestampS >= expTime) {
+            long expTime = Long.parseLong(termInfo.split(",")[1]);
+            if (timestampMs >= expTime) {
                 mapTerminalInfoExpired.put(term, termInfo);
             } else {
                 mapTerminalInfoValid.put(term, termInfo);
@@ -73,8 +77,8 @@ public class TerminalAndTokenControlService {
         Map<String, String> mapTerminalTokenInfoValid = new HashMap<>();
         Map<String, String> mapTerminalTokenInfoExpired = new HashMap<>();
         mapTerminalTokenInfo.forEach((timestamp, expTime) -> {
-            int expTimeInt = Integer.parseInt(expTime);
-            if (timestampS >= expTimeInt) {
+            long expTimeInt = Long.parseLong(expTime);
+            if (timestampMs >= expTimeInt) {
                 mapTerminalTokenInfoExpired.put(timestamp, expTime);
             } else {
                 mapTerminalTokenInfoValid.put(timestamp, expTime);
@@ -128,8 +132,8 @@ public class TerminalAndTokenControlService {
                 occurTokenCount += entry.getValue().size();
                 // 区分是否过期
                 entry.getValue().forEach((timestamp, expTime) -> {
-                    int expTimeInt = Integer.parseInt(expTime);
-                    if (timestampS >= expTimeInt) {
+                    long expTimeInt = Long.parseLong(expTime);
+                    if (timestampMs >= expTimeInt) {
                         mapTotalTerminalTokenInfoExpired.put(timestamp + "," + entry.getKey(), expTime);
                     } else {
                         mapTotalTerminalTokenInfoValid.put(timestamp + "," + entry.getKey(), expTime);
@@ -247,45 +251,10 @@ public class TerminalAndTokenControlService {
                 cacheService.deleteHashFields(cacheKey, fields.toArray(new Object[0]));
             });
 
-            // 添加token及终端信息
-            String token = tokenService.generateToken(userId, subValue, termValue);
-            JwtPayloadVo jwtPayloadVo = jwtService.decodePayload(token);
-
-            tokenService.setSubjectTerminalInfo(subValue, userId, termValue, jwtPayloadVo.getIat(), jwtPayloadVo.getExp());
-            tokenService.setTerminalTokenInfo(subValue, userId, termValue, jwtPayloadVo.getIat(), jwtPayloadVo.getExp());
-            tokenService.cacheToken(subValue, userId, termValue, token, timestampS);
+            tokenService.setSubjectTerminalInfo(subValue, userId, termValue, jwtPayloadVo.getIatMs(), jwtPayloadVo.getExpMs());
+            tokenService.setTerminalTokenInfo(subValue, userId, termValue, jwtPayloadVo.getIatMs(), jwtPayloadVo.getExpMs());
+            tokenService.cacheToken(subValue, userId, termValue, token, timestampMs);
             return token;
         }
-    }
-
-    // ================================================================================
-
-    private Map<String, String> getMapTerminalInfo(String subValue, String userId, int timestampS,
-                                                   Map<String, String> mapTerminalInfo,
-                                                   Map<String, String> mapTerminalInfoValid,
-                                                   Map<String, String> mapTerminalInfoExpired) {
-        if (mapTerminalInfo == null) {
-            mapTerminalInfo = tokenService.getSubjectTerminalInfo(subValue, userId);
-            // 区分是否过期
-            mapTerminalInfo.forEach((term, termInfo) -> {
-                int expTime = Integer.parseInt(termInfo.split(",")[1]);
-                if (timestampS >= expTime) {
-                    mapTerminalInfoExpired.put(term, termInfo);
-                } else {
-                    mapTerminalInfoValid.put(term, termInfo);
-                }
-            });
-        }
-        return mapTerminalInfo;
-    }
-
-    private Map<String, String> getMapTerminalTokenInfo(String subValue, String userId, String termValue,
-                                                        Map<String, Map<String, String>> mapContainer) {
-        Map<String, String> mapTerminalTokenInfo = mapContainer.get(termValue);
-        if (mapTerminalTokenInfo == null) {
-            mapTerminalTokenInfo = tokenService.getTerminalTokenInfo(subValue, userId, termValue);
-        }
-        mapContainer.put(termValue, mapTerminalTokenInfo);
-        return mapTerminalTokenInfo;
     }
 }
