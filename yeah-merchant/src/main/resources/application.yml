@@ -42,7 +42,7 @@ auth:
       # 签发密钥
       secret: Dooleiw4hah0yae2Aquah5ahgaix4noJ
       # 过期时间（秒）
-      expire-seconds: 36000
+      expire-seconds: 3600
       # 时间校验偏差（秒）
       default-leeway: 60
     subjects:
@@ -51,15 +51,18 @@ auth:
           # 签发密钥
           secret: mi8thaeTahphuatimae9xieghei2iboe
           # 过期时间（秒）
-          expire-seconds: 36000
+          expire-seconds: 3600
           # 时间校验偏差（秒）
           default-leeway: 60
         terminals:
           - name: web
             # 同一个账号在该终端的最大在线token数量（默认-1，表示不限制）（不可超过总的最大在线token数量）
             max-online-token-count: -1
+          - name: api
+            # 同一个账号在该终端的最大在线token数量（默认-1，表示不限制）（不可超过总的最大在线token数量）
+            max-online-token-count: -1
         # 同一个账号的最大在线token数量（默认-1，表示不限制）
-        max-online-token-count: -1
+        max-online-token-count: 10
         # 同一个账号的最大在线终端数量（默认-1，表示不限制）
         max-online-terminal-count: -1
 

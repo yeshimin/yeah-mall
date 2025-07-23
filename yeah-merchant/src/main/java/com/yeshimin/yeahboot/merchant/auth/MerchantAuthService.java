@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.merchant.auth;
 
-import com.yeshimin.yeahboot.auth.service.TokenService;
+import cn.hutool.core.util.StrUtil;
+import com.yeshimin.yeahboot.auth.service.TerminalAndTokenControlService;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
@@ -23,7 +24,7 @@ public class MerchantAuthService {
     private final MerchantRepo merchantRepo;
 
     private final PasswordService passwordService;
-    private final TokenService tokenService;
+    private final TerminalAndTokenControlService controlService;
 
     /**
      * 登录
@@ -42,12 +43,12 @@ public class MerchantAuthService {
         }
 
         // 生成token merchant模块、web端
-        String subject = AuthSubjectEnum.MERCHANT.getValue();
-        String terminal = AuthTerminalEnum.WEB.getValue();
-        String token = tokenService.generateToken(String.valueOf(user.getId()), subject, terminal);
+        String userId = String.valueOf(user.getId());
+        String subValue = AuthSubjectEnum.MERCHANT.getValue();
+        String termValue = StrUtil.isNotBlank(loginDto.getTerminal()) ?
+                loginDto.getTerminal() : AuthTerminalEnum.WEB.getValue();
 
-        // 缓存token
-        tokenService.cacheToken(subject, String.valueOf(user.getId()), terminal, token);
+        String token = controlService.doControl(userId, subValue, termValue);
 
         LoginVo loginVo = new LoginVo();
         loginVo.setToken(token);
