@@ -86,6 +86,9 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
         if (detailDisabled) {
             return R.fail("该接口已被禁用");
         }
+        if (id == null) {
+            return R.fail("ID不能为空");
+        }
         E e = service.getById(id);
         if (e == null) {
             return R.fail("数据未找到");
