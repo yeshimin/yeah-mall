@@ -1,12 +1,17 @@
 package com.yeshimin.yeahboot.merchant.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
+import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -61,6 +66,31 @@ public class ProductSpuService {
         this.setSpec(userId, specs);
 
         return spu;
+    }
+
+    /**
+     * 查询
+     */
+    public IPage<ProductSpuVo> query(IPage<ProductSpuEntity> page, Long userId, ProductSpuQueryDto query) {
+        // 权限检查和控制
+        permissionService.checkMchAndShop(userId, query);
+
+        LambdaQueryWrapper<ProductSpuEntity> wrapper = QueryHelper.getQueryWrapper(query);
+        IPage<ProductSpuEntity> pageResult = productSpuRepo.page(page, wrapper);
+
+        // 查询分类信息
+        Set<Long> categoryIds =
+                pageResult.getRecords().stream().map(ProductSpuEntity::getCategoryId).collect(Collectors.toSet());
+        Map<Long, ProductCategoryEntity> mapCategory = productCategoryRepo.findListByIds(categoryIds)
+                .stream().collect(Collectors.toMap(ProductCategoryEntity::getId, productCategory -> productCategory));
+
+        return pageResult.convert(e -> {
+            ProductSpuVo vo = BeanUtil.copyProperties(e, ProductSpuVo.class);
+            Optional.ofNullable(mapCategory.get(e.getCategoryId())).ifPresent(category -> {
+                vo.setCategoryName(category.getName());
+            });
+            return vo;
+        });
     }
 
     @Transactional(rollbackFor = Exception.class)

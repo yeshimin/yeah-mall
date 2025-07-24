@@ -1,5 +1,7 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.controller.validation.Create;
 import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.common.controller.validation.Update;
@@ -9,11 +11,9 @@ import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSpuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
-import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuCreateDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuSpecQueryDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuSpecSetDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuUpdateDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
+import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuVo;
 import com.yeshimin.yeahboot.merchant.service.ProductSpuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,7 +36,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     public ProductSpuController(ProductSpuRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
-        super.setModule("mch:productSpu").disableCreate().disableUpdate().disableDelete();
+        super.setModule("mch:productSpu").disableCreate().disableQuery().disableDetail().disableUpdate().disableDelete();
     }
 
     // ================================================================================
@@ -49,6 +49,16 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     public R<ProductSpuEntity> crudCreate(@Validated(Create.class) @RequestBody ProductSpuCreateDto dto) {
         Long userId = super.getUserId();
         return R.ok(service.create(userId, dto));
+    }
+
+    /**
+     * 查询
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':query')")
+    @GetMapping("/query")
+    public R<IPage<ProductSpuVo>> query(@Validated(Query.class) Page<ProductSpuEntity> page, ProductSpuQueryDto query) {
+        Long userId = super.getUserId();
+        return R.ok(service.query(page, userId, query));
     }
 
     /**
