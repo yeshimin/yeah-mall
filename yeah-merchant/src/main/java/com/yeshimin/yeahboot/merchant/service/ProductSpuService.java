@@ -11,6 +11,7 @@ import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
+import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,6 +77,7 @@ public class ProductSpuService {
         permissionService.checkMchAndShop(userId, query);
 
         LambdaQueryWrapper<ProductSpuEntity> wrapper = QueryHelper.getQueryWrapper(query);
+        wrapper.orderByDesc(ProductSpuEntity::getCreateTime);
         IPage<ProductSpuEntity> pageResult = productSpuRepo.page(page, wrapper);
 
         // 查询分类信息
@@ -91,6 +93,33 @@ public class ProductSpuService {
             });
             return vo;
         });
+    }
+
+    /**
+     * 详情
+     */
+    public ProductSpuDetailVo detail(Long userId, Long id) {
+        ProductSpuEntity entity = productSpuRepo.getOneById(id);
+
+        // 检查权限
+        permissionService.checkMchId(userId, entity.getMchId());
+
+        ProductSpuDetailVo vo = BeanUtil.copyProperties(entity, ProductSpuDetailVo.class);
+
+        // 分类信息
+        Optional.ofNullable(productCategoryRepo.getOneById(entity.getCategoryId())).ifPresent(category -> {
+            vo.setCategoryName(category.getName());
+        });
+
+        // 查询规格配置信息
+        ProductSpuSpecQueryDto specQuery = new ProductSpuSpecQueryDto();
+        specQuery.setMchId(entity.getMchId());
+        specQuery.setShopId(entity.getShopId());
+        specQuery.setSpuId(entity.getId());
+        List<ProductSpecVo> specs = this.querySpec(userId, specQuery);
+        vo.setSpecs(specs);
+
+        return vo;
     }
 
     @Transactional(rollbackFor = Exception.class)

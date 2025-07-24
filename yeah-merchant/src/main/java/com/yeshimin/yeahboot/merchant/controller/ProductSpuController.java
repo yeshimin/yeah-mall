@@ -13,6 +13,7 @@ import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
+import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuVo;
 import com.yeshimin.yeahboot.merchant.service.ProductSpuService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,16 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     public R<IPage<ProductSpuVo>> query(@Validated(Query.class) Page<ProductSpuEntity> page, ProductSpuQueryDto query) {
         Long userId = super.getUserId();
         return R.ok(service.query(page, userId, query));
+    }
+
+    /**
+     * 详情
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':detail')")
+    @GetMapping("/detail")
+    public R<ProductSpuDetailVo> detail(@RequestParam Long id) {
+        Long userId = super.getUserId();
+        return R.ok(service.detail(userId, id));
     }
 
     /**
