@@ -52,6 +52,7 @@ public class ProductSpuService {
         boolean r = productSpuRepo.save(spu);
         log.debug("spu.save.result：{}", r);
 
+        // 设置规格
         ProductSpuSpecSetDto specs = new ProductSpuSpecSetDto();
         specs.setMchId(dto.getMchId());
         specs.setShopId(dto.getShopId());
@@ -87,6 +88,7 @@ public class ProductSpuService {
         boolean r = productSpuRepo.updateById(old);
         log.debug("update.result：{}", r);
 
+        // 设置规格
         ProductSpuSpecSetDto specs = new ProductSpuSpecSetDto();
         specs.setMchId(dto.getMchId());
         specs.setShopId(dto.getShopId());
@@ -115,6 +117,10 @@ public class ProductSpuService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void setSpec(Long userId, ProductSpuSpecSetDto dto) {
+        if (dto.getSpecs() == null) {
+            dto.setSpecs(new ArrayList<>());
+        }
+
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
 

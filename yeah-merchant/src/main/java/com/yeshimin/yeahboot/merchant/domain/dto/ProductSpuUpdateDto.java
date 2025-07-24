@@ -40,6 +40,6 @@ public class ProductSpuUpdateDto extends ShopDataBaseDomain {
      * 商品规格与选项
      */
     @Valid
-    @NotEmpty(message = "商品规格与选项不能为空", groups = {Update.class})
+//    @NotEmpty(message = "商品规格与选项不能为空", groups = {Update.class})
     private List<SpecOptDto> specs;
 }

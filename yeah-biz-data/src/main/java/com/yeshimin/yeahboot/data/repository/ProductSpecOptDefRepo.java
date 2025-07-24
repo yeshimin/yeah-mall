@@ -6,10 +6,7 @@ import com.yeshimin.yeahboot.data.mapper.ProductSpecOptDefMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -75,7 +72,8 @@ public class ProductSpecOptDefRepo extends BaseRepo<ProductSpecOptDefMapper, Pro
      */
     public List<ProductSpecOptDefEntity> findListByIdsAndShopId(Collection<Long> ids, Long shopId) {
         if (ids == null || ids.isEmpty()) {
-            throw new IllegalArgumentException("选项ids不能为空");
+//            throw new IllegalArgumentException("选项ids不能为空");
+            return new ArrayList<>();
         }
         // distinct
         Set<Long> distinctIds = new HashSet<>(ids);

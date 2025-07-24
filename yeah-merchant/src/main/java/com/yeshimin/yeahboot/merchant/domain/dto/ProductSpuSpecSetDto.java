@@ -27,6 +27,6 @@ public class ProductSpuSpecSetDto extends ShopDataBaseDomain {
      * 商品规格与选项
      */
     @Valid
-    @NotEmpty(message = "商品规格与选项不能为空", groups = {Create.class})
+//    @NotEmpty(message = "商品规格与选项不能为空", groups = {Create.class})
     private List<SpecOptDto> specs;
 }

@@ -50,7 +50,8 @@ public class ProductSpecDefRepo extends BaseRepo<ProductSpecDefMapper, ProductSp
      */
     public long countByIdsAndShopId(Collection<Long> ids, Long shopId) {
         if (ids == null || ids.isEmpty()) {
-            throw new IllegalArgumentException("ids不能为空");
+//            throw new IllegalArgumentException("ids不能为空");
+            return 0;
         }
         // distinct
         Set<Long> distinctIds = new HashSet<>(ids);
