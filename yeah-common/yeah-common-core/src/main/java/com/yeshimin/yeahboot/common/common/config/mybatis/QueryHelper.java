@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.common.common.config.mybatis;
 
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -79,7 +80,7 @@ public class QueryHelper<T> {
         List<Condition> listCondition = parseConditions(queryCustom, query);
 
         // 解析类字段定义的查询条件
-        Field[] fields = query.getClass().getDeclaredFields();
+        Field[] fields = ReflectUtil.getFields(query.getClass());
         for (Field field : fields) {
             // 跳过conditions字段
             if (field.getName().equals(CommonConsts.CONDITIONS_FIELD_NAME)) {
