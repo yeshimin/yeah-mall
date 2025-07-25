@@ -7,8 +7,10 @@ import com.yeshimin.yeahboot.auth.domain.model.UserDetail;
 import com.yeshimin.yeahboot.auth.domain.vo.AuthVo;
 import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.common.log.MdcLogFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -64,6 +66,9 @@ public class AuthService {
             authVo.setSubject(decodedResult.getSub());
             authVo.setTerminal(decodedResult.getTerm());
         }
+
+        // 此处刚获取到userId，尽早重新设置mdc信息
+        this.setMdcInfo(authVo.getUserId());
 
         // 接口越权检查
         if (!this.checkApiPrivilegeEscape(decodedResult.getSub())) {
@@ -134,5 +139,11 @@ public class AuthService {
     private HttpServletRequest getRequest() {
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         return Objects.requireNonNull(attrs).getRequest();
+    }
+
+    private void setMdcInfo(Long userId) {
+        String reqId = MDC.get(MdcLogFilter.MDC_REQ_ID);
+        String mdcInfo = "[reqId: " + reqId + ", userId:" + userId + "] ";
+        MDC.put(MdcLogFilter.MDC_INFO, mdcInfo);
     }
 }

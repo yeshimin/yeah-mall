@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.auth.common.config.security;
 
 import com.yeshimin.yeahboot.auth.service.AuthService;
+import com.yeshimin.yeahboot.common.common.log.MdcLogFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterAfter(new JwtTokenAuthenticationFilter(authenticationManagerBean()), LogoutFilter.class);
+        // mdc filter设置到认证filter之前，使相关日志尽早附带mdc信息
+        http.addFilterBefore(new MdcLogFilter(), JwtTokenAuthenticationFilter.class);
 
         http.authorizeRequests()
                 .antMatchers("/**/auth/login", "/admin/auth/captcha")
