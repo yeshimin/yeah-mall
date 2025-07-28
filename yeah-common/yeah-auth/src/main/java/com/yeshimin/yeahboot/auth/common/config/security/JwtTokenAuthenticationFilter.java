@@ -49,8 +49,8 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         String token = this.extractToken(request);
         if (StringUtils.isBlank(token)) {
             log.debug("no token, as anonymous in later AnonymousAuthenticationFilter");
-//            // 在过滤链AnonymousAuthenticationFilter中设置为匿名用户
-//            // 这里要先clear，否则在匿名Filter中会存在JwtTokenAuthenticationToken；具体原因暂时未知
+            // 在过滤链AnonymousAuthenticationFilter中设置为匿名用户
+            // 这里要先clear，否则在匿名Filter中会存在JwtTokenAuthenticationToken；具体原因暂时未知
             SecurityContextHolder.clearContext();
             return;
         }

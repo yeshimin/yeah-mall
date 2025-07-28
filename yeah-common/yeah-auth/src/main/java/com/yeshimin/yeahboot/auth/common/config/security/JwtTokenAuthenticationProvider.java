@@ -51,18 +51,11 @@ public class JwtTokenAuthenticationProvider implements AuthenticationProvider {
         WebContextUtils.setUsername(authVo.getUsername());
         WebContextUtils.setRoles(authVo.getRoles());
         WebContextUtils.setResources(authVo.getResources());
-//        Optional.ofNullable(authVo.getUser()).ifPresent(user -> {
-//            WebContextUtils.setUsername(user.getUsername());
-//            WebContextUtils.setNickname(user.getNickname());
-//        });
 
         // role
         Set<String> authoritySet = authVo.getRoles().stream().map(s -> "ROLE_" + s).collect(Collectors.toSet());
         // add resource
         authoritySet.addAll(authVo.getResources());
-//        // add subject(sub-system) and terminal
-//        authoritySet.add(authVo.getSubject());
-//        authoritySet.add(authVo.getTerminal());
         String commaSeparatedRoles = String.join(",", authoritySet);
 
         // set authorities
