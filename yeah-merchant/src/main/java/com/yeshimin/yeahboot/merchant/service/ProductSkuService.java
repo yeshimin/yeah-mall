@@ -1,11 +1,14 @@
 package com.yeshimin.yeahboot.merchant.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuUpdateDto;
+import com.yeshimin.yeahboot.merchant.domain.vo.ProductSkuDetailVo;
+import com.yeshimin.yeahboot.merchant.domain.vo.ProductSkuSpecVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -75,6 +78,28 @@ public class ProductSkuService {
         this.addSkuSpecs(listProductSpec, userId, sku.getShopId(), sku.getSpuId(), sku.getId(), dto.getOptIds());
 
         return sku;
+    }
+
+    /**
+     * 详情
+     */
+    public ProductSkuDetailVo detail(Long userId, Long id) {
+        ProductSkuEntity entity = productSkuRepo.getOneById(id);
+
+        // 检查权限
+        permissionService.checkMchId(userId, entity.getMchId());
+
+        // 查询sku规格配置
+        List<ProductSkuSpecVo> listSpecVo = productSkuSpecRepo.findListBySkuId(id).stream().map(e -> {
+            ProductSkuSpecVo vo = new ProductSkuSpecVo();
+            vo.setSpecId(e.getSpecId());
+            vo.setOptId(e.getOptId());
+            return vo;
+        }).collect(Collectors.toList());
+
+        ProductSkuDetailVo vo = BeanUtil.copyProperties(entity, ProductSkuDetailVo.class);
+        vo.setSpecs(listSpecVo);
+        return vo;
     }
 
     /**
