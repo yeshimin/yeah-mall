@@ -146,9 +146,6 @@ public class ProductSkuService {
             throw new BaseException("包含无权限数据");
         }
 
-        // 检查：引用？
-        // TODO
-
         // 删除sku规格配置
         productSkuSpecRepo.deleteBySkuIds(ids);
         // 删除sku
