@@ -30,6 +30,7 @@ public class ProductSpuService {
 
     private final ProductSpuRepo productSpuRepo;
     private final ProductSkuRepo productSkuRepo;
+    private final ProductSkuSpecRepo productSkuSpecRepo;
     private final ProductSpecDefRepo productSpecDefRepo;
     private final ProductSpecOptDefRepo productSpecOptDefRepo;
     private final ProductSpecRepo productSpecRepo;
@@ -165,8 +166,13 @@ public class ProductSpuService {
             throw new BaseException("包含无权限数据");
         }
 
+        // 删除sku规格配置
+        productSkuSpecRepo.deleteBySpuIds(ids);
         // 删除sku
         productSkuRepo.deleteBySpuIds(ids);
+        // 删除spu规格配置
+        productSpecRepo.deleteBySpuIds(ids);
+        productSpecOptRepo.deleteBySpuIds(ids);
         // 删除spu
         productSpuRepo.removeByIds(ids);
     }

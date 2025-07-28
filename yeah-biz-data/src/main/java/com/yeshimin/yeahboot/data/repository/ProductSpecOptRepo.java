@@ -65,4 +65,14 @@ public class ProductSpecOptRepo extends BaseRepo<ProductSpecOptMapper, ProductSp
         }
         return lambdaUpdate().eq(ProductSpecOptEntity::getSpuId, spuId).remove();
     }
+
+    /**
+     * deleteBySpuIds
+     */
+    public boolean deleteBySpuIds(Collection<Long> spuIds) {
+        if (spuIds == null || spuIds.isEmpty()) {
+            return false;
+        }
+        return lambdaUpdate().in(ProductSpecOptEntity::getSpuId, spuIds).remove();
+    }
 }

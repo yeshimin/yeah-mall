@@ -53,4 +53,14 @@ public class ProductSkuSpecRepo extends BaseRepo<ProductSkuSpecMapper, ProductSk
         }
         return lambdaQuery().in(ProductSkuSpecEntity::getSkuId, skuIds).list();
     }
+
+    /**
+     * deleteBySpuIds
+     */
+    public boolean deleteBySpuIds(Collection<Long> spuIds) {
+        if (spuIds == null || spuIds.isEmpty()) {
+            return false;
+        }
+        return lambdaUpdate().in(ProductSkuSpecEntity::getSpuId, spuIds).remove();
+    }
 }
