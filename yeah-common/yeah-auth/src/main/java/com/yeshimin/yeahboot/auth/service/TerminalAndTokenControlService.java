@@ -39,8 +39,9 @@ public class TerminalAndTokenControlService {
             throw new BaseException(ErrorCodeEnum.FAIL, "terminal[" + termValue + "] 不正确");
         }
 
+        // 1.检查配置
         // --------------------------------------------------------------------------------
-
+        // 2.加载缓存数据并做初预处理
 
         // 添加token及终端信息
         String token = tokenService.generateToken(userId, subValue, termValue);
@@ -85,7 +86,9 @@ public class TerminalAndTokenControlService {
             }
         });
 
+        // 2.加载缓存数据并做初预处理
         // --------------------------------------------------------------------------------
+        // 3.检查和控制subject下终端数量
 
         // 是否清空用户的终端和token信息
         boolean clearAllTerminal = false;
@@ -118,7 +121,9 @@ public class TerminalAndTokenControlService {
         // 添加过期终端
         needDeleteTerminal.addAll(mapTerminalInfoExpired.keySet());
 
+        // 3.检查和控制subject下终端数量
         // --------------------------------------------------------------------------------
+        // 4.检查和控制subject下token数量
 
         // 检查和控制token信息
         // 大于0，需要检查和控制超限情况
@@ -174,7 +179,9 @@ public class TerminalAndTokenControlService {
             mapNeedDeleteTokenInfo.computeIfAbsent(split[1], k -> new HashSet<>()).add(split[0]);
         });
 
+        // 4.检查和控制subject下token数量
         // --------------------------------------------------------------------------------
+        // 5.检查和控制terminal下token数量
 
         // 检查和控制当前用户登录终端对应的token信息
         // 仅当当前终端不包含在待删除终端集合内，才进行处理
@@ -203,7 +210,9 @@ public class TerminalAndTokenControlService {
             });
         }
 
+        // 5.检查和控制terminal下token数量
         // --------------------------------------------------------------------------------
+        // 6.执行清除操作并按需添加当前登录的终端和token信息
 
         // 清空用户所有终端和token信息
         if (clearAllTerminal) {

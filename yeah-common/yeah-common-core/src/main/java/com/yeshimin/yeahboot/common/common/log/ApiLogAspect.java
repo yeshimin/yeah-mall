@@ -99,11 +99,43 @@ public class ApiLogAspect {
         // Java（全限定）方法名称
         sbOutput.append(" - ").append(methodSignature.getDeclaringTypeName())
                 .append(".").append(methodSignature.getName())
-                .append(" - time: ").append(System.currentTimeMillis() - startTime.get()).append("ms")
-                .append(" - return: " + JSON.toJSONString(result));
+                .append(" - time: ").append(System.currentTimeMillis() - startTime.get()).append("ms");
+
+        // 优化：java.io.FileNotFoundException: InputStream resource [resource loaded through InputStream] cannot be resolved to URL
+        if (result != null) {
+            boolean loggable = this.isLoggable(result);
+            if (loggable) {
+                sbOutput.append(" - return: ").append(JSON.toJSONString(result));
+            } else {
+                sbOutput.append(" - return: [非文本响应，已跳过日志输出]");
+            }
+        }
 
         // 完整日志格式：[HTTP方法] - [HTTP路径] - [HTTP表单参数] - [HTTP请求体参数] - [Java方法名称] - [接口耗时] - [响应数据]
         String content = sbOutput.toString();
         log.info(content);
     }
+
+    private boolean isLoggable(Object result) {
+        if (result == null) return true;
+
+        // 快速排除常见类型
+        if (result instanceof java.io.InputStream ||
+                result instanceof org.springframework.core.io.Resource ||
+                result instanceof javax.servlet.ServletRequest ||
+                result instanceof javax.servlet.ServletResponse ||
+                result instanceof java.io.OutputStream ||
+                result instanceof java.io.Writer) {
+            return false;
+        }
+
+        // 再尝试序列化（可选）
+        try {
+            JSON.toJSONString(result);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

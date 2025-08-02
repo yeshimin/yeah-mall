@@ -79,13 +79,6 @@ public class TokenService {
     }
 
     /**
-     * 删除token
-     */
-    public void deleteToken(String subject, String userId, String terminal) {
-        cacheService.delete(String.format(CacheKeyConsts.USER_TOKEN_TERM, subject, userId, terminal));
-    }
-
-    /**
      * 设置sub下用户终端信息
      */
     public void setSubjectTerminalInfo(String subject, String userId, String terminal, Long iatMs, Long expMs) {
