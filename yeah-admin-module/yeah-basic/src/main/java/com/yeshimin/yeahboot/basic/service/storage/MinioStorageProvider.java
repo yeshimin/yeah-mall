@@ -6,7 +6,6 @@ import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.basic.common.properties.StorageProperties;
 import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
-import com.yeshimin.yeahboot.basic.repository.SysStorageRepo;
 import io.minio.MinioClient;
 import io.minio.PutObjectOptions;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +28,6 @@ public class MinioStorageProvider implements StorageProvider {
     private MinioClient minioClient;
 
     private final StorageProperties storageProperties;
-
-    private final SysStorageRepo sysStorageRepo;
 
     private StorageProperties.MinioImpl minio;
 
@@ -92,6 +89,18 @@ public class MinioStorageProvider implements StorageProvider {
             log.error("MinIO获取文件失败: {}", e.getMessage(), e);
         }
         return null;
+    }
+
+    @Override
+    public void delete(String fileKey, SysStorageEntity sysStorage) {
+        final String key = sysStorage.getFileKey() +
+                (StrUtil.isBlank(sysStorage.getSuffix()) ? "" : "." + sysStorage.getSuffix());
+
+        try {
+            minioClient.removeObject(minio.getBucketName(), key);
+        } catch (Exception e) {
+            log.error("MinIO删除文件失败: {}", e.getMessage(), e);
+        }
     }
 
     @Override

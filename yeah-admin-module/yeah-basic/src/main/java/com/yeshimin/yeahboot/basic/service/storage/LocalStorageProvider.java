@@ -7,7 +7,6 @@ import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.basic.common.properties.StorageProperties;
 import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
-import com.yeshimin.yeahboot.basic.repository.SysStorageRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -34,7 +33,6 @@ public class LocalStorageProvider implements StorageProvider {
     private static final String PATH_REGEX = "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$";
 
     private final StorageProperties storageProperties;
-    private final SysStorageRepo sysStorageRepo;
 
     private StorageProperties.LocalImpl local;
 
@@ -101,6 +99,11 @@ public class LocalStorageProvider implements StorageProvider {
             log.error("本地存储获取文件失败: {}", e.getMessage(), e);
         }
         return null;
+    }
+
+    @Override
+    public void delete(String fileKey, SysStorageEntity sysStorage) {
+        FileUtil.del(this.getFullPath(sysStorage));
     }
 
     @Override

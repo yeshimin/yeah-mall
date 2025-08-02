@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
+import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.DownloadUrl;
 import com.qiniu.storage.UploadManager;
@@ -44,6 +45,7 @@ public class QiniuStorageProvider implements StorageProvider {
 
     private Auth auth;
     private UploadManager uploadManager;
+    private BucketManager bucketManager;
 
     private StorageProperties.QiniuImpl qiniu;
 
@@ -56,8 +58,11 @@ public class QiniuStorageProvider implements StorageProvider {
             return;
         }
 
+        Configuration cfg = new Configuration();
+
         auth = Auth.create(qiniu.getAccessKey(), qiniu.getSecretKey());
-        uploadManager = new UploadManager(new Configuration());
+        uploadManager = new UploadManager(cfg);
+        bucketManager = new BucketManager(auth, cfg);
     }
 
     @Override
@@ -108,6 +113,18 @@ public class QiniuStorageProvider implements StorageProvider {
             log.error("Failed to create temp file: {}", e.getMessage(), e);
         }
         return null;
+    }
+
+    @Override
+    public void delete(String fileKey, SysStorageEntity sysStorage) {
+        final String key = sysStorage.getFileKey() +
+                (StrUtil.isBlank(sysStorage.getSuffix()) ? "" : "." + sysStorage.getSuffix());
+
+        try {
+            bucketManager.delete(sysStorage.getBucket(), key);
+        } catch (Exception e) {
+            log.error("Qiniu删除文件失败: {}", e.getMessage(), e);
+        }
     }
 
     @Override

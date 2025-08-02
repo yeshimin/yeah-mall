@@ -1,15 +1,19 @@
 package com.yeshimin.yeahboot.basic.controller;
 
+import com.yeshimin.yeahboot.basic.domain.entity.SysFileEntity;
 import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.basic.domain.vo.FileUploadVo;
+import com.yeshimin.yeahboot.basic.mapper.SysFileMapper;
+import com.yeshimin.yeahboot.basic.repository.SysFileRepo;
 import com.yeshimin.yeahboot.basic.service.storage.FileService;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.common.common.log.SysLog;
+import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.R;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,15 +22,21 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping("/basic/file")
-@RequiredArgsConstructor
-public class FileController {
+public class FileController extends CrudController<SysFileMapper, SysFileEntity, SysFileRepo> {
 
-    private final FileService fileService;
+    @Autowired
+    private FileService fileService;
+
+    public FileController(SysFileRepo service) {
+        // 由于lombok方案无法实现构造方法中调用super，只能显式调用
+        super(service);
+        super.setModule("basic:file").disableCreate().disableUpdate().disableDelete();
+    }
 
     /**
      * 上传文件
      */
-    @SysLog(value = "上传文件", triggerType = "2", category = "4")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':upload')")
     @PostMapping("/upload")
     public R<FileUploadVo> upload(@RequestParam("file") MultipartFile file,
                                   @RequestParam(required = false) Integer storageType) {
@@ -45,9 +55,19 @@ public class FileController {
     /**
      * 下载文件
      */
-    @SysLog(value = "下载文件", triggerType = "2", category = "4")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':download')")
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> download(@RequestParam("fileKey") String fileKey) {
         return fileService.download(fileKey);
+    }
+
+    /**
+     * 删除文件
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
+    @PostMapping("/delete")
+    public R<Void> delete(@RequestParam("fileKey") String fileKey) {
+        fileService.delete(fileKey);
+        return R.ok();
     }
 }

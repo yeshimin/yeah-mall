@@ -21,6 +21,11 @@ public interface StorageProvider {
     InputStream get(String fileKey, SysStorageEntity sysStorage);
 
     /**
+     * delete
+     */
+    void delete(String fileKey, SysStorageEntity sysStorage);
+
+    /**
      * getDownloadInfo
      */
     String getDownloadInfo(String fileKey, String fileName, SysStorageEntity sysStorage);

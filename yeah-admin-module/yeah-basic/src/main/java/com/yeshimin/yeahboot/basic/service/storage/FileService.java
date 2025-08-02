@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
@@ -46,6 +47,7 @@ public class FileService {
     /**
      * 上传文件
      */
+    @Transactional(rollbackFor = Exception.class)
     public FileUploadVo upload(MultipartFile file, StorageTypeEnum storageType) {
         // 存储文件
         SysStorageEntity result = storageManager.put(this.bucket, this.path, file, storageType);
@@ -78,6 +80,18 @@ public class FileService {
         SysFileEntity sysFile = this.getLocalFileByFileKey(fileKey);
         InputStream inputStream = storageManager.get(fileKey);
         return this.wrap(sysFile.getOriginalName(), inputStream);
+    }
+
+    /**
+     * 删除文件
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(String fileKey) {
+        SysFileEntity sysFile = this.getLocalFileByFileKey(fileKey);
+        sysFile.deleteById();
+
+        // 删除存储
+        storageManager.delete(fileKey);
     }
 
     // ================================================================================

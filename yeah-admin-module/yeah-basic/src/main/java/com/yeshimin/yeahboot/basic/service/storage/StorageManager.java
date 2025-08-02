@@ -65,6 +65,19 @@ public class StorageManager {
         return inputStream;
     }
 
+    /**
+     * 删除
+     */
+    public void delete(String fileKey) {
+        SysStorageEntity sysStorage = sysStorageRepo.findOneByFileKey(fileKey);
+        if (sysStorage == null) {
+            return;
+        }
+
+        StorageTypeEnum storageType = StorageTypeEnum.of(sysStorage.getStorageType());
+        this.getProvider(storageType).delete(fileKey, sysStorage);
+    }
+
     public String getDownloadInfo(String fileKey, String fileName) {
         SysStorageEntity sysStorage = sysStorageRepo.getOneByFileKey(fileKey);
         return this.getProvider().getDownloadInfo(fileKey, fileName, sysStorage);
