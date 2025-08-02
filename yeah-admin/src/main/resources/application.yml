@@ -47,7 +47,7 @@ auth:
       default-leeway: 60
     subjects:
       - name: admin
-        api-prefix: '/admin'
+        api-prefix: '/admin,/basic'
         jwt:
           # 签发密钥
           secret: wee8Deonee4egh5taif8noim8pee1aiJ
@@ -108,3 +108,33 @@ yeah-boot:
       - createBy
       - updateTime
       - updateBy
+  # 文件/存储
+  storage:
+    enabled: true
+    impl:
+      # 本地文件系统存储相关配置
+      local:
+        enabled: true
+        priority: 1
+        base-path: /Users/yeshimin/Desktop/YsmSpace/upload/yeah-boot
+      # 七牛云存储相关配置
+      qiniu:
+        enabled: true
+        priority: 1
+        access-key: OVERWRITE_ME
+        secret-key: OVERWRITE_ME
+        bucket: OVERWRITE_ME
+        domain: OVERWRITE_ME
+      # minio存储相关配置
+      minio:
+        enabled: false
+        priority: 1
+        endpoint: OVERWRITE_ME
+        bucket-name: OVERWRITE_ME
+        access-key: OVERWRITE_ME
+        secret-key: OVERWRITE_ME
+    biz:
+      # 文件管理
+      file:
+        bucket: filemanage
+        path: default

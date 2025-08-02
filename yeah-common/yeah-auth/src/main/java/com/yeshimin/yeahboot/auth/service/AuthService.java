@@ -116,22 +116,28 @@ public class AuthService {
             return true;
         }
 
-        boolean isEqOp = true;
-        if (apiPrefix.startsWith("!")) {
-            isEqOp = false;
-            apiPrefix = apiPrefix.substring(1);
-        }
-
-        String requestUri = this.getRequest().getRequestURI();
-
+        String[] arrPrefix = apiPrefix.split(",");
         boolean success = false;
-        if (isEqOp) {
-            success = requestUri.startsWith(apiPrefix);
-        } else {
-            success = !requestUri.startsWith(apiPrefix);
-        }
+        for (String prefix : arrPrefix) {
+            boolean isEqOp = true;
+            if (prefix.startsWith("!")) {
+                isEqOp = false;
+                prefix = prefix.substring(1);
+            }
 
-        log.info("isEqOp: {}, apiPrefix: {}, requestUri: {}, success: {}", isEqOp, apiPrefix, requestUri, success);
+            String requestUri = this.getRequest().getRequestURI();
+
+            if (isEqOp) {
+                success = requestUri.startsWith(prefix);
+            } else {
+                success = !requestUri.startsWith(prefix);
+            }
+
+            log.info("isEqOp: {}, prefix: {}, requestUri: {}, success: {}", isEqOp, prefix, requestUri, success);
+            if (success) {
+                return success;
+            }
+        }
 
         return success;
     }

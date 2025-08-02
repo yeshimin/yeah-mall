@@ -35,6 +35,9 @@
         <easy-captcha.version>1.6.2</easy-captcha.version>
         <p6spy.version>1.8.1</p6spy.version>
         <fastjson2.version>2.0.57</fastjson2.version>
+        <okhttp3.version>4.10.0</okhttp3.version>
+        <minio.version>7.0.2</minio.version>
+        <qiniu.version>[7.19.0, 7.19.99]</qiniu.version>
     </properties>
 
     <dependencyManagement>
@@ -150,6 +153,28 @@
                 <groupId>com.alibaba.fastjson2</groupId>
                 <artifactId>fastjson2</artifactId>
                 <version>${fastjson2.version}</version>
+            </dependency>
+
+            <!-- okhttp3 -->
+            <!-- fix for qiniu sdk: java.lang.NoSuchFieldError: Companion -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp3.version}</version>
+            </dependency>
+
+            <!-- minio -->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
+            </dependency>
+
+            <!-- 七牛 -->
+            <dependency>
+                <groupId>com.qiniu</groupId>
+                <artifactId>qiniu-java-sdk</artifactId>
+                <version>${qiniu.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

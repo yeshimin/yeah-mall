@@ -1,0 +1,37 @@
+package com.yeshimin.yeahboot.basic.service.storage;
+
+import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
+import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
+
+import java.io.InputStream;
+
+/**
+ * 存储提供者接口
+ */
+public interface StorageProvider {
+
+    /**
+     * put
+     */
+    SysStorageEntity put(String path, String fileName, Object file);
+
+    /**
+     * get
+     */
+    InputStream get(String fileKey, SysStorageEntity sysStorage);
+
+    /**
+     * getDownloadInfo
+     */
+    String getDownloadInfo(String fileKey, String fileName, SysStorageEntity sysStorage);
+
+    /**
+     * getPriority
+     */
+    int getPriority();
+
+    /**
+     * getStorageType
+     */
+    StorageTypeEnum getStorageType();
+}

@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.common.common.log;
 
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.common.domain.entity.SysLogEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,13 +63,44 @@ public class SysLogAspect {
 
             // 收集输出结果
             try {
-                String outputJson = JSONUtil.toJsonStr(result);
-                logEntity.setOutput(outputJson);
+                // 优化：java.io.FileNotFoundException: InputStream resource [resource loaded through InputStream] cannot be resolved to URL
+                if (result != null) {
+                    boolean loggable = this.isLoggable(result);
+                    if (loggable) {
+                        String outputJson = JSONUtil.toJsonStr(result);
+                        logEntity.setOutput(outputJson);
+                    } else {
+                        logEntity.setOutput("[非文本响应，已跳过日志输出]");
+                    }
+                }
+
                 // 发布或保存日志
                 logEntity.insert();
             } catch (Exception e) {
                 log.warn("结果序列化异常", e);
             }
+        }
+    }
+
+    private boolean isLoggable(Object result) {
+        if (result == null) return true;
+
+        // 快速排除常见类型
+        if (result instanceof java.io.InputStream ||
+                result instanceof org.springframework.core.io.Resource ||
+                result instanceof javax.servlet.ServletRequest ||
+                result instanceof javax.servlet.ServletResponse ||
+                result instanceof java.io.OutputStream ||
+                result instanceof java.io.Writer) {
+            return false;
+        }
+
+        // 再尝试序列化（可选）
+        try {
+            JSON.toJSONString(result);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }
