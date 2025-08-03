@@ -40,7 +40,7 @@ auth:
     # 全局jwt配置（subject中可覆盖）
     jwt:
       # 签发密钥
-      secret: Dooleiw4hah0yae2Aquah5ahgaix4noJ
+      secret: daicaid9xie5eilaiFicha6xaezaiNoj
       # 过期时间（秒）
       expire-seconds: 3600
       # 时间校验偏差（秒）
@@ -49,7 +49,7 @@ auth:
       - name: app
         jwt:
           # 签发密钥
-          secret: mi8thaeTahphuatimae9xieghei2iboe
+          secret: Ca9Eishi9eexaedeiv0oiCai2ka8aesh
           # 过期时间（秒）
           expire-seconds: 3600
           # 时间校验偏差（秒）
