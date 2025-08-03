@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.basic.common.properties.StorageProperties;
 import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
+import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -133,9 +134,7 @@ public class LocalStorageProvider implements StorageProvider {
      * make directory
      */
     public File makeDirectory(String basePath, String bucketName, String path) {
-        Paths.get("");
-        File directory = StrUtil.isBlank(path) ? FileUtil.file(basePath, bucketName) :
-                FileUtil.file(basePath, bucketName, path);
+        File directory = new File(YsmUtils.path(basePath, bucketName, path));
         if (!FileUtil.exist(directory)) {
             directory = FileUtil.mkdir(directory);
         }
@@ -149,10 +148,9 @@ public class LocalStorageProvider implements StorageProvider {
         // name + suffix
         String fileName = getKeyWithSuffix(sysStorage.getFileKey(), sysStorage.getSuffix());
         // path + name + suffix
-        String finalName = StrUtil.isBlank(sysStorage.getPath()) ?
-                fileName : Paths.get(sysStorage.getPath(), fileName).toString();
+        String finalName = YsmUtils.path(sysStorage.getPath(), fileName);
         finalName = "/" + finalName;
-        String path = FileUtil.file(sysStorage.getBasePath(), sysStorage.getBucket(), finalName).getAbsolutePath();
+        String path = YsmUtils.path(sysStorage.getBasePath(), sysStorage.getBucket(), finalName);
         log.info("path: {}", path);
         return path;
     }

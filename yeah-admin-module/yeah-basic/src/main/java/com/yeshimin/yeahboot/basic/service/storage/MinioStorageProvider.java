@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.basic.common.properties.StorageProperties;
 import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
+import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import io.minio.MinioClient;
 import io.minio.PutObjectOptions;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.io.InputStream;
-import java.nio.file.Paths;
 
 @Slf4j
 @Service
@@ -55,7 +55,7 @@ public class MinioStorageProvider implements StorageProvider {
         @Nullable String suffix = FileUtil.getSuffix(mFile.getOriginalFilename());
         // 最终的fileKey
         String finalKey = getKeyWithSuffix(fileKey, suffix);
-        finalKey = StrUtil.isBlank(path) ? finalKey : Paths.get(path, finalKey).toString();
+        finalKey = YsmUtils.path(path, finalKey);
         log.info("finalKey: {}", finalKey);
 
         String finalBucket = isPublic ? minio.getPublicBucket() : StrUtil.isBlank(bucket) ? minio.getBucket() : bucket;
