@@ -66,22 +66,26 @@ public class QiniuStorageProvider implements StorageProvider {
     }
 
     @Override
-    public SysStorageEntity put(String path, String fileName, Object file) {
-        final String upToken = this.getToken();
-        log.info("upToken: {}", upToken);
+    public SysStorageEntity put(@Nullable String bucket, @Nullable String path, Object file, boolean isPublic) {
 
         MultipartFile mFile = (MultipartFile) file;
 
         // 生成fileKey
         String fileKey = IdUtil.simpleUUID();
         @Nullable String suffix = FileUtil.getSuffix(mFile.getOriginalFilename());
-        // 最终的文件名（不带路径）
-        String finalName = StrUtil.isBlank(suffix) ? fileKey : fileKey + "." + suffix;
+        // 最终的fileKey
+        String finalKey = getKeyWithSuffix(fileKey, suffix);
+        finalKey = StrUtil.isBlank(path) ? finalKey : FileUtil.file(path, finalKey).getAbsolutePath();
+        log.info("finalKey: {}", finalKey);
+
+        String finalBucket = isPublic ? qiniu.getPublicBucket() : StrUtil.isBlank(bucket) ? qiniu.getBucket() : bucket;
+        final String upToken = this.getToken(finalBucket);
+        log.info("upToken: {}", upToken);
 
         boolean success;
         Response response = null;
         try {
-            response = uploadManager.put(mFile.getBytes(), finalName, upToken);
+            response = uploadManager.put(mFile.getBytes(), finalKey, upToken);
             success = true;
         } catch (IOException e) {
             log.error("Failed to upload file: {}", e.getMessage(), e);
@@ -93,11 +97,12 @@ public class QiniuStorageProvider implements StorageProvider {
         result.setStorageType(StorageTypeEnum.QINIU.getValue());
         result.setSuccess(success);
         result.setBasePath("");
-        result.setBucket(qiniu.getBucket());
-        result.setFileKey(fileKey);
+        result.setBucket(finalBucket);
         result.setPath(path);
+        result.setFileKey(fileKey);
         result.setSuffix(suffix);
         result.setOriginalName(mFile.getOriginalFilename());
+        result.setIsPublic(isPublic);
 
         return result;
     }
@@ -117,8 +122,7 @@ public class QiniuStorageProvider implements StorageProvider {
 
     @Override
     public void delete(String fileKey, SysStorageEntity sysStorage) {
-        final String key = sysStorage.getFileKey() +
-                (StrUtil.isBlank(sysStorage.getSuffix()) ? "" : "." + sysStorage.getSuffix());
+        final String key = getKeyWithSuffix(fileKey, sysStorage.getSuffix());
 
         try {
             bucketManager.delete(sysStorage.getBucket(), key);
@@ -129,8 +133,8 @@ public class QiniuStorageProvider implements StorageProvider {
 
     @Override
     public String getDownloadInfo(String fileKey, String fileName, SysStorageEntity sysStorage) {
-        String finalKey = fileKey + (StrUtil.isBlank(sysStorage.getSuffix()) ? "" : "." + sysStorage.getSuffix());
-        return this.getDownloadUrlByDefault(finalKey, fileName);
+        final String key = getKeyWithSuffix(fileKey, sysStorage.getSuffix());
+        return this.getDownloadUrlByDefault(key, fileName, sysStorage.getIsPublic());
     }
 
     @Override
@@ -148,8 +152,9 @@ public class QiniuStorageProvider implements StorageProvider {
     /**
      * 获取下载URL
      */
-    private String getDownloadUrlByDefault(String key, String fileName) {
-        DownloadUrl url = new DownloadUrl(qiniu.getDomain(), false, key);
+    private String getDownloadUrlByDefault(String key, String fileName, boolean isPublic) {
+        String domain = isPublic ? qiniu.getPublicDomain() : qiniu.getDomain();
+        DownloadUrl url = new DownloadUrl(domain, false, key);
         // 指定文件名
         if (StrUtil.isNotBlank(fileName)) {
             url.setAttname(fileName);
@@ -168,9 +173,9 @@ public class QiniuStorageProvider implements StorageProvider {
     /**
      * 获取上传凭证
      */
-    private String getToken() {
+    private String getToken(String bucketName) {
         StringMap putPolicy = new StringMap();
         putPolicy.put("returnBody", "{\"key\":\"$(key)\",\"hash\":\"$(etag)\",\"bucket\":\"$(bucket)\",\"fsize\":$(fsize)}");
-        return auth.uploadToken(qiniu.getBucket(), null, UPLOAD_TOKEN_DEFAULT_EXPIRE_SECONDS, putPolicy);
+        return auth.uploadToken(bucketName, null, UPLOAD_TOKEN_DEFAULT_EXPIRE_SECONDS, putPolicy);
     }
 }

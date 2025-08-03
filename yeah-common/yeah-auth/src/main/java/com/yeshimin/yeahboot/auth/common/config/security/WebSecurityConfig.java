@@ -33,7 +33,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(new MdcLogFilter(), JwtTokenAuthenticationFilter.class);
 
         http.authorizeRequests()
-                .antMatchers("/**/auth/login", "/admin/auth/captcha")
+                .antMatchers("/**/auth/login", "/admin/auth/captcha", "/basic/storage/public")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()

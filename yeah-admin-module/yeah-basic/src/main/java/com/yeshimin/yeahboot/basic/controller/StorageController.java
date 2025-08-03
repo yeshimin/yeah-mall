@@ -39,7 +39,9 @@ public class StorageController extends CrudController<SysStorageMapper, SysStora
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':upload')")
     @PostMapping("/upload")
     public R<FileUploadVo> upload(@RequestParam("file") MultipartFile file,
-                                  @RequestParam(required = false) Integer storageType) {
+                                  @RequestParam(required = false) Integer storageType,
+                                  @RequestParam(required = false) String path,
+                                  @RequestParam(required = false, defaultValue = "false") Boolean isPublic) {
         // 检查参数：【存储类型】
         StorageTypeEnum storageTypeEnum = null;
         if (storageType != null) {
@@ -48,7 +50,7 @@ public class StorageController extends CrudController<SysStorageMapper, SysStora
                 throw new BaseException(ErrorCodeEnum.FAIL, "不支持的存储类型");
             }
         }
-        FileUploadVo vo = storageService.upload(file, storageTypeEnum);
+        FileUploadVo vo = storageService.upload(file, storageTypeEnum, path, isPublic);
         return R.ok(vo);
     }
 
@@ -58,7 +60,15 @@ public class StorageController extends CrudController<SysStorageMapper, SysStora
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':download')")
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> download(@RequestParam("fileKey") String fileKey) {
-        return storageService.download(fileKey);
+        return storageService.download(fileKey, false);
+    }
+
+    /**
+     * 公开下载
+     */
+    @GetMapping("/public")
+    public ResponseEntity<InputStreamResource> publicDownload(@RequestParam("fileKey") String fileKey) {
+        return storageService.download(fileKey, true);
     }
 
     /**

@@ -46,18 +46,22 @@ public class MinioStorageProvider implements StorageProvider {
     }
 
     @Override
-    public SysStorageEntity put(String path, String fileName, Object file) {
+    public SysStorageEntity put(@Nullable String bucket, @Nullable String path, Object file, boolean isPublic) {
         MultipartFile mFile = (MultipartFile) file;
 
         // 生成fileKey
         String fileKey = IdUtil.simpleUUID();
         @Nullable String suffix = FileUtil.getSuffix(mFile.getOriginalFilename());
-        // 最终的文件名（不带路径）
-        String finalName = StrUtil.isBlank(suffix) ? fileKey : fileKey + "." + suffix;
+        // 最终的fileKey
+        String finalKey = getKeyWithSuffix(fileKey, suffix);
+        finalKey = StrUtil.isBlank(path) ? finalKey : FileUtil.file(path, finalKey).getAbsolutePath();
+        log.info("finalKey: {}", finalKey);
+
+        String finalBucket = isPublic ? minio.getPublicBucket() : StrUtil.isBlank(bucket) ? minio.getBucket() : bucket;
 
         boolean success;
         try {
-            minioClient.putObject(minio.getBucketName(), finalName, mFile.getInputStream(),
+            minioClient.putObject(finalBucket, finalKey, mFile.getInputStream(),
                     new PutObjectOptions(-1, PutObjectOptions.MIN_MULTIPART_SIZE));
             success = true;
         } catch (Exception e) {
@@ -66,25 +70,25 @@ public class MinioStorageProvider implements StorageProvider {
         }
 
         SysStorageEntity result = new SysStorageEntity();
-        result.setStorageType(StorageTypeEnum.QINIU.getValue());
+        result.setStorageType(StorageTypeEnum.MINIO.getValue());
         result.setSuccess(success);
         result.setBasePath("");
-        result.setBucket(minio.getBucketName());
-        result.setFileKey(fileKey);
+        result.setBucket(finalBucket);
         result.setPath(path);
+        result.setFileKey(fileKey);
         result.setSuffix(suffix);
         result.setOriginalName(mFile.getOriginalFilename());
+        result.setIsPublic(isPublic);
 
         return result;
     }
 
     @Override
     public InputStream get(String fileKey, SysStorageEntity sysStorage) {
-        final String key = sysStorage.getFileKey() +
-                (StrUtil.isBlank(sysStorage.getSuffix()) ? "" : "." + sysStorage.getSuffix());
+        final String key = getKeyWithSuffix(fileKey, sysStorage.getSuffix());
 
         try {
-            return minioClient.getObject(minio.getBucketName(), key);
+            return minioClient.getObject(minio.getBucket(), key);
         } catch (Exception e) {
             log.error("MinIO获取文件失败: {}", e.getMessage(), e);
         }
@@ -93,11 +97,10 @@ public class MinioStorageProvider implements StorageProvider {
 
     @Override
     public void delete(String fileKey, SysStorageEntity sysStorage) {
-        final String key = sysStorage.getFileKey() +
-                (StrUtil.isBlank(sysStorage.getSuffix()) ? "" : "." + sysStorage.getSuffix());
+        final String key = getKeyWithSuffix(fileKey, sysStorage.getSuffix());
 
         try {
-            minioClient.removeObject(minio.getBucketName(), key);
+            minioClient.removeObject(minio.getBucket(), key);
         } catch (Exception e) {
             log.error("MinIO删除文件失败: {}", e.getMessage(), e);
         }

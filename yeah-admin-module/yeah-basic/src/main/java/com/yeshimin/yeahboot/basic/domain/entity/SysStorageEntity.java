@@ -56,4 +56,9 @@ public class SysStorageEntity extends ConditionBaseEntity<SysStorageEntity> {
      * 原始文件名
      */
     private String originalName;
+
+    /**
+     * 是否公开
+     */
+    private Boolean isPublic;
 }
