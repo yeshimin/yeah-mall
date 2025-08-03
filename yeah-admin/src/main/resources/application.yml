@@ -140,11 +140,15 @@ yeah-boot:
       local:
         enabled: true
         priority: 1
+        public-bucket: public
+        bucket: yeahboot
         base-path: /Users/yeshimin/Desktop/YsmSpace/upload/yeah-boot
       # 七牛云存储相关配置
       qiniu:
         enabled: true
         priority: 1
+        public-bucket: yeahbootpublic
+        public-domain: OVERWRITE_ME
         access-key: OVERWRITE_ME
         secret-key: OVERWRITE_ME
         bucket: OVERWRITE_ME
@@ -153,8 +157,9 @@ yeah-boot:
       minio:
         enabled: false
         priority: 1
+        public-bucket: yeahbootpublic
         endpoint: OVERWRITE_ME
-        bucket-name: OVERWRITE_ME
+        bucket: OVERWRITE_ME
         access-key: OVERWRITE_ME
         secret-key: OVERWRITE_ME
     biz:

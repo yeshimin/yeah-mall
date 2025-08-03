@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.basic.common.properties.StorageProperties;
 import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
+import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -42,8 +43,8 @@ public class LocalStorageProvider implements StorageProvider {
     }
 
     @Override
-    public SysStorageEntity put(String bucketName, @Nullable String path, Object file) {
-        if (!ReUtil.isMatch(BUCKET_NAME_REGEX, bucketName)) {
+    public SysStorageEntity put(@Nullable String bucket, @Nullable String path, Object file, boolean isPublic) {
+        if (StrUtil.isNotBlank(bucket) && !ReUtil.isMatch(BUCKET_NAME_REGEX, bucket)) {
             throw new IllegalArgumentException("BucketName format error");
         }
         if (StrUtil.isNotBlank(path) && !ReUtil.isMatch(PATH_REGEX, path)) {
@@ -58,14 +59,18 @@ public class LocalStorageProvider implements StorageProvider {
         // 生成fileKey、获取文件后缀名
         String fileKey = IdUtil.simpleUUID();
         @Nullable String suffix = FileUtil.getSuffix(mFile.getOriginalFilename());
-        // 最终的文件名（不带路径）
-        String finalName = StrUtil.isBlank(suffix) ? fileKey : fileKey + "." + suffix;
+        // 最终的fileKey（不带path）
+        String finalKey = getKeyWithSuffix(fileKey, suffix);
+//        finalKey = StrUtil.isBlank(path) ? finalKey: FileUtil.file(path, finalKey).getAbsolutePath();
+        log.info("finalKey: {}", finalKey);
+
+        String finalBucket = isPublic ? local.getPublicBucket() : StrUtil.isBlank(bucket) ? local.getBucket() : bucket;
 
         // 按需创建目录
-        File directory = this.makeDirectory(local.getBasePath(), bucketName, path);
+        File directory = this.makeDirectory(local.getBasePath(), finalBucket, path);
 
         // 生成最终的文件（名）并保存
-        File finalFile = FileUtil.file(directory, finalName);
+        File finalFile = FileUtil.file(directory, finalKey);
         log.info("local.finalFile: {}", finalFile.getAbsolutePath());
 
         boolean success;
@@ -82,11 +87,13 @@ public class LocalStorageProvider implements StorageProvider {
         result.setStorageType(StorageTypeEnum.LOCAL.getValue());
         result.setSuccess(success);
         result.setBasePath(local.getBasePath());
-        result.setBucket(bucketName);
-        result.setFileKey(fileKey);
+        result.setBucket(finalBucket);
         result.setPath(path);
+        result.setFileKey(fileKey);
         result.setSuffix(suffix);
         result.setOriginalName(mFile.getOriginalFilename());
+        result.setIsPublic(isPublic);
+        result.setIsPublic(isPublic);
 
         return result;
     }
@@ -127,7 +134,7 @@ public class LocalStorageProvider implements StorageProvider {
      * make directory
      */
     public File makeDirectory(String basePath, String bucketName, String path) {
-        File directory = FileUtil.file(basePath, bucketName, path);
+        File directory = new File(YsmUtils.path(basePath, bucketName, path));
         if (!FileUtil.exist(directory)) {
             directory = FileUtil.mkdir(directory);
         }
@@ -138,8 +145,12 @@ public class LocalStorageProvider implements StorageProvider {
      * getFullPath
      */
     public String getFullPath(SysStorageEntity sysStorage) {
-        String path = FileUtil.file(sysStorage.getBasePath(), sysStorage.getBucket(), sysStorage.getPath(),
-                sysStorage.getFileKey() + "." + sysStorage.getSuffix()).getAbsolutePath();
+        // name + suffix
+        String fileName = getKeyWithSuffix(sysStorage.getFileKey(), sysStorage.getSuffix());
+        // path + name + suffix
+        String finalName = YsmUtils.path(sysStorage.getPath(), fileName);
+        finalName = "/" + finalName;
+        String path = YsmUtils.path(sysStorage.getBasePath(), sysStorage.getBucket(), finalName);
         log.info("path: {}", path);
         return path;
     }

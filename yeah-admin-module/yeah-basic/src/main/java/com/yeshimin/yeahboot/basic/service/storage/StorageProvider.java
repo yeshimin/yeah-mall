@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.basic.service.storage;
 
+import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
 
@@ -13,7 +14,7 @@ public interface StorageProvider {
     /**
      * put
      */
-    SysStorageEntity put(String path, String fileName, Object file);
+    SysStorageEntity put(String bucket, String path, Object file, boolean isPublic);
 
     /**
      * get
@@ -39,4 +40,11 @@ public interface StorageProvider {
      * getStorageType
      */
     StorageTypeEnum getStorageType();
+
+    /**
+     * getKeyWithSuffix
+     */
+    default String getKeyWithSuffix(String key, String suffix) {
+        return StrUtil.isBlank(suffix) ? key : key + "." + suffix;
+    }
 }

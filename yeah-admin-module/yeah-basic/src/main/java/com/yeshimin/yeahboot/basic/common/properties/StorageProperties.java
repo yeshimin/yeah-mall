@@ -28,6 +28,12 @@ public class StorageProperties {
                 impl.getMinio().getPriority() == null) {
             throw new IllegalArgumentException("Storage priority must not be null");
         }
+        // 检查publicBucket是否为空
+        if (StrUtil.isBlank(impl.getLocal().getPublicBucket()) ||
+                StrUtil.isBlank(impl.getQiniu().getPublicBucket()) ||
+                StrUtil.isBlank(impl.getMinio().getPublicBucket())) {
+            throw new IllegalArgumentException("Storage public bucket must not be empty");
+        }
     }
 
     /**
@@ -57,6 +63,8 @@ public class StorageProperties {
     public static class LocalImpl {
         private Boolean enabled;
         private Integer priority;
+        private String publicBucket;
+        private String bucket;
         private String basePath;
     }
 
@@ -64,6 +72,8 @@ public class StorageProperties {
     public static class QiniuImpl {
         private Boolean enabled;
         private Integer priority;
+        private String publicBucket;
+        private String publicDomain;
         private String accessKey;
         private String secretKey;
         private String bucket;
@@ -74,8 +84,9 @@ public class StorageProperties {
     public static class MinioImpl {
         private Boolean enabled;
         private Integer priority;
+        private String publicBucket;
         private String endpoint;
-        private String bucketName;
+        private String bucket;
         private String accessKey;
         private String secretKey;
     }

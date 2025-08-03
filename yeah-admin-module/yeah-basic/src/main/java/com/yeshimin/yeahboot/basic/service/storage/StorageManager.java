@@ -47,9 +47,15 @@ public class StorageManager {
                 .collect(Collectors.toMap(StorageProvider::getStorageType, provider -> provider));
     }
 
-    public SysStorageEntity put(String bucketName, @Nullable String path, Object file,
+    public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, Object file,
                                 @Nullable StorageTypeEnum storageType) {
-        SysStorageEntity entity = this.getProvider(storageType).put(bucketName, path, file);
+        return this.put(bucketName, path, file, storageType, false);
+    }
+
+    public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, Object file,
+                                @Nullable StorageTypeEnum storageType, boolean isPublic) {
+        SysStorageEntity entity = this.getProvider(storageType).put(bucketName, path, file, isPublic);
+        entity.setIsPublic(isPublic);
         boolean r = entity.insert();
         log.info("StorageManager.put.result: {}", r);
         return entity;

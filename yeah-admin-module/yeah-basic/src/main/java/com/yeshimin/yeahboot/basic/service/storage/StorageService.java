@@ -1,7 +1,6 @@
 package com.yeshimin.yeahboot.basic.service.storage;
 
 import com.alibaba.fastjson2.JSON;
-import com.yeshimin.yeahboot.basic.common.properties.StorageProperties;
 import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.basic.domain.vo.FileUploadVo;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import java.io.InputStream;
 import java.net.URLEncoder;
 
@@ -29,27 +27,15 @@ import java.net.URLEncoder;
 public class StorageService {
 
     private final SysStorageRepo sysStorageRepo;
-
     private final StorageManager storageManager;
-
-    private final StorageProperties storageProperties;
-
-    private String bucket;
-    private String path;
-
-    @PostConstruct
-    public void init() {
-        this.bucket = storageProperties.getBiz().getFile().getBucket();
-        this.path = storageProperties.getBiz().getFile().getPath();
-    }
 
     /**
      * 上传文件
      */
     @Transactional(rollbackFor = Exception.class)
-    public FileUploadVo upload(MultipartFile file, StorageTypeEnum storageType) {
+    public FileUploadVo upload(MultipartFile file, StorageTypeEnum storageType, String path, Boolean isPublic) {
         // 存储文件
-        SysStorageEntity result = storageManager.put(this.bucket, this.path, file, storageType);
+        SysStorageEntity result = storageManager.put(null, path, file, storageType, isPublic);
         if (!result.getSuccess()) {
             log.info("result: {}", JSON.toJSONString(result));
             throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
@@ -63,8 +49,12 @@ public class StorageService {
     /**
      * 下载
      */
-    public ResponseEntity<InputStreamResource> download(String fileKey) {
+    public ResponseEntity<InputStreamResource> download(String fileKey, boolean isPublic) {
         SysStorageEntity sysStorage = sysStorageRepo.getOneByFileKey(fileKey);
+        // 访问公开文件场景时才进行校验
+        if (isPublic && !sysStorage.getIsPublic()) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "该文件不可公开访问");
+        }
         InputStream inputStream = storageManager.get(fileKey, sysStorage);
         return this.wrap(sysStorage.getOriginalName(), inputStream);
     }
