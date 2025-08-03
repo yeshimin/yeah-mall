@@ -1,11 +1,11 @@
 package com.yeshimin.yeahboot.basic.controller;
 
-import com.yeshimin.yeahboot.basic.domain.entity.SysFileEntity;
+import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.basic.domain.vo.FileUploadVo;
-import com.yeshimin.yeahboot.basic.mapper.SysFileMapper;
-import com.yeshimin.yeahboot.basic.repository.SysFileRepo;
-import com.yeshimin.yeahboot.basic.service.storage.FileService;
+import com.yeshimin.yeahboot.basic.mapper.SysStorageMapper;
+import com.yeshimin.yeahboot.basic.repository.SysStorageRepo;
+import com.yeshimin.yeahboot.basic.service.storage.StorageService;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 文件管理
+ * 存储管理
  */
 @RestController
-@RequestMapping("/basic/file")
-public class FileController extends CrudController<SysFileMapper, SysFileEntity, SysFileRepo> {
+@RequestMapping("/basic/storage")
+public class StorageController extends CrudController<SysStorageMapper, SysStorageEntity, SysStorageRepo> {
 
     @Autowired
-    private FileService fileService;
+    private StorageService storageService;
 
-    public FileController(SysFileRepo service) {
+    public StorageController(SysStorageRepo service) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(service);
-        super.setModule("basic:file").disableCreate().disableUpdate().disableDelete();
+        super.setModule("basic:storage").disableCreate().disableUpdate().disableDelete();
     }
 
     /**
@@ -48,7 +48,7 @@ public class FileController extends CrudController<SysFileMapper, SysFileEntity,
                 throw new BaseException(ErrorCodeEnum.FAIL, "不支持的存储类型");
             }
         }
-        FileUploadVo vo = fileService.upload(file, storageTypeEnum);
+        FileUploadVo vo = storageService.upload(file, storageTypeEnum);
         return R.ok(vo);
     }
 
@@ -58,7 +58,7 @@ public class FileController extends CrudController<SysFileMapper, SysFileEntity,
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':download')")
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> download(@RequestParam("fileKey") String fileKey) {
-        return fileService.download(fileKey);
+        return storageService.download(fileKey);
     }
 
     /**
@@ -67,7 +67,7 @@ public class FileController extends CrudController<SysFileMapper, SysFileEntity,
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
     @PostMapping("/delete")
     public R<Void> delete(@RequestParam("fileKey") String fileKey) {
-        fileService.delete(fileKey);
+        storageService.delete(fileKey);
         return R.ok();
     }
 }

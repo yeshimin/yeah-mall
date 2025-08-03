@@ -57,6 +57,10 @@ public class StorageManager {
 
     public InputStream get(String fileKey) {
         SysStorageEntity sysStorage = sysStorageRepo.getOneByFileKey(fileKey);
+        return this.get(fileKey, sysStorage);
+    }
+
+    public InputStream get(String fileKey, SysStorageEntity sysStorage) {
         StorageTypeEnum storageType = StorageTypeEnum.of(sysStorage.getStorageType());
         InputStream inputStream = this.getProvider(storageType).get(fileKey, sysStorage);
         if (inputStream == null) {
@@ -73,6 +77,7 @@ public class StorageManager {
         if (sysStorage == null) {
             return;
         }
+        sysStorage.deleteById();
 
         StorageTypeEnum storageType = StorageTypeEnum.of(sysStorage.getStorageType());
         this.getProvider(storageType).delete(fileKey, sysStorage);
