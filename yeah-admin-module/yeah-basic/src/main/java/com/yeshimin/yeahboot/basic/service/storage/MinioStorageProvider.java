@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.io.InputStream;
+import java.nio.file.Paths;
 
 @Slf4j
 @Service
@@ -54,7 +55,7 @@ public class MinioStorageProvider implements StorageProvider {
         @Nullable String suffix = FileUtil.getSuffix(mFile.getOriginalFilename());
         // 最终的fileKey
         String finalKey = getKeyWithSuffix(fileKey, suffix);
-        finalKey = StrUtil.isBlank(path) ? finalKey : FileUtil.file(path, finalKey).getAbsolutePath();
+        finalKey = StrUtil.isBlank(path) ? finalKey : Paths.get(path, finalKey).toString();
         log.info("finalKey: {}", finalKey);
 
         String finalBucket = isPublic ? minio.getPublicBucket() : StrUtil.isBlank(bucket) ? minio.getBucket() : bucket;

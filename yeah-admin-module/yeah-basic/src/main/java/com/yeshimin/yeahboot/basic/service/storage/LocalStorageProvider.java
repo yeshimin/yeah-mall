@@ -133,6 +133,7 @@ public class LocalStorageProvider implements StorageProvider {
      * make directory
      */
     public File makeDirectory(String basePath, String bucketName, String path) {
+        Paths.get("");
         File directory = StrUtil.isBlank(path) ? FileUtil.file(basePath, bucketName) :
                 FileUtil.file(basePath, bucketName, path);
         if (!FileUtil.exist(directory)) {
@@ -149,7 +150,8 @@ public class LocalStorageProvider implements StorageProvider {
         String fileName = getKeyWithSuffix(sysStorage.getFileKey(), sysStorage.getSuffix());
         // path + name + suffix
         String finalName = StrUtil.isBlank(sysStorage.getPath()) ?
-                fileName : FileUtil.file(sysStorage.getPath(), fileName).getAbsolutePath();
+                fileName : Paths.get(sysStorage.getPath(), fileName).toString();
+        finalName = "/" + finalName;
         String path = FileUtil.file(sysStorage.getBasePath(), sysStorage.getBucket(), finalName).getAbsolutePath();
         log.info("path: {}", path);
         return path;

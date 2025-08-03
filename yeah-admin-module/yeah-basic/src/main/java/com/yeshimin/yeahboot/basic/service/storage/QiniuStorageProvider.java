@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 
 /**
  * 七牛相关服务
@@ -75,7 +76,7 @@ public class QiniuStorageProvider implements StorageProvider {
         @Nullable String suffix = FileUtil.getSuffix(mFile.getOriginalFilename());
         // 最终的fileKey
         String finalKey = getKeyWithSuffix(fileKey, suffix);
-        finalKey = StrUtil.isBlank(path) ? finalKey : FileUtil.file(path, finalKey).getAbsolutePath();
+        finalKey = StrUtil.isBlank(path) ? finalKey : Paths.get(path, finalKey).toString();
         log.info("finalKey: {}", finalKey);
 
         String finalBucket = isPublic ? qiniu.getPublicBucket() : StrUtil.isBlank(bucket) ? qiniu.getBucket() : bucket;
@@ -133,8 +134,9 @@ public class QiniuStorageProvider implements StorageProvider {
 
     @Override
     public String getDownloadInfo(String fileKey, String fileName, SysStorageEntity sysStorage) {
-        final String key = getKeyWithSuffix(fileKey, sysStorage.getSuffix());
-        return this.getDownloadUrlByDefault(key, fileName, sysStorage.getIsPublic());
+        String key = getKeyWithSuffix(fileKey, sysStorage.getSuffix());
+        String finalKey = StrUtil.isBlank(sysStorage.getPath()) ? key : Paths.get(sysStorage.getPath(), key).toString();
+        return this.getDownloadUrlByDefault(finalKey, fileName, sysStorage.getIsPublic());
     }
 
     @Override
