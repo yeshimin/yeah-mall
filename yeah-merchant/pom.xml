@@ -34,6 +34,11 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-biz-data</artifactId>
         </dependency>
+        <!-- storage module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-storage</artifactId>
+        </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->
         <dependency>

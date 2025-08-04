@@ -17,7 +17,7 @@ public class StorageProperties {
 
     @PostConstruct
     public void init() {
-        log.info("init [yeah-boot.storage] properties... enabled: {}, impl: {}", enabled, impl);
+        log.info("init [yeah-boot.storage] properties... enabled: {}, impl: {}, biz: {}", enabled, impl, biz);
 
         if (!BooleanUtil.isTrue(enabled)) {
             log.info("[yeah-boot.storage] is disabled");
@@ -102,10 +102,17 @@ public class StorageProperties {
     @Data
     public static class Biz {
         private BizFile file;
+        private BizBanner banner;
     }
 
     @Data
     public static class BizFile {
+        private String bucket;
+        private String path;
+    }
+
+    @Data
+    public static class BizBanner {
         private String bucket;
         private String path;
     }

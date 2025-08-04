@@ -145,7 +145,7 @@ yeah-boot:
         base-path: /Users/yeshimin/Desktop/YsmSpace/upload/yeah-boot
       # 七牛云存储相关配置
       qiniu:
-        enabled: true
+        enabled: false
         priority: 1
         public-bucket: yeahbootpublic
         public-domain: OVERWRITE_ME
@@ -167,3 +167,7 @@ yeah-boot:
       file:
         bucket: filemanage
         path: default
+      # Banner
+      banner:
+        bucket: banner
+        path: ''
