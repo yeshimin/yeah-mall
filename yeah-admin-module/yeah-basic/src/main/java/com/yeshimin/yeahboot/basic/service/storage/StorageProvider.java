@@ -1,8 +1,8 @@
 package com.yeshimin.yeahboot.basic.service.storage;
 
 import cn.hutool.core.util.StrUtil;
-import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
-import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
+import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
+import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 
 import java.io.InputStream;
 

@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.basic.domain.enums;
+package com.yeshimin.yeahboot.common.common.enums;
 
 import lombok.Getter;
 

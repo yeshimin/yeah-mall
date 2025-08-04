@@ -2,11 +2,11 @@ package com.yeshimin.yeahboot.basic.service.storage;
 
 import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.basic.common.properties.StorageProperties;
-import com.yeshimin.yeahboot.basic.domain.entity.SysFileEntity;
-import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
-import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
+import com.yeshimin.yeahboot.data.domain.entity.SysFileEntity;
+import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
+import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.basic.domain.vo.FileUploadVo;
-import com.yeshimin.yeahboot.basic.repository.SysFileRepo;
+import com.yeshimin.yeahboot.data.repository.SysFileRepo;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
