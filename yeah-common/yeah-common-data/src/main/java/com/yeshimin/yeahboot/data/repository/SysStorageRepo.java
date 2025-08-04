@@ -1,10 +1,10 @@
-package com.yeshimin.yeahboot.basic.repository;
+package com.yeshimin.yeahboot.data.repository;
 
-import com.yeshimin.yeahboot.basic.domain.entity.SysStorageEntity;
-import com.yeshimin.yeahboot.basic.mapper.SysStorageMapper;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
+import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
+import com.yeshimin.yeahboot.data.mapper.SysStorageMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

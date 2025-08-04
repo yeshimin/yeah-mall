@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.basic.domain.entity;
+package com.yeshimin.yeahboot.data.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;

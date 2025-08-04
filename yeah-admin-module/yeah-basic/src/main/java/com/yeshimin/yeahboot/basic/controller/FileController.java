@@ -1,10 +1,10 @@
 package com.yeshimin.yeahboot.basic.controller;
 
-import com.yeshimin.yeahboot.basic.domain.entity.SysFileEntity;
-import com.yeshimin.yeahboot.basic.domain.enums.StorageTypeEnum;
+import com.yeshimin.yeahboot.data.domain.entity.SysFileEntity;
+import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.basic.domain.vo.FileUploadVo;
-import com.yeshimin.yeahboot.basic.mapper.SysFileMapper;
-import com.yeshimin.yeahboot.basic.repository.SysFileRepo;
+import com.yeshimin.yeahboot.data.mapper.SysFileMapper;
+import com.yeshimin.yeahboot.data.repository.SysFileRepo;
 import com.yeshimin.yeahboot.basic.service.storage.FileService;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
