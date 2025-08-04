@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.basic.service.storage;
+package com.yeshimin.yeahboot.storage;
 
 import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;

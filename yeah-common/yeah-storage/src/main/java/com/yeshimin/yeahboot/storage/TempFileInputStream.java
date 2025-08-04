@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.basic.service.storage;
+package com.yeshimin.yeahboot.storage;
 
 import lombok.extern.slf4j.Slf4j;
 

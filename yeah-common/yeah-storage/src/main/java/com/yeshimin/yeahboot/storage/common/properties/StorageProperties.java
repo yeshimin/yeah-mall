@@ -1,5 +1,6 @@
-package com.yeshimin.yeahboot.basic.common.properties;
+package com.yeshimin.yeahboot.storage.common.properties;
 
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,11 @@ public class StorageProperties {
     @PostConstruct
     public void init() {
         log.info("init [yeah-boot.storage] properties... enabled: {}, impl: {}", enabled, impl);
+
+        if (!BooleanUtil.isTrue(enabled)) {
+            log.info("[yeah-boot.storage] is disabled");
+            return;
+        }
 
         // 检查local.base-path是否为空
         if (StrUtil.isBlank(impl.getLocal().getBasePath())) {
@@ -38,9 +44,8 @@ public class StorageProperties {
 
     /**
      * 是否启用
-     * 暂时没用到
      */
-    private Boolean enabled;
+    private Boolean enabled = false;
 
     /**
      * 实现
