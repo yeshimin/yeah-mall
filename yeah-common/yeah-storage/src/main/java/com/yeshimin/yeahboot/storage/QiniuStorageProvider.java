@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.basic.service.storage;
+package com.yeshimin.yeahboot.storage;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
@@ -12,11 +12,10 @@ import com.qiniu.storage.DownloadUrl;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-import com.yeshimin.yeahboot.basic.common.properties.StorageProperties;
-import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
-import com.yeshimin.yeahboot.data.repository.SysStorageRepo;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
+import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
+import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -41,8 +40,6 @@ public class QiniuStorageProvider implements StorageProvider {
     private static final long DOWNLOAD_TOKEN_DEFAULT_EXPIRE_SECONDS = 3600;
 
     private final StorageProperties storageProperties;
-
-    private final SysStorageRepo sysStorageRepo;
 
     private Auth auth;
     private UploadManager uploadManager;

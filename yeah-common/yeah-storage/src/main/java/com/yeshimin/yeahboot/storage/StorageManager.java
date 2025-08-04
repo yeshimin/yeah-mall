@@ -1,10 +1,11 @@
-package com.yeshimin.yeahboot.basic.service.storage;
+package com.yeshimin.yeahboot.storage;
 
-import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
-import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
-import com.yeshimin.yeahboot.data.repository.SysStorageRepo;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
+import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
+import com.yeshimin.yeahboot.data.repository.SysStorageRepo;
+import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StorageManager {
 
+    private final StorageProperties storageProperties;
+
     private final SysStorageRepo sysStorageRepo;
 
     private final List<StorageProvider> storageProviders;
@@ -34,6 +37,11 @@ public class StorageManager {
     @PostConstruct
     public void init() {
         log.info("storageProviders.size: {}", storageProviders.size());
+
+        if (!this.isEnabled()) {
+            log.info("[yeah-boot.storage] is disabled.");
+            return;
+        }
 
         if (storageProviders.isEmpty()) {
             throw new IllegalArgumentException("No storage providers found");
@@ -49,11 +57,13 @@ public class StorageManager {
 
     public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, Object file,
                                 @Nullable StorageTypeEnum storageType) {
+        this.checkEnabled();
         return this.put(bucketName, path, file, storageType, false);
     }
 
     public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, Object file,
                                 @Nullable StorageTypeEnum storageType, boolean isPublic) {
+        this.checkEnabled();
         SysStorageEntity entity = this.getProvider(storageType).put(bucketName, path, file, isPublic);
         entity.setIsPublic(isPublic);
         boolean r = entity.insert();
@@ -62,11 +72,13 @@ public class StorageManager {
     }
 
     public InputStream get(String fileKey) {
+        this.checkEnabled();
         SysStorageEntity sysStorage = sysStorageRepo.getOneByFileKey(fileKey);
         return this.get(fileKey, sysStorage);
     }
 
     public InputStream get(String fileKey, SysStorageEntity sysStorage) {
+        this.checkEnabled();
         StorageTypeEnum storageType = StorageTypeEnum.of(sysStorage.getStorageType());
         InputStream inputStream = this.getProvider(storageType).get(fileKey, sysStorage);
         if (inputStream == null) {
@@ -79,6 +91,7 @@ public class StorageManager {
      * 删除
      */
     public void delete(String fileKey) {
+        this.checkEnabled();
         SysStorageEntity sysStorage = sysStorageRepo.findOneByFileKey(fileKey);
         if (sysStorage == null) {
             return;
@@ -90,6 +103,7 @@ public class StorageManager {
     }
 
     public String getDownloadInfo(String fileKey, String fileName) {
+        this.checkEnabled();
         SysStorageEntity sysStorage = sysStorageRepo.getOneByFileKey(fileKey);
         return this.getProvider().getDownloadInfo(fileKey, fileName, sysStorage);
     }
@@ -109,5 +123,15 @@ public class StorageManager {
             return provider;
         }
         return storageProviders.get(0);
+    }
+
+    private boolean isEnabled() {
+        return storageProperties.getEnabled();
+    }
+
+    private void checkEnabled() {
+        if (!this.isEnabled()) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "存储功能未启用");
+        }
     }
 }

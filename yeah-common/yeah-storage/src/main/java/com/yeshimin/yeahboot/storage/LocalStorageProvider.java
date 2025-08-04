@@ -1,13 +1,13 @@
-package com.yeshimin.yeahboot.basic.service.storage;
+package com.yeshimin.yeahboot.storage;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
-import com.yeshimin.yeahboot.basic.common.properties.StorageProperties;
-import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
+import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
+import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

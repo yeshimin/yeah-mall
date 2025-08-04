@@ -1,20 +1,19 @@
 package com.yeshimin.yeahboot.basic.service.storage;
 
 import com.alibaba.fastjson2.JSON;
-import com.yeshimin.yeahboot.basic.common.properties.StorageProperties;
+import com.yeshimin.yeahboot.basic.domain.vo.FileUploadVo;
+import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
+import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.service.base.BaseService;
 import com.yeshimin.yeahboot.data.domain.entity.SysFileEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
-import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
-import com.yeshimin.yeahboot.basic.domain.vo.FileUploadVo;
 import com.yeshimin.yeahboot.data.repository.SysFileRepo;
-import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
-import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.storage.StorageManager;
+import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.InputStream;
-import java.net.URLEncoder;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FileService {
+public class FileService extends BaseService {
 
     private final SysFileRepo sysFileRepo;
 
@@ -81,7 +79,7 @@ public class FileService {
     public ResponseEntity<InputStreamResource> download(String fileKey) {
         SysFileEntity sysFile = this.getLocalFileByFileKey(fileKey);
         InputStream inputStream = storageManager.get(fileKey);
-        return this.wrap(sysFile.getOriginalName(), inputStream);
+        return super.wrap(sysFile.getOriginalName(), inputStream);
     }
 
     /**
@@ -104,23 +102,5 @@ public class FileService {
             throw new BaseException(ErrorCodeEnum.FAIL, "File not found: " + fileKey);
         }
         return sysFile;
-    }
-
-    @SneakyThrows
-    private ResponseEntity<InputStreamResource> wrap(String filename, InputStream inputStream) {
-        // 设置响应头
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
-
-        // 使用 RFC 6266 编码文件名
-        String encodedFilename = URLEncoder.encode(filename, "UTF-8").replaceAll("\\+", "%20");
-        headers.add("Content-Disposition", "attachment; filename*=UTF-8''" + encodedFilename);
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(new InputStreamResource(inputStream));
     }
 }
