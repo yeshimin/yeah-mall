@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
+import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -109,5 +111,25 @@ public class BannerService {
         log.info("banner.update.result: {}", r);
 
         return banner;
+    }
+
+    /**
+     * 删除
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public boolean delete(Long userId, Collection<Long> ids) {
+        // 批量检查：数据权限
+        if (bannerRepo.countByIdsAndNotMchId(userId, ids) > 0) {
+            throw new BaseException("包含无权限数据");
+        }
+
+        // 查询
+        List<BannerEntity> banners = bannerRepo.findListByIds(ids);
+        for (BannerEntity banner : banners) {
+            // 删除文件
+            storageManager.delete(banner.getImageUrl());
+        }
+
+        return bannerRepo.removeByIds(ids);
     }
 }

@@ -16,8 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collection;
 
 /**
  * Banner相关
@@ -64,5 +67,16 @@ public class BannerController extends ShopCrudController<BannerMapper, BannerEnt
         StorageTypeEnum storageTypeEnum = StorageTypeEnum.LOCAL;
         BannerEntity result = service.update(userId, dto, storageTypeEnum);
         return R.ok(result);
+    }
+
+    /**
+     * 删除
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
+    @PostMapping("/delete")
+    public R<Void> delete(@RequestBody Collection<Long> ids) {
+        Long userId = super.getUserId();
+        service.delete(userId, ids);
+        return R.ok();
     }
 }
