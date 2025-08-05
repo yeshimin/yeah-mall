@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.admin.auth;
 
 import cn.hutool.core.util.BooleanUtil;
+import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.auth.domain.vo.CaptchaVo;
 import com.yeshimin.yeahboot.auth.service.CaptchaService;
 import com.yeshimin.yeahboot.common.common.log.SysLog;
@@ -32,6 +33,7 @@ public class AdminAuthController extends BaseController {
     /**
      * 登录
      */
+    @PublicAccess
     @SysLog("登录")
     @PostMapping("/login")
     public R<LoginVo> login(@Valid @RequestBody LoginDto dto) {
@@ -44,6 +46,7 @@ public class AdminAuthController extends BaseController {
     /**
      * 图形验证码
      */
+    @PublicAccess
     @GetMapping("/captcha")
     public R<CaptchaVo> captcha() {
         Boolean captchaEnabled = yeahBootProperties.getCaptchaEnabled();

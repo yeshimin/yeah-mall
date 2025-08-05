@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.auth.common.config.security;
 import com.yeshimin.yeahboot.auth.service.AuthService;
 import com.yeshimin.yeahboot.common.common.log.MdcLogFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -13,13 +14,23 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+@Slf4j
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AuthService authService;
+
+    private final RequestMappingHandlerMapping handlerMapping;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -32,8 +43,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // mdc filter设置到认证filter之前，使相关日志尽早附带mdc信息
         http.addFilterBefore(new MdcLogFilter(), JwtTokenAuthenticationFilter.class);
 
+        Set<String> publicAccessUrls = this.getPublicAccessUrls();
+        log.info("Public access URLs: {}", publicAccessUrls);
+
         http.authorizeRequests()
-                .antMatchers("/**/auth/login", "/admin/auth/captcha", "/public/storage/download")
+//                .antMatchers("/**/auth/login", "/admin/auth/captcha", "/public/storage/download")
+                .antMatchers(publicAccessUrls.toArray(new String[0]))
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -62,5 +77,36 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         return new JwtTokenAuthenticationProvider(authService);
+    }
+
+    // ================================================================================
+
+    private Set<String> getPublicAccessUrls() {
+        Set<String> urls = new HashSet<>();
+
+        Map<RequestMappingInfo, HandlerMethod> handlerMethods = handlerMapping.getHandlerMethods();
+
+        for (Map.Entry<RequestMappingInfo, HandlerMethod> entry : handlerMethods.entrySet()) {
+            HandlerMethod handlerMethod = entry.getValue();
+
+            // 判断是否打了 @PublicAccess 且 enabled = true
+            PublicAccess access = handlerMethod.getMethodAnnotation(PublicAccess.class);
+            if (access != null && access.enabled()) {
+                RequestMappingInfo mappingInfo = entry.getKey();
+
+                // 获取该方法映射的 URL 路径
+                Set<String> patterns = new HashSet<>();
+                if (mappingInfo.getPathPatternsCondition() != null) {
+                    patterns = mappingInfo.getPathPatternsCondition().getPatternValues();
+                } else if (mappingInfo.getPatternsCondition() != null) {
+                    patterns = mappingInfo.getPatternsCondition().getPatterns();
+                } else {
+                    log.warn("No patterns found for method: {}", handlerMethod.getMethod().getName());
+                }
+                urls.addAll(patterns);
+            }
+        }
+
+        return urls;
     }
 }
