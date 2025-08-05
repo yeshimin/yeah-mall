@@ -45,7 +45,6 @@ public class PublicStorageService extends BaseService {
             throw new BaseException(ErrorCodeEnum.FAIL, "该文件不可公开访问");
         }
         InputStream inputStream = storageManager.get(fileKey, sysStorage);
-        String fullPath = storageManager.getFullPath(sysStorage);
-        return super.wrapForPreview(fullPath, inputStream);
+        return super.wrapForPreview(sysStorage.getOriginalName(), inputStream);
     }
 }
