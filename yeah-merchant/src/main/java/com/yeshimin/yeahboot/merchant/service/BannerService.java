@@ -9,7 +9,7 @@ import com.yeshimin.yeahboot.data.domain.entity.BannerEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.BannerRepo;
 import com.yeshimin.yeahboot.merchant.domain.dto.BannerCreateDto;
-import com.yeshimin.yeahboot.merchant.domain.vo.BannerUploadVo;
+import com.yeshimin.yeahboot.merchant.domain.dto.BannerUpdateDto;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class BannerService {
      * 创建
      */
     @Transactional(rollbackFor = Exception.class)
-    public BannerUploadVo create(Long userId, BannerCreateDto dto, StorageTypeEnum storageType) {
+    public BannerEntity create(Long userId, BannerCreateDto dto, StorageTypeEnum storageType) {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
 
@@ -68,10 +68,46 @@ public class BannerService {
         banner.setShopId(dto.getShopId());
         banner.setImageUrl(result.getFileKey());
         boolean r = banner.insert();
-        log.info("banner.result: {}", r);
+        log.info("banner.create.result: {}", r);
 
-        BannerUploadVo vo = new BannerUploadVo();
-        vo.setFileKey(result.getFileKey());
-        return vo;
+        return banner;
+    }
+
+    /**
+     * 更新
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public BannerEntity update(Long userId, BannerUpdateDto dto, StorageTypeEnum storageType) {
+        // 权限检查和控制
+        permissionService.checkMchAndShop(userId, dto);
+
+        // 查询banner
+        BannerEntity banner = bannerRepo.getOneById(dto.getId());
+
+        MultipartFile file = dto.getFile();
+        if (file != null) {
+            // 决定bucket，除了local存储方式需要使用this.bucket，其他方式都指定为null
+            String bucket = storageType == StorageTypeEnum.LOCAL ? this.bucket : null;
+            // path用日期
+            String path = YsmUtils.dateStr();
+            // 存储文件
+            SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true);
+            if (!result.getSuccess()) {
+                log.info("result: {}", JSON.toJSONString(result));
+                throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
+            }
+
+            // 先删除旧文件
+            storageManager.delete(banner.getImageUrl());
+
+            // 设置新的值
+            banner.setImageUrl(result.getFileKey());
+        }
+
+        // 更新Banner记录
+        boolean r = banner.updateById();
+        log.info("banner.update.result: {}", r);
+
+        return banner;
     }
 }
