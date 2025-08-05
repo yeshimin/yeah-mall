@@ -149,7 +149,6 @@ public class LocalStorageProvider implements StorageProvider {
         String fileName = getKeyWithSuffix(sysStorage.getFileKey(), sysStorage.getSuffix());
         // path + name + suffix
         String finalName = YsmUtils.path(sysStorage.getPath(), fileName);
-        finalName = "/" + finalName;
         String path = YsmUtils.path(sysStorage.getBasePath(), sysStorage.getBucket(), finalName);
         log.info("path: {}", path);
         return path;
