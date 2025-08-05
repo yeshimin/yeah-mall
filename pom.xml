@@ -116,6 +116,12 @@
                 <artifactId>yeah-generator</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
+            <!-- public module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-public</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
             <!-- storage module -->
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
