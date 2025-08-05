@@ -34,4 +34,18 @@ public class PublicStorageService extends BaseService {
         InputStream inputStream = storageManager.get(fileKey, sysStorage);
         return super.wrap(sysStorage.getOriginalName(), inputStream);
     }
+
+    /**
+     * 预览
+     */
+    public ResponseEntity<InputStreamResource> preview(String fileKey, boolean isPublic) {
+        SysStorageEntity sysStorage = sysStorageRepo.getOneByFileKey(fileKey);
+        // 访问公开文件场景时才进行校验
+        if (isPublic && !sysStorage.getIsPublic()) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "该文件不可公开访问");
+        }
+        InputStream inputStream = storageManager.get(fileKey, sysStorage);
+        String fullPath = storageManager.getFullPath(sysStorage);
+        return super.wrapForPreview(fullPath, inputStream);
+    }
 }

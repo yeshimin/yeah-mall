@@ -1,7 +1,9 @@
 package com.yeshimin.yeahboot.common.service.base;
 
+import cn.hutool.http.HttpUtil;
 import lombok.SneakyThrows;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,17 @@ public abstract class BaseService {
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(new InputStreamResource(inputStream));
+    }
+
+    @SneakyThrows
+    public ResponseEntity<InputStreamResource> wrapForPreview(String fullPath, InputStream inputStream) {
+        String contentType = HttpUtil.getMimeType(fullPath);
+        MediaType mediaType = MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream");
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .cacheControl(CacheControl.noCache())
                 .body(new InputStreamResource(inputStream));
     }
 }

@@ -5,6 +5,7 @@ import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
+import com.yeshimin.yeahboot.common.service.base.BaseService;
 import com.yeshimin.yeahboot.data.domain.entity.BannerEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.BannerRepo;
@@ -25,7 +26,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class BannerService {
+public class BannerService extends BaseService {
 
     private final PermissionService permissionService;
 

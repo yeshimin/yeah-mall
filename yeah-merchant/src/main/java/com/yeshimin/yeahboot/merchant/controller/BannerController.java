@@ -8,7 +8,6 @@ import com.yeshimin.yeahboot.data.repository.BannerRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.BannerCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.BannerUpdateDto;
-import com.yeshimin.yeahboot.merchant.domain.vo.BannerUploadVo;
 import com.yeshimin.yeahboot.merchant.service.BannerService;
 import com.yeshimin.yeahboot.merchant.service.PermissionService;
 import lombok.extern.slf4j.Slf4j;
