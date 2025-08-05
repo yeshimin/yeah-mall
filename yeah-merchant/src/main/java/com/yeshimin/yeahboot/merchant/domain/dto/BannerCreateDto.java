@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class BannerUploadDto extends ShopDataBaseDomain {
+public class BannerCreateDto extends ShopDataBaseDomain {
 
     @NotNull(message = "文件不能为空")
     private MultipartFile file;

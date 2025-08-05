@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.merchant.auth;
 
+import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.common.log.SysLog;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
@@ -26,6 +27,7 @@ public class MerchantAuthController extends BaseController {
     /**
      * 登录
      */
+    @PublicAccess
     @SysLog("登录")
     @PostMapping("/login")
     public R<LoginVo> login(@Valid @RequestBody LoginDto dto) {

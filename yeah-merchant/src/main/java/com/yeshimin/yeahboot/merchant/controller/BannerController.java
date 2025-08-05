@@ -6,7 +6,7 @@ import com.yeshimin.yeahboot.data.domain.entity.BannerEntity;
 import com.yeshimin.yeahboot.data.mapper.BannerMapper;
 import com.yeshimin.yeahboot.data.repository.BannerRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
-import com.yeshimin.yeahboot.merchant.domain.dto.BannerUploadDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.BannerCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.BannerUploadVo;
 import com.yeshimin.yeahboot.merchant.service.BannerService;
 import com.yeshimin.yeahboot.merchant.service.PermissionService;
@@ -40,15 +40,15 @@ public class BannerController extends ShopCrudController<BannerMapper, BannerEnt
     // ================================================================================
 
     /**
-     * 上传文件
+     * 创建
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':upload')")
-    @PostMapping("/upload")
-    public R<BannerUploadVo> upload(@Validated BannerUploadDto dto) {
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':create')")
+    @PostMapping("/create")
+    public R<BannerUploadVo> create(@Validated BannerCreateDto dto) {
         Long userId = super.getUserId();
         // 此处存储类型固定为本地存储
         StorageTypeEnum storageTypeEnum = StorageTypeEnum.LOCAL;
-        BannerUploadVo vo = service.upload(userId, dto, storageTypeEnum);
+        BannerUploadVo vo = service.create(userId, dto, storageTypeEnum);
         return R.ok(vo);
     }
 }

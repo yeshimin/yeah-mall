@@ -8,7 +8,7 @@ import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.data.domain.entity.BannerEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.BannerRepo;
-import com.yeshimin.yeahboot.merchant.domain.dto.BannerUploadDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.BannerCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.BannerUploadVo;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
@@ -42,10 +42,10 @@ public class BannerService {
     }
 
     /**
-     * 上传文件
+     * 创建
      */
     @Transactional(rollbackFor = Exception.class)
-    public BannerUploadVo upload(Long userId, BannerUploadDto dto, StorageTypeEnum storageType) {
+    public BannerUploadVo create(Long userId, BannerCreateDto dto, StorageTypeEnum storageType) {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
 
