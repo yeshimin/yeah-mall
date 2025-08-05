@@ -35,8 +35,8 @@ public abstract class BaseService {
     }
 
     @SneakyThrows
-    public ResponseEntity<InputStreamResource> wrapForPreview(String fullPath, InputStream inputStream) {
-        String contentType = HttpUtil.getMimeType(fullPath);
+    public ResponseEntity<InputStreamResource> wrapForPreview(String filename, InputStream inputStream) {
+        String contentType = HttpUtil.getMimeType(filename);
         MediaType mediaType = MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream");
 
         return ResponseEntity.ok()
