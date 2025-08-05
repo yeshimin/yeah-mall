@@ -36,6 +36,7 @@ public abstract class BaseService {
 
     @SneakyThrows
     public ResponseEntity<InputStreamResource> wrapForPreview(String filename, InputStream inputStream) {
+        // 并不能支持所有的MIME类型，图片的可以；待优化
         String contentType = HttpUtil.getMimeType(filename);
         MediaType mediaType = MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream");
 
