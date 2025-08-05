@@ -28,4 +28,13 @@ public class PublicStorageController extends BaseConstructor {
     public ResponseEntity<InputStreamResource> publicDownload(@RequestParam("fileKey") String fileKey) {
         return storageService.download(fileKey, true);
     }
+
+    /**
+     * 公开下载-预览（一般是图片）
+     */
+    @PublicAccess
+    @GetMapping("/preview")
+    public ResponseEntity<InputStreamResource> preview(@RequestParam("fileKey") String fileKey) {
+        return storageService.preview(fileKey, true);
+    }
 }

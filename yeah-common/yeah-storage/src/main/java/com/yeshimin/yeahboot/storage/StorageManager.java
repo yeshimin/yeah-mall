@@ -1,8 +1,10 @@
 package com.yeshimin.yeahboot.storage;
 
+import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.SysStorageRepo;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
@@ -102,10 +104,26 @@ public class StorageManager {
         this.getProvider(storageType).delete(fileKey, sysStorage);
     }
 
+    /**
+     * 获取下载信息
+     */
     public String getDownloadInfo(String fileKey, String fileName) {
         this.checkEnabled();
         SysStorageEntity sysStorage = sysStorageRepo.getOneByFileKey(fileKey);
         return this.getProvider().getDownloadInfo(fileKey, fileName, sysStorage);
+    }
+
+    /**
+     * 获取完整路径
+     */
+    public String getFullPath(SysStorageEntity sysStorage) {
+        // name + suffix
+        String fileName = this.getKeyWithSuffix(sysStorage.getFileKey(), sysStorage.getSuffix());
+        // path + name + suffix
+        String finalName = YsmUtils.path(sysStorage.getPath(), fileName);
+        String path = YsmUtils.path(sysStorage.getBasePath(), sysStorage.getBucket(), finalName);
+        log.info("path: {}", path);
+        return path;
     }
 
     // ================================================================================
@@ -133,5 +151,12 @@ public class StorageManager {
         if (!this.isEnabled()) {
             throw new BaseException(ErrorCodeEnum.FAIL, "存储功能未启用");
         }
+    }
+
+    /**
+     * getKeyWithSuffix
+     */
+    private String getKeyWithSuffix(String key, String suffix) {
+        return StrUtil.isBlank(suffix) ? key : key + "." + suffix;
     }
 }
