@@ -1,17 +1,17 @@
 package com.yeshimin.yeahboot.data.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
+import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 店铺商品分类表
+ * 平台商品分类表
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("s_product_category")
-public class ProductCategoryEntity extends ShopConditionBaseEntity<ProductCategoryEntity> {
+@TableName("plat_product_category")
+public class PlatProductCategoryEntity extends ConditionBaseEntity<PlatProductCategoryEntity> {
 
     /**
      * 父ID
