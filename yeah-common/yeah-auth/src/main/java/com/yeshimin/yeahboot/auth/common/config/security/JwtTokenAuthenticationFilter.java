@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Jwt Token认证过滤器 for Spring Security
@@ -22,9 +23,11 @@ import java.io.IOException;
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private AuthenticationManager authenticationManager;
+    private Set<String> publicAccessUrls;
 
-    public JwtTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public JwtTokenAuthenticationFilter(AuthenticationManager authenticationManager, Set<String> publicAccessUrls) {
         this.authenticationManager = authenticationManager;
+        this.publicAccessUrls = publicAccessUrls;
     }
 
     @Override
@@ -47,8 +50,8 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
      */
     private void authenticateIfRequired(HttpServletRequest request) {
         String token = this.extractToken(request);
-        if (StringUtils.isBlank(token)) {
-            log.debug("no token, as anonymous in later AnonymousAuthenticationFilter");
+        if (StringUtils.isBlank(token) || this.isPublicAccessUrl(request.getRequestURI())) {
+            log.debug("no token or public access, as anonymous in later AnonymousAuthenticationFilter");
             // 在过滤链AnonymousAuthenticationFilter中设置为匿名用户
             // 这里要先clear，否则在匿名Filter中会存在JwtTokenAuthenticationToken；具体原因暂时未知
             SecurityContextHolder.clearContext();
@@ -73,5 +76,14 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         } else {
             return authHeader.replace("Bearer ", "");
         }
+    }
+
+    /**
+     * isPublicAccessUrl
+     */
+    public boolean isPublicAccessUrl(String url) {
+        boolean r = publicAccessUrls.contains(url);
+        log.debug("isPublicAccessUrl: {}, url: {}", r, url);
+        return r;
     }
 }

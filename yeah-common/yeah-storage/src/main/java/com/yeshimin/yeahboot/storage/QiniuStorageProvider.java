@@ -18,6 +18,7 @@ import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +35,7 @@ import java.io.InputStream;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "yeah-boot.storage.impl.qiniu", name = "enabled", havingValue = "true")
 public class QiniuStorageProvider implements StorageProvider {
 
     private static final long UPLOAD_TOKEN_DEFAULT_EXPIRE_SECONDS = 60;

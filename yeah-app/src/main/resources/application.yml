@@ -8,7 +8,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     host: localhost
-    url: jdbc:mysql://${spring.datasource.host}:3306/yeah_boot?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useUnicode=true&zeroDateTimeBehavior=CONVERT_TO_NULL&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&allowMultiQueries=false&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true&useAffectedRows=false
+    url: jdbc:mysql://${spring.datasource.host}:3306/yeah_mall?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useUnicode=true&zeroDateTimeBehavior=CONVERT_TO_NULL&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&allowMultiQueries=false&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true&useAffectedRows=false
     username: root
     password: 123456
   # redis
@@ -63,6 +63,10 @@ auth:
         # 同一个账号的最大在线终端数量（默认-1，表示不限制）
         max-online-terminal-count: -1
 
-yeah:
+yeah-boot:
   # 是否开启验证码校验
   captcha-enabled: false
+  # ID编号生成器
+  id-generator:
+    alphabet: GQT0FNR3taz1vDVEjsSJ2biZmLB8qk6OCMndohlKf4IAw7xr9eYgXWPcuHpU5y
+    min-length: 8
