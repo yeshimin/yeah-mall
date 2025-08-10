@@ -39,12 +39,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // 不需要session
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.addFilterAfter(new JwtTokenAuthenticationFilter(authenticationManagerBean()), LogoutFilter.class);
-        // mdc filter设置到认证filter之前，使相关日志尽早附带mdc信息
-        http.addFilterBefore(new MdcLogFilter(), JwtTokenAuthenticationFilter.class);
-
         Set<String> publicAccessUrls = this.getPublicAccessUrls();
         log.info("Public access URLs: {}", publicAccessUrls);
+
+        http.addFilterAfter(new JwtTokenAuthenticationFilter(authenticationManagerBean(), publicAccessUrls), LogoutFilter.class);
+        // mdc filter设置到认证filter之前，使相关日志尽早附带mdc信息
+        http.addFilterBefore(new MdcLogFilter(), JwtTokenAuthenticationFilter.class);
 
         http.authorizeRequests()
 //                .antMatchers("/**/auth/login", "/admin/auth/captcha", "/public/storage/download")
