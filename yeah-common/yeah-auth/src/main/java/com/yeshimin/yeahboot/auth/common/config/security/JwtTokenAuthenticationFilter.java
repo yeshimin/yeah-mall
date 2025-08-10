@@ -81,7 +81,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     /**
      * isPublicAccessUrl
      */
-    public boolean isPublicAccessUrl(String url) {
+    private boolean isPublicAccessUrl(String url) {
         boolean r = publicAccessUrls.contains(url);
         log.debug("isPublicAccessUrl: {}, url: {}", r, url);
         return r;
