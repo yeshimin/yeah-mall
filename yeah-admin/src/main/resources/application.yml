@@ -19,6 +19,11 @@ spring:
     database: 1
     timeout: 10000
 
+# 接口文档相关
+springdoc:
+  swagger-ui:
+    path: /doc.html
+
 # dataSource decorator by p6spy
 # https://baomidou.com/guides/p6spy/
 # https://github.com/gavlyukovskiy/spring-boot-data-source-decorator

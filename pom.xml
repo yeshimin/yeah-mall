@@ -38,6 +38,7 @@
         <okhttp3.version>4.10.0</okhttp3.version>
         <minio.version>7.0.2</minio.version>
         <qiniu.version>[7.19.0, 7.19.99]</qiniu.version>
+        <springdoc.version>1.8.0</springdoc.version>
     </properties>
 
     <dependencyManagement>
@@ -187,6 +188,13 @@
                 <groupId>com.qiniu</groupId>
                 <artifactId>qiniu-java-sdk</artifactId>
                 <version>${qiniu.version}</version>
+            </dependency>
+
+            <!-- springdoc -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
