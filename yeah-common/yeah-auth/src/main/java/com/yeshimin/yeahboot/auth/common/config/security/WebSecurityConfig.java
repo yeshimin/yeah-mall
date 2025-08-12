@@ -40,6 +40,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         Set<String> publicAccessUrls = this.getPublicAccessUrls();
+        // for springdoc
+        publicAccessUrls.addAll(this.getUrlsForSpringdoc());
         log.info("Public access URLs: {}", publicAccessUrls);
 
         http.addFilterAfter(new JwtTokenAuthenticationFilter(authenticationManagerBean(), publicAccessUrls), LogoutFilter.class);
@@ -108,5 +110,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         return urls;
+    }
+
+    /**
+     * 获取静态资源路径 for springdoc
+     */
+    private Set<String> getUrlsForSpringdoc() {
+        Set<String> paths = new HashSet<>();
+        paths.add("/v3/api-docs/**");
+        paths.add("/**/*.html");
+        paths.add("/**/*.js");
+        paths.add("/**/*.css");
+        return paths;
     }
 }

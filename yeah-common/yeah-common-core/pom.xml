@@ -76,6 +76,12 @@
             <groupId>org.sqids</groupId>
             <artifactId>sqids</artifactId>
         </dependency>
+
+        <!-- springdoc -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
