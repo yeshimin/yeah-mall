@@ -8,8 +8,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.common.enums.ProductSortEnum;
 import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
+import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductVo;
-import com.yeshimin.yeahboot.app.domain.vo.ShopProductDetailVo;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +25,9 @@ public class AppProductSpuService {
 
     private final ProductSpuRepo productSpuRepo;
 
+    /**
+     * 查询
+     */
     public IPage<ProductVo> query(Page<ProductSpuEntity> page, ProductSpuQueryDto query) {
         LambdaQueryWrapper<ProductSpuEntity> wrapper = Wrappers.lambdaQuery();
         // 筛选条件
@@ -50,10 +53,10 @@ public class AppProductSpuService {
     }
 
     /**
-     * detail
+     * 详情
      */
-    public ShopProductDetailVo detail(Long id) {
+    public ProductDetailVo detail(Long id) {
         ProductSpuEntity entity = productSpuRepo.getOneById(id);
-        return BeanUtil.copyProperties(entity, ShopProductDetailVo.class);
+        return BeanUtil.copyProperties(entity, ProductDetailVo.class);
     }
 }

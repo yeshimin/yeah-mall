@@ -3,8 +3,8 @@ package com.yeshimin.yeahboot.app.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
+import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductVo;
-import com.yeshimin.yeahboot.app.domain.vo.ShopProductDetailVo;
 import com.yeshimin.yeahboot.app.service.AppProductSpuService;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
@@ -40,8 +40,9 @@ public class AppProductController extends BaseController {
     /**
      * 详情
      */
+    @PublicAccess
     @GetMapping("/detail")
-    public R<ShopProductDetailVo> detail(@RequestParam Long id) {
+    public R<ProductDetailVo> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));
     }
 }
