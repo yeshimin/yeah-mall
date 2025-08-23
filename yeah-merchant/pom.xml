@@ -70,6 +70,12 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- manticoresearch 全文检索 -->
+        <dependency>
+            <groupId>com.yeshimin</groupId>
+            <artifactId>manticoresearch-java-8</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

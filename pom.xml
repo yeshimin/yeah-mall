@@ -41,6 +41,7 @@
         <minio.version>7.0.2</minio.version>
         <qiniu.version>[7.19.0, 7.19.99]</qiniu.version>
         <springdoc.version>1.8.0</springdoc.version>
+        <manticoresearch.version>8.1.1</manticoresearch.version>
     </properties>
 
     <dependencyManagement>
@@ -216,6 +217,13 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+
+            <!-- manticoresearch 全文检索 -->
+            <dependency>
+                <groupId>com.yeshimin</groupId>
+                <artifactId>manticoresearch-java-8</artifactId>
+                <version>${manticoresearch.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
