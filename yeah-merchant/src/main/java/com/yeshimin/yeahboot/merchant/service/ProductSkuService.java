@@ -77,6 +77,10 @@ public class ProductSkuService {
         boolean r = sku.insert();
         log.debug("sku.save.result：{}", r);
 
+        // 更新SPU的最小和最大价格
+        List<ProductSkuEntity> listSku = productSkuRepo.findListBySpuId(spu.getId());
+        productSpuRepo.updateMinAndMaxPrice(spu, listSku, true);
+
         // add sku specs
         this.addSkuSpecs(listProductSpec, userId, sku.getShopId(), sku.getSpuId(), sku.getId(), dto.getOptIds());
 
@@ -119,26 +123,26 @@ public class ProductSkuService {
         permissionService.checkMchAndShop(userId, dto);
 
         // 检查：SKU ID权限
-        ProductSkuEntity old = permissionService.getSku(dto.getShopId(), dto.getSkuId());
+        ProductSkuEntity oldSku = permissionService.getSku(dto.getShopId(), dto.getSkuId());
 
         // 按需检查：是否已存在相同规格配置的sku
         String newSpecCode = productSkuRepo.generateSpecCode(dto.getOptIds());
-        if (!Objects.equals(newSpecCode, old.getSpecCode()) &&
-                productSkuRepo.countBySpuIdAndSpecCode(old.getSpuId(), newSpecCode) > 0) {
+        if (!Objects.equals(newSpecCode, oldSku.getSpecCode()) &&
+                productSkuRepo.countBySpuIdAndSpecCode(oldSku.getSpuId(), newSpecCode) > 0) {
             throw new BaseException("已存在相同规格配置的sku");
         }
 
         // 按需检查：名称是否已存在
-        if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(old.getName(), dto.getName()) &&
-                productSkuRepo.countBySpuIdAndName(old.getSpuId(), dto.getName()) > 0) {
+        if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(oldSku.getName(), dto.getName()) &&
+                productSkuRepo.countBySpuIdAndName(oldSku.getSpuId(), dto.getName()) > 0) {
             throw new BaseException("同一个商品SPU下，已存在相同名称的SKU");
         }
 
         // 按需更新规格配置
-        if (!Objects.equals(newSpecCode, old.getSpecCode())) {
+        if (!Objects.equals(newSpecCode, oldSku.getSpecCode())) {
             // 查询spu规格选项配置
-            List<ProductSpecEntity> listProductSpec = productSpecRepo.findListBySpuId(old.getSpuId());
-            List<ProductSpecOptEntity> listProductSpecOpt = productSpecOptRepo.findListBySpuId(old.getSpuId());
+            List<ProductSpecEntity> listProductSpec = productSpecRepo.findListBySpuId(oldSku.getSpuId());
+            List<ProductSpecOptEntity> listProductSpecOpt = productSpecOptRepo.findListBySpuId(oldSku.getSpuId());
             // group by specId
             Map<Long, List<ProductSpecOptEntity>> groupProductSpecOpt =
                     listProductSpecOpt.stream().collect(Collectors.groupingBy(ProductSpecOptEntity::getSpecId));
@@ -147,33 +151,39 @@ public class ProductSkuService {
             this.checkSkuSpecs(listProductSpec, dto.getOptIds(), groupProductSpecOpt);
 
             // clear sku specs
-            boolean clearResult = productSkuSpecRepo.deleteBySkuId(old.getId());
+            boolean clearResult = productSkuSpecRepo.deleteBySkuId(oldSku.getId());
             log.debug("skuSpec.delete.result：{}", clearResult);
 
             // add sku specs
-            this.addSkuSpecs(listProductSpec, userId, old.getShopId(), old.getSpuId(), old.getId(), dto.getOptIds());
+            this.addSkuSpecs(
+                    listProductSpec, userId, oldSku.getShopId(), oldSku.getSpuId(), oldSku.getId(), dto.getOptIds());
         }
 
         // 更新sku
-        old.setName(this.generateSkuSpecName(dto.getName(), dto.getOptIds()));
-        old.setSpecCode(newSpecCode);
+        oldSku.setName(this.generateSkuSpecName(dto.getName(), dto.getOptIds()));
+        oldSku.setSpecCode(newSpecCode);
         if (dto.getPrice() != null) {
-            old.setPrice(dto.getPrice());
+            oldSku.setPrice(dto.getPrice());
         }
         if (dto.getStock() != null) {
-            old.setStock(dto.getStock());
+            oldSku.setStock(dto.getStock());
         }
-
-        boolean r = productSkuRepo.updateById(old);
+        boolean r = productSkuRepo.updateById(oldSku);
         log.debug("update.result：{}", r);
 
+        // 获取spu
+        ProductSpuEntity spu = productSpuRepo.getOneById(oldSku.getSpuId());
+
+        // 更新SPU的最小和最大价格
+        List<ProductSkuEntity> listSku = productSkuRepo.findListBySpuId(spu.getId());
+        productSpuRepo.updateMinAndMaxPrice(spu, listSku, true);
+
         // 同步到全文搜索引擎
-        ProductSpuEntity spu = productSpuRepo.getOneById(old.getSpuId());
         List<String> skuNames = this.getSkuNames(spu.getId());
         List<String> skuSpecs = this.getSkuSpecs(spu.getId());
         fullTextSearchService.syncProduct(spu, skuNames, skuSpecs, true);
 
-        return old;
+        return oldSku;
     }
 
     /**
@@ -194,6 +204,10 @@ public class ProductSkuService {
         // 删除sku
         boolean r = productSkuRepo.removeByIds(ids);
         log.debug("sku.delete.result：{}", r);
+
+        // 更新SPU的最小和最大价格
+        List<ProductSkuEntity> listSku = productSkuRepo.findListBySpuId(spu.getId());
+        productSpuRepo.updateMinAndMaxPrice(spu, listSku, true);
 
         // 同步到全文搜索引擎
         List<String> skuNames = this.getSkuNames(spu.getId());
