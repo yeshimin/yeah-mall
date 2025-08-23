@@ -105,4 +105,14 @@ public class ProductSkuRepo extends BaseRepo<ProductSkuMapper, ProductSkuEntity>
         }
         return productSkuMapper.occurStock(id, quantity);
     }
+
+    /**
+     * findListBySpuId
+     */
+    public List<ProductSkuEntity> findListBySpuId(Long spuId) {
+        if (spuId == null) {
+            throw new IllegalArgumentException("spuId不能为空");
+        }
+        return lambdaQuery().eq(ProductSkuEntity::getSpuId, spuId).list();
+    }
 }

@@ -109,6 +109,10 @@ auth:
         # 同一个账号的最大在线终端数量（默认-1，表示不限制）
         max-online-terminal-count: -1
 
+# ManticoreSearch
+manticore-search:
+  base-path: http://localhost:9308
+
 yeah-boot:
   # 是否开启验证码校验
   captcha-enabled: false

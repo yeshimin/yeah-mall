@@ -24,6 +24,9 @@ public class ProductSkuService {
 
     private final PermissionService permissionService;
 
+    private final FullTextSearchService fullTextSearchService;
+
+    private final ProductSpuRepo productSpuRepo;
     private final ProductSkuRepo productSkuRepo;
     private final ProductSpecRepo productSpecRepo;
     private final ProductSpecOptRepo productSpecOptRepo;
@@ -39,7 +42,7 @@ public class ProductSkuService {
         permissionService.checkMchAndShop(userId, dto);
 
         // 检查：SPU ID权限
-        permissionService.checkSpu(dto.getShopId(), dto.getSpuId());
+        ProductSpuEntity spu = permissionService.getSpu(dto.getShopId(), dto.getSpuId());
 
         // 检查：是否已存在相同规格配置的sku
         if (productSkuRepo.countBySpuIdAndSpecCode(dto.getSpuId(), dto.getOptIds()) > 0) {
@@ -76,6 +79,11 @@ public class ProductSkuService {
 
         // add sku specs
         this.addSkuSpecs(listProductSpec, userId, sku.getShopId(), sku.getSpuId(), sku.getId(), dto.getOptIds());
+
+        // 同步到全文搜索引擎
+        List<String> skuNames = this.getSkuNames(spu.getId());
+        List<String> skuSpecs = this.getSkuSpecs(spu.getId());
+        fullTextSearchService.syncProduct(spu, skuNames, skuSpecs, false);
 
         return sku;
     }
@@ -158,6 +166,13 @@ public class ProductSkuService {
 
         boolean r = productSkuRepo.updateById(old);
         log.debug("update.result：{}", r);
+
+        // 同步到全文搜索引擎
+        ProductSpuEntity spu = productSpuRepo.getOneById(old.getSpuId());
+        List<String> skuNames = this.getSkuNames(spu.getId());
+        List<String> skuSpecs = this.getSkuSpecs(spu.getId());
+        fullTextSearchService.syncProduct(spu, skuNames, skuSpecs, true);
+
         return old;
     }
 
@@ -171,10 +186,21 @@ public class ProductSkuService {
             throw new BaseException("包含无权限数据");
         }
 
+        // 查询spu
+        ProductSpuEntity spu = productSpuRepo.getOneById(productSkuRepo.getOneById(ids.iterator().next()).getSpuId());
+
         // 删除sku规格配置
         productSkuSpecRepo.deleteBySkuIds(ids);
         // 删除sku
-        return productSkuRepo.removeByIds(ids);
+        boolean r = productSkuRepo.removeByIds(ids);
+        log.debug("sku.delete.result：{}", r);
+
+        // 同步到全文搜索引擎
+        List<String> skuNames = this.getSkuNames(spu.getId());
+        List<String> skuSpecs = this.getSkuSpecs(spu.getId());
+        fullTextSearchService.syncProduct(spu, skuNames, skuSpecs, true);
+
+        return r;
     }
 
     // ================================================================================
@@ -231,5 +257,24 @@ public class ProductSkuService {
                 throw new BaseException("参数optId:" + optId + "不正确，未在对应规格选项配置中找到");
             }
         }
+    }
+
+    /**
+     * getSkuNames
+     */
+    private List<String> getSkuNames(Long spuId) {
+        return productSkuRepo.findListBySpuId(spuId).stream()
+                .map(ProductSkuEntity::getName)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * getSkuSpecs
+     */
+    private List<String> getSkuSpecs(Long spuId) {
+        List<Long> optIds = productSkuSpecRepo.findListBySpuId(spuId)
+                .stream().map(ProductSkuSpecEntity::getOptId).collect(Collectors.toList());
+        return productSpecOptDefRepo.findListByIds(optIds)
+                .stream().map(ProductSpecOptDefEntity::getOptName).collect(Collectors.toList());
     }
 }

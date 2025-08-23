@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 /**
  * 商品SPU表
@@ -28,4 +29,19 @@ public class ProductSpuEntity extends ShopConditionBaseEntity<ProductSpuEntity> 
      */
     @NotBlank(message = "商品名称不能为空", groups = {Create.class})
     private String name;
+
+    /**
+     * 销量
+     */
+    private Long sales;
+
+    /**
+     * sku最低价
+     */
+    private BigDecimal minPrice;
+
+    /**
+     * sku最高价
+     */
+    private BigDecimal maxPrice;
 }

@@ -63,4 +63,14 @@ public class ProductSkuSpecRepo extends BaseRepo<ProductSkuSpecMapper, ProductSk
         }
         return lambdaUpdate().in(ProductSkuSpecEntity::getSpuId, spuIds).remove();
     }
+
+    /**
+     * findListBySpuId
+     */
+    public List<ProductSkuSpecEntity> findListBySpuId(Long spuId) {
+        if (spuId == null) {
+            throw new IllegalArgumentException("spuId不能为空");
+        }
+        return lambdaQuery().eq(ProductSkuSpecEntity::getSpuId, spuId).list();
+    }
 }

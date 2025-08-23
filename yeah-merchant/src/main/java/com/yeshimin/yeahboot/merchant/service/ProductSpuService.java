@@ -28,6 +28,8 @@ public class ProductSpuService {
 
     private final PermissionService permissionService;
 
+    private final FullTextSearchService fullTextSearchService;
+
     private final ProductSpuRepo productSpuRepo;
     private final ProductSkuRepo productSkuRepo;
     private final ProductSkuSpecRepo productSkuSpecRepo;
@@ -66,6 +68,9 @@ public class ProductSpuService {
         specs.setSpuId(spu.getId());
         specs.setSpecs(dto.getSpecs());
         this.setSpec(userId, specs);
+
+        // 同步到全文搜索引擎
+        fullTextSearchService.syncProduct(spu, null, null, false);
 
         return spu;
     }
@@ -113,11 +118,7 @@ public class ProductSpuService {
         });
 
         // 查询规格配置信息
-        ProductSpuSpecQueryDto specQuery = new ProductSpuSpecQueryDto();
-        specQuery.setMchId(entity.getMchId());
-        specQuery.setShopId(entity.getShopId());
-        specQuery.setSpuId(entity.getId());
-        List<ProductSpecVo> specs = this.querySpec(userId, specQuery);
+        List<ProductSpecVo> specs = this.querySpec(userId, entity);
         vo.setSpecs(specs);
 
         return vo;
@@ -156,6 +157,11 @@ public class ProductSpuService {
         specs.setSpecs(dto.getSpecs());
         this.setSpec(userId, specs);
 
+        // 同步到全文搜索引擎
+        List<String> skuNames = this.getSkuNames(old.getId());
+        List<String> skuSpecs = this.getSkuSpecs(old.getId());
+        fullTextSearchService.syncProduct(old, skuNames, skuSpecs, true);
+
         return r;
     }
 
@@ -175,6 +181,11 @@ public class ProductSpuService {
         productSpecOptRepo.deleteBySpuIds(ids);
         // 删除spu
         productSpuRepo.removeByIds(ids);
+
+        for (Long id : ids) {
+            // 删除全文索引
+            fullTextSearchService.deleteIndex("products", id);
+        }
     }
 
     /**
@@ -252,6 +263,17 @@ public class ProductSpuService {
     /**
      * 查询商品spu规格
      */
+    private List<ProductSpecVo> querySpec(Long userId, ProductSpuEntity spu) {
+        ProductSpuSpecQueryDto specQuery = new ProductSpuSpecQueryDto();
+        specQuery.setMchId(spu.getMchId());
+        specQuery.setShopId(spu.getShopId());
+        specQuery.setSpuId(spu.getId());
+        return this.querySpec(userId, specQuery);
+    }
+
+    /**
+     * 查询商品spu规格
+     */
     public List<ProductSpecVo> querySpec(Long userId, ProductSpuSpecQueryDto query) {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, query);
@@ -295,5 +317,26 @@ public class ProductSpuService {
 
             return specVo;
         }).sorted(Comparator.comparing(ProductSpecVo::getSort)).collect(Collectors.toList());
+    }
+
+    // ================================================================================
+
+    /**
+     * getSkuNames
+     */
+    private List<String> getSkuNames(Long spuId) {
+        return productSkuRepo.findListBySpuId(spuId).stream()
+                .map(ProductSkuEntity::getName)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * getSkuSpecs
+     */
+    private List<String> getSkuSpecs(Long spuId) {
+        List<Long> optIds = productSkuSpecRepo.findListBySpuId(spuId)
+                .stream().map(ProductSkuSpecEntity::getOptId).collect(Collectors.toList());
+        return productSpecOptDefRepo.findListByIds(optIds)
+                .stream().map(ProductSpecOptDefEntity::getOptName).collect(Collectors.toList());
     }
 }
