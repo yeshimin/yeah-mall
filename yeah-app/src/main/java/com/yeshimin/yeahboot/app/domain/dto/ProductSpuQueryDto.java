@@ -20,6 +20,7 @@ public class ProductSpuQueryDto extends BaseDomain {
     /**
      * 关键词
      */
+    @NotNull(message = "关键词不能为空")
     private String keyword;
 
     /**
@@ -28,4 +29,9 @@ public class ProductSpuQueryDto extends BaseDomain {
     @NotNull(message = "商品排序选项不能为空")
     @EnumValue(enumClass = ProductSortEnum.class, message = "商品排序枚举不正确")
     private String sortBy;
+
+    /**
+     * 滚动分页token
+     */
+    private String scrollToken;
 }

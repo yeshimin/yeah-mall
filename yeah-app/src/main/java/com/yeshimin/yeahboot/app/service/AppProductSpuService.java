@@ -1,11 +1,9 @@
 package com.yeshimin.yeahboot.app.service;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.manticoresearch.client.model.SearchResponse;
 import com.yeshimin.yeahboot.app.common.enums.ProductSortEnum;
 import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
@@ -16,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -25,31 +25,27 @@ public class AppProductSpuService {
 
     private final ProductSpuRepo productSpuRepo;
 
+    private final AppFullTextSearchService fullTextSearchService;
+
     /**
      * 查询
      */
     public IPage<ProductVo> query(Page<ProductSpuEntity> page, ProductSpuQueryDto query) {
-        LambdaQueryWrapper<ProductSpuEntity> wrapper = Wrappers.lambdaQuery();
-        // 筛选条件
-        if (StrUtil.isNotBlank(query.getKeyword())) {
-            wrapper.like(ProductSpuEntity::getName, query.getKeyword());
-        }
-        // 排序
-        switch (Objects.requireNonNull(ProductSortEnum.of(query.getSortBy()))) {
-            case DEFAULT:
-                wrapper.orderByDesc(ProductSpuEntity::getCreateTime);
-                break;
-            case SALES:
-                // TODO
-                break;
-            case PRICE:
-                // TODO
-                break;
-            default:
-                wrapper.orderByDesc(ProductSpuEntity::getCreateTime);
-                break;
-        }
-        return productSpuRepo.page(page, wrapper).convert(e -> BeanUtil.copyProperties(e, ProductVo.class));
+        // 从全文检索引擎搜索
+        SearchResponse searchResponse = fullTextSearchService.searchProduct( query.getKeyword(),
+                ProductSortEnum.of(query.getSortBy()), query.getScrollToken(), (int) page.getSize());
+
+        // 剩余总数（包含当前返回的）
+        Integer total = searchResponse.getHits().getTotal();
+        Object source = searchResponse.getHits().getHits().get(0).getSource();
+        String scrollToken = searchResponse.getScroll();
+
+        //
+        List<Long> ids = Arrays.asList(1L, 2L, 3L);
+        productSpuRepo.findListByIds(ids);
+
+//        return productSpuRepo.page(page, wrapper).convert(e -> BeanUtil.copyProperties(e, ProductVo.class));
+        return null;
     }
 
     /**

@@ -10,8 +10,10 @@ import lombok.Getter;
 public enum ProductSortEnum implements IValueEnum {
 
     DEFAULT("1", "综合"),
-    SALES("2", "销量"),
-    PRICE("3", "价格");
+    SALES_ASC("2", "销量正序"),
+    SALES_DESC("3", "销量倒序"),
+    PRICE_ASC("4", "价格正序"),
+    PRICE_DESC("5", "价格倒序");
 
     private final String value;
     private final String desc;

@@ -7,7 +7,7 @@ import com.manticoresearch.client.api.IndexApi;
 import com.manticoresearch.client.api.SearchApi;
 import com.manticoresearch.client.model.*;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
-import com.yeshimin.yeahboot.merchant.common.properties.ManticoreSearchProperties;
+import com.yeshimin.yeahboot.common.common.properties.ManticoreSearchProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
