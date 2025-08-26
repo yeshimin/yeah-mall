@@ -34,4 +34,9 @@ public class ProductSpuQueryDto extends BaseDomain {
      * 滚动分页token
      */
     private String scrollToken;
+
+    /**
+     * 分页大小
+     */
+    private Integer pageSize;
 }

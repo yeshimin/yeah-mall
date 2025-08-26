@@ -1,11 +1,10 @@
 package com.yeshimin.yeahboot.app.service;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.manticoresearch.client.model.SearchResponse;
 import com.yeshimin.yeahboot.app.common.enums.ProductSortEnum;
 import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
+import com.yeshimin.yeahboot.app.domain.vo.AppProductQueryVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductVo;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
@@ -14,9 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -30,22 +29,48 @@ public class AppProductSpuService {
     /**
      * 查询
      */
-    public IPage<ProductVo> query(Page<ProductSpuEntity> page, ProductSpuQueryDto query) {
+    public AppProductQueryVo query(ProductSpuQueryDto query) {
         // 从全文检索引擎搜索
-        SearchResponse searchResponse = fullTextSearchService.searchProduct( query.getKeyword(),
-                ProductSortEnum.of(query.getSortBy()), query.getScrollToken(), (int) page.getSize());
+        SearchResponse searchResponse = fullTextSearchService.searchProduct(query.getKeyword(),
+                ProductSortEnum.of(query.getSortBy()), query.getScrollToken(), query.getPageSize());
 
         // 剩余总数（包含当前返回的）
         Integer total = searchResponse.getHits().getTotal();
-        Object source = searchResponse.getHits().getHits().get(0).getSource();
         String scrollToken = searchResponse.getScroll();
+        List<Map<String, Object>> listData = searchResponse.getHits().getHits().stream().map(hit -> {
+            Map<String, Object> source = ((Map<String, Object>) hit.getSource());
+            source.put("id", hit.getId());
+            return source;
+        }).collect(Collectors.toList());
 
-        //
-        List<Long> ids = Arrays.asList(1L, 2L, 3L);
-        productSpuRepo.findListByIds(ids);
+        List<Long> ids = listData.stream().map(e -> (Long) e.get("id")).collect(Collectors.toList());
 
-//        return productSpuRepo.page(page, wrapper).convert(e -> BeanUtil.copyProperties(e, ProductVo.class));
-        return null;
+        List<ProductSpuEntity> listSpu = productSpuRepo.findListByIds(ids);
+        // list to map
+        Map<Long, ProductSpuEntity> mapSpu =
+                listSpu.stream().collect(Collectors.toMap(ProductSpuEntity::getId, spu -> spu));
+
+        List<ProductVo> listVo = listData.stream().filter(source -> {
+            Long id = (Long) source.get("id");
+            return mapSpu.containsKey(id);
+        }).map(source -> {
+            Long id = (Long) source.get("id");
+            ProductSpuEntity spu = mapSpu.get(id);
+
+            ProductVo vo = new ProductVo();
+            vo.setId(spu.getId());
+            vo.setName(spu.getName());
+            vo.setSales(spu.getSales());
+            vo.setMinPrice(spu.getMinPrice());
+            vo.setMaxPrice(spu.getMaxPrice());
+            return vo;
+        }).collect(Collectors.toList());
+
+        AppProductQueryVo result = new AppProductQueryVo();
+        result.setData(listVo);
+        result.setTotal(total);
+        result.setScrollToken(scrollToken);
+        return result;
     }
 
     /**
