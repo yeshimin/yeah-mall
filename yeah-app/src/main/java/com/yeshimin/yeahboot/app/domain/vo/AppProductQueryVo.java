@@ -32,4 +32,10 @@ public class AppProductQueryVo extends BaseDomain {
      */
     @Schema(description = "滚动token")
     private String scrollToken;
+
+    /**
+     * 是否还有更多数据
+     */
+    @Schema(description = "是否还有更多数据")
+    private Boolean hasMore;
 }

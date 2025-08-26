@@ -36,7 +36,11 @@ public class AppProductSpuService {
 
         // 剩余总数（包含当前返回的）
         Integer total = searchResponse.getHits().getTotal();
+        // 当前匹配返回的
+        Integer size = searchResponse.getHits().getHits().size();
+        // 滚动token
         String scrollToken = searchResponse.getScroll();
+        // to List<Map>
         List<Map<String, Object>> listData = searchResponse.getHits().getHits().stream().map(hit -> {
             Map<String, Object> source = ((Map<String, Object>) hit.getSource());
             source.put("id", hit.getId());
@@ -45,6 +49,7 @@ public class AppProductSpuService {
 
         List<Long> ids = listData.stream().map(e -> (Long) e.get("id")).collect(Collectors.toList());
 
+        // 查业务库
         List<ProductSpuEntity> listSpu = productSpuRepo.findListByIds(ids);
         // list to map
         Map<Long, ProductSpuEntity> mapSpu =
@@ -70,6 +75,7 @@ public class AppProductSpuService {
         result.setData(listVo);
         result.setTotal(total);
         result.setScrollToken(scrollToken);
+        result.setHasMore(total > size);
         return result;
     }
 
