@@ -37,4 +37,12 @@ public class IdServiceTests {
 
         System.out.println("Shuffled Alphabet: " + shuffled);
     }
+
+    @Test
+    public void testNextEncodedId() {
+        for (int i = 0; i < 10; i++) {
+            String id = idService.nextEncodedId();
+            log.info("id: {}", id);
+        }
+    }
 }

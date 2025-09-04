@@ -67,7 +67,6 @@ public class QiniuStorageProvider implements StorageProvider {
 
     @Override
     public SysStorageEntity put(@Nullable String bucket, @Nullable String path, Object file, boolean isPublic) {
-
         MultipartFile mFile = (MultipartFile) file;
 
         // 生成fileKey

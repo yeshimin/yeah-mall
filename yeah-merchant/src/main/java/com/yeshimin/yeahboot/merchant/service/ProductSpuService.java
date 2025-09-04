@@ -2,10 +2,14 @@ package com.yeshimin.yeahboot.merchant.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
+import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
+import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.dto.*;
@@ -13,11 +17,16 @@ import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuVo;
+import com.yeshimin.yeahboot.storage.StorageManager;
+import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,8 +48,20 @@ public class ProductSpuService {
     private final ProductSpecOptRepo productSpecOptRepo;
     private final ProductCategoryRepo productCategoryRepo;
 
+    private final StorageProperties storageProperties;
+    private final StorageManager storageManager;
+
+    private String bucket;
+    private String path;
+
+    @PostConstruct
+    public void init() {
+        this.bucket = storageProperties.getBiz().getProduct().getBucket();
+        this.path = storageProperties.getBiz().getProduct().getPath();
+    }
+
     @Transactional(rollbackFor = Exception.class)
-    public ProductSpuEntity create(Long userId, ProductSpuCreateDto dto) {
+    public ProductSpuEntity create(Long userId, ProductSpuCreateDto dto, @Nullable SysStorageEntity sysStorage) {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
 
@@ -58,6 +79,10 @@ public class ProductSpuService {
         spu.setShopId(dto.getShopId());
         spu.setCategoryId(dto.getCategoryId());
         spu.setName(dto.getName());
+        // 设置文件key
+        if (sysStorage != null) {
+//            spu.setImageUrl(sysStorage.getFileKey());
+        }
         boolean r = productSpuRepo.save(spu);
         log.debug("spu.save.result：{}", r);
 
@@ -317,6 +342,25 @@ public class ProductSpuService {
 
             return specVo;
         }).sorted(Comparator.comparing(ProductSpecVo::getSort)).collect(Collectors.toList());
+    }
+
+    // ================================================================================
+
+    /**
+     * 存储文件，获取文件key
+     */
+    public SysStorageEntity storeFile(MultipartFile file, StorageTypeEnum storageType) {
+        // 决定bucket，除了local存储方式需要使用this.bucket，其他方式都指定为null
+        String bucket = storageType == StorageTypeEnum.LOCAL ? this.bucket : null;
+        // path用日期
+        String path = YsmUtils.dateStr();
+        // 存储文件
+        SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true);
+        if (!result.getSuccess()) {
+            log.info("result: {}", JSON.toJSONString(result));
+            throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
+        }
+        return result;
     }
 
     // ================================================================================

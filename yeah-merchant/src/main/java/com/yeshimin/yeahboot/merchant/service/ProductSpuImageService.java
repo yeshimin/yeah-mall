@@ -6,11 +6,11 @@ import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.common.service.base.BaseService;
-import com.yeshimin.yeahboot.data.domain.entity.BannerEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ProductSpuImageEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
-import com.yeshimin.yeahboot.data.repository.BannerRepo;
-import com.yeshimin.yeahboot.merchant.domain.dto.BannerCreateDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.BannerUpdateDto;
+import com.yeshimin.yeahboot.data.repository.ProductSpuImageRepo;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuImageCreateDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuImageUpdateDto;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +26,11 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class BannerService extends BaseService {
+public class ProductSpuImageService extends BaseService {
 
     private final PermissionService permissionService;
 
-    private final BannerRepo bannerRepo;
+    private final ProductSpuImageRepo productSpuImageRepo;
 
     private final StorageProperties storageProperties;
     private final StorageManager storageManager;
@@ -40,17 +40,18 @@ public class BannerService extends BaseService {
 
     @PostConstruct
     public void init() {
-        this.bucket = storageProperties.getBiz().getBanner().getBucket();
-        this.path = storageProperties.getBiz().getBanner().getPath();
+        this.bucket = storageProperties.getBiz().getProduct().getBucket();
+        this.path = storageProperties.getBiz().getProduct().getPath();
     }
 
     /**
      * 创建
      */
     @Transactional(rollbackFor = Exception.class)
-    public BannerEntity create(Long userId, BannerCreateDto dto, StorageTypeEnum storageType) {
+    public ProductSpuImageEntity create(Long userId, ProductSpuImageCreateDto dto, StorageTypeEnum storageType) {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
+        permissionService.checkSpu(dto.getShopId(), dto.getSpuId());
 
         MultipartFile file = dto.getFile();
 
@@ -65,27 +66,28 @@ public class BannerService extends BaseService {
             throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
         }
 
-        // 添加Banner记录
-        BannerEntity banner = new BannerEntity();
-        banner.setMchId(dto.getMchId());
-        banner.setShopId(dto.getShopId());
-        banner.setImageUrl(result.getFileKey());
-        boolean r = banner.insert();
-        log.info("banner.create.result: {}", r);
+        // 添加记录
+        ProductSpuImageEntity entity = new ProductSpuImageEntity();
+        entity.setMchId(dto.getMchId());
+        entity.setShopId(dto.getShopId());
+        entity.setSpuId(dto.getSpuId());
+        entity.setImageUrl(result.getFileKey());
+        boolean r = entity.insert();
+        log.info("productSpuImage.create.result: {}", r);
 
-        return banner;
+        return entity;
     }
 
     /**
      * 更新
      */
     @Transactional(rollbackFor = Exception.class)
-    public BannerEntity update(Long userId, BannerUpdateDto dto, StorageTypeEnum storageType) {
+    public ProductSpuImageEntity update(Long userId, ProductSpuImageUpdateDto dto, StorageTypeEnum storageType) {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
 
-        // 查询banner
-        BannerEntity banner = bannerRepo.getOneById(dto.getId());
+        // 查询
+        ProductSpuImageEntity entity = productSpuImageRepo.getOneById(dto.getId());
 
         MultipartFile file = dto.getFile();
         if (file != null) {
@@ -101,17 +103,17 @@ public class BannerService extends BaseService {
             }
 
             // 先删除旧文件
-            storageManager.delete(banner.getImageUrl());
+            storageManager.delete(entity.getImageUrl());
 
             // 设置新的值
-            banner.setImageUrl(result.getFileKey());
+            entity.setImageUrl(result.getFileKey());
         }
 
-        // 更新Banner记录
-        boolean r = banner.updateById();
-        log.info("banner.update.result: {}", r);
+        // 更新记录
+        boolean r = entity.updateById();
+        log.info("productSpuImage.update.result: {}", r);
 
-        return banner;
+        return entity;
     }
 
     /**
@@ -120,17 +122,17 @@ public class BannerService extends BaseService {
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long userId, Collection<Long> ids) {
         // 批量检查：数据权限
-        if (bannerRepo.countByIdsAndNotMchId(userId, ids) > 0) {
+        if (productSpuImageRepo.countByIdsAndNotMchId(userId, ids) > 0) {
             throw new BaseException("包含无权限数据");
         }
 
         // 查询
-        List<BannerEntity> banners = bannerRepo.findListByIds(ids);
-        for (BannerEntity banner : banners) {
+        List<ProductSpuImageEntity> listEntity = productSpuImageRepo.findListByIds(ids);
+        for (ProductSpuImageEntity entity : listEntity) {
             // 删除文件
-            storageManager.delete(banner.getImageUrl());
+            storageManager.delete(entity.getImageUrl());
         }
 
-        return bannerRepo.removeByIds(ids);
+        return productSpuImageRepo.removeByIds(ids);
     }
 }

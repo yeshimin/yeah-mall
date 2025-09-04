@@ -2,12 +2,13 @@ package com.yeshimin.yeahboot.merchant.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.controller.validation.Create;
 import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpecOptDefEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSpuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
@@ -49,7 +50,11 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     @PostMapping("/create")
     public R<ProductSpuEntity> crudCreate(@Validated(Create.class) @RequestBody ProductSpuCreateDto dto) {
         Long userId = super.getUserId();
-        return R.ok(service.create(userId, dto));
+        SysStorageEntity sysStorage = null;
+        if (dto.getImageFile() != null) {
+            sysStorage = service.storeFile(dto.getImageFile(), StorageTypeEnum.LOCAL);
+        }
+        return R.ok(service.create(userId, dto, sysStorage));
     }
 
     /**
@@ -98,7 +103,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
      */
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':setSpec')")
     @PostMapping("/setSpec")
-    public R<ProductSpecOptDefEntity> setSpec(@Validated(Create.class) @RequestBody ProductSpuSpecSetDto dto) {
+    public R<Void> setSpec(@Validated(Create.class) @RequestBody ProductSpuSpecSetDto dto) {
         Long userId = super.getUserId();
         service.setSpec(userId, dto);
         return R.ok();

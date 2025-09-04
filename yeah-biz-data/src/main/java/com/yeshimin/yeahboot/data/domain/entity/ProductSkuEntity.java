@@ -31,6 +31,11 @@ public class ProductSkuEntity extends ShopConditionBaseEntity<ProductSkuEntity> 
     private String name;
 
     /**
+     * 图片URL
+     */
+    private String imageUrl;
+
+    /**
      * 规格编码
      */
     private String specCode;

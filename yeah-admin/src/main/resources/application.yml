@@ -180,3 +180,7 @@ yeah-boot:
       banner:
         bucket: banner
         path: ''
+      # product
+      product:
+        bucket: product
+        path: ''
