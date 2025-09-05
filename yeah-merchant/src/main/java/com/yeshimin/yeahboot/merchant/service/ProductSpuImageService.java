@@ -6,11 +6,13 @@ import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.common.service.base.BaseService;
+import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuImageEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.ProductSpuImageRepo;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuImageCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuImageUpdateDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSpuMainImageSetDto;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
@@ -76,6 +78,36 @@ public class ProductSpuImageService extends BaseService {
         log.info("productSpuImage.create.result: {}", r);
 
         return entity;
+    }
+
+    /**
+     * 设置主图
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ProductSpuEntity setMainImage(Long userId, ProductSpuMainImageSetDto dto, StorageTypeEnum storageType) {
+        // 权限检查和控制
+        permissionService.checkMchAndShop(userId, dto);
+        ProductSpuEntity spu = permissionService.getSpu(dto.getShopId(), dto.getSpuId());
+
+        MultipartFile file = dto.getFile();
+
+        // 决定bucket，除了local存储方式需要使用this.bucket，其他方式都指定为null
+        String bucket = storageType == StorageTypeEnum.LOCAL ? this.bucket : null;
+        // path用日期
+        String path = YsmUtils.dateStr();
+        // 存储文件
+        SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true);
+        if (!result.getSuccess()) {
+            log.info("result: {}", JSON.toJSONString(result));
+            throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
+        }
+
+        // 更新记录
+        spu.setMainImage(result.getFileKey());
+        boolean r = spu.updateById();
+        log.info("productSpu.setMainImage.result: {}", r);
+
+        return spu;
     }
 
     /**

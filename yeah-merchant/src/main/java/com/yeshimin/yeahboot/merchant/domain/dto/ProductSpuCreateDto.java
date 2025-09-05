@@ -4,7 +4,6 @@ import com.yeshimin.yeahboot.common.controller.validation.Create;
 import com.yeshimin.yeahboot.merchant.domain.base.ShopDataBaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -29,11 +28,6 @@ public class ProductSpuCreateDto extends ShopDataBaseDomain {
      */
     @NotBlank(message = "商品名称不能为空", groups = {Create.class})
     private String name;
-
-    /**
-     * 图片文件
-     */
-    private MultipartFile imageFile;
 
     /**
      * 商品规格与选项

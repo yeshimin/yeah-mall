@@ -44,4 +44,9 @@ public class ProductSpuEntity extends ShopConditionBaseEntity<ProductSpuEntity> 
      * sku最高价
      */
     private BigDecimal maxPrice;
+
+    /**
+     * 主图
+     */
+    private String mainImage;
 }

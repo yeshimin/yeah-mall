@@ -8,7 +8,6 @@ import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
-import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSpuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
@@ -48,13 +47,22 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
      */
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':create')")
     @PostMapping("/create")
-    public R<ProductSpuEntity> crudCreate(@Validated(Create.class) @RequestBody ProductSpuCreateDto dto) {
+    public R<ProductSpuEntity> crudCreate(@Validated(Create.class) ProductSpuCreateDto dto) {
         Long userId = super.getUserId();
-        SysStorageEntity sysStorage = null;
-        if (dto.getImageFile() != null) {
-            sysStorage = service.storeFile(dto.getImageFile(), StorageTypeEnum.LOCAL);
-        }
-        return R.ok(service.create(userId, dto, sysStorage));
+        return R.ok(service.create(userId, dto));
+    }
+
+    /**
+     * 设置主图
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':setMainImage')")
+    @PostMapping("/setMainImage")
+    public R<ProductSpuEntity> setMainImage(@Validated ProductSpuMainImageSetDto dto) {
+        Long userId = super.getUserId();
+        // 此处存储类型固定为本地存储
+        StorageTypeEnum storageTypeEnum = StorageTypeEnum.LOCAL;
+        ProductSpuEntity result = service.setMainImage(userId, dto, storageTypeEnum);
+        return R.ok(result);
     }
 
     /**

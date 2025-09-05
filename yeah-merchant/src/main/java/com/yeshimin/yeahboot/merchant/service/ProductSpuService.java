@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,7 +60,7 @@ public class ProductSpuService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ProductSpuEntity create(Long userId, ProductSpuCreateDto dto, @Nullable SysStorageEntity sysStorage) {
+    public ProductSpuEntity create(Long userId, ProductSpuCreateDto dto) {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
 
@@ -79,10 +78,6 @@ public class ProductSpuService {
         spu.setShopId(dto.getShopId());
         spu.setCategoryId(dto.getCategoryId());
         spu.setName(dto.getName());
-        // 设置文件key
-        if (sysStorage != null) {
-//            spu.setImageUrl(sysStorage.getFileKey());
-        }
         boolean r = productSpuRepo.save(spu);
         log.debug("spu.save.result：{}", r);
 
@@ -96,6 +91,36 @@ public class ProductSpuService {
 
         // 同步到全文搜索引擎
         fullTextSearchService.syncProduct(spu, null, null, false);
+
+        return spu;
+    }
+
+    /**
+     * 设置主图
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ProductSpuEntity setMainImage(Long userId, ProductSpuMainImageSetDto dto, StorageTypeEnum storageType) {
+        // 权限检查和控制
+        permissionService.checkMchAndShop(userId, dto);
+        ProductSpuEntity spu = permissionService.getSpu(dto.getShopId(), dto.getSpuId());
+
+        MultipartFile file = dto.getFile();
+
+        // 决定bucket，除了local存储方式需要使用this.bucket，其他方式都指定为null
+        String bucket = storageType == StorageTypeEnum.LOCAL ? this.bucket : null;
+        // path用日期
+        String path = YsmUtils.dateStr();
+        // 存储文件
+        SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true);
+        if (!result.getSuccess()) {
+            log.info("result: {}", JSON.toJSONString(result));
+            throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
+        }
+
+        // 更新记录
+        spu.setMainImage(result.getFileKey());
+        boolean r = spu.updateById();
+        log.info("productSpu.setMainImage.result: {}", r);
 
         return spu;
     }
