@@ -102,7 +102,7 @@ public class ProductSpuService {
     public ProductSpuEntity setMainImage(Long userId, ProductSpuMainImageSetDto dto, StorageTypeEnum storageType) {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
-        ProductSpuEntity spu = permissionService.getSpu(dto.getShopId(), dto.getSpuId());
+        ProductSpuEntity entity = permissionService.getSpu(dto.getShopId(), dto.getSpuId());
 
         MultipartFile file = dto.getFile();
 
@@ -118,11 +118,11 @@ public class ProductSpuService {
         }
 
         // 更新记录
-        spu.setMainImage(result.getFileKey());
-        boolean r = spu.updateById();
+        entity.setMainImage(result.getFileKey());
+        boolean r = entity.updateById();
         log.info("productSpu.setMainImage.result: {}", r);
 
-        return spu;
+        return entity;
     }
 
     /**
