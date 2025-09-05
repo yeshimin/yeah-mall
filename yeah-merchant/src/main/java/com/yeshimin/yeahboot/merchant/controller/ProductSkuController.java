@@ -1,11 +1,13 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
+import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSkuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuCreateDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuMainImageSetDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSkuDetailVo;
 import com.yeshimin.yeahboot.merchant.service.ProductSkuService;
@@ -42,6 +44,19 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     public R<ProductSkuEntity> create(@Validated @RequestBody ProductSkuCreateDto dto) {
         Long userId = super.getUserId();
         return R.ok(service.create(userId, dto));
+    }
+
+    /**
+     * 设置主图
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':setMainImage')")
+    @PostMapping("/setMainImage")
+    public R<ProductSkuEntity> setMainImage(@Validated ProductSkuMainImageSetDto dto) {
+        Long userId = super.getUserId();
+        // 此处存储类型固定为本地存储
+        StorageTypeEnum storageTypeEnum = StorageTypeEnum.LOCAL;
+        ProductSkuEntity result = service.setMainImage(userId, dto, storageTypeEnum);
+        return R.ok(result);
     }
 
     /**

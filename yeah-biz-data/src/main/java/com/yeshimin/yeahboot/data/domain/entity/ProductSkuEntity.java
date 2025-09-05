@@ -31,11 +31,6 @@ public class ProductSkuEntity extends ShopConditionBaseEntity<ProductSkuEntity> 
     private String name;
 
     /**
-     * 图片URL
-     */
-    private String imageUrl;
-
-    /**
      * 规格编码
      */
     private String specCode;
@@ -52,4 +47,9 @@ public class ProductSkuEntity extends ShopConditionBaseEntity<ProductSkuEntity> 
      */
     @NotNull(message = "库存不能为空", groups = {Create.class})
     private Integer stock;
+
+    /**
+     * 主图
+     */
+    private String mainImage;
 }
