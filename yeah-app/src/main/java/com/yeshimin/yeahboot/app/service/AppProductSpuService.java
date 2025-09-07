@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.app.service;
 import cn.hutool.core.bean.BeanUtil;
 import com.manticoresearch.client.model.SearchResponse;
 import com.yeshimin.yeahboot.app.common.enums.ProductSortEnum;
+import com.yeshimin.yeahboot.app.domain.dto.HotProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.vo.AppProductQueryVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
@@ -68,6 +69,7 @@ public class AppProductSpuService {
             vo.setSales(spu.getSales());
             vo.setMinPrice(spu.getMinPrice());
             vo.setMaxPrice(spu.getMaxPrice());
+            vo.setMainImage(spu.getMainImage());
             return vo;
         }).collect(Collectors.toList());
 
@@ -85,5 +87,19 @@ public class AppProductSpuService {
     public ProductDetailVo detail(Long id) {
         ProductSpuEntity entity = productSpuRepo.getOneById(id);
         return BeanUtil.copyProperties(entity, ProductDetailVo.class);
+    }
+
+    /**
+     * 查询热门商品
+     * 按照销量排序
+     */
+    public AppProductQueryVo queryHot(HotProductSpuQueryDto query) {
+        ProductSpuQueryDto queryDto = new ProductSpuQueryDto();
+        queryDto.setKeyword(null);
+        queryDto.setSortBy(ProductSortEnum.SALES_DESC.getValue());
+        queryDto.setScrollToken(query.getScrollToken());
+        queryDto.setPageSize(query.getPageSize());
+
+        return this.query(queryDto);
     }
 }

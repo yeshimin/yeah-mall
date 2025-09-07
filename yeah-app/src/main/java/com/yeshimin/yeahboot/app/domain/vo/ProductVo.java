@@ -37,4 +37,9 @@ public class ProductVo extends BaseDomain {
      * sku最高价
      */
     private BigDecimal maxPrice;
+
+    /**
+     * 主图
+     */
+    private String mainImage;
 }

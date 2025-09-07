@@ -6,8 +6,9 @@ import com.manticoresearch.client.ApiException;
 import com.manticoresearch.client.api.IndexApi;
 import com.manticoresearch.client.api.SearchApi;
 import com.manticoresearch.client.model.*;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.common.common.consts.FulltextTableConsts;
 import com.yeshimin.yeahboot.common.common.properties.ManticoreSearchProperties;
+import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,9 +38,9 @@ public class FullTextSearchService {
         doc.put("sku_max_price", productSpu.getMaxPrice());
 
         if (update) {
-            this.replace("products", doc);
+            this.replace(FulltextTableConsts.PRODUCT, doc);
         } else {
-            this.insert("products", doc);
+            this.insert(FulltextTableConsts.PRODUCT, doc);
         }
     }
 

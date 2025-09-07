@@ -9,6 +9,7 @@ import com.manticoresearch.client.model.SearchQuery;
 import com.manticoresearch.client.model.SearchRequest;
 import com.manticoresearch.client.model.SearchResponse;
 import com.yeshimin.yeahboot.app.common.enums.ProductSortEnum;
+import com.yeshimin.yeahboot.common.common.consts.FulltextTableConsts;
 import com.yeshimin.yeahboot.common.common.properties.ManticoreSearchProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +65,7 @@ public class AppFullTextSearchService {
         idSortItem.put("id", idOrderItem);
         sort.add(idSortItem);
 
-        SearchResponse response = this.search("products", keyword, sort, scrollToken, size);
+        SearchResponse response = this.search(FulltextTableConsts.PRODUCT, keyword, sort, scrollToken, size);
         log.info("Search response: {}", response);
         return response;
     }
@@ -78,11 +79,15 @@ public class AppFullTextSearchService {
                                  Integer size) {
         ApiClient client = this.newClient();
 
-        SearchQuery searchQuery = new SearchQuery();
-        searchQuery.setQueryString(queryString);
 
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.table(tableName).query(searchQuery);
+        searchRequest.table(tableName);
+        // 搜索关键词
+        if (StrUtil.isNotBlank(queryString)) {
+            SearchQuery searchQuery = new SearchQuery();
+            searchQuery.setQueryString(queryString);
+            searchRequest.query(searchQuery);
+        }
         // 按需排序
         if (CollUtil.isNotEmpty(sort)) {
             searchRequest.sort(sort);

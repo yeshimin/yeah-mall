@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.app.controller;
 
+import com.yeshimin.yeahboot.app.domain.dto.HotProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.vo.AppProductQueryVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
@@ -41,5 +42,14 @@ public class AppProductController extends BaseController {
     @GetMapping("/detail")
     public R<ProductDetailVo> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));
+    }
+
+    /**
+     * 查询热门商品
+     */
+    @PublicAccess
+    @GetMapping("/queryHot")
+    public R<AppProductQueryVo> queryHot(@Valid HotProductSpuQueryDto query) {
+        return R.ok(service.queryHot(query));
     }
 }

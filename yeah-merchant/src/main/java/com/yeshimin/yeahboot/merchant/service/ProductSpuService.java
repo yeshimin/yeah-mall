@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
+import com.yeshimin.yeahboot.common.common.consts.FulltextTableConsts;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
@@ -234,7 +235,7 @@ public class ProductSpuService {
 
         for (Long id : ids) {
             // 删除全文索引
-            fullTextSearchService.deleteIndex("products", id);
+            fullTextSearchService.deleteIndex(FulltextTableConsts.PRODUCT, id);
         }
     }
 

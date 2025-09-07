@@ -47,7 +47,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
      */
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':create')")
     @PostMapping("/create")
-    public R<ProductSpuEntity> crudCreate(@Validated(Create.class) ProductSpuCreateDto dto) {
+    public R<ProductSpuEntity> crudCreate(@Validated(Create.class) @RequestBody ProductSpuCreateDto dto) {
         Long userId = super.getUserId();
         return R.ok(service.create(userId, dto));
     }
