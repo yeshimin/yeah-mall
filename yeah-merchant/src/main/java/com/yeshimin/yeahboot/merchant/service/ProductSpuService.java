@@ -79,6 +79,7 @@ public class ProductSpuService {
         spu.setShopId(dto.getShopId());
         spu.setCategoryId(dto.getCategoryId());
         spu.setName(dto.getName());
+        spu.setDetailDesc(dto.getDetailDesc());
         boolean r = productSpuRepo.save(spu);
         log.debug("spu.save.result：{}", r);
 
@@ -197,6 +198,7 @@ public class ProductSpuService {
 
         old.setCategoryId(dto.getCategoryId());
         old.setName(dto.getName());
+        old.setDetailDesc(dto.getDetailDesc());
         boolean r = productSpuRepo.updateById(old);
         log.debug("update.result：{}", r);
 

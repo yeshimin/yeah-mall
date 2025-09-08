@@ -42,4 +42,9 @@ public class ProductVo extends BaseDomain {
      * 主图
      */
     private String mainImage;
+
+    /**
+     * 详细描述
+     */
+    private String detailDesc;
 }

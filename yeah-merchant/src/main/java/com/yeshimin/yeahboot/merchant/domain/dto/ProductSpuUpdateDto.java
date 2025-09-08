@@ -26,13 +26,13 @@ public class ProductSpuUpdateDto extends ShopDataBaseDomain {
     /**
      * 商品分类ID
      */
-    @NotNull(message = "商品分类ID不能为空", groups = {Update.class})
+//    @NotNull(message = "商品分类ID不能为空", groups = {Update.class})
     private Long categoryId;
 
     /**
      * 商品名称
      */
-    @NotBlank(message = "商品名称不能为空", groups = {Update.class})
+//    @NotBlank(message = "商品名称不能为空", groups = {Update.class})
     private String name;
 
     /**
@@ -46,4 +46,10 @@ public class ProductSpuUpdateDto extends ShopDataBaseDomain {
     @Valid
 //    @NotEmpty(message = "商品规格与选项不能为空", groups = {Update.class})
     private List<SpecOptDto> specs;
+
+    /**
+     * 详细描述
+     */
+//    @NotNull(message = "商品详细描述不能为空", groups = {Update.class})
+    private String detailDesc;
 }

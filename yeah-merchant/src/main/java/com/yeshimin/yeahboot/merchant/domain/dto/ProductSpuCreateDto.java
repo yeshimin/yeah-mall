@@ -35,4 +35,10 @@ public class ProductSpuCreateDto extends ShopDataBaseDomain {
     @Valid
 //    @NotEmpty(message = "商品规格与选项不能为空", groups = {Create.class})
     private List<SpecOptDto> specs;
+
+    /**
+     * 详细描述
+     */
+//    @NotNull(message = "商品详细描述不能为空", groups = {Create.class})
+    private String detailDesc;
 }
