@@ -4,6 +4,8 @@ import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 商品详情VO
  */
@@ -12,12 +14,12 @@ import lombok.EqualsAndHashCode;
 public class ProductDetailVo extends BaseDomain {
 
     /**
-     * 主键ID
+     * 商品基础信息
      */
-    private Long id;
+    private ProductVo product;
 
     /**
-     * 商品名称
+     * 商品轮播图信息
      */
-    private String name;
+    private List<String> banners;
 }

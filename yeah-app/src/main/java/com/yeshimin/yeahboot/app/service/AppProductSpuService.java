@@ -9,6 +9,8 @@ import com.yeshimin.yeahboot.app.domain.vo.AppProductQueryVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductVo;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ProductSpuImageEntity;
+import com.yeshimin.yeahboot.data.repository.ProductSpuImageRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class AppProductSpuService {
 
     private final ProductSpuRepo productSpuRepo;
+    private final ProductSpuImageRepo productSpuImageRepo;
 
     private final AppFullTextSearchService fullTextSearchService;
 
@@ -85,8 +88,19 @@ public class AppProductSpuService {
      * 详情
      */
     public ProductDetailVo detail(Long id) {
+        // 获取商品spu
         ProductSpuEntity entity = productSpuRepo.getOneById(id);
-        return BeanUtil.copyProperties(entity, ProductDetailVo.class);
+
+        // 商品图片
+        List<ProductSpuImageEntity> listProductImage = productSpuImageRepo.findListBySpuId(entity.getId());
+        List<String> banners =
+                listProductImage.stream().map(ProductSpuImageEntity::getImageUrl).collect(Collectors.toList());
+
+        ProductDetailVo result = new ProductDetailVo();
+        ProductVo productVo = BeanUtil.copyProperties(entity, ProductVo.class);
+        result.setProduct(productVo);
+        result.setBanners(banners);
+        return result;
     }
 
     /**
