@@ -1,5 +1,8 @@
 package com.yeshimin.yeahboot.app.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.app.domain.vo.FavoritesProductVo;
 import com.yeshimin.yeahboot.app.domain.vo.FavoritesStatusVo;
 import com.yeshimin.yeahboot.app.domain.vo.ResultVo;
 import com.yeshimin.yeahboot.app.service.AppMemberService;
@@ -8,6 +11,7 @@ import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.IdDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ProductCollectEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,5 +64,15 @@ public class AppMemberController extends BaseController {
         Long userId = WebContextUtils.getUserId();
         boolean result = service.queryFavoritesStatus(userId, spuId);
         return R.ok(new FavoritesStatusVo(result));
+    }
+
+    /**
+     * 商品-查询收藏夹
+     */
+    @GetMapping("/product/favorites")
+    public R<IPage<FavoritesProductVo>> queryFavorites(Page<ProductCollectEntity> page) {
+        Long userId = WebContextUtils.getUserId();
+        IPage<FavoritesProductVo> result = service.queryFavorites(userId, page);
+        return R.ok(result);
     }
 }
