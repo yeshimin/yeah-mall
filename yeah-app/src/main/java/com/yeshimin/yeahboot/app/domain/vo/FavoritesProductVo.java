@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 
 /**
- * App端收藏夹商品VO
+ * App端收藏商品VO
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

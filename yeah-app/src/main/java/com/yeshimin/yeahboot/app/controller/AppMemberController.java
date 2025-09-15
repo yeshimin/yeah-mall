@@ -11,7 +11,7 @@ import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.IdDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ProductCollectEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ProductFavoritesEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +37,7 @@ public class AppMemberController extends BaseController {
     }
 
     /**
-     * 商品-添加到收藏夹
+     * 商品-添加到收藏
      */
     @PostMapping("/product/addToFavorites")
     public R<ResultVo> addToFavorites(@Valid @RequestBody IdDto dto) {
@@ -47,7 +47,7 @@ public class AppMemberController extends BaseController {
     }
 
     /**
-     * 商品-移除出收藏夹
+     * 商品-移除出收藏
      */
     @PostMapping("/product/removeFromFavorites")
     public R<ResultVo> removeFromFavorites(@Valid @RequestBody IdDto dto) {
@@ -67,10 +67,10 @@ public class AppMemberController extends BaseController {
     }
 
     /**
-     * 商品-查询收藏夹
+     * 商品-查询收藏
      */
     @GetMapping("/product/favorites")
-    public R<IPage<FavoritesProductVo>> queryFavorites(Page<ProductCollectEntity> page) {
+    public R<IPage<FavoritesProductVo>> queryFavorites(Page<ProductFavoritesEntity> page) {
         Long userId = WebContextUtils.getUserId();
         IPage<FavoritesProductVo> result = service.queryFavorites(userId, page);
         return R.ok(result);

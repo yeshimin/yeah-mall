@@ -7,10 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.vo.FavoritesProductVo;
 import com.yeshimin.yeahboot.common.domain.base.IdDto;
 import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ProductCollectEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ProductFavoritesEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.repository.MemberRepo;
-import com.yeshimin.yeahboot.data.repository.ProductCollectRepo;
+import com.yeshimin.yeahboot.data.repository.ProductFavoritesRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,30 +28,30 @@ public class AppMemberService {
 
     private final MemberRepo memberRepo;
     private final ProductSpuRepo productSpuRepo;
-    private final ProductCollectRepo productCollectRepo;
+    private final ProductFavoritesRepo productFavoritesRepo;
 
     public MemberEntity detail(Long userId) {
         return memberRepo.findOneById(userId);
     }
 
     /**
-     * 商品-添加到收藏夹
+     * 商品-添加到收藏
      */
     @Transactional(rollbackFor = Exception.class)
     public Boolean addToFavorites(Long userId, IdDto dto) {
         // 检查：商品SPU是否存在
         ProductSpuEntity spu = productSpuRepo.getOneById(dto.getId());
 
-        long count = productCollectRepo.countByMemberIdAndSpuId(userId, dto.getId());
+        long count = productFavoritesRepo.countByMemberIdAndSpuId(userId, dto.getId());
         if (count > 0) {
             return false;
         }
 
-        return productCollectRepo.addToFavorites(userId, dto.getId(), spu);
+        return productFavoritesRepo.addToFavorites(userId, dto.getId(), spu);
     }
 
     /**
-     * 商品-移除出收藏夹
+     * 商品-移除出收藏
      */
     @Transactional(rollbackFor = Exception.class)
     public Boolean removeFromFavorites(Long userId, IdDto dto) {
@@ -61,7 +61,7 @@ public class AppMemberService {
             throw new IllegalArgumentException("商品SPU未找到");
         }
 
-        ProductCollectEntity pc = productCollectRepo.findOneByMemberIdAndSpuId(userId, dto.getId());
+        ProductFavoritesEntity pc = productFavoritesRepo.findOneByMemberIdAndSpuId(userId, dto.getId());
         if (pc == null) {
             return false;
         }
@@ -73,22 +73,22 @@ public class AppMemberService {
      * 商品-查询收藏状态
      */
     public Boolean queryFavoritesStatus(Long userId, Long spuId) {
-        return productCollectRepo.countByMemberIdAndSpuId(userId, spuId) > 0;
+        return productFavoritesRepo.countByMemberIdAndSpuId(userId, spuId) > 0;
     }
 
     /**
-     * 商品-查询收藏夹
+     * 商品-查询收藏
      */
-    public IPage<FavoritesProductVo> queryFavorites(Long userId, Page<ProductCollectEntity> page) {
-        // 查询收藏夹
-        LambdaQueryWrapper<ProductCollectEntity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ProductCollectEntity::getMemberId, userId);
-        wrapper.orderByDesc(ProductCollectEntity::getCreateTime);
-        Page<ProductCollectEntity> pageResult = productCollectRepo.page(page, wrapper);
+    public IPage<FavoritesProductVo> queryFavorites(Long userId, Page<ProductFavoritesEntity> page) {
+        // 查询收藏
+        LambdaQueryWrapper<ProductFavoritesEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProductFavoritesEntity::getMemberId, userId);
+        wrapper.orderByDesc(ProductFavoritesEntity::getCreateTime);
+        Page<ProductFavoritesEntity> pageResult = productFavoritesRepo.page(page, wrapper);
 
         // 查询商品SPU
         List<Long> spuIds = pageResult.getRecords()
-                .stream().map(ProductCollectEntity::getSpuId).collect(Collectors.toList());
+                .stream().map(ProductFavoritesEntity::getSpuId).collect(Collectors.toList());
         List<ProductSpuEntity> listSpu = productSpuRepo.findListByIds(spuIds);
         // list to map
         Map<Long, ProductSpuEntity> mapSpu =

@@ -10,8 +10,8 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("s_product_collect")
-public class ProductCollectEntity extends ShopConditionBaseEntity<ProductCollectEntity> {
+@TableName("s_product_favorites")
+public class ProductFavoritesEntity extends ShopConditionBaseEntity<ProductFavoritesEntity> {
 
     /**
      * 会员ID

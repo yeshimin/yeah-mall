@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import javax.validation.constraints.NotNull;
 
 /**
- * 商品-添加到收藏夹
+ * 商品-添加到收藏
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
