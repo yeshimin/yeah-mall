@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.app.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
+import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

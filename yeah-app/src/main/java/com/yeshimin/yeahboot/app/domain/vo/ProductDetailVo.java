@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.domain.vo;
 
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
+import com.yeshimin.yeahboot.data.domain.vo.ProductSpecVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -22,4 +23,9 @@ public class ProductDetailVo extends BaseDomain {
      * 商品轮播图信息
      */
     private List<String> banners;
+
+    /**
+     * 商品规格信息
+     */
+    private List<ProductSpecVo> specs;
 }

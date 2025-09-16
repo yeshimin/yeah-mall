@@ -2,9 +2,9 @@ package com.yeshimin.yeahboot.app.service;
 
 import com.yeshimin.yeahboot.app.domain.dto.CartItemCreateDto;
 import com.yeshimin.yeahboot.app.domain.vo.CartShopVo;
-import com.yeshimin.yeahboot.app.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.app.domain.vo.ShopCartItemVo;
 import com.yeshimin.yeahboot.data.domain.entity.*;
+import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.data.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

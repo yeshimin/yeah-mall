@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.merchant.domain.vo;
 
+import com.yeshimin.yeahboot.data.domain.vo.ProductSpecVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -12,7 +12,7 @@ import com.yeshimin.yeahboot.data.mapper.ProductSpuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.*;
-import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
+import com.yeshimin.yeahboot.data.domain.vo.ProductSpecVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuVo;
 import com.yeshimin.yeahboot.merchant.service.ProductSpuService;

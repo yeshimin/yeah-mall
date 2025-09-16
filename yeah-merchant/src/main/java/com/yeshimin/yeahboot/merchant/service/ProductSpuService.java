@@ -12,10 +12,10 @@ import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.data.domain.entity.*;
+import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
+import com.yeshimin.yeahboot.data.domain.vo.ProductSpecVo;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.dto.*;
-import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecOptVo;
-import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpecVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuVo;
 import com.yeshimin.yeahboot.storage.StorageManager;
@@ -361,6 +361,8 @@ public class ProductSpuService {
             List<ProductSpecOptVo> listOptVo = mapListOpt.getOrDefault(spec.getId(), new ArrayList<>())
                     .stream().map(opt -> {
                         ProductSpecOptVo optVo = new ProductSpecOptVo();
+                        optVo.setSpecId(spec.getId());
+                        optVo.setSpecName(spec.getSpecName());
                         optVo.setOptId(opt.getId());
                         optVo.setOptName(opt.getOptName());
                         optVo.setSort(mapOptSort.get(opt.getId()));

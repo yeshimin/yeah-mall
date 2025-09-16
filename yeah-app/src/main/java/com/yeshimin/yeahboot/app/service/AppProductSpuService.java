@@ -8,14 +8,16 @@ import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.vo.AppProductQueryVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductVo;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ProductSpuImageEntity;
-import com.yeshimin.yeahboot.data.repository.ProductSpuImageRepo;
-import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
+import com.yeshimin.yeahboot.data.domain.entity.*;
+import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
+import com.yeshimin.yeahboot.data.domain.vo.ProductSpecVo;
+import com.yeshimin.yeahboot.data.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,6 +29,10 @@ public class AppProductSpuService {
 
     private final ProductSpuRepo productSpuRepo;
     private final ProductSpuImageRepo productSpuImageRepo;
+    private final ProductSpecDefRepo productSpecDefRepo;
+    private final ProductSpecOptDefRepo productSpecOptDefRepo;
+    private final ProductSpecRepo productSpecRepo;
+    private final ProductSpecOptRepo productSpecOptRepo;
 
     private final AppFullTextSearchService fullTextSearchService;
 
@@ -96,10 +102,14 @@ public class AppProductSpuService {
         List<String> banners =
                 listProductImage.stream().map(ProductSpuImageEntity::getImageUrl).collect(Collectors.toList());
 
+        // 查询规格信息
+        List<ProductSpecVo> specs = this.querySpec(id);
+
         ProductDetailVo result = new ProductDetailVo();
         ProductVo productVo = BeanUtil.copyProperties(entity, ProductVo.class);
         result.setProduct(productVo);
         result.setBanners(banners);
+        result.setSpecs(specs);
         return result;
     }
 
@@ -115,5 +125,51 @@ public class AppProductSpuService {
         queryDto.setPageSize(query.getPageSize());
 
         return this.query(queryDto);
+    }
+
+    // ================================================================================
+
+    /**
+     * 查询商品spu规格
+     */
+    public List<ProductSpecVo> querySpec(Long spuId) {
+        // 查询规格
+        List<ProductSpecEntity> listProductSpec = productSpecRepo.findListBySpuId(spuId);
+        Map<Long, Integer> mapSpecSort = listProductSpec.stream()
+                .collect(Collectors.toMap(ProductSpecEntity::getSpecId, ProductSpecEntity::getSort));
+        List<Long> specIds = listProductSpec.stream().map(ProductSpecEntity::getSpecId).collect(Collectors.toList());
+        List<ProductSpecDefEntity> listSpec = productSpecDefRepo.findListByIds(specIds);
+        // 查询选项
+        List<ProductSpecOptEntity> listProductSpecOpt = productSpecOptRepo.findListBySpuId(spuId);
+        Map<Long, Integer> mapOptSort = listProductSpecOpt.stream()
+                .collect(Collectors.toMap(ProductSpecOptEntity::getOptId, ProductSpecOptEntity::getSort));
+        List<Long> optIds = listProductSpecOpt.stream()
+                .map(ProductSpecOptEntity::getOptId).collect(Collectors.toList());
+        List<ProductSpecOptDefEntity> listOpt = productSpecOptDefRepo.findListByIds(optIds);
+        Map<Long, List<ProductSpecOptDefEntity>> mapListOpt =
+                listOpt.stream().collect(Collectors.groupingBy(ProductSpecOptDefEntity::getSpecId));
+
+        return listSpec.stream().map(spec -> {
+            // 规格
+            ProductSpecVo specVo = new ProductSpecVo();
+            specVo.setSpecId(spec.getId());
+            specVo.setSpecName(spec.getSpecName());
+            specVo.setSort(mapSpecSort.get(spec.getId()));
+
+            // 选项
+            List<ProductSpecOptVo> listOptVo = mapListOpt.getOrDefault(spec.getId(), new ArrayList<>())
+                    .stream().map(opt -> {
+                        ProductSpecOptVo optVo = new ProductSpecOptVo();
+                        optVo.setSpecId(spec.getId());
+                        optVo.setSpecName(spec.getSpecName());
+                        optVo.setOptId(opt.getId());
+                        optVo.setOptName(opt.getOptName());
+                        optVo.setSort(mapOptSort.get(opt.getId()));
+                        return optVo;
+                    }).sorted(Comparator.comparing(ProductSpecOptVo::getSort)).collect(Collectors.toList());
+            specVo.setOpts(listOptVo);
+
+            return specVo;
+        }).sorted(Comparator.comparing(ProductSpecVo::getSort)).collect(Collectors.toList());
     }
 }
