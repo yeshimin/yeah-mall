@@ -108,7 +108,7 @@ public class ProductSkuService {
         // 同步到全文搜索引擎
         List<String> skuNames = this.getSkuNames(spu.getId());
         List<String> skuSpecs = this.getSkuSpecs(spu.getId());
-        fullTextSearchService.syncProduct(spu, skuNames, skuSpecs, false);
+        fullTextSearchService.syncProduct(spu, skuNames, skuSpecs, true);
 
         return sku;
     }
