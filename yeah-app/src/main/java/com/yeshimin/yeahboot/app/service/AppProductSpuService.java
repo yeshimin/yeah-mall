@@ -7,6 +7,7 @@ import com.yeshimin.yeahboot.app.domain.dto.HotProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.vo.AppProductQueryVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
+import com.yeshimin.yeahboot.app.domain.vo.ProductSkuVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductVo;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
@@ -16,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,6 +31,8 @@ public class AppProductSpuService {
     private final ProductSpecOptDefRepo productSpecOptDefRepo;
     private final ProductSpecRepo productSpecRepo;
     private final ProductSpecOptRepo productSpecOptRepo;
+    private final ProductSkuRepo productSkuRepo;
+    private final ProductSkuSpecRepo productSkuSpecRepo;
 
     private final AppFullTextSearchService fullTextSearchService;
 
@@ -105,11 +105,23 @@ public class AppProductSpuService {
         // 查询规格信息
         List<ProductSpecVo> specs = this.querySpec(id);
 
+        // 查询商品SKU信息
+        List<ProductSkuVo> skus = productSkuRepo.findListBySpuId(id)
+                .stream().map(e -> BeanUtil.copyProperties(e, ProductSkuVo.class)).collect(Collectors.toList());
+        // get sku ids
+        List<Long> skuIds = skus.stream().map(ProductSkuVo::getId).collect(Collectors.toList());
+
+        // 查询SKU的规格信息
+        Set<Long> skuOptIds = productSkuSpecRepo.findListBySkuIds(skuIds)
+                .stream().map(ProductSkuSpecEntity::getOptId).collect(Collectors.toSet());
+
         ProductDetailVo result = new ProductDetailVo();
         ProductVo productVo = BeanUtil.copyProperties(entity, ProductVo.class);
         result.setProduct(productVo);
         result.setBanners(banners);
         result.setSpecs(specs);
+        result.setSkus(skus);
+        result.setSkuOptIds(skuOptIds);
         return result;
     }
 
@@ -132,7 +144,7 @@ public class AppProductSpuService {
     /**
      * 查询商品spu规格
      */
-    public List<ProductSpecVo> querySpec(Long spuId) {
+    private List<ProductSpecVo> querySpec(Long spuId) {
         // 查询规格
         List<ProductSpecEntity> listProductSpec = productSpecRepo.findListBySpuId(spuId);
         Map<Long, Integer> mapSpecSort = listProductSpec.stream()

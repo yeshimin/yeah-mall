@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 商品详情VO
@@ -28,4 +29,14 @@ public class ProductDetailVo extends BaseDomain {
      * 商品规格信息
      */
     private List<ProductSpecVo> specs;
+
+    /**
+     * 商品SKU信息
+     */
+    private List<ProductSkuVo> skus;
+
+    /**
+     * 商品SKU规格信息
+     */
+    private Set<Long> skuOptIds;
 }
