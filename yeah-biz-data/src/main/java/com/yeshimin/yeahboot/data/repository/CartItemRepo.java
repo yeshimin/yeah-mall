@@ -6,6 +6,7 @@ import com.yeshimin.yeahboot.data.mapper.CartItemMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -33,5 +34,15 @@ public class CartItemRepo extends BaseRepo<CartItemMapper, CartItemEntity> {
             throw new IllegalArgumentException("memberId不能为空");
         }
         return lambdaQuery().eq(CartItemEntity::getMemberId, memberId).list();
+    }
+
+    /**
+     * deleteBySkuIds
+     */
+    public boolean deleteBySkuIds(Collection<Long> skuIds) {
+        if (skuIds == null || skuIds.isEmpty()) {
+            throw new IllegalArgumentException("skuIds不能为空");
+        }
+        return lambdaUpdate().in(CartItemEntity::getSkuId, skuIds).remove();
     }
 }

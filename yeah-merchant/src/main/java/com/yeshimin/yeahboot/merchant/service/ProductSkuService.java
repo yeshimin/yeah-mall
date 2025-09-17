@@ -41,6 +41,7 @@ public class ProductSkuService {
     private final ProductSpecOptRepo productSpecOptRepo;
     private final ProductSkuSpecRepo productSkuSpecRepo;
     private final ProductSpecOptDefRepo productSpecOptDefRepo;
+    private final CartItemRepo cartItemRepo;
 
     private final StorageProperties storageProperties;
     private final StorageManager storageManager;
@@ -255,6 +256,10 @@ public class ProductSkuService {
         // 删除sku
         boolean r = productSkuRepo.removeByIds(ids);
         log.debug("sku.delete.result：{}", r);
+
+        // 删除购物车里的sku
+        boolean r2 = cartItemRepo.deleteBySkuIds(ids);
+        log.debug("cartItem.sku.delete.result：{}", r2);
 
         // 更新SPU的最小和最大价格
         List<ProductSkuEntity> listSku = productSkuRepo.findListBySpuId(spu.getId());
