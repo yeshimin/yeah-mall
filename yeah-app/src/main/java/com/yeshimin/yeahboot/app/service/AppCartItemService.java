@@ -42,7 +42,8 @@ public class AppCartItemService {
         // 检查库存
         quantity += dto.getQuantity();
         if (quantity > sku.getStock()) {
-            throw new IllegalArgumentException("库存不足");
+            // 超出库存的情况下，如果此次加购的数量小于总加购库存，则提示“库存不足（已加购）”，否则提示“库存不足”
+            throw new IllegalArgumentException("库存不足" + (dto.getQuantity() < quantity ? "（已加购）" : ""));
         }
 
         // 累加数量
