@@ -165,7 +165,7 @@ public class ProductSpuService {
         ProductSpuDetailVo vo = BeanUtil.copyProperties(entity, ProductSpuDetailVo.class);
 
         // 分类信息
-        Optional.ofNullable(productCategoryRepo.getOneById(entity.getCategoryId())).ifPresent(category -> {
+        Optional.ofNullable(productCategoryRepo.findOneById(entity.getCategoryId())).ifPresent(category -> {
             vo.setCategoryName(category.getName());
         });
 

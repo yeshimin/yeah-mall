@@ -106,6 +106,7 @@ public class AppCartItemService {
             vo.setShopName(mapShop.get(cartItem.getShopId()).getShopName());
             vo.setSpuId(cartItem.getSpuId());
             vo.setSpuName(mapSpu.get(cartItem.getSpuId()).getName());
+            vo.setSpuMainImage(mapSpu.get(cartItem.getSpuId()).getMainImage());
             vo.setSkuId(cartItem.getSkuId());
             vo.setSkuName(mapSku.get(cartItem.getSkuId()).getName());
             vo.setPrice(mapSku.get(cartItem.getSkuId()).getPrice());

@@ -36,6 +36,11 @@ public class ShopCartItemVo extends BaseDomain {
     private String spuName;
 
     /**
+     * spu主图
+     */
+    private String spuMainImage;
+
+    /**
      * sku ID
      */
     private Long skuId;
