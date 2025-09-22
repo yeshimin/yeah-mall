@@ -71,6 +71,12 @@
             <artifactId>fastjson2</artifactId>
         </dependency>
 
+        <!-- Sqids -->
+        <dependency>
+            <groupId>org.sqids</groupId>
+            <artifactId>sqids</artifactId>
+        </dependency>
+
         <!-- springdoc -->
         <dependency>
             <groupId>org.springdoc</groupId>

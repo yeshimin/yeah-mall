@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDate;
+
 /**
  * app端用户表
  */
@@ -26,4 +28,34 @@ public class AppUserEntity extends ConditionBaseEntity<AppUserEntity> {
      */
     @Schema(description = "登录密码")
     private String password;
+
+    /**
+     * 账号
+     */
+    @Schema(description = "账号")
+    private String account;
+
+    /**
+     * 昵称
+     */
+    @Schema(description = "昵称")
+    private String nickname;
+
+    /**
+     * 头像
+     */
+    @Schema(description = "头像")
+    private String avatar;
+
+    /**
+     * 性别
+     */
+    @Schema(description = "性别")
+    private Integer gender;
+
+    /**
+     * 生日
+     */
+    @Schema(description = "生日")
+    private LocalDate birthday;
 }

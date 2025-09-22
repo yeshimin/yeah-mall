@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.properties.YeahBootProperties;
+import com.yeshimin.yeahboot.common.service.IdService;
 import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.data.domain.entity.AppUserEntity;
 import com.yeshimin.yeahboot.data.repository.AppUserRepo;
@@ -16,8 +17,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -36,21 +39,40 @@ public class AppAuthService {
 
     private final YeahBootProperties yeahBootProperties;
     private final StringRedisTemplate redisTemplate;
+    private final IdService idService;
 
     /**
      * 登录
      */
+    @Transactional(rollbackFor = Exception.class)
     public LoginVo login(LoginDto loginDto) {
         // 查找用户
         AppUserEntity appUser = appUserRepo.findOneByMobile(loginDto.getMobile());
         if (appUser == null) {
-            throw new BaseException(ErrorCodeEnum.FAIL, "用户未找到");
+            // 用户未找到的情况下，如果是短信验证码登录，则直接创建用户
+            if (StrUtil.isNotBlank(loginDto.getSmsCode())) {
+                if (Objects.equals(loginDto.getSmsCode(), this.getSmsCode(loginDto.getMobile()))) {
+                    // 创建用户
+                    appUser = this.createMobileUser(loginDto.getMobile());
+                } else {
+                    throw new BaseException(ErrorCodeEnum.FAIL, "短信验证码不匹配");
+                }
+            } else {
+                throw new BaseException(ErrorCodeEnum.FAIL, "用户未找到");
+            }
         }
 
-        // 校验密码
-        boolean success = passwordService.validatePassword(loginDto.getPassword(), appUser.getPassword());
-        if (!success) {
-            throw new BaseException(ErrorCodeEnum.FAIL, "密码不正确");
+        // 判断认证方式：短信验证码 或 密码
+        if (StrUtil.isNotBlank(loginDto.getSmsCode())) {
+            if (!Objects.equals(loginDto.getSmsCode(), this.getSmsCode(loginDto.getMobile()))) {
+                throw new BaseException(ErrorCodeEnum.FAIL, "短信验证码不匹配");
+            }
+        } else if (StrUtil.isNotBlank(loginDto.getPassword())) {
+            if (!passwordService.validatePassword(loginDto.getPassword(), appUser.getPassword())) {
+                throw new BaseException(ErrorCodeEnum.FAIL, "密码不正确");
+            }
+        } else {
+            throw new BaseException(ErrorCodeEnum.FAIL, "至少选择一种认证方式");
         }
 
         String userId = String.valueOf(appUser.getId());
@@ -78,5 +100,26 @@ public class AppAuthService {
         log.debug("smsCode: {}, key: {}", smsCode, key);
         // 执行缓存
         redisTemplate.opsForValue().set(key, smsCode, yeahBootProperties.getSmsCodeExpSeconds(), TimeUnit.SECONDS);
+    }
+
+    // ================================================================================
+
+    /**
+     * 获取短信验证码
+     */
+    private String getSmsCode(String mobile) {
+        return redisTemplate.opsForValue().get(String.format(CommonConsts.SMS_CODE_KEY, mobile));
+    }
+
+    /**
+     * 创建手机用户
+     */
+    private AppUserEntity createMobileUser(String mobile) {
+        AppUserEntity user = new AppUserEntity();
+        user.setMobile(mobile);
+        user.setAccount(idService.nextEncodedId());
+        boolean r = user.insert();
+        log.debug("createMobileUser.result: {}, user: {}", r, user);
+        return user;
     }
 }

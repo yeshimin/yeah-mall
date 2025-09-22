@@ -75,3 +75,7 @@ yeah:
   sms-code-length: 6
   # 短信验证码过期时间（秒）
   sms-code-exp-seconds: 300
+  # ID编号生成器
+  id-generator:
+    alphabet: GQT0FNR3taz1vDVEjsSJ2biZmLB8qk6OCMndohlKf4IAw7xr9eYgXWPcuHpU5y
+    min-length: 8
