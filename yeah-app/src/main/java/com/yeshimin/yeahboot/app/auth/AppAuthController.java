@@ -33,4 +33,15 @@ public class AppAuthController extends BaseController {
     public R<LoginVo> login(@Valid @RequestBody LoginDto dto) {
         return R.ok(appAuthService.login(dto));
     }
+
+    /**
+     * 发送短信验证码
+     */
+    @PublicAccess
+    @SysLog("发送短信验证码")
+    @PostMapping("/sendSmsCode")
+    public R<Void> sendSmsCode(@Valid @RequestBody SendSmsCodeDto dto) {
+        appAuthService.sendSmsCode(dto);
+        return R.ok();
+    }
 }

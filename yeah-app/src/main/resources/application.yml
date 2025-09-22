@@ -71,3 +71,7 @@ auth:
 yeah:
   # 是否开启验证码校验
   captcha-enabled: false
+  # 短信验证码位数
+  sms-code-length: 6
+  # 短信验证码过期时间（秒）
+  sms-code-exp-seconds: 300
