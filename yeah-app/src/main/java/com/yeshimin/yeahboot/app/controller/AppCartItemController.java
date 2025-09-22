@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -39,5 +40,15 @@ public class AppCartItemController extends BaseController {
     public R<List<CartShopVo>> query() {
         Long userId = WebContextUtils.getUserId();
         return R.ok(service.query(userId));
+    }
+
+    /**
+     * 删除
+     */
+    @PostMapping("/delete")
+    public R<Void> delete(@Validated @RequestBody Collection<Long> ids) {
+        Long userId = WebContextUtils.getUserId();
+        service.delete(userId, ids);
+        return R.ok();
     }
 }

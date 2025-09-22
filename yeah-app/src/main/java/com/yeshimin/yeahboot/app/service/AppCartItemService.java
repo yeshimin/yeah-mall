@@ -102,6 +102,7 @@ public class AppCartItemService {
 
         List<ShopCartItemVo> listShopCartItemVo = listCartItem.stream().map(cartItem -> {
             ShopCartItemVo vo = new ShopCartItemVo();
+            vo.setId(cartItem.getId());
             vo.setShopId(cartItem.getShopId());
             vo.setShopName(mapShop.get(cartItem.getShopId()).getShopName());
             vo.setSpuId(cartItem.getSpuId());
@@ -152,5 +153,13 @@ public class AppCartItemService {
         }
 
         return listCartShopVo;
+    }
+
+    /**
+     * 删除
+     */
+    public void delete(Long userId, Collection<Long> ids) {
+        boolean r = cartItemRepo.deleteByMemberIdAndIds(userId, ids);
+        log.debug("cartItem.delete.result：{}", r);
     }
 }

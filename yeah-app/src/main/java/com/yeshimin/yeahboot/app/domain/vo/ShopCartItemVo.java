@@ -14,6 +14,11 @@ import java.util.List;
 public class ShopCartItemVo extends BaseDomain {
 
     /**
+     * ID
+     */
+    private Long id;
+
+    /**
      * 店铺ID
      */
     @JsonIgnore
