@@ -45,4 +45,14 @@ public class CartItemRepo extends BaseRepo<CartItemMapper, CartItemEntity> {
         }
         return lambdaUpdate().in(CartItemEntity::getSkuId, skuIds).remove();
     }
+
+    /**
+     * deleteByMemberIdAndSkuIds
+     */
+    public boolean deleteByMemberIdAndSkuIds(Long memberId, Collection<Long> skuIds) {
+        if (memberId == null || skuIds == null || skuIds.isEmpty()) {
+            throw new IllegalArgumentException("memberId or skuIds不能为空");
+        }
+        return lambdaUpdate().eq(CartItemEntity::getMemberId, memberId).in(CartItemEntity::getSkuId, skuIds).remove();
+    }
 }
