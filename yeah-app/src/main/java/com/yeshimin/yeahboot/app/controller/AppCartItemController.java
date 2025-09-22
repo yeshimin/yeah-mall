@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.controller;
 
 import com.yeshimin.yeahboot.app.domain.dto.CartItemCreateDto;
+import com.yeshimin.yeahboot.app.domain.dto.CartItemUpdateDto;
 import com.yeshimin.yeahboot.app.domain.vo.CartShopVo;
 import com.yeshimin.yeahboot.app.service.AppCartItemService;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
@@ -40,6 +41,16 @@ public class AppCartItemController extends BaseController {
     public R<List<CartShopVo>> query() {
         Long userId = WebContextUtils.getUserId();
         return R.ok(service.query(userId));
+    }
+
+    /**
+     * 修改数量
+     */
+    @PostMapping("/update")
+    public R<Void> update(@Validated @RequestBody CartItemUpdateDto dto) {
+        Long userId = WebContextUtils.getUserId();
+        service.update(userId, dto);
+        return R.ok();
     }
 
     /**

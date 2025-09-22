@@ -1,8 +1,10 @@
 package com.yeshimin.yeahboot.app.service;
 
 import com.yeshimin.yeahboot.app.domain.dto.CartItemCreateDto;
+import com.yeshimin.yeahboot.app.domain.dto.CartItemUpdateDto;
 import com.yeshimin.yeahboot.app.domain.vo.CartShopVo;
 import com.yeshimin.yeahboot.app.domain.vo.ShopCartItemVo;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.data.repository.*;
@@ -153,6 +155,19 @@ public class AppCartItemService {
         }
 
         return listCartShopVo;
+    }
+
+    /**
+     * 更新
+     */
+    public void update(Long userId, CartItemUpdateDto dto) {
+        CartItemEntity entity = cartItemRepo.findOneByMemberIdAndId(userId, dto.getId());
+        if (entity == null) {
+            throw new BaseException("购物车商品项未找到");
+        }
+        entity.setQuantity(dto.getQuantity());
+        boolean r = entity.updateById();
+        log.debug("cartItem.update.result：{}", r);
     }
 
     /**

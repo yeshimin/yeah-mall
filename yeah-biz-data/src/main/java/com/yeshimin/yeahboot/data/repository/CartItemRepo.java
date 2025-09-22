@@ -65,4 +65,14 @@ public class CartItemRepo extends BaseRepo<CartItemMapper, CartItemEntity> {
         }
         return lambdaUpdate().eq(CartItemEntity::getMemberId, memberId).in(CartItemEntity::getId, ids).remove();
     }
+
+    /**
+     * findOneByMemberIdAndId
+     */
+    public CartItemEntity findOneByMemberIdAndId(Long memberId, Long id) {
+        if (memberId == null || id == null) {
+            throw new NullPointerException("memberId or id is null");
+        }
+        return lambdaQuery().eq(CartItemEntity::getMemberId, memberId).eq(CartItemEntity::getId, id).one();
+    }
 }
