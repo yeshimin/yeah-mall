@@ -9,19 +9,18 @@ import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.properties.YeahBootProperties;
+import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.common.service.IdService;
 import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.data.domain.entity.AppUserEntity;
 import com.yeshimin.yeahboot.data.repository.AppUserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +37,7 @@ public class AppAuthService {
     private final TerminalAndTokenControlService controlService;
 
     private final YeahBootProperties yeahBootProperties;
-    private final StringRedisTemplate redisTemplate;
+    private final CacheService cacheService;
     private final IdService idService;
 
     /**
@@ -51,7 +50,7 @@ public class AppAuthService {
         if (appUser == null) {
             // 用户未找到的情况下，如果是短信验证码登录，则直接创建用户
             if (StrUtil.isNotBlank(loginDto.getSmsCode())) {
-                if (Objects.equals(loginDto.getSmsCode(), this.getSmsCode(loginDto.getMobile()))) {
+                if (this.consumeSmsCode(loginDto.getMobile(), loginDto.getSmsCode())) {
                     // 创建用户
                     appUser = this.createMobileUser(loginDto.getMobile());
                 } else {
@@ -64,7 +63,7 @@ public class AppAuthService {
 
         // 判断认证方式：短信验证码 或 密码
         if (StrUtil.isNotBlank(loginDto.getSmsCode())) {
-            if (!Objects.equals(loginDto.getSmsCode(), this.getSmsCode(loginDto.getMobile()))) {
+            if (!this.consumeSmsCode(loginDto.getMobile(), loginDto.getSmsCode())) {
                 throw new BaseException(ErrorCodeEnum.FAIL, "短信验证码不匹配");
             }
         } else if (StrUtil.isNotBlank(loginDto.getPassword())) {
@@ -99,16 +98,23 @@ public class AppAuthService {
         String key = String.format(CommonConsts.SMS_CODE_KEY, dto.getMobile());
         log.debug("smsCode: {}, key: {}", smsCode, key);
         // 执行缓存
-        redisTemplate.opsForValue().set(key, smsCode, yeahBootProperties.getSmsCodeExpSeconds(), TimeUnit.SECONDS);
+        cacheService.set(key, smsCode, yeahBootProperties.getSmsCodeExpSeconds());
     }
 
     // ================================================================================
 
     /**
-     * 获取短信验证码
+     * 消费短信验证码
+     * 如果成功，则删除缓存
      */
-    private String getSmsCode(String mobile) {
-        return redisTemplate.opsForValue().get(String.format(CommonConsts.SMS_CODE_KEY, mobile));
+    private boolean consumeSmsCode(String mobile, String smsCode) {
+        String key = String.format(CommonConsts.SMS_CODE_KEY, mobile);
+        String code = cacheService.get(key);
+        if (StrUtil.isNotBlank(code) && Objects.equals(code, smsCode)) {
+            cacheService.delete(key);
+            return true;
+        }
+        return false;
     }
 
     /**
