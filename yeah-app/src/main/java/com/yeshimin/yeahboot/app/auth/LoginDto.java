@@ -22,9 +22,15 @@ public class LoginDto extends BaseDomain {
     private String mobile;
 
     /**
-     * 密码
+     * 短信验证码
+     * 与【密码】二选一
      */
-    @NotBlank(message = "密码不能为空")
+    private String smsCode;
+
+    /**
+     * 密码
+     * 与【短信验证码】二选一
+     */
     private String password;
 
     /**

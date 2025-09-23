@@ -121,6 +121,13 @@ yeah-boot:
   captcha-enabled: false
   # 是否为安全模式（场景：跳过@PreAuthorize @pms.hasPermission权限校验，方便权限配置或其他场景；一般为false，不需要动）
   safe-mode: false
+  sms-code-length: 6
+  # 短信验证码过期时间（秒）
+  sms-code-exp-seconds: 300
+  # ID编号生成器
+  id-generator:
+    alphabet: GQT0FNR3taz1vDVEjsSJ2biZmLB8qk6OCMndohlKf4IAw7xr9eYgXWPcuHpU5y
+    min-length: 8
   # 代码生成器
   code-generator:
     url: ${spring.datasource.url}
@@ -140,10 +147,6 @@ yeah-boot:
       - createBy
       - updateTime
       - updateBy
-  # ID编号生成器
-  id-generator:
-    alphabet: GQT0FNR3taz1vDVEjsSJ2biZmLB8qk6OCMndohlKf4IAw7xr9eYgXWPcuHpU5y
-    min-length: 8
   # 文件/存储
   storage:
     enabled: true
