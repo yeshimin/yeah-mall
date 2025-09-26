@@ -31,7 +31,22 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
     private BigDecimal totalAmount;
 
     /**
-     * 状态：1-待付款 2-已付款 3-待发货 4-已发货 5-已收货 6-已完成 7-已取消 8-已退款
+     * 状态：1-待付款 2-待发货 3-待收货 4-交易成功 5-交易关闭 6-退款 7-售后
      */
     private String status;
+
+    /**
+     * 退款状态：0-无 1-申请中 2-处理中 3-退款成功 4-已拒绝
+     */
+    private String refundStatus;
+
+    /**
+     * 售后状态：0-无 1-申请中 2-处理中 3-售后完成 4-已驳回
+     */
+    private String afterSaleStatus;
+
+    /**
+     * 是否已评价
+     */
+    private Boolean reviewed;
 }
