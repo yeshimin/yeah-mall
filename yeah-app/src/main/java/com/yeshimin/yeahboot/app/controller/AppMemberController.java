@@ -8,10 +8,7 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 会员表
@@ -35,7 +32,7 @@ public class AppMemberController extends BaseController {
     /**
      * 更新个人信息
      */
-    @RequestMapping("/updateProfile")
+    @PostMapping("/updateProfile")
     public R<MemberEntity> updateProfile(@Validated @RequestBody UpdateProfileDto dto) {
         Long userId = WebContextUtils.getUserId();
         return R.ok(service.updateProfile(userId, dto));
