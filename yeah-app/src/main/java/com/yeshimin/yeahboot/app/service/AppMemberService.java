@@ -3,11 +3,13 @@ package com.yeshimin.yeahboot.app.service;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.app.domain.dto.UpdateAvatarDto;
+import com.yeshimin.yeahboot.app.domain.dto.UpdatePasswordDto;
 import com.yeshimin.yeahboot.app.domain.dto.UpdateProfileDto;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
+import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.MemberRepo;
@@ -27,6 +29,8 @@ import javax.annotation.PostConstruct;
 public class AppMemberService {
 
     private final MemberRepo memberRepo;
+
+    private final PasswordService passwordService;
 
     private final StorageProperties storageProperties;
     private final StorageManager storageManager;
@@ -93,5 +97,18 @@ public class AppMemberService {
         boolean r = member.updateById();
         log.debug("updateAvatar.result：{}", r);
         return member;
+    }
+
+    /**
+     * 修改密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePassword(Long userId, UpdatePasswordDto dto) {
+        MemberEntity member = memberRepo.getOneById(userId);
+
+        String encodePassword = passwordService.encodePassword(dto.getPassword());
+        member.setPassword(encodePassword);
+        boolean r = member.updateById();
+        log.debug("updatePassword.result：{}", r);
     }
 }
