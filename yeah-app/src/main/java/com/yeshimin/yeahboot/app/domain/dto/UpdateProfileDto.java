@@ -13,9 +13,9 @@ import java.time.LocalDate;
 /**
  * 更新个人信息DTO
  */
-@Schema(description = "更新个人信息DTO")
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Schema(description = "更新个人信息DTO")
 public class UpdateProfileDto extends BaseDomain {
 
     /**

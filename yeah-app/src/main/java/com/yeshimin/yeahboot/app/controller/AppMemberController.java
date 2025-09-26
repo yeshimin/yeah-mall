@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.app.controller;
 
+import com.yeshimin.yeahboot.app.domain.dto.UpdateAvatarDto;
 import com.yeshimin.yeahboot.app.domain.dto.UpdateProfileDto;
 import com.yeshimin.yeahboot.app.service.AppMemberService;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
@@ -36,5 +37,14 @@ public class AppMemberController extends BaseController {
     public R<MemberEntity> updateProfile(@Validated @RequestBody UpdateProfileDto dto) {
         Long userId = WebContextUtils.getUserId();
         return R.ok(service.updateProfile(userId, dto));
+    }
+
+    /**
+     * 更新头像
+     */
+    @PostMapping("/updateAvatar")
+    public R<MemberEntity> updateAvatar(@Validated UpdateAvatarDto dto) {
+        Long userId = WebContextUtils.getUserId();
+        return R.ok(service.updateAvatar(userId, dto));
     }
 }

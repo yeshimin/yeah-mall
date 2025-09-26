@@ -190,3 +190,7 @@ yeah-boot:
       product:
         bucket: product
         path: ''
+      # avatar
+      avatar:
+          bucket: avatar
+          path: ''
