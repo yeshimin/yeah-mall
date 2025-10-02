@@ -18,6 +18,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -39,9 +40,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // 不需要session
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        Set<String> publicAccessUrls = this.getPublicAccessUrls();
+        Map<String, PublicAccess> publicAccessUrls = this.getPublicAccessUrls();
         // for springdoc
-        publicAccessUrls.addAll(this.getUrlsForSpringdoc());
+        publicAccessUrls.putAll(this.getUrlsForSpringdoc());
         log.info("Public access URLs: {}", publicAccessUrls);
 
         http.addFilterAfter(new JwtTokenAuthenticationFilter(authenticationManagerBean(), publicAccessUrls), LogoutFilter.class);
@@ -50,7 +51,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests()
 //                .antMatchers("/**/auth/login", "/admin/auth/captcha", "/public/storage/download")
-                .antMatchers(publicAccessUrls.toArray(new String[0]))
+                .antMatchers(publicAccessUrls.keySet().toArray(new String[0]))
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -83,8 +84,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // ================================================================================
 
-    private Set<String> getPublicAccessUrls() {
-        Set<String> urls = new HashSet<>();
+    private Map<String, PublicAccess> getPublicAccessUrls() {
+//        Set<String> urls = new HashSet<>();
+        Map<String, PublicAccess> urls = new HashMap<>();
 
         Map<RequestMappingInfo, HandlerMethod> handlerMethods = handlerMapping.getHandlerMethods();
 
@@ -105,7 +107,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 } else {
                     log.warn("No patterns found for method: {}", handlerMethod.getMethod().getName());
                 }
-                urls.addAll(patterns);
+//                urls.addAll(patterns);
+                for (String pattern : patterns) {
+                    urls.put(pattern, access);
+                }
             }
         }
 
@@ -115,12 +120,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * 获取静态资源路径 for springdoc
      */
-    private Set<String> getUrlsForSpringdoc() {
+    private Map<String, PublicAccess> getUrlsForSpringdoc() {
         Set<String> paths = new HashSet<>();
         paths.add("/v3/api-docs/**");
         paths.add("/**/*.html");
         paths.add("/**/*.js");
         paths.add("/**/*.css");
-        return paths;
+
+        Map<String, PublicAccess> urls0 = new HashMap<>();
+        for (String path : paths) {
+            urls0.put(path, null);
+        }
+        return urls0;
     }
 }
