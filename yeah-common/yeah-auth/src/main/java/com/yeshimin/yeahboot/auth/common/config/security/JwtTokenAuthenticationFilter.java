@@ -83,7 +83,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
      * 是否跳过认证
      */
     private boolean shouldSkipAuth(String url) {
-        return !(this.isPublicAccessUrl(url) && this.isAuthOnDemand(url));
+        return this.isPublicAccessUrl(url) && !this.isAuthOnDemand(url);
     }
 
     /**
