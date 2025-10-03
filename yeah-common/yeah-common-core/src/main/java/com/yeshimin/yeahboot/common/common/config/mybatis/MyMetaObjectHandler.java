@@ -38,8 +38,8 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         LocalDateTime now = LocalDateTime.now();
         String operator = this.getOperator();
 
-        this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, now);
-        this.strictInsertFill(metaObject, "updateBy", String.class, operator);
+        metaObject.setValue("updateTime", now);
+        metaObject.setValue("updateBy", operator);
     }
 
     private String getOperator() {
