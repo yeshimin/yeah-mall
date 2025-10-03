@@ -46,27 +46,23 @@ public abstract class BaseEntity<T extends Model<T>> extends Model<T> {
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
-//    @Null(message = "创建时间必须为空", groups = {Create.class, Update.class})
     private LocalDateTime createTime;
 
     /**
      * 创建者
      */
     @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
-//    @Null(message = "创建者必须为空", groups = {Create.class, Update.class})
     private String createBy;
 
     /**
      * 更新时间
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-//    @Null(message = "更新时间必须为空", groups = {Create.class, Update.class})
     private LocalDateTime updateTime;
 
     /**
      * 更新者
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-//    @Null(message = "更新者必须为空", groups = {Create.class, Update.class})
     private String updateBy;
 }

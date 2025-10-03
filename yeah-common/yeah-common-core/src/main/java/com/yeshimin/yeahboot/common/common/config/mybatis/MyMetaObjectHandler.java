@@ -23,15 +23,6 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         // id置空，自动生成
         metaObject.setValue("id", null);
 
-//        this.strictInsertFill(metaObject, "deleted", Integer.class, 0);
-//        this.strictInsertFill(metaObject, "deleteTime", LocalDateTime.class, CommonConsts.MAX_TIME);
-//
-//        this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, now);
-//        this.strictInsertFill(metaObject, "createBy", String.class, operator);
-//
-//        this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, now);
-//        this.strictInsertFill(metaObject, "updateBy", String.class, operator);
-
         this.setFieldValByName("deleted", 0, metaObject);
         this.setFieldValByName("deleteTime", CommonConsts.MAX_TIME, metaObject);
 
@@ -46,9 +37,6 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     public void updateFill(MetaObject metaObject) {
         LocalDateTime now = LocalDateTime.now();
         String operator = this.getOperator();
-
-//        this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, now);
-//        this.strictInsertFill(metaObject, "updateBy", String.class, operator);
 
         this.setFieldValByName("updateTime", now, metaObject);
         this.setFieldValByName("updateBy", operator, metaObject);

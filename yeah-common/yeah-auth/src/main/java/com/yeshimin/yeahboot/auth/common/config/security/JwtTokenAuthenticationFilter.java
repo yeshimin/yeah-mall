@@ -14,7 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Jwt Token认证过滤器 for Spring Security
@@ -23,9 +23,10 @@ import java.util.Set;
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private AuthenticationManager authenticationManager;
-    private Set<String> publicAccessUrls;
+    private Map<String, PublicAccess> publicAccessUrls;
 
-    public JwtTokenAuthenticationFilter(AuthenticationManager authenticationManager, Set<String> publicAccessUrls) {
+    public JwtTokenAuthenticationFilter(AuthenticationManager authenticationManager,
+                                        Map<String, PublicAccess> publicAccessUrls) {
         this.authenticationManager = authenticationManager;
         this.publicAccessUrls = publicAccessUrls;
     }
@@ -50,7 +51,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
      */
     private void authenticateIfRequired(HttpServletRequest request) {
         String token = this.extractToken(request);
-        if (StringUtils.isBlank(token) || this.isPublicAccessUrl(request.getRequestURI())) {
+        if (StringUtils.isBlank(token) || this.shouldSkipAuth(request.getRequestURI())) {
             log.debug("no token or public access, as anonymous in later AnonymousAuthenticationFilter");
             // 在过滤链AnonymousAuthenticationFilter中设置为匿名用户
             // 这里要先clear，否则在匿名Filter中会存在JwtTokenAuthenticationToken；具体原因暂时未知
@@ -79,11 +80,28 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
+     * 是否跳过认证
+     */
+    private boolean shouldSkipAuth(String url) {
+        return this.isPublicAccessUrl(url) && !this.isAuthOnDemand(url);
+    }
+
+    /**
      * isPublicAccessUrl
      */
     private boolean isPublicAccessUrl(String url) {
-        boolean r = publicAccessUrls.contains(url);
+        boolean r = publicAccessUrls.containsKey(url);
         log.debug("isPublicAccessUrl: {}, url: {}", r, url);
+        return r;
+    }
+
+    /**
+     * isAuthOnDemand
+     */
+    private boolean isAuthOnDemand(String url) {
+        PublicAccess access = publicAccessUrls.get(url);
+        boolean r = access != null && access.authOnDemand();
+        log.debug("isAuthOnDemand: {}, url: {}", r, url);
         return r;
     }
 }
