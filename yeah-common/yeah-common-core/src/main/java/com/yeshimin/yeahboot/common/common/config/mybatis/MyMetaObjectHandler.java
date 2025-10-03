@@ -23,14 +23,14 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         // id置空，自动生成
         metaObject.setValue("id", null);
 
-        this.strictInsertFill(metaObject, "deleted", Integer.class, 0);
-        this.strictInsertFill(metaObject, "deleteTime", LocalDateTime.class, CommonConsts.MAX_TIME);
+        this.setFieldValByName("deleted", 0, metaObject);
+        this.setFieldValByName("deleteTime", CommonConsts.MAX_TIME, metaObject);
 
-        this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, now);
-        this.strictInsertFill(metaObject, "createBy", String.class, operator);
+        this.setFieldValByName("createTime", now, metaObject);
+        this.setFieldValByName("createBy", operator, metaObject);
 
-        this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, now);
-        this.strictInsertFill(metaObject, "updateBy", String.class, operator);
+        this.setFieldValByName("updateTime", now, metaObject);
+        this.setFieldValByName("updateBy", operator, metaObject);
     }
 
     @Override
@@ -38,8 +38,12 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         LocalDateTime now = LocalDateTime.now();
         String operator = this.getOperator();
 
-        metaObject.setValue("updateTime", now);
-        metaObject.setValue("updateBy", operator);
+        this.setFieldValByName("updateTime", now, metaObject);
+        this.setFieldValByName("updateBy", operator, metaObject);
+
+        // createTime, createBy 置空  !! 这里设置为null无效，改为字段设置updateStrategy = FieldStrategy.NEVER
+//        this.setFieldValByName("createTime", null, metaObject);
+//        this.setFieldValByName("createBy", null, metaObject);
     }
 
     private String getOperator() {
