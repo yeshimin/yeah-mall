@@ -55,6 +55,18 @@ public class TokenService {
     }
 
     /**
+     * 删除缓存的token
+     */
+    public void deleteToken(String subject, String userId, String terminal, Long iatMs) {
+        // 删除token
+        cacheService.delete(String.format(CacheKeyConsts.USER_TERMINAL_TOKEN, subject, userId, terminal, iatMs));
+        // 删除terminal下token信息
+        cacheService.deleteHashFields(
+                String.format(CacheKeyConsts.USER_TERMINAL_TOKEN_INFO, subject, userId, terminal),
+                String.valueOf(iatMs));
+    }
+
+    /**
      * 获取sub下用户所有终端信息
      * hash类型
      */
