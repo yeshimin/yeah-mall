@@ -8,6 +8,8 @@ import com.yeshimin.yeahboot.auth.domain.vo.AuthVo;
 import com.yeshimin.yeahboot.auth.domain.vo.JwtPayloadVo;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.log.MdcLogFilter;
+import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
+import com.yeshimin.yeahboot.common.domain.base.ResultVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -96,6 +98,18 @@ public class AuthService {
         authVo.setRoles(userDetail.getRoles());
         authVo.setResources(userDetail.getResources());
         return authVo;
+    }
+
+    /**
+     * 退出登录
+     */
+    public ResultVo logout() {
+        String subject = WebContextUtils.getSubject();
+        String userId = String.valueOf(WebContextUtils.getUserId());
+        String terminal = WebContextUtils.getTerminal();
+        JwtPayloadVo jwtPayloadVo = tokenService.decodeToken(WebContextUtils.getToken());
+        tokenService.deleteToken(subject, userId, terminal, jwtPayloadVo.getIatMs());
+        return new ResultVo(true);
     }
 
     // ================================================================================

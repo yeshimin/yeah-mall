@@ -53,7 +53,7 @@ auth:
       default-leeway: 60
     subjects:
       - name: admin
-        api-prefix: '/admin,/basic'
+        api-prefix: '/admin,/basic,/auth'
         jwt:
           # 签发密钥
           secret: on3hoonguBi7cahdohv4iu0wiaqueiro
@@ -73,7 +73,7 @@ auth:
         # 同一个账号的最大在线终端数量（默认-1，表示不限制）
         max-online-terminal-count: -1
       - name: app
-        api-prefix: /app
+        api-prefix: '/app,/auth'
         jwt:
           # 签发密钥
           secret: ierohgh2ohl8paiXoi8kah0uhohsiewu

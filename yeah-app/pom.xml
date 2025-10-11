@@ -77,9 +77,22 @@
         <finalName>yeah-app</finalName>
 
         <plugins>
+            <!-- Spring Boot 插件同时生成普通 jar 和 fat jar -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <!-- fat jar 带 exec 后缀 -->
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
