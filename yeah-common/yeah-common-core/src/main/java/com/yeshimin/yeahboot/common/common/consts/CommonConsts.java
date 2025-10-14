@@ -33,8 +33,8 @@ public class CommonConsts {
 
     // 图形验证码缓存key
     public static final String CAPTCHA_KEY = "captcha_key:%s";
-    // 短信验证码缓存key %s=手机号
-    public static final String SMS_CODE_KEY = "sms_code_key:%s";
+    // APP端短信验证码缓存key %s=手机号
+    public static final String APP_SMS_CODE_KEY = "app_sms_code_key:%s";
 
     // 用户token过期时间（3600s）
     public static final long USER_TOKEN_EXPIRE_SECONDS = 3600;
