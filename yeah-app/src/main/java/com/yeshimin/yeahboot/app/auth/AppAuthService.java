@@ -2,6 +2,8 @@ package com.yeshimin.yeahboot.app.auth;
 
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSON;
+import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.yeshimin.yeahboot.auth.service.TerminalAndTokenControlService;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
@@ -14,6 +16,7 @@ import com.yeshimin.yeahboot.common.service.IdService;
 import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
 import com.yeshimin.yeahboot.data.repository.MemberRepo;
+import com.yeshimin.yeahboot.notification.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,6 +43,7 @@ public class AppAuthService {
     private final YeahBootProperties yeahBootProperties;
     private final CacheService cacheService;
     private final IdService idService;
+    private final SmsService smsService;
 
     /**
      * 登录
@@ -96,10 +100,13 @@ public class AppAuthService {
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining());
         // 生成缓存key
-        String key = String.format(CommonConsts.SMS_CODE_KEY, dto.getMobile());
+        String key = String.format(CommonConsts.APP_SMS_CODE_KEY, dto.getMobile());
         log.debug("smsCode: {}, key: {}", smsCode, key);
         // 执行缓存
         cacheService.set(key, smsCode, yeahBootProperties.getSmsCodeExpSeconds());
+        // 发送短信
+        SendSmsResponse response = smsService.sendSms(smsCode, dto.getMobile());
+        log.info("Response: {}", JSON.toJSONString(response));
     }
 
     // ================================================================================
@@ -109,7 +116,7 @@ public class AppAuthService {
      * 如果成功，则删除缓存
      */
     private boolean consumeSmsCode(String mobile, String smsCode) {
-        String key = String.format(CommonConsts.SMS_CODE_KEY, mobile);
+        String key = String.format(CommonConsts.APP_SMS_CODE_KEY, mobile);
         String code = cacheService.get(key);
         if (StrUtil.isNotBlank(code) && Objects.equals(code, smsCode)) {
             cacheService.delete(key);

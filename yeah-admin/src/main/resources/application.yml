@@ -195,3 +195,11 @@ yeah-boot:
       avatar:
           bucket: avatar
           path: ''
+  # 通知相关
+  notification:
+    aliyun:
+      sms:
+        access-key-id: OVERWRITE_ME
+        access-key-secret: OVERWRITE_ME
+        template-code: OVERWRITE_ME
+        sign-name: OVERWRITE_ME

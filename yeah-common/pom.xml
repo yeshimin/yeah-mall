@@ -18,6 +18,7 @@
         <module>yeah-common-core</module>
         <module>yeah-common-data</module>
         <module>yeah-generator</module>
+        <module>yeah-notification</module>
         <module>yeah-public</module>
         <module>yeah-storage</module>
     </modules>
