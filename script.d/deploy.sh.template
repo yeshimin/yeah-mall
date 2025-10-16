@@ -1,0 +1,126 @@
+#!/bin/bash
+# ==========================================================
+# Java 服务管理脚本（Linux/macOS 通用，兼容 /bin/sh）
+# ==========================================================
+
+JAR_NAME="yeah-admin.jar"
+PORT=8080
+JAVA_OPTS="-Dlogging.level.org.springframework.security=DEBUG -Dlogging.level.com.yeshimin.yeahboot=DEBUG"
+SPRING_OPTS="--yeah-boot.safe-mode=false;--yeah-boot.storage.impl.qiniu.access-key=******;--yeah-boot.storage.impl.qiniu.bucket=******;--yeah-boot.storage.impl.qiniu.domain=******;--yeah-boot.storage.impl.qiniu.public-domain=******;--yeah-boot.storage.impl.qiniu.secret-key=******;--yeah-boot.notification.aliyun.sms.access-key-id=******;--yeah-boot.notification.aliyun.sms.access-key-secret=******;--yeah-boot.notification.aliyun.sms.template-code=******;--yeah-boot.notification.aliyun.sms.sign-name=******"
+
+BASE_DIR=$(cd "$(dirname "$0")" && pwd)
+PID_DIR="$BASE_DIR/run"
+mkdir -p "$PID_DIR"
+PID_FILE="$PID_DIR/app.pid"
+
+get_pid() {
+  PID=""
+  if [ -f "$PID_FILE" ]; then
+    PID=$(cat "$PID_FILE")
+    if ! ps -p "$PID" > /dev/null 2>&1; then
+      rm -f "$PID_FILE"
+      PID=""
+    fi
+  fi
+  if [ -z "$PID" ]; then
+    PID=$(ps -ef | grep "java .*${JAR_NAME}" | grep -v grep | awk '{print $2}' | head -n 1)
+  fi
+  echo "$PID"
+}
+
+start() {
+  PID=$(get_pid)
+  if [ -n "$PID" ]; then
+    echo "⚠️  服务已在运行 (PID=$PID)"
+    exit 0
+  fi
+
+  echo "🚀 启动服务: $JAR_NAME (端口: $PORT)..."
+  #nohup java $JAVA_OPTS -jar "$JAR_NAME" $SPRING_OPTS --server.port="$PORT" > /dev/null 2>&1 &
+  nohup java $JAVA_OPTS -jar "$JAR_NAME" $SPRING_OPTS --server.port="$PORT" 2>&1 &
+  echo $! > "$PID_FILE"
+
+  sleep 1
+  PID=$(get_pid)
+  if [ -n "$PID" ]; then
+    echo "✅ 启动成功，PID=$PID"
+  else
+    echo "❌ 启动失败，请检查命令或环境"
+  fi
+}
+
+stop() {
+  PID=$(get_pid)
+  if [ -z "$PID" ]; then
+    echo "ℹ️  服务未运行"
+    return
+  fi
+
+  echo "🛑 停止服务 (PID=$PID)..."
+  kill "$PID"
+  i=0
+  while [ $i -lt 10 ]; do
+    sleep 0.5
+    if ! ps -p "$PID" > /dev/null 2>&1; then
+      rm -f "$PID_FILE"
+      echo "✅ 已停止"
+      return
+    fi
+    i=$((i+1))
+  done
+
+  echo "⚠️  正常停止失败，尝试强制杀进程..."
+  kill -9 "$PID"
+  rm -f "$PID_FILE"
+  echo "✅ 强制停止完成"
+}
+
+status() {
+  PID=$(get_pid)
+  if [ -n "$PID" ]; then
+    echo "🟢 服务正在运行 (PID=$PID)"
+  else
+    echo "🔴 服务未运行"
+  fi
+}
+
+restart() {
+  stop
+  sleep 1
+  start
+}
+
+CMD=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    start|stop|restart|status)
+      CMD="$1"
+      shift
+      ;;
+    -j|--jar)
+      JAR_NAME="$2"
+      shift 2
+      ;;
+    -p|--port)
+      PORT="$2"
+      shift 2
+      ;;
+    *)
+      echo "未知参数: $1"
+      echo "用法: $0 {start|stop|restart|status} [-j jar文件名] [-p 端口]"
+      exit 1
+      ;;
+  esac
+done
+
+case "$CMD" in
+  start) start ;;
+  stop) stop ;;
+  restart) restart ;;
+  status) status ;;
+  *)
+    echo "用法: $0 {start|stop|restart|status} [-j jar文件名] [-p 端口]"
+    exit 1
+    ;;
+esac
+
