@@ -64,18 +64,20 @@ public class AppAuthService {
                 throw new BaseException(ErrorCodeEnum.FAIL, "用户未找到");
             }
         }
-
-        // 判断认证方式：短信验证码 或 密码
-        if (StrUtil.isNotBlank(loginDto.getSmsCode())) {
-            if (!this.consumeSmsCode(loginDto.getMobile(), loginDto.getSmsCode())) {
-                throw new BaseException(ErrorCodeEnum.FAIL, "短信验证码不匹配");
+        // 用户存在的情况下，直接进行验证
+        else {
+            // 判断认证方式：短信验证码 或 密码
+            if (StrUtil.isNotBlank(loginDto.getSmsCode())) {
+                if (!this.consumeSmsCode(loginDto.getMobile(), loginDto.getSmsCode())) {
+                    throw new BaseException(ErrorCodeEnum.FAIL, "短信验证码不匹配");
+                }
+            } else if (StrUtil.isNotBlank(loginDto.getPassword())) {
+                if (!passwordService.validatePassword(loginDto.getPassword(), appUser.getPassword())) {
+                    throw new BaseException(ErrorCodeEnum.FAIL, "密码不正确");
+                }
+            } else {
+                throw new BaseException(ErrorCodeEnum.FAIL, "至少选择一种认证方式");
             }
-        } else if (StrUtil.isNotBlank(loginDto.getPassword())) {
-            if (!passwordService.validatePassword(loginDto.getPassword(), appUser.getPassword())) {
-                throw new BaseException(ErrorCodeEnum.FAIL, "密码不正确");
-            }
-        } else {
-            throw new BaseException(ErrorCodeEnum.FAIL, "至少选择一种认证方式");
         }
 
         String userId = String.valueOf(appUser.getId());
