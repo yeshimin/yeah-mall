@@ -13,9 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestConstructor;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 @Slf4j
 @SpringBootTest(classes = YeahAdminApplication.class)
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
@@ -28,9 +25,7 @@ public class SmsServiceTests {
     @Test
     public void sendSmsTest() {
         // 生成短信验证码
-        String smsCode = Arrays.stream(RandomUtil.randomInts(yeahBootProperties.getSmsCodeLength()))
-                .mapToObj(String::valueOf)
-                .collect(Collectors.joining());
+        String smsCode = RandomUtil.randomNumbers(yeahBootProperties.getSmsCodeLength());
         SendSmsResponse response = smsService.sendSms(smsCode, "152****3680");
         log.info("Response: {}", JSON.toJSONString(response));
         assert response != null;

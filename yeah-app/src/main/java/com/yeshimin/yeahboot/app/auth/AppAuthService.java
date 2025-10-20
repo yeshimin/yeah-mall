@@ -22,9 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 鉴权服务
@@ -97,9 +95,7 @@ public class AppAuthService {
      */
     public void sendSmsCode(SendSmsCodeDto dto) {
         // 生成短信验证码
-        String smsCode = Arrays.stream(RandomUtil.randomInts(yeahBootProperties.getSmsCodeLength()))
-                .mapToObj(String::valueOf)
-                .collect(Collectors.joining());
+        String smsCode = RandomUtil.randomNumbers(yeahBootProperties.getSmsCodeLength());
         // 生成缓存key
         String key = String.format(CommonConsts.APP_SMS_CODE_KEY, dto.getMobile());
         log.debug("smsCode: {}, key: {}", smsCode, key);
