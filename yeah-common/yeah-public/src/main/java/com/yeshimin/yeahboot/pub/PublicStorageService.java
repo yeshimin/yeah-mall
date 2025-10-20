@@ -5,14 +5,13 @@ import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.service.base.BaseService;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.SysStorageRepo;
+import com.yeshimin.yeahboot.storage.StorageGetResult;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.io.InputStream;
 
 @Slf4j
 @Service
@@ -31,8 +30,8 @@ public class PublicStorageService extends BaseService {
         if (isPublic && !sysStorage.getIsPublic()) {
             throw new BaseException(ErrorCodeEnum.FAIL, "该文件不可公开访问");
         }
-        InputStream inputStream = storageManager.get(fileKey, sysStorage);
-        return super.wrap(sysStorage.getOriginalName(), inputStream);
+        StorageGetResult result = storageManager.get(fileKey, sysStorage);
+        return super.wrap(sysStorage.getOriginalName(), result.getInputStream(), result.getRedirectUrl());
     }
 
     /**
@@ -44,7 +43,7 @@ public class PublicStorageService extends BaseService {
         if (isPublic && !sysStorage.getIsPublic()) {
             throw new BaseException(ErrorCodeEnum.FAIL, "该文件不可公开访问");
         }
-        InputStream inputStream = storageManager.get(fileKey, sysStorage);
-        return super.wrapForPreview(sysStorage.getOriginalName(), inputStream);
+        StorageGetResult result = storageManager.get(fileKey, sysStorage);
+        return super.wrapForPreview(sysStorage.getOriginalName(), result.getInputStream(), result.getRedirectUrl());
     }
 }

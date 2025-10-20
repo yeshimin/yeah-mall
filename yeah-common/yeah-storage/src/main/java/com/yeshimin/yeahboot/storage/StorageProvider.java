@@ -1,10 +1,8 @@
 package com.yeshimin.yeahboot.storage;
 
 import cn.hutool.core.util.StrUtil;
-import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
-
-import java.io.InputStream;
+import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 
 /**
  * 存储提供者接口
@@ -19,7 +17,7 @@ public interface StorageProvider {
     /**
      * get
      */
-    InputStream get(String fileKey, SysStorageEntity sysStorage);
+    StorageGetResult get(String fileKey, SysStorageEntity sysStorage);
 
     /**
      * delete

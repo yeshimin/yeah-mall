@@ -99,9 +99,9 @@ public class LocalStorageProvider implements StorageProvider {
     }
 
     @Override
-    public InputStream get(String fileKey, SysStorageEntity sysStorage) {
+    public StorageGetResult get(String fileKey, SysStorageEntity sysStorage) {
         try {
-            return Files.newInputStream(Paths.get(this.getFullPath(sysStorage)));
+            return new StorageGetResult(Files.newInputStream(Paths.get(this.getFullPath(sysStorage))), false);
         } catch (IOException e) {
             log.error("本地存储获取文件失败: {}", e.getMessage(), e);
         }

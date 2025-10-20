@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.common.service.base.BaseService;
 import com.yeshimin.yeahboot.data.domain.entity.SysFileEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.SysFileRepo;
+import com.yeshimin.yeahboot.storage.StorageGetResult;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
-import java.io.InputStream;
 
 @Slf4j
 @Service
@@ -78,8 +78,8 @@ public class FileService extends BaseService {
      */
     public ResponseEntity<InputStreamResource> download(String fileKey) {
         SysFileEntity sysFile = this.getLocalFileByFileKey(fileKey);
-        InputStream inputStream = storageManager.get(fileKey);
-        return super.wrap(sysFile.getOriginalName(), inputStream);
+        StorageGetResult result = storageManager.get(fileKey);
+        return super.wrap(sysFile.getOriginalName(), result.getInputStream(), result.getRedirectUrl());
     }
 
     /**
