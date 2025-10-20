@@ -107,16 +107,17 @@ public class QiniuStorageProvider implements StorageProvider {
     }
 
     @Override
-    public InputStream get(String fileKey, SysStorageEntity sysStorage) {
+    public StorageGetResult get(String fileKey, SysStorageEntity sysStorage) {
         String url = this.getDownloadInfo(fileKey, null, sysStorage);
-        File temp = FileUtil.createTempFile();
-        HttpUtil.downloadFileFromUrl(url, temp);
-        try {
-            return new TempFileInputStream(temp);
-        } catch (FileNotFoundException e) {
-            log.error("Failed to create temp file: {}", e.getMessage(), e);
-        }
-        return null;
+        return new StorageGetResult(url, true);
+//        File temp = FileUtil.createTempFile();
+//        HttpUtil.downloadFileFromUrl(url, temp);
+//        try {
+//            return new TempFileInputStream(temp);
+//        } catch (FileNotFoundException e) {
+//            log.error("Failed to create temp file: {}", e.getMessage(), e);
+//        }
+//        return null;
     }
 
     @Override

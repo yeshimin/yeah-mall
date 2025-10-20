@@ -85,11 +85,11 @@ public class MinioStorageProvider implements StorageProvider {
     }
 
     @Override
-    public InputStream get(String fileKey, SysStorageEntity sysStorage) {
+    public StorageGetResult get(String fileKey, SysStorageEntity sysStorage) {
         final String key = getKeyWithSuffix(fileKey, sysStorage.getSuffix());
 
         try {
-            return minioClient.getObject(minio.getBucket(), key);
+            return new StorageGetResult(minioClient.getObject(minio.getBucket(), key), false);
         } catch (Exception e) {
             log.error("MinIO获取文件失败: {}", e.getMessage(), e);
         }

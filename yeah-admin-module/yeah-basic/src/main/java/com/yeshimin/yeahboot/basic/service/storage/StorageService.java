@@ -8,6 +8,7 @@ import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.service.base.BaseService;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.SysStorageRepo;
+import com.yeshimin.yeahboot.storage.StorageGetResult;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.InputStream;
 
 @Slf4j
 @Service
@@ -53,8 +52,8 @@ public class StorageService extends BaseService {
         if (isPublic && !sysStorage.getIsPublic()) {
             throw new BaseException(ErrorCodeEnum.FAIL, "该文件不可公开访问");
         }
-        InputStream inputStream = storageManager.get(fileKey, sysStorage);
-        return super.wrap(sysStorage.getOriginalName(), inputStream);
+        StorageGetResult result = storageManager.get(fileKey, sysStorage);
+        return super.wrap(sysStorage.getOriginalName(), result.getInputStream(), result.getRedirectUrl());
     }
 
     /**

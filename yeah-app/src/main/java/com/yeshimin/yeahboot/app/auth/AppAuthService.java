@@ -22,9 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 鉴权服务
@@ -65,18 +63,20 @@ public class AppAuthService {
                 throw new BaseException(ErrorCodeEnum.FAIL, "用户未找到");
             }
         }
-
-        // 判断认证方式：短信验证码 或 密码
-        if (StrUtil.isNotBlank(loginDto.getSmsCode())) {
-            if (!this.consumeSmsCode(loginDto.getMobile(), loginDto.getSmsCode())) {
-                throw new BaseException(ErrorCodeEnum.FAIL, "短信验证码不匹配");
+        // 用户存在的情况下，直接进行验证
+        else {
+            // 判断认证方式：短信验证码 或 密码
+            if (StrUtil.isNotBlank(loginDto.getSmsCode())) {
+                if (!this.consumeSmsCode(loginDto.getMobile(), loginDto.getSmsCode())) {
+                    throw new BaseException(ErrorCodeEnum.FAIL, "短信验证码不匹配");
+                }
+            } else if (StrUtil.isNotBlank(loginDto.getPassword())) {
+                if (!passwordService.validatePassword(loginDto.getPassword(), member.getPassword())) {
+                    throw new BaseException(ErrorCodeEnum.FAIL, "密码不正确");
+                }
+            } else {
+                throw new BaseException(ErrorCodeEnum.FAIL, "至少选择一种认证方式");
             }
-        } else if (StrUtil.isNotBlank(loginDto.getPassword())) {
-            if (!passwordService.validatePassword(loginDto.getPassword(), member.getPassword())) {
-                throw new BaseException(ErrorCodeEnum.FAIL, "密码不正确");
-            }
-        } else {
-            throw new BaseException(ErrorCodeEnum.FAIL, "至少选择一种认证方式");
         }
 
         String userId = String.valueOf(member.getId());
@@ -96,9 +96,7 @@ public class AppAuthService {
      */
     public void sendSmsCode(SendSmsCodeDto dto) {
         // 生成短信验证码
-        String smsCode = Arrays.stream(RandomUtil.randomInts(yeahBootProperties.getSmsCodeLength()))
-                .mapToObj(String::valueOf)
-                .collect(Collectors.joining());
+        String smsCode = RandomUtil.randomNumbers(yeahBootProperties.getSmsCodeLength());
         // 生成缓存key
         String key = String.format(CommonConsts.APP_SMS_CODE_KEY, dto.getMobile());
         log.debug("smsCode: {}, key: {}", smsCode, key);

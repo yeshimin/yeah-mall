@@ -73,20 +73,20 @@ public class StorageManager {
         return entity;
     }
 
-    public InputStream get(String fileKey) {
+    public StorageGetResult get(String fileKey) {
         this.checkEnabled();
         SysStorageEntity sysStorage = sysStorageRepo.getOneByFileKey(fileKey);
         return this.get(fileKey, sysStorage);
     }
 
-    public InputStream get(String fileKey, SysStorageEntity sysStorage) {
+    public StorageGetResult get(String fileKey, SysStorageEntity sysStorage) {
         this.checkEnabled();
         StorageTypeEnum storageType = StorageTypeEnum.of(sysStorage.getStorageType());
-        InputStream inputStream = this.getProvider(storageType).get(fileKey, sysStorage);
-        if (inputStream == null) {
+        StorageGetResult result = this.getProvider(storageType).get(fileKey, sysStorage);
+        if (result == null) {
             throw new BaseException(ErrorCodeEnum.FAIL, "获取文件失败");
         }
-        return inputStream;
+        return result;
     }
 
     /**
