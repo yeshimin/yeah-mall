@@ -82,6 +82,7 @@ public class JwtService {
         JwtProperties jwtProp = jwtConfigs.get(subject);
 
         Date now = new Date();
+        // expireSeconds类型已改为Long，避免溢出
         Date exp = new Date(now.getTime() + jwtProp.getExpireSeconds() * 1000);
         JWTCreator.Builder builder = JWT.create()
                 // 受众（用户标识）
