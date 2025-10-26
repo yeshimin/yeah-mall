@@ -172,7 +172,7 @@ public class JwtService {
         return payloadVo;
     }
 
-    public Integer getExpireSeconds(String subject) {
+    public Long getExpireSeconds(String subject) {
         return jwtConfigs.get(subject).getExpireSeconds();
     }
 }
