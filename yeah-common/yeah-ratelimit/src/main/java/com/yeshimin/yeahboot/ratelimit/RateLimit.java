@@ -1,0 +1,61 @@
+package com.yeshimin.yeahboot.ratelimit;
+
+import com.yeshimin.yeahboot.ratelimit.enums.GroupType;
+
+import java.lang.annotation.*;
+
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface RateLimit {
+
+    /**
+     * 是否启用
+     */
+    boolean enabled() default true;
+
+    /**
+     * 名称，默认为方法的全限定名
+     */
+    String name() default "";
+
+    /**
+     * 分组方式：1-无 2-按IP 3-按用户
+     */
+    GroupType groupType() default GroupType.DEFAULT;
+
+    /**
+     * 自定义分组逻辑，配合GroupType.CUSTOM使用；支持spel表达式
+     */
+    String customGroup() default "";
+
+    /**
+     * 限制数量
+     */
+    long limitCount() default -1;
+
+    /**
+     * 限制分组数量
+     */
+    long limitGroup() default -1;
+
+    /**
+     * 限制每个分组内数量
+     */
+    long limitGroupCount() default -1;
+
+    /**
+     * 时间窗口，单位：秒
+     */
+    long timeWindow() default 1;
+
+    /**
+     * 是否动态时间窗口模式
+     */
+    boolean dynamicTimeWindow() default true;
+
+    /**
+     * 是否全局限流
+     */
+    boolean global() default false;
+}
