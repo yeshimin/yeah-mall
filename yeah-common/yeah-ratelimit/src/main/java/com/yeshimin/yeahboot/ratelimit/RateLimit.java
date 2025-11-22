@@ -22,7 +22,7 @@ public @interface RateLimit {
     /**
      * 分组方式：1-无 2-按IP 3-按用户
      */
-    GroupType groupType() default GroupType.DEFAULT;
+    GroupType groupType() default GroupType.NONE;
 
     /**
      * 自定义分组逻辑，配合GroupType.CUSTOM使用；支持spel表达式
@@ -55,7 +55,7 @@ public @interface RateLimit {
     boolean dynamicTimeWindow() default true;
 
     /**
-     * 是否全局限流
+     * 是否全局限流 TODO
      */
     boolean global() default false;
 }

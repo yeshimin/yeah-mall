@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -26,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 @Component
-public class RateLimitInterceptor implements HandlerInterceptor {
+public class RateLimitInterceptor2 implements HandlerInterceptor {
 
     private final Map<String, ConcurrentLinkedDeque<Long>> plainRecords = new ConcurrentHashMap<>();
     private final Map<String, AtomicInteger> plainCounter = new ConcurrentHashMap<>();
@@ -35,6 +36,10 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     private final Map<String, Map<String, ConcurrentLinkedDeque<Long>>> groupRecords = new ConcurrentHashMap<>();
     private final Map<String, AtomicInteger> groupCounter = new ConcurrentHashMap<>();
+
+    private final Map<String, ConcurrentLinkedQueue<PlainRecord>> mapPlainRecords0 = new ConcurrentHashMap<>();
+    private final Map<String, ConcurrentLinkedQueue<InnerGroupRecord>> mapInnerGroupRecords0 = new ConcurrentHashMap<>();
+    private final Map<String, OuterGroupRecord> mapOuterGroupRecords0 = new ConcurrentHashMap<>();
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -58,10 +63,41 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         // 获取限流配置
         RateLimitConf rlConf = this.getRateLimitConf(rateLimit, method, request);
 
-        // TODO 两个allowed一起判断，通过再添加记录
+        // --------------------------------------------------------------------------------
+
+        // 记录请求
+
+        ConcurrentLinkedQueue<PlainRecord> plainRecords0 = mapPlainRecords0.computeIfAbsent(rlConf.getResName(), k -> new ConcurrentLinkedQueue<>());
+        PlainRecord plainRecord = new PlainRecord(rlConf.getReqTime(), false);
+        plainRecords0.add(plainRecord);
+
+        String resGroupName = rlConf.getResName() + ":" + rlConf.getGroupName();
+        ConcurrentLinkedQueue<InnerGroupRecord> innerGroupRecords0 = mapInnerGroupRecords0.computeIfAbsent(resGroupName, k -> new ConcurrentLinkedQueue<>());
+        InnerGroupRecord innerGroupRecord = new InnerGroupRecord(rlConf.getReqTime(), false);
+        innerGroupRecords0.add(innerGroupRecord);
+
+        OuterGroupRecord outerGroupRecord = mapOuterGroupRecords0.computeIfAbsent(resGroupName, k -> new OuterGroupRecord(0, rlConf.getReqTime()));
+        if (rlConf.getReqTime() > outerGroupRecord.getLastReqTime()) {
+            outerGroupRecord.setLastReqTime(rlConf.getReqTime());
+        }
+
+        // 统计有效请求，判断和拦截
+
+        boolean allowed = true;
+
+        if (rlConf.getLimitCount() > -1) {
+            long plainCount = plainRecords0.stream().filter(record -> record.getTime() >= rlConf.getWindowFrom() && record.isAllowed()).count();
+        }
+
+
+
+
+
+
+
 
         // 记录有效请求，即未被拦截的请求
-        boolean plainAllowed = this.plainHandle(rlConf).isAllowed();
+        boolean plainAllowed = this.plainHandle(rlConf);
         log.info("plainAllowed: {}", plainAllowed);
         if (!plainAllowed) {
             response.setStatus(429); // Too Many Requests
@@ -84,17 +120,19 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     /**
      * 记录有效请求
      */
-    private PlainHandleResult plainHandle(RateLimitConf rlConf) {
+    private boolean plainHandle(RateLimitConf rlConf) {
         ConcurrentLinkedDeque<Long> records = plainRecords.computeIfAbsent(rlConf.getResName(), k -> new ConcurrentLinkedDeque<>());
         AtomicInteger counter = plainCounter.computeIfAbsent(rlConf.getResName(), k -> new AtomicInteger());
+
+        // 过滤出时间窗口内的记录
+//        ConcurrentLinkedDeque<Long> validRecords = records.stream().filter(record -> record >= rlConf.getWindowFrom()).collect(Collectors.toList())
 
         // 清理窗口外过期记录
         while (true) {
             Long head = records.peekFirst();
             if (head != null && head < rlConf.getWindowFrom()) {
-                if (records.pollFirst() != null) {
-                    counter.decrementAndGet();
-                }
+                records.pollFirst();
+                counter.decrementAndGet();
             } else {
                 break;
             }
@@ -103,10 +141,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         while (true) {
             int current = counter.get();
             if (rlConf.getLimitCount() > -1 && current >= rlConf.getLimitCount()) {
-                return new PlainHandleResult(false, records);
+                return false;
             }
             if (counter.compareAndSet(current, current + 1)) {
-                return new PlainHandleResult(true, records);
+                records.addLast(rlConf.getReqTime());
+                return true;
             }
         }
     }
@@ -123,9 +162,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             if (outRecords.containsKey(rlConf.getGroupName())) {
                 groupAllowed = outRecords.size() <= rlConf.getLimitGroup();
             } else {
-//                groupAllowed = outRecords.size() + 1 <= rlConf.getLimitGroup();
-                // 使用AtomicInteger
-
+                groupAllowed = outRecords.size() + 1 <= rlConf.getLimitGroup();
             }
         }
 
@@ -233,8 +270,22 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     @Data
     @AllArgsConstructor
-    private static class PlainHandleResult {
-        private boolean allowed;
-        private ConcurrentLinkedDeque<Long> records;
+    private static class PlainRecord {
+        private long time;
+        private volatile boolean allowed;
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class InnerGroupRecord {
+        private long time;
+        private volatile boolean allowed;
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class OuterGroupRecord {
+        private volatile long lastAllowedTime;
+        private volatile long lastReqTime;
     }
 }

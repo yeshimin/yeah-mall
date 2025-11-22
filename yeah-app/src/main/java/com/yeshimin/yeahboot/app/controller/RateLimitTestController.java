@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.app.controller;
 
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.ratelimit.RateLimit;
+import com.yeshimin.yeahboot.ratelimit.enums.GroupType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RateLimitTestController {
 
     @PublicAccess
-    @RateLimit(limitCount = 5, timeWindow = 1)
+    @RateLimit(timeWindow = 5, limitCount = 10, limitGroupCount = 10, groupType = GroupType.CUSTOM, customGroup = "#request.getParameter('groupName')", limitGroup = 2)
     @GetMapping("/test")
     public String test() {
         return "hello world";

@@ -45,4 +45,8 @@ class RateLimitConf {
 
     // 计算得出
     private String groupName;
+
+    public boolean isSkip() {
+        return !enabled || (limitCount < 0 && limitGroup < 0 && limitGroupCount < 0);
+    }
 }

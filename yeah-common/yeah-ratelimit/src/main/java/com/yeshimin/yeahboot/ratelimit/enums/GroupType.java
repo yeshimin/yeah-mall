@@ -1,14 +1,16 @@
 package com.yeshimin.yeahboot.ratelimit.enums;
 
+import lombok.Getter;
+
 /**
  * 分组方式：1-无 2-按IP 3-按用户
  */
+@Getter
 public enum GroupType {
 
-    DEFAULT(1),
+    NONE(1),
     IP(2),
-    USER(3),
-    CUSTOM(4);
+    CUSTOM(3);
 
     private final Integer value;
 
@@ -16,7 +18,4 @@ public enum GroupType {
         this.value = value;
     }
 
-    public Integer getValue() {
-        return value;
-    }
 }
