@@ -1,11 +1,13 @@
-package com.yeshimin.yeahboot.app.controller;
+package com.yeshimin.yeahboot.app.demo;
 
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.ratelimit.RateLimitService;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 
+@Service
 public class DefaultRateLimitService implements RateLimitService {
 
     @Override

@@ -63,4 +63,9 @@ public @interface RateLimit {
      * 是否全局限流 TODO
      */
     boolean global() default false;
+
+    /**
+     * 描述
+     */
+    String description() default "";
 }

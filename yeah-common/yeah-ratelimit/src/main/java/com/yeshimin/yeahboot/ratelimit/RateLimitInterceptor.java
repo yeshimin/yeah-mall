@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
@@ -48,6 +49,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     @Autowired(required = false)
     private RateLimitService rateLimitService;
+
+    @PostConstruct
+    public void init() {
+        log.debug("init [yeah-boot] rate limit interceptor...");
+    }
 
     private static final ScheduledExecutorService CLEANER =
             Executors.newSingleThreadScheduledExecutor(r -> {
