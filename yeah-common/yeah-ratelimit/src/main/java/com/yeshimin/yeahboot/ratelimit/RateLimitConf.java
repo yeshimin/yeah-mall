@@ -17,13 +17,17 @@ class RateLimitConf {
 
     private String customGroup;
 
-    private long limitCount;
+    private int limitCount;
 
-    private long limitGroup;
+    private int limitGroup;
 
-    private long limitGroupCount;
+    private int limitGroupCount;
 
-    private long timeWindow;
+    // 时间窗口，单位：毫秒
+    private int timeWindow;
+
+    // 时间窗口内桶大小，单位：毫秒
+    private int bucketSize;
 
     private boolean dynamicTimeWindow;
 

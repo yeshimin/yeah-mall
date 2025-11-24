@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RateLimitTestController {
 
     @PublicAccess
-    @RateLimit(timeWindow = 5, limitCount = 10, limitGroupCount = 10, groupType = GroupType.CUSTOM, customGroup = "#request.getParameter('groupName')", limitGroup = 2)
+    @RateLimit(timeWindow = 5000, limitCount = 10, limitGroupCount = 10, groupType = GroupType.CUSTOM, customGroup = "#request.getParameter('groupName')", limitGroup = 2)
     @GetMapping("/test")
     public String test() {
         return "hello world";

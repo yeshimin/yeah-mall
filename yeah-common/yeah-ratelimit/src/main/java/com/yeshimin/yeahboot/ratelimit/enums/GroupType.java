@@ -3,7 +3,7 @@ package com.yeshimin.yeahboot.ratelimit.enums;
 import lombok.Getter;
 
 /**
- * 分组方式：1-无 2-按IP 3-按用户
+ * 分组方式：1-无 2-按IP 3-自定义
  */
 @Getter
 public enum GroupType {
@@ -17,5 +17,4 @@ public enum GroupType {
     GroupType(Integer value) {
         this.value = value;
     }
-
 }

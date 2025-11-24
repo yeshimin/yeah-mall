@@ -32,22 +32,27 @@ public @interface RateLimit {
     /**
      * 限制数量
      */
-    long limitCount() default -1;
+    int limitCount() default -1;
 
     /**
      * 限制分组数量
      */
-    long limitGroup() default -1;
+    int limitGroup() default -1;
 
     /**
      * 限制每个分组内数量
      */
-    long limitGroupCount() default -1;
+    int limitGroupCount() default -1;
 
     /**
-     * 时间窗口，单位：秒
+     * 时间窗口，单位：毫秒
      */
-    long timeWindow() default 1;
+    int timeWindow() default 1000;
+
+    /**
+     * 时间窗口内桶大小，单位：毫秒，默认：100
+     */
+    int bucketSize() default 100;
 
     /**
      * 是否动态时间窗口模式
