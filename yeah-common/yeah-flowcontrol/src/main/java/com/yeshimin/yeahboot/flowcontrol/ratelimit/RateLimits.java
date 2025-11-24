@@ -1,4 +1,4 @@
-//package com.yeshimin.yeahboot.ratelimit;
+//package com.yeshimin.yeahboot.flowcontrol.ratelimit;
 //
 //import java.lang.annotation.*;
 //

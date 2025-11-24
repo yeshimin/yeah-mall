@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.ratelimit;
+package com.yeshimin.yeahboot.flowcontrol.ratelimit;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;

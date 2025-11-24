@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.ratelimit.enums;
+package com.yeshimin.yeahboot.flowcontrol.enums;
 
 import lombok.Getter;
 

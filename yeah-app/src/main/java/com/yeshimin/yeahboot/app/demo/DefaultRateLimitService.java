@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.app.demo;
 
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
-import com.yeshimin.yeahboot.ratelimit.RateLimitService;
+import com.yeshimin.yeahboot.flowcontrol.ratelimit.RateLimitService;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;

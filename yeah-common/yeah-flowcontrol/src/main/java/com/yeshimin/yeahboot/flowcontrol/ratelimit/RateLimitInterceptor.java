@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.ratelimit;
+package com.yeshimin.yeahboot.flowcontrol.ratelimit;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * RateLimit 拦截器
- * TODO ratelimit -> flowcontrol
  */
 @Slf4j
 @Component

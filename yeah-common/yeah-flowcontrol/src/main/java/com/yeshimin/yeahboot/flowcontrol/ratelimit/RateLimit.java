@@ -1,9 +1,12 @@
-package com.yeshimin.yeahboot.ratelimit;
+package com.yeshimin.yeahboot.flowcontrol.ratelimit;
 
-import com.yeshimin.yeahboot.ratelimit.enums.GroupType;
+import com.yeshimin.yeahboot.flowcontrol.enums.GroupType;
 
 import java.lang.annotation.*;
 
+/**
+ * 限流注解
+ */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

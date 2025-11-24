@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.app.demo;
 
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
-import com.yeshimin.yeahboot.ratelimit.RateLimit;
+import com.yeshimin.yeahboot.flowcontrol.ratelimit.RateLimit;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
