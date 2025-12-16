@@ -29,11 +29,13 @@ public class JwtProperties {
 
     /**
      * 过期时间（秒）
+     * 避免乘以1000后超出Integer范围，改为Long类型
      */
-    private Integer expireSeconds;
+    private Long expireSeconds;
 
     /**
      * 时间校验偏差（秒）
+     * 这里顺便一起改掉，同上
      */
-    private Integer defaultLeeway;
+    private Long defaultLeeway;
 }

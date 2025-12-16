@@ -44,6 +44,11 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-notification</artifactId>
         </dependency>
+        <!-- ratelimit module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-flowcontrol</artifactId>
+        </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->
         <dependency>

@@ -103,7 +103,7 @@ public class TokenService {
             cacheService.setHash(key, map);
         }
         Long expire = cacheService.getExpire(key);
-        Integer configExpireSeconds = jwtService.getExpireSeconds(subject);
+        Long configExpireSeconds = jwtService.getExpireSeconds(subject);
         cacheService.expire(key, expire == null || configExpireSeconds > expire ? configExpireSeconds : expire);
     }
 
@@ -120,7 +120,7 @@ public class TokenService {
             cacheService.setHash(key, map);
         }
         Long expire = cacheService.getExpire(key);
-        Integer configExpireSeconds = jwtService.getExpireSeconds(subject);
+        Long configExpireSeconds = jwtService.getExpireSeconds(subject);
         cacheService.expire(key, expire == null || configExpireSeconds > expire ? configExpireSeconds : expire);
     }
 
@@ -129,7 +129,7 @@ public class TokenService {
      * NOTE 如何操作频率太高出现性能问题，可降低刷新频率，比如过期时间在10分钟以内才刷新
      */
     public void refreshTokenExpire(String subject, String userId, String terminal, Long iatMs) {
-        Integer configExpireSeconds = jwtService.getExpireSeconds(subject);
+        Long configExpireSeconds = jwtService.getExpireSeconds(subject);
         Long expireMs = System.currentTimeMillis() + configExpireSeconds * 1000;
 
         // 刷新token过期时间

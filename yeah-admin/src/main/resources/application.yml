@@ -40,6 +40,13 @@ decorator:
       # see https://p6spy.readthedocs.io/en/latest/configandusage.html#excludecategories
       exclude-categories: "info,debug,result,resultset,commit,rollback"
 
+# mybatis-plus相关
+mybatis-plus:
+  global-config:
+    db-config:
+      # 实体查询时，字段为非空串才设置查询条件
+      select-strategy: not_empty
+
 # auth相关
 auth:
   token:

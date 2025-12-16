@@ -162,6 +162,12 @@
                 <artifactId>yeah-notification</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
+            <!-- ratelimit module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-flowcontrol</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
             <!-- ================================================================================ -->
 
             <!-- Easy Captcha -->

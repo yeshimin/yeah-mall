@@ -20,6 +20,7 @@
         <module>yeah-generator</module>
         <module>yeah-notification</module>
         <module>yeah-public</module>
+        <module>yeah-flowcontrol</module>
         <module>yeah-storage</module>
     </modules>
 
