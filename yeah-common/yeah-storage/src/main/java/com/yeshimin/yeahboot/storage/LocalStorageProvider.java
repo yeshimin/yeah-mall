@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,6 @@ import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -42,23 +42,26 @@ public class LocalStorageProvider implements StorageProvider {
         this.local = storageProperties.getImpl().getLocal();
     }
 
+    @SneakyThrows
     @Override
     public SysStorageEntity put(@Nullable String bucket, @Nullable String path, Object file, boolean isPublic) {
+        byte[] fileBytes = ((MultipartFile) file).getBytes();
+        String fileOriginName = ((MultipartFile) file).getOriginalFilename();
+        return this.put(bucket, path, fileBytes, fileOriginName, isPublic);
+    }
+
+    @Override
+    public SysStorageEntity put(String bucket, String path, byte[] fileBytes, String fileOriginName, boolean isPublic) {
         if (StrUtil.isNotBlank(bucket) && !ReUtil.isMatch(BUCKET_NAME_REGEX, bucket)) {
             throw new IllegalArgumentException("BucketName format error");
         }
         if (StrUtil.isNotBlank(path) && !ReUtil.isMatch(PATH_REGEX, path)) {
             throw new IllegalArgumentException("Path format error");
         }
-        if (!(file instanceof MultipartFile)) {
-            throw new IllegalArgumentException("File must be an instance of MultipartFile");
-        }
-
-        MultipartFile mFile = (MultipartFile) file;
 
         // 生成fileKey、获取文件后缀名
         String fileKey = IdUtil.simpleUUID();
-        @Nullable String suffix = FileUtil.getSuffix(mFile.getOriginalFilename());
+        @Nullable String suffix = FileUtil.getSuffix(fileOriginName);
         // 最终的fileKey（不带path）
         String finalKey = getKeyWithSuffix(fileKey, suffix);
 //        finalKey = StrUtil.isBlank(path) ? finalKey: FileUtil.file(path, finalKey).getAbsolutePath();
@@ -75,9 +78,9 @@ public class LocalStorageProvider implements StorageProvider {
 
         boolean success;
         try {
-            mFile.transferTo(finalFile);
+            FileUtil.writeBytes(fileBytes, finalFile);
             success = true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Failed to upload file: {}", e.getMessage(), e);
             success = false;
         }
@@ -91,7 +94,7 @@ public class LocalStorageProvider implements StorageProvider {
         result.setPath(path);
         result.setFileKey(fileKey);
         result.setSuffix(suffix);
-        result.setOriginalName(mFile.getOriginalFilename());
+        result.setOriginalName(fileOriginName);
         result.setIsPublic(isPublic);
         result.setIsPublic(isPublic);
 

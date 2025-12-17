@@ -59,7 +59,6 @@ public class StorageManager {
 
     public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, Object file,
                                 @Nullable StorageTypeEnum storageType) {
-        this.checkEnabled();
         return this.put(bucketName, path, file, storageType, false);
     }
 

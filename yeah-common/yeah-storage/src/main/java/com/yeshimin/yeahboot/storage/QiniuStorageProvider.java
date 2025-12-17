@@ -3,7 +3,6 @@ package com.yeshimin.yeahboot.storage;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
@@ -17,6 +16,7 @@ import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -24,10 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * 七牛相关服务
@@ -65,14 +62,19 @@ public class QiniuStorageProvider implements StorageProvider {
         bucketManager = new BucketManager(auth, cfg);
     }
 
+    @SneakyThrows
     @Override
     public SysStorageEntity put(@Nullable String bucket, @Nullable String path, Object file, boolean isPublic) {
+        byte[] fileBytes = ((MultipartFile) file).getBytes();
+        String fileOriginName = ((MultipartFile) file).getOriginalFilename();
+        return this.put(bucket, path, fileBytes, fileOriginName, isPublic);
+    }
 
-        MultipartFile mFile = (MultipartFile) file;
-
+    @Override
+    public SysStorageEntity put(String bucket, String path, byte[] fileBytes, String fileOriginName, boolean isPublic) {
         // 生成fileKey
         String fileKey = IdUtil.simpleUUID();
-        @Nullable String suffix = FileUtil.getSuffix(mFile.getOriginalFilename());
+        @Nullable String suffix = FileUtil.getSuffix(fileOriginName);
         // 最终的fileKey
         String finalKey = getKeyWithSuffix(fileKey, suffix);
         finalKey = YsmUtils.path(path, finalKey);
@@ -85,7 +87,7 @@ public class QiniuStorageProvider implements StorageProvider {
         boolean success;
         Response response = null;
         try {
-            response = uploadManager.put(mFile.getBytes(), finalKey, upToken);
+            response = uploadManager.put(fileBytes, finalKey, upToken);
             success = true;
         } catch (IOException e) {
             log.error("Failed to upload file: {}", e.getMessage(), e);
@@ -101,7 +103,7 @@ public class QiniuStorageProvider implements StorageProvider {
         result.setPath(path);
         result.setFileKey(fileKey);
         result.setSuffix(suffix);
-        result.setOriginalName(mFile.getOriginalFilename());
+        result.setOriginalName(fileOriginName);
         result.setIsPublic(isPublic);
 
         return result;
