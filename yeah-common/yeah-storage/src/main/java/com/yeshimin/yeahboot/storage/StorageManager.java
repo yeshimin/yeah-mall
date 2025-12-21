@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +58,6 @@ public class StorageManager {
 
     public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, Object file,
                                 @Nullable StorageTypeEnum storageType) {
-        this.checkEnabled();
         return this.put(bucketName, path, file, storageType, false);
     }
 
@@ -67,6 +65,17 @@ public class StorageManager {
                                 @Nullable StorageTypeEnum storageType, boolean isPublic) {
         this.checkEnabled();
         SysStorageEntity entity = this.getProvider(storageType).put(bucketName, path, file, isPublic);
+        entity.setIsPublic(isPublic);
+        boolean r = entity.insert();
+        log.info("StorageManager.put.result: {}", r);
+        return entity;
+    }
+
+    public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, byte[] fileBytes,
+                                String fileOriginName, @Nullable StorageTypeEnum storageType, boolean isPublic) {
+        this.checkEnabled();
+        SysStorageEntity entity =
+                this.getProvider(storageType).put(bucketName, path, fileBytes, fileOriginName, isPublic);
         entity.setIsPublic(isPublic);
         boolean r = entity.insert();
         log.info("StorageManager.put.result: {}", r);

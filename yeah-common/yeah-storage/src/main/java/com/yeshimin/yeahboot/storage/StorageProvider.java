@@ -15,6 +15,11 @@ public interface StorageProvider {
     SysStorageEntity put(String bucket, String path, Object file, boolean isPublic);
 
     /**
+     * put
+     */
+    SysStorageEntity put(String bucket, String path, byte[] fileBytes, String fileOriginName, boolean isPublic);
+
+    /**
      * get
      */
     StorageGetResult get(String fileKey, SysStorageEntity sysStorage);

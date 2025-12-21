@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 
 @Slf4j
 @Service
@@ -79,6 +79,44 @@ public class MinioStorageProvider implements StorageProvider {
         result.setFileKey(fileKey);
         result.setSuffix(suffix);
         result.setOriginalName(mFile.getOriginalFilename());
+        result.setIsPublic(isPublic);
+
+        return result;
+    }
+
+    @Override
+    public SysStorageEntity put(String bucket, String path, byte[] fileBytes, String fileOriginName, boolean isPublic) {
+        // 生成fileKey
+        String fileKey = IdUtil.simpleUUID();
+        @Nullable String suffix = FileUtil.getSuffix(fileOriginName);
+        // 最终的fileKey
+        String finalKey = getKeyWithSuffix(fileKey, suffix);
+        finalKey = YsmUtils.path(path, finalKey);
+        log.info("finalKey: {}", finalKey);
+
+        String finalBucket = isPublic ? minio.getPublicBucket() : StrUtil.isBlank(bucket) ? minio.getBucket() : bucket;
+
+        boolean success;
+        try (ByteArrayInputStream in = new ByteArrayInputStream(fileBytes)) {
+            PutObjectOptions options = new PutObjectOptions(fileBytes.length, -1);
+            options.setContentType(FileUtil.getMimeType(fileOriginName));
+
+            minioClient.putObject(bucket, finalKey, in, options);
+            success = true;
+        } catch (Exception e) {
+            log.error("MinIO存储失败", e);
+            success = false;
+        }
+
+        SysStorageEntity result = new SysStorageEntity();
+        result.setStorageType(StorageTypeEnum.MINIO.getValue());
+        result.setSuccess(success);
+        result.setBasePath("");
+        result.setBucket(finalBucket);
+        result.setPath(path);
+        result.setFileKey(fileKey);
+        result.setSuffix(suffix);
+        result.setOriginalName(fileOriginName);
         result.setIsPublic(isPublic);
 
         return result;
