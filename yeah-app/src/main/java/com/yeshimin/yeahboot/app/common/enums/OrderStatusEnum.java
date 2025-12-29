@@ -10,13 +10,12 @@ import lombok.Getter;
 public enum OrderStatusEnum implements IValueEnum {
 
     WAIT_PAY("1", "待付款"),
-    PAID("2", "已付款"),
-    WAIT_SHIP("3", "待发货"),
-    SHIPPED("4", "已发货"),
-    RECEIVED("5", "已收货"),
-    COMPLETED("6", "已完成"),
-    CANCELED("7", "已取消"),
-    REFUNDED("8", "已退款");
+    WAIT_SHIP("2", "待发货"),
+    WAIT_RECEIVE("3", "待收货"),
+    COMPLETED("4", "交易成功"),
+    CLOSED("5", "交易关闭"),
+    REFUND("6", "退款"),
+    AFTER_SALE("7", "售后");
 
     private final String value;
     private final String desc;

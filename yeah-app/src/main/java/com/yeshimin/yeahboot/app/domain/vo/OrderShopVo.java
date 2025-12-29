@@ -4,6 +4,7 @@ import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -27,4 +28,19 @@ public class OrderShopVo extends BaseDomain {
      * 商品项
      */
     List<OrderShopProductVo> items;
+
+    /**
+     * 订单ID
+     */
+    private Long orderId;
+
+    /**
+     * 订单状态
+     */
+    private String orderStatus;
+
+    /**
+     * 订单创建时间
+     */
+    private LocalDateTime createTime;
 }

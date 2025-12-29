@@ -114,6 +114,10 @@ public class AppAuthService {
      * 如果成功，则删除缓存
      */
     private boolean consumeSmsCode(String mobile, String smsCode) {
+        // TODO temp 测试的验证码
+        if ("999999".equals(smsCode)) {
+            return true;
+        }
         String key = String.format(CommonConsts.APP_SMS_CODE_KEY, mobile);
         String code = cacheService.get(key);
         if (StrUtil.isNotBlank(code) && Objects.equals(code, smsCode)) {

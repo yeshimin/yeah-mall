@@ -5,8 +5,8 @@ import com.yeshimin.yeahboot.auth.service.UserDetailService;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.data.domain.entity.AppUserEntity;
-import com.yeshimin.yeahboot.data.repository.AppUserRepo;
+import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
+import com.yeshimin.yeahboot.data.repository.MemberRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,17 +16,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AppUserDetailService implements UserDetailService {
 
-    private final AppUserRepo appUserRepo;
+    private final MemberRepo memberRepo;
 
     @Override
     public UserDetail getUserDetail(String userId) {
-        AppUserEntity user = appUserRepo.findOneById(Long.valueOf(userId));
-        if (user == null) {
+        MemberEntity member = memberRepo.findOneById(Long.valueOf(userId));
+        if (member == null) {
             throw new BaseException(ErrorCodeEnum.FAIL);
         }
 
         AppUserDetail userDetail = new AppUserDetail();
-        userDetail.setUsername(user.getMobile());
+        userDetail.setUsername(member.getMobile());
         return userDetail;
     }
 
