@@ -2,8 +2,8 @@ package com.yeshimin.yeahboot.auth.common.config.security;
 
 import com.yeshimin.yeahboot.auth.service.AuthService;
 import com.yeshimin.yeahboot.common.common.log.MdcLogFilter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -26,12 +26,18 @@ import java.util.Set;
 @Slf4j
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AuthService authService;
 
     private final RequestMappingHandlerMapping handlerMapping;
+
+    // resolve: 引入actuator后，其中的'controllerEndpointHandlerMapping'会和'requestMappingHandlerMapping'冲突
+    public WebSecurityConfig(AuthService authService,
+                             @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping handlerMapping) {
+        this.authService = authService;
+        this.handlerMapping = handlerMapping;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -51,6 +57,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests()
 //                .antMatchers("/**/auth/login", "/admin/auth/captcha", "/public/storage/download")
+                .antMatchers("/actuator/health", "/actuator/info")
+                .permitAll()
+                // --------------------------------------------------------------------------------
                 .antMatchers(publicAccessUrls.keySet().toArray(new String[0]))
                 .permitAll()
                 .anyRequest().authenticated()
