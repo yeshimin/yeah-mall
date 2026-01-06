@@ -20,6 +20,16 @@ spring:
     database: 1
     timeout: 10000
 
+# for actuator, health endpoint
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
 # 接口文档相关
 springdoc:
   swagger-ui:
