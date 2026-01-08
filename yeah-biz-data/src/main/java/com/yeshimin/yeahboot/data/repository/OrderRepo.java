@@ -20,6 +20,13 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
     }
 
     /**
+     * countByOrderNo
+     */
+    public long countByOrderNo(String orderNo) {
+        return lambdaQuery().eq(OrderEntity::getOrderNo, orderNo).count();
+    }
+
+    /**
      * countByStatus
      */
     public long countByStatus(Long userId, String status) {

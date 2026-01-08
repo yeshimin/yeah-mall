@@ -2,11 +2,14 @@ package com.yeshimin.yeahboot.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wechat.pay.java.service.payments.model.Transaction;
+import com.yeshimin.yeahboot.app.domain.dto.OrderNoDto;
 import com.yeshimin.yeahboot.app.domain.dto.OrderPreviewDto;
 import com.yeshimin.yeahboot.app.domain.dto.OrderQueryDto;
 import com.yeshimin.yeahboot.app.domain.dto.OrderSubmitDto;
 import com.yeshimin.yeahboot.app.domain.vo.OrderCountVo;
 import com.yeshimin.yeahboot.app.domain.vo.OrderShopVo;
+import com.yeshimin.yeahboot.app.domain.vo.WxPayInfoVo;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
@@ -36,6 +39,26 @@ public class AppOrderController extends BaseController {
         Long userId = super.getUserId();
         appOrderService.submit(userId, dto);
         return R.ok();
+    }
+
+    /**
+     * 生成支付信息
+     */
+    @PostMapping("/genPayInfo")
+    public R<WxPayInfoVo> genPayInfo(@Validated @RequestBody OrderNoDto dto) {
+        Long userId = super.getUserId();
+        WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, dto);
+        return R.ok(payInfoVo);
+    }
+
+    /**
+     * 查询支付订单信息
+     */
+    @GetMapping("queryPayOrderInfo")
+    public R<Transaction> queryPayOrderInfo(@RequestParam("orderNo") String orderNo) {
+        Long userId = super.getUserId();
+        Transaction result = appOrderService.queryPayOrderInfo(userId, orderNo);
+        return R.ok(result);
     }
 
     /**

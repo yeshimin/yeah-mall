@@ -49,4 +49,9 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      * 是否已评价
      */
     private Boolean reviewed;
+
+    /**
+     * 微信预支付ID
+     */
+    private String wxPrepayId;
 }

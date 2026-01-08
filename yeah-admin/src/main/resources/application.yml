@@ -220,3 +220,29 @@ yeah-boot:
         access-key-secret: OVERWRITE_ME
         template-code: OVERWRITE_ME
         sign-name: OVERWRITE_ME
+  # 支付相关
+  payment:
+    wxpay:
+      # appid
+      app-id: OVERWRITE_ME
+      # 商户ID
+      mch-id: OVERWRITE_ME
+      # 证书序列号
+      certificate-serial-no: OVERWRITE_ME
+      # 商户私钥-原始文本
+      private-key-raw: OVERWRITE_ME
+      # 商户私钥-文件路径（优先级高于raw）
+      private-key-path: OVERWRITE_ME
+        # 微信支付公钥ID
+      wechat-pay-public-key-id: OVERWRITE_ME
+        # 微信支付公钥-原始文本
+      wechat-pay-public-key-raw: OVERWRITE_ME
+      # 微信支付公钥-文件路径（优先级高于raw）
+      wechat-pay-public-key-path: OVERWRITE_ME
+      # 商户APIv3密钥
+      api-v3-key: OVERWRITE_ME
+      api:
+        host: https://api.mch.weixin.qq.com
+        method: POST
+        prepay-url: /v3/pay/transactions/jsapi
+        notify-url: OVERWRITE_ME

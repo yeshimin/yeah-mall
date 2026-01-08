@@ -44,6 +44,7 @@
         <manticoresearch.version>8.1.1</manticoresearch.version>
         <dysmsapi.version>4.1.0</dysmsapi.version>
         <dyvmsapi.version>3.2.2</dyvmsapi.version>
+        <wxpay.version>0.2.16</wxpay.version>
     </properties>
 
     <dependencyManagement>
@@ -247,6 +248,13 @@
                 <groupId>com.aliyun</groupId>
                 <artifactId>dyvmsapi20170525</artifactId>
                 <version>${dyvmsapi.version}</version>
+            </dependency>
+
+            <!-- 微信支付SDK -->
+            <dependency>
+                <groupId>com.github.wechatpay-apiv3</groupId>
+                <artifactId>wechatpay-java</artifactId>
+                <version>${wxpay.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
