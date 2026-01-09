@@ -11,6 +11,7 @@ import com.yeshimin.yeahboot.app.domain.vo.OrderCountVo;
 import com.yeshimin.yeahboot.app.domain.vo.OrderShopVo;
 import com.yeshimin.yeahboot.app.domain.vo.WxPayInfoVo;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
+import com.yeshimin.yeahboot.app.service.AppOrderStatusService;
 import com.yeshimin.yeahboot.app.service.WxPayService;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
@@ -37,6 +38,7 @@ public class AppOrderController extends BaseController {
 
     private final AppOrderService appOrderService;
     private final WxPayService wxPayService;
+    private final AppOrderStatusService appOrderStatusService;
 
     /**
      * 提交订单
@@ -83,11 +85,25 @@ public class AppOrderController extends BaseController {
         log.info("wxpay.notify serial: {}, signature: {}, timestamp: {}, nonce: {}",
                 serial, signature, timestamp, nonce);
 
+        // 验证签名
         boolean verifySuccess = wxPayService.verifySign(notifyData, serial, signature, timestamp, nonce);
         if (!verifySuccess) {
             log.warn("微信支付通知验签失败");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+
+        // 处理业务
+        boolean handleSuccess = false;
+        try {
+            handleSuccess = appOrderService.handlePayNotify(notifyData, serial, signature, timestamp, nonce);
+        } catch (Exception e) {
+            log.error("微信支付通知处理异常", e);
+        }
+        if (!handleSuccess) {
+            log.warn("微信支付通知处理失败");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
         return ResponseEntity.ok().build();
     }
 

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 订单表
@@ -54,4 +55,9 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      * 微信预支付ID
      */
     private String wxPrepayId;
+
+    /**
+     * 支付成功时间
+     */
+    private LocalDateTime paySuccessTime;
 }

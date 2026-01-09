@@ -1,8 +1,10 @@
 package com.yeshimin.yeahboot.app.common.utils;
 
-import com.google.gson.*;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.google.gson.JsonSyntaxException;
+import lombok.Data;
 import okhttp3.Headers;
 import okhttp3.Response;
 import okio.BufferedSource;
@@ -30,6 +32,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -38,33 +41,33 @@ import java.util.Map.Entry;
  * https://pay.weixin.qq.com/doc/v3/merchant/4014931831
  */
 public class WxPayUtils {
-    private static final Gson gson = new GsonBuilder()
-            .disableHtmlEscaping()
-            .addSerializationExclusionStrategy(new ExclusionStrategy() {
-                @Override
-                public boolean shouldSkipField(FieldAttributes fieldAttributes) {
-                    final Expose expose = fieldAttributes.getAnnotation(Expose.class);
-                    return expose != null && !expose.serialize();
-                }
-
-                @Override
-                public boolean shouldSkipClass(Class<?> aClass) {
-                    return false;
-                }
-            })
-            .addDeserializationExclusionStrategy(new ExclusionStrategy() {
-                @Override
-                public boolean shouldSkipField(FieldAttributes fieldAttributes) {
-                    final Expose expose = fieldAttributes.getAnnotation(Expose.class);
-                    return expose != null && !expose.deserialize();
-                }
-
-                @Override
-                public boolean shouldSkipClass(Class<?> aClass) {
-                    return false;
-                }
-            })
-            .create();
+    //    private static final Gson gson = new GsonBuilder()
+//            .disableHtmlEscaping()
+//            .addSerializationExclusionStrategy(new ExclusionStrategy() {
+//                @Override
+//                public boolean shouldSkipField(FieldAttributes fieldAttributes) {
+//                    final Expose expose = fieldAttributes.getAnnotation(Expose.class);
+//                    return expose != null && !expose.serialize();
+//                }
+//
+//                @Override
+//                public boolean shouldSkipClass(Class<?> aClass) {
+//                    return false;
+//                }
+//            })
+//            .addDeserializationExclusionStrategy(new ExclusionStrategy() {
+//                @Override
+//                public boolean shouldSkipField(FieldAttributes fieldAttributes) {
+//                    final Expose expose = fieldAttributes.getAnnotation(Expose.class);
+//                    return expose != null && !expose.deserialize();
+//                }
+//
+//                @Override
+//                public boolean shouldSkipClass(Class<?> aClass) {
+//                    return false;
+//                }
+//            })
+//            .create();
     private static final char[] SYMBOLS =
             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
     private static final SecureRandom random = new SecureRandom();
@@ -73,14 +76,18 @@ public class WxPayUtils {
      * 将 Object 转换为 JSON 字符串
      */
     public static String toJson(Object object) {
-        return gson.toJson(object);
+        return JSON.toJSONString(object);
     }
 
     /**
      * 将 JSON 字符串解析为特定类型的实例
      */
-    public static <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
-        return gson.fromJson(json, classOfT);
+    public static <T> T fromJson(String json, Class<T> classOfT) {
+        return JSON.parseObject(json, classOfT);
+    }
+
+    public static JSONObject fromJson(String json) {
+        return JSON.parseObject(json);
     }
 
     /**
@@ -604,7 +611,7 @@ public class WxPayUtils {
                                                  PublicKey wechatpayPublicKey, Headers headers,
                                                  String body) {
         validateNotification(wechatpayPublicKeyId, wechatpayPublicKey, headers, body);
-        Notification notification = gson.fromJson(body, Notification.class);
+        Notification notification = fromJson(body, Notification.class);
         notification.decrypt(apiv3Key);
         return notification;
     }
@@ -612,6 +619,7 @@ public class WxPayUtils {
     /**
      * 微信支付API错误异常，发送HTTP请求成功，但返回状态码不是 2XX 时抛出本异常
      */
+    @Data
     public static class ApiException extends RuntimeException {
         private static final long serialVersionUID = 2261086748874802175L;
 
@@ -629,105 +637,48 @@ public class WxPayUtils {
             this.headers = headers;
 
             if (body != null && !body.isEmpty()) {
-                JsonElement code;
-                JsonElement message;
+                String code;
+                String message;
 
                 try {
-                    JsonObject jsonObject = gson.fromJson(body, JsonObject.class);
-                    code = jsonObject.get("code");
-                    message = jsonObject.get("message");
+                    JSONObject jsonObject = fromJson(body);
+                    code = jsonObject.getString("code");
+                    message = jsonObject.getString("message");
                 } catch (JsonSyntaxException ignored) {
                     code = null;
                     message = null;
                 }
-                this.errorCode = code == null ? null : code.getAsString();
-                this.errorMessage = message == null ? null : message.getAsString();
+                this.errorCode = code;
+                this.errorMessage = message;
             } else {
                 this.errorCode = null;
                 this.errorMessage = null;
             }
         }
-
-        /**
-         * 获取 HTTP 应答状态码
-         */
-        public int getStatusCode() {
-            return statusCode;
-        }
-
-        /**
-         * 获取 HTTP 应答包体内容
-         */
-        public String getBody() {
-            return body;
-        }
-
-        /**
-         * 获取 HTTP 应答 Header
-         */
-        public Headers getHeaders() {
-            return headers;
-        }
-
-        /**
-         * 获取 错误码 （错误应答中的 code 字段）
-         */
-        public String getErrorCode() {
-            return errorCode;
-        }
-
-        /**
-         * 获取 错误消息 （错误应答中的 message 字段）
-         */
-        public String getErrorMessage() {
-            return errorMessage;
-        }
     }
 
+    @Data
     public static class Notification {
-        @SerializedName("id")
+        @JSONField(name = "id")
         private String id;
-        @SerializedName("create_time")
+        @JSONField(name = "create_time")
         private String createTime;
-        @SerializedName("event_type")
+        @JSONField(name = "event_type")
         private String eventType;
-        @SerializedName("resource_type")
+        @JSONField(name = "resource_type")
         private String resourceType;
-        @SerializedName("summary")
+        @JSONField(name = "summary")
         private String summary;
-        @SerializedName("resource")
+        @JSONField(name = "resource")
         private Resource resource;
         private String plaintext;
+        private OrderInfo orderInfo;
 
-        public String getId() {
-            return id;
-        }
-
-        public String getCreateTime() {
-            return createTime;
-        }
-
-        public String getEventType() {
-            return eventType;
-        }
-
-        public String getResourceType() {
-            return resourceType;
-        }
-
-        public String getSummary() {
-            return summary;
-        }
-
-        public Resource getResource() {
-            return resource;
-        }
-
-        /**
-         * 获取解密后的业务数据（JSON字符串，需要自行解析）
-         */
-        public String getPlaintext() {
-            return plaintext;
+        public OrderInfo parseOrderInfo() {
+            if (this.plaintext != null && !this.plaintext.trim().isEmpty()) {
+                this.orderInfo = WxPayUtils.fromJson(this.plaintext, OrderInfo.class);
+            }
+            return orderInfo;
         }
 
         private void validate() {
@@ -754,41 +705,22 @@ public class WxPayUtils {
             );
         }
 
+        @Data
         public static class Resource {
-            @SerializedName("algorithm")
+            @JSONField(name = "algorithm")
             private String algorithm;
 
-            @SerializedName("ciphertext")
+            @JSONField(name = "ciphertext")
             private String ciphertext;
 
-            @SerializedName("associated_data")
+            @JSONField(name = "associated_data")
             private String associatedData;
 
-            @SerializedName("nonce")
+            @JSONField(name = "nonce")
             private String nonce;
 
-            @SerializedName("original_type")
+            @JSONField(name = "original_type")
             private String originalType;
-
-            public String getAlgorithm() {
-                return algorithm;
-            }
-
-            public String getCiphertext() {
-                return ciphertext;
-            }
-
-            public String getAssociatedData() {
-                return associatedData;
-            }
-
-            public String getNonce() {
-                return nonce;
-            }
-
-            public String getOriginalType() {
-                return originalType;
-            }
 
             private void validate() {
                 if (algorithm == null || algorithm.isEmpty()) {
@@ -821,6 +753,76 @@ public class WxPayUtils {
                 }
             }
         }
+    }
+
+    /**
+     * order info class, parse from ciphertext
+     */
+    @Data
+    public static class OrderInfo {
+        @JSONField(name = "mchid")
+        private String mchId;
+
+        @JSONField(name = "appid")
+        private String appId;
+
+        @JSONField(name = "out_trade_no")
+        private String outTradeNo;
+
+        @JSONField(name = "transaction_id")
+        private String transactionId;
+
+        @JSONField(name = "trade_type")
+        private String tradeType;
+
+        @JSONField(name = "trade_state")
+        private String tradeState;
+
+        @JSONField(name = "trade_state_desc")
+        private String tradeStateDesc;
+
+        @JSONField(name = "bank_type")
+        private String bankType;
+
+        @JSONField(name = "attach")
+        private String attach;
+
+        //     "success_time": "2026-01-09T11:03:46+08:00",
+        @JSONField(name = "success_time")
+        private OffsetDateTime successTime;
+
+        @JSONField(name = "payer")
+        private Payer payer;
+
+        @JSONField(name = "amount")
+        private Amount amount;
+    }
+
+    /**
+     * payer class
+     */
+    @Data
+    public static class Payer {
+        @JSONField(name = "openid")
+        private String openId;
+    }
+
+    /**
+     * amount class
+     */
+    @Data
+    public static class Amount {
+        @JSONField(name = "total")
+        private int total;
+
+        @JSONField(name = "payer_total")
+        private int payerTotal;
+
+        @JSONField(name = "currency")
+        private String currency;
+
+        @JSONField(name = "payer_currency")
+        private String payerCurrency;
     }
 
     /**

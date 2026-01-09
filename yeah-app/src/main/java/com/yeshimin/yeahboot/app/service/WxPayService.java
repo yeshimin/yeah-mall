@@ -106,17 +106,36 @@ public class WxPayService {
     public boolean verifySign(String notifyData, String serial, String signature, String timestamp, String nonce) {
         boolean success = false;
         try {
-            Headers headers = new Headers.Builder()
-                    .add("Wechatpay-Serial", serial)
-                    .add("Wechatpay-Signature", signature)
-                    .add("Wechatpay-Timestamp", timestamp)
-                    .add("Wechatpay-Nonce", nonce)
-                    .build();
+            Headers headers = this.buildHeaders(serial, signature, timestamp, nonce);
             WxPayUtils.validateNotification(serial, wxPayProperties.getWechatPayPublicKey(), headers, notifyData);
             success = true;
         } catch (Exception e) {
             log.error("wxpay.verifySign error", e);
         }
         return success;
+    }
+
+    /**
+     * 解析支付回调通知数据
+     */
+    public WxPayUtils.Notification parsePayNotification(
+            String notifyData, String serial, String signature, String timestamp, String nonce) {
+        // 解密数据
+        Headers headers = this.buildHeaders(serial, signature, timestamp, nonce);
+        WxPayUtils.Notification notification = WxPayUtils.parseNotification(
+                wxPayProperties.getApiV3Key(), serial, wxPayProperties.getWechatPayPublicKey(), headers, notifyData);
+        log.info("wxpay.handlePayNotify notification: {}", JSON.toJSONString(notification));
+        return notification;
+    }
+
+    // ================================================================================
+
+    private Headers buildHeaders(String serial, String signature, String timestamp, String nonce) {
+        return new Headers.Builder()
+                .add("Wechatpay-Serial", serial)
+                .add("Wechatpay-Signature", signature)
+                .add("Wechatpay-Timestamp", timestamp)
+                .add("Wechatpay-Nonce", nonce)
+                .build();
     }
 }
