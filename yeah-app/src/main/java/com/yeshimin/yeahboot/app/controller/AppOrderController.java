@@ -11,11 +11,16 @@ import com.yeshimin.yeahboot.app.domain.vo.OrderCountVo;
 import com.yeshimin.yeahboot.app.domain.vo.OrderShopVo;
 import com.yeshimin.yeahboot.app.domain.vo.WxPayInfoVo;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
+import com.yeshimin.yeahboot.app.service.WxPayService;
+import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,12 +29,14 @@ import java.util.List;
 /**
  * 订单表
  */
+@Slf4j
 @RestController
 @RequestMapping("/app/order")
 @RequiredArgsConstructor
 public class AppOrderController extends BaseController {
 
     private final AppOrderService appOrderService;
+    private final WxPayService wxPayService;
 
     /**
      * 提交订单
@@ -59,6 +66,29 @@ public class AppOrderController extends BaseController {
         Long userId = super.getUserId();
         Transaction result = appOrderService.queryPayOrderInfo(userId, orderNo);
         return R.ok(result);
+    }
+
+    /**
+     * 微信支付通知
+     * https://pay.weixin.qq.com/doc/v3/merchant/4012791861
+     */
+    @PublicAccess
+    @PostMapping("/wxpay/notify")
+    public ResponseEntity<Void> wxPayNotify(
+            @RequestBody(required = false) String notifyData,
+            @RequestHeader(value = "Wechatpay-Serial", required = false) String serial,
+            @RequestHeader(value = "Wechatpay-Signature", required = false) String signature,
+            @RequestHeader(value = "Wechatpay-Timestamp", required = false) String timestamp,
+            @RequestHeader(value = "Wechatpay-Nonce", required = false) String nonce) {
+        log.info("wxpay.notify serial: {}, signature: {}, timestamp: {}, nonce: {}",
+                serial, signature, timestamp, nonce);
+
+        boolean verifySuccess = wxPayService.verifySign(notifyData, serial, signature, timestamp, nonce);
+        if (!verifySuccess) {
+            log.warn("微信支付通知验签失败");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     /**

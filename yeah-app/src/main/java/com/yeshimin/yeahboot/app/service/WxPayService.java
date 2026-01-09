@@ -1,6 +1,5 @@
 package com.yeshimin.yeahboot.app.service;
 
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAPublicKeyConfig;
@@ -12,6 +11,7 @@ import com.yeshimin.yeahboot.app.common.utils.WxPayUtils;
 import com.yeshimin.yeahboot.app.domain.vo.WxPayInfoVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Headers;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -23,6 +23,8 @@ import javax.annotation.PostConstruct;
 @Service
 @RequiredArgsConstructor
 public class WxPayService {
+
+    private final String ALGORITHM = "SHA256withRSA";
 
     private final WxPayProperties wxPayProperties;
 
@@ -81,7 +83,7 @@ public class WxPayService {
         String signMessage = wxPayProperties.getAppId() + "\n" + info.getTimestamp() + "\n" +
                 info.getNonceStr() + "\n" + info.getPackageStr() + "\n";
         info.setPaySign(WxPayUtils.sign(
-                signMessage, "SHA256withRSA", wxPayProperties.getPrivateKey()));
+                signMessage, ALGORITHM, wxPayProperties.getPrivateKey()));
         return info;
     }
 
@@ -96,5 +98,25 @@ public class WxPayService {
         log.info("wxpay.queryOrderByOutTradeNo, req: {}, resp: {}",
                 JSON.toJSONString(request), JSON.toJSONString(transaction));
         return transaction;
+    }
+
+    /**
+     * 验证签名
+     */
+    public boolean verifySign(String notifyData, String serial, String signature, String timestamp, String nonce) {
+        boolean success = false;
+        try {
+            Headers headers = new Headers.Builder()
+                    .add("Wechatpay-Serial", serial)
+                    .add("Wechatpay-Signature", signature)
+                    .add("Wechatpay-Timestamp", timestamp)
+                    .add("Wechatpay-Nonce", nonce)
+                    .build();
+            WxPayUtils.validateNotification(serial, wxPayProperties.getWechatPayPublicKey(), headers, notifyData);
+            success = true;
+        } catch (Exception e) {
+            log.error("wxpay.verifySign error", e);
+        }
+        return success;
     }
 }
