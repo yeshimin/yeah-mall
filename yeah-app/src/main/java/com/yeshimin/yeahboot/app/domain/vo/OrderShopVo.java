@@ -43,4 +43,9 @@ public class OrderShopVo extends BaseDomain {
      * 订单创建时间
      */
     private LocalDateTime createTime;
+
+    /**
+     * 支付成功时间
+     */
+    private LocalDateTime paySuccessTime;
 }

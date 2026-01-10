@@ -2,16 +2,15 @@ package com.yeshimin.yeahboot.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wechat.pay.java.service.payments.model.Transaction;
 import com.yeshimin.yeahboot.app.domain.dto.OrderNoDto;
 import com.yeshimin.yeahboot.app.domain.dto.OrderPreviewDto;
 import com.yeshimin.yeahboot.app.domain.dto.OrderQueryDto;
 import com.yeshimin.yeahboot.app.domain.dto.OrderSubmitDto;
 import com.yeshimin.yeahboot.app.domain.vo.OrderCountVo;
+import com.yeshimin.yeahboot.app.domain.vo.OrderPayResultVo;
 import com.yeshimin.yeahboot.app.domain.vo.OrderShopVo;
 import com.yeshimin.yeahboot.app.domain.vo.WxPayInfoVo;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
-import com.yeshimin.yeahboot.app.service.AppOrderStatusService;
 import com.yeshimin.yeahboot.app.service.WxPayService;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
@@ -38,7 +37,6 @@ public class AppOrderController extends BaseController {
 
     private final AppOrderService appOrderService;
     private final WxPayService wxPayService;
-    private final AppOrderStatusService appOrderStatusService;
 
     /**
      * 提交订单
@@ -60,14 +58,24 @@ public class AppOrderController extends BaseController {
         return R.ok(payInfoVo);
     }
 
+//    /**
+//     * 查询支付订单信息
+//     */
+//    @GetMapping("queryPayOrderInfo")
+//    public R<Transaction> queryPayOrderInfo(@RequestParam("orderNo") String orderNo) {
+//        Long userId = super.getUserId();
+//        Transaction result = appOrderService.queryPayOrderInfo(userId, orderNo);
+//        return R.ok(result);
+//    }
+
     /**
-     * 查询支付订单信息
+     * 查询订单支付结果
      */
-    @GetMapping("queryPayOrderInfo")
-    public R<Transaction> queryPayOrderInfo(@RequestParam("orderNo") String orderNo) {
+    @GetMapping("/queryPayResult")
+    public R<OrderPayResultVo> queryPayResult(@RequestParam("orderNo") String orderNo) {
         Long userId = super.getUserId();
-        Transaction result = appOrderService.queryPayOrderInfo(userId, orderNo);
-        return R.ok(result);
+        OrderPayResultVo payResultVo = appOrderService.queryPayResult(userId, orderNo);
+        return R.ok(payResultVo);
     }
 
     /**
