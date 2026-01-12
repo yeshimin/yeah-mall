@@ -8,16 +8,16 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.mapper.OrderMapper;
 import com.yeshimin.yeahboot.data.repository.OrderRepo;
+import com.yeshimin.yeahboot.merchant.common.properties.Kuaidi100Properties;
 import com.yeshimin.yeahboot.merchant.domain.dto.Kd100CallbackParam;
+import com.yeshimin.yeahboot.merchant.service.MchOrderService;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.api.COrder;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.contant.ApiInfoConstant;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.contant.CompanyConstant;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.core.IBaseClient;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.request.PrintReq;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.request.corder.COrderReq;
-import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.utils.PropertiesReader;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.utils.SignUtils;
-import com.yeshimin.yeahboot.merchant.service.MchOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -42,14 +42,8 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
     @Autowired
     private MchOrderService service;
 
-    String key = PropertiesReader.get("key");
-    String customer = PropertiesReader.get("customer");
-    String secret = PropertiesReader.get("secret");
-    String siid = PropertiesReader.get("siid");
-    String userid = PropertiesReader.get("userid");
-    String tid = PropertiesReader.get("tid");
-    String secret_key = PropertiesReader.get("secret_key");
-    String secret_secret = PropertiesReader.get("secret_secret");
+    @Autowired
+    private Kuaidi100Properties kuaidi100Properties;
 
     public MchOrderController(OrderRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
@@ -81,6 +75,9 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
 
         String t = String.valueOf(System.currentTimeMillis());
         String param = new Gson().toJson(cOrderReq);
+
+        String key = kuaidi100Properties.getKey();
+        String secret = kuaidi100Properties.getSecret();
 
         printReq.setKey(key);
         printReq.setSign(SignUtils.printSign(param, t, key, secret));

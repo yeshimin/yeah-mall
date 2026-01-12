@@ -246,3 +246,10 @@ yeah-boot:
         method: POST
         prepay-url: /v3/pay/transactions/jsapi
         notify-url: OVERWRITE_ME
+  # 物流相关-快递100
+  delivery:
+    kuaidi100:
+      key: OVERWRITE_ME
+      customer: OVERWRITE_ME
+      secret: OVERWRITE_ME
+      user-id: OVERWRITE_ME
