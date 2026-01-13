@@ -45,4 +45,7 @@ public class CommonConsts {
     public static final String JWT_CLAIM_IAT_MS = "iatMs";
     // jwt exp ms
     public static final String JWT_CLAIM_EXP_MS = "expMs";
+
+    // 配置文件属性值占位符
+    public static final String VALUE_PLACEHOLDER = "OVERWRITE_ME";
 }
