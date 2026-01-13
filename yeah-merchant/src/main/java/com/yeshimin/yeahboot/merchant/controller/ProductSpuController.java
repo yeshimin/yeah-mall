@@ -8,11 +8,11 @@ import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.data.domain.vo.ProductSpecVo;
 import com.yeshimin.yeahboot.data.mapper.ProductSpuMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.*;
-import com.yeshimin.yeahboot.data.domain.vo.ProductSpecVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuVo;
 import com.yeshimin.yeahboot.merchant.service.ProductSpuService;
@@ -70,7 +70,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
      */
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':query')")
     @GetMapping("/query")
-    public R<IPage<ProductSpuVo>> query(@Validated(Query.class) Page<ProductSpuEntity> page, ProductSpuQueryDto query) {
+    public R<IPage<ProductSpuVo>> query(Page<ProductSpuEntity> page, @Validated(Query.class) ProductSpuQueryDto query) {
         Long userId = super.getUserId();
         return R.ok(service.query(page, userId, query));
     }
