@@ -18,7 +18,8 @@ public class NotificationAliyunSmsProperties {
 
     @PostConstruct
     public void init() {
-        log.info("init [yeah-boot.notification.aliyun.sms] properties: {}", this);
+        log.info("init [yeah-boot.notification.aliyun.sms] properties, key: {}, secret: ******, template: {}, sign: {}",
+                accessKeyId, templateCode, signName);
     }
 
     private String accessKeyId;

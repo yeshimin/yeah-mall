@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.merchant.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.AreaVo;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -196,5 +198,43 @@ public class MchAreaService {
                     vo.setChildren(new ArrayList<>());
                     return vo;
                 }).collect(Collectors.toList());
+    }
+
+    // ================================================================================
+
+    /**
+     * 检查省市区编码和名称
+     */
+    public boolean check(String provinceCode, String provinceName, String cityCode, String cityName,
+                         String districtCode, String districtName) {
+        if (StrUtil.isBlank(provinceCode) || StrUtil.isBlank(provinceName)
+                || StrUtil.isBlank(cityCode) || StrUtil.isBlank(cityName)
+                || StrUtil.isBlank(districtCode) || StrUtil.isBlank(districtName)) {
+            return false;
+        }
+
+        // 检查区县
+        AreaDistrictEntity district = areaDistrictRepo.findOneByCode(districtCode);
+        if (district == null || !district.getName().equals(districtName)) {
+            return false;
+        }
+        // 检查城市
+        if (!Objects.equals(district.getParentCode(), cityCode)) {
+            return false;
+        }
+        AreaCityEntity city = areaCityRepo.findOneByCode(cityCode);
+        if (city == null || !city.getName().equals(cityName)) {
+            return false;
+        }
+        // 检查省份
+        if (!Objects.equals(city.getParentCode(), provinceCode)) {
+            return false;
+        }
+        AreaProvinceEntity province = areaProvinceRepo.findOneByCode(provinceCode);
+        if (province == null || !province.getName().equals(provinceName)) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -33,16 +33,20 @@ public class WxPayService {
 
     @PostConstruct
     public void init() {
-        // 使用微信支付公钥的RSA配置
-        config = new RSAPublicKeyConfig.Builder()
-                .merchantId(wxPayProperties.getMchId())
-                .privateKey(wxPayProperties.getPrivateKey())
-                .publicKey(wxPayProperties.getWechatPayPublicKey())
-                .publicKeyId(wxPayProperties.getWechatPayPublicKeyId())
-                .merchantSerialNumber(wxPayProperties.getCertificateSerialNo())
-                .apiV3Key(wxPayProperties.getApiV3Key())
-                .build();
-        jsapiService = new JsapiService.Builder().config(config).build();
+        try {
+            // 使用微信支付公钥的RSA配置
+            config = new RSAPublicKeyConfig.Builder()
+                    .merchantId(wxPayProperties.getMchId())
+                    .privateKey(wxPayProperties.getPrivateKey())
+                    .publicKey(wxPayProperties.getWechatPayPublicKey())
+                    .publicKeyId(wxPayProperties.getWechatPayPublicKeyId())
+                    .merchantSerialNumber(wxPayProperties.getCertificateSerialNo())
+                    .apiV3Key(wxPayProperties.getApiV3Key())
+                    .build();
+            jsapiService = new JsapiService.Builder().config(config).build();
+        } catch (Exception e) {
+            log.error("WxPayService init error", e);
+        }
     }
 
     /**

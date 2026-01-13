@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.app.common.properties;
 
 import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.app.common.utils.WxPayUtils;
+import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -22,11 +23,15 @@ public class WxPayProperties {
 
     @PostConstruct
     public void init() {
-        log.info("init [yeah-boot.payment.wxpay] properties: {}", this);
+        log.info("init [yeah-boot.payment.wxpay] properties, appId: {}, mchId: {}, serialNo: {}, wechatPublicKey: {}",
+                appId, mchId, certificateSerialNo, wechatPayPublicKeyId);
 
         // 加载商户私钥
         if (StrUtil.isNotBlank(privateKeyPath)) {
-            this.privateKey = WxPayUtils.loadPrivateKeyFromPath(privateKeyPath);
+            // 场景：单元测试，如果不做配置，此处会报错，简单以此方法跳过
+            if (StrUtil.isNotBlank(privateKeyPath) && !privateKeyPath.startsWith(CommonConsts.VALUE_PLACEHOLDER)) {
+                this.privateKey = WxPayUtils.loadPrivateKeyFromPath(privateKeyPath);
+            }
         } else if (StrUtil.isNotBlank(privateKeyRaw)) {
             this.privateKey = WxPayUtils.loadPrivateKeyFromString(privateKeyRaw);
         } else {
@@ -36,7 +41,11 @@ public class WxPayProperties {
 
         // 加载微信支付公钥
         if (StrUtil.isNotBlank(wechatPayPublicKeyPath)) {
-            this.wechatPayPublicKey = WxPayUtils.loadPublicKeyFromPath(wechatPayPublicKeyPath);
+            // 场景：单元测试，如果不做配置，此处会报错，简单以此方法跳过
+            if (StrUtil.isNotBlank(wechatPayPublicKeyPath) &&
+                    !wechatPayPublicKeyPath.startsWith(CommonConsts.VALUE_PLACEHOLDER)) {
+                this.wechatPayPublicKey = WxPayUtils.loadPublicKeyFromPath(wechatPayPublicKeyPath);
+            }
         } else if (StrUtil.isNotBlank(wechatPayPublicKeyRaw)) {
             this.wechatPayPublicKey = WxPayUtils.loadPublicKeyFromString(wechatPayPublicKeyRaw);
         } else {
