@@ -1,15 +1,19 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
 import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
+import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.mapper.OrderMapper;
 import com.yeshimin.yeahboot.data.repository.OrderRepo;
 import com.yeshimin.yeahboot.merchant.common.properties.Kuaidi100Properties;
 import com.yeshimin.yeahboot.merchant.domain.dto.Kd100CallbackParam;
+import com.yeshimin.yeahboot.merchant.domain.dto.MchOrderQueryDto;
 import com.yeshimin.yeahboot.merchant.service.MchOrderService;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.api.COrder;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.contant.ApiInfoConstant;
@@ -22,10 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -126,6 +128,18 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
             return callbackFail("服务器异常");
         }
     }
+
+    /**
+     * 查询店铺订单
+     */
+    @GetMapping("/query")
+    public R<IPage<OrderEntity>> queryOrder(Page<OrderEntity> page, @Validated(Query.class) MchOrderQueryDto query) {
+        Long userId = super.getUserId();
+        IPage<OrderEntity> pageResult = service.queryOrder(userId, page, query);
+        return R.ok(pageResult);
+    }
+
+    // ================================================================================
 
     /**
      * 处理物流状态
