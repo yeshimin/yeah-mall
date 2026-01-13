@@ -14,12 +14,14 @@ public class DeliveryInfoSaveDto extends ShopDataBaseDomain {
     /**
      * 姓名
      */
+    @Length(max = 16, message = "姓名长度不能超过16个字符")
     @NotBlank(message = "姓名不能为空")
     private String name;
 
     /**
      * 联系方式（手机号或电话号）
      */
+    @Length(max = 16, message = "联系方式长度不能超过16个字符")
     @NotBlank(message = "联系方式不能为空")
     private String contact;
 
@@ -62,6 +64,7 @@ public class DeliveryInfoSaveDto extends ShopDataBaseDomain {
     /**
      * 详细地址
      */
+    @Length(max = 100, message = "详细地址长度不能超过100个字符")
     @NotBlank(message = "详细地址不能为空")
     private String detailAddress;
 
