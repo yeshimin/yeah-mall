@@ -1,11 +1,18 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
+import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.DeliveryProviderEntity;
 import com.yeshimin.yeahboot.data.mapper.DeliveryProviderMapper;
 import com.yeshimin.yeahboot.data.repository.DeliveryProviderRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
+import com.yeshimin.yeahboot.merchant.domain.dto.DeliveryProviderCreateDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.DeliveryProviderUpdateDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.ShopDataIdDto;
 import com.yeshimin.yeahboot.merchant.service.DeliveryProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,4 +33,34 @@ public class DeliveryProviderController extends ShopCrudController<DeliveryProvi
     }
 
     // ================================================================================
+
+    /**
+     * 创建
+     */
+    @PostMapping("/create")
+    public R<Void> create(@Validated @RequestBody DeliveryProviderCreateDto dto) {
+        Long userId = super.getUserId();
+        service.create(userId, dto);
+        return R.ok();
+    }
+
+    /**
+     * 更新
+     */
+    @PostMapping("/update")
+    public R<Void> update(@Validated @RequestBody DeliveryProviderUpdateDto dto) {
+        Long userId = super.getUserId();
+        service.update(userId, dto);
+        return R.ok();
+    }
+
+    /**
+     * 设置默认
+     */
+    @PostMapping("/setDefault")
+    public R<Void> setDefault(@Validated @RequestBody ShopDataIdDto dto) {
+        Long userId = super.getUserId();
+        service.setDefault(userId, dto);
+        return R.ok();
+    }
 }

@@ -13,6 +13,7 @@ target/
 *.iws
 *.iml
 *.ipr
+.idea/.cache/
 
 ### Eclipse ###
 .apt_generated
