@@ -22,4 +22,11 @@ public class OrderItemRepo extends BaseRepo<OrderItemMapper, OrderItemEntity> {
         }
         return lambdaQuery().in(OrderItemEntity::getOrderId, orderIds).list();
     }
+
+    /**
+     * findListByOrderId
+     */
+    public List<OrderItemEntity> findListByOrderId(Long orderId) {
+        return lambdaQuery().eq(OrderItemEntity::getOrderId, orderId).list();
+    }
 }

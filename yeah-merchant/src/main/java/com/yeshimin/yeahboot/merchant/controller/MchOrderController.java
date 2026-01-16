@@ -14,6 +14,7 @@ import com.yeshimin.yeahboot.data.repository.OrderRepo;
 import com.yeshimin.yeahboot.merchant.common.properties.Kuaidi100Properties;
 import com.yeshimin.yeahboot.merchant.domain.dto.Kd100CallbackParam;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchOrderQueryDto;
+import com.yeshimin.yeahboot.merchant.domain.vo.OrderDetailVo;
 import com.yeshimin.yeahboot.merchant.service.MchOrderService;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.api.COrder;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.contant.ApiInfoConstant;
@@ -137,6 +138,16 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
         Long userId = super.getUserId();
         IPage<OrderEntity> pageResult = service.queryOrder(userId, page, query);
         return R.ok(pageResult);
+    }
+
+    /**
+     * 查询订单详情
+     */
+    @GetMapping("/detail")
+    public R<OrderDetailVo> queryOrderDetail(@RequestParam("id") Long id) {
+        Long userId = super.getUserId();
+        OrderDetailVo result = service.queryOrderDetail(userId, id);
+        return R.ok(result);
     }
 
     // ================================================================================
