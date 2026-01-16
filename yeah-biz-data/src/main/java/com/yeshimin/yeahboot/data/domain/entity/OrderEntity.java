@@ -60,4 +60,122 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      * 支付成功时间
      */
     private LocalDateTime paySuccessTime;
+
+    // 收货方地址相关 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    /**
+     * 收货方姓名
+     */
+    private String receiverName;
+
+    /**
+     * 收货方联系方式（手机号或电话号）
+     */
+    private String receiverContact;
+
+    /**
+     * 收货方省份编码
+     */
+    private String receiverProvinceCode;
+
+    /**
+     * 收货方省份名称
+     */
+    private String receiverProvinceName;
+
+    /**
+     * 收货方城市编码
+     */
+    private String receiverCityCode;
+
+    /**
+     * 收货方城市名称
+     */
+    private String receiverCityName;
+
+    /**
+     * 收货方区县编码
+     */
+    private String receiverDistrictCode;
+
+    /**
+     * 收货方区县名称
+     */
+    private String receiverDistrictName;
+
+    /**
+     * 收货方详细地址
+     */
+    private String receiverDetailAddress;
+
+    /**
+     * 收货方完整地址（冗余：省市区+详细地址）
+     */
+    private String receiverFullAddress;
+
+    /**
+     * 收货方邮政编码
+     */
+    private String receiverPostalCode;
+
+    // 收货方收货地址相关 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    // 发货方发货地址相关 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    /**
+     * 发货方姓名
+     */
+    private String shipperName;
+
+    /**
+     * 发货方联系方式（手机号或电话号）
+     */
+    private String shipperContact;
+
+    /**
+     * 发货方省份编码
+     */
+    private String shipperProvinceCode;
+
+    /**
+     * 发货方省份名称
+     */
+    private String shipperProvinceName;
+
+    /**
+     * 发货方城市编码
+     */
+    private String shipperCityCode;
+
+    /**
+     * 发货方城市名称
+     */
+    private String shipperCityName;
+
+    /**
+     * 发货方区县编码
+     */
+    private String shipperDistrictCode;
+
+    /**
+     * 发货方区县名称
+     */
+    private String shipperDistrictName;
+
+    /**
+     * 发货方详细地址
+     */
+    private String shipperDetailAddress;
+
+    /**
+     * 发货方完整地址（冗余：省市区+详细地址）
+     */
+    private String shipperFullAddress;
+
+    /**
+     * 发货方邮政编码
+     */
+    private String shipperPostalCode;
+
+    // 发货方发货地址相关 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 }

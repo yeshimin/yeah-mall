@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -20,6 +21,12 @@ public class OrderSubmitDto extends BaseDomain {
     @Valid
     @NotEmpty(message = "订单项不能为空")
     private List<OrderItemDto> items;
+
+    /**
+     * 地址ID
+     */
+    @NotNull(message = "地址ID不能为空")
+    private Long addressId;
 
     /**
      * 订单场景

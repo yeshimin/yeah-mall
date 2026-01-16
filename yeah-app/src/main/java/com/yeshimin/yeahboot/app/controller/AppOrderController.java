@@ -1,15 +1,13 @@
 package com.yeshimin.yeahboot.app.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.dto.OrderNoDto;
 import com.yeshimin.yeahboot.app.domain.dto.OrderPreviewDto;
 import com.yeshimin.yeahboot.app.domain.dto.OrderQueryDto;
 import com.yeshimin.yeahboot.app.domain.dto.OrderSubmitDto;
-import com.yeshimin.yeahboot.app.domain.vo.OrderCountVo;
-import com.yeshimin.yeahboot.app.domain.vo.OrderPayResultVo;
-import com.yeshimin.yeahboot.app.domain.vo.OrderShopVo;
-import com.yeshimin.yeahboot.app.domain.vo.WxPayInfoVo;
+import com.yeshimin.yeahboot.app.domain.vo.*;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
 import com.yeshimin.yeahboot.app.service.WxPayService;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
@@ -42,10 +40,16 @@ public class AppOrderController extends BaseController {
      * 提交订单
      */
     @PostMapping("/submit")
-    public R<Void> submit(@Validated @RequestBody OrderSubmitDto dto) {
+    public R<OrderSubmitVo> submit(@Validated @RequestBody OrderSubmitDto dto) {
         Long userId = super.getUserId();
-        appOrderService.submit(userId, dto);
-        return R.ok();
+        OrderEntity order = appOrderService.submit(userId, dto);
+
+        // 生成支付信息
+        WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, order.getOrderNo());
+
+        OrderSubmitVo vo = BeanUtil.copyProperties(payInfoVo, OrderSubmitVo.class);
+        vo.setOrderNo(order.getOrderNo());
+        return R.ok(vo);
     }
 
     /**
@@ -54,7 +58,7 @@ public class AppOrderController extends BaseController {
     @PostMapping("/genPayInfo")
     public R<WxPayInfoVo> genPayInfo(@Validated @RequestBody OrderNoDto dto) {
         Long userId = super.getUserId();
-        WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, dto);
+        WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, dto.getOrderNo());
         return R.ok(payInfoVo);
     }
 
