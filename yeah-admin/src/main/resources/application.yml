@@ -253,3 +253,5 @@ yeah-boot:
       customer: OVERWRITE_ME
       secret: OVERWRITE_ME
       user-id: OVERWRITE_ME
+  # 买家端-收货地址最大数量
+  member-address-max-count: 20

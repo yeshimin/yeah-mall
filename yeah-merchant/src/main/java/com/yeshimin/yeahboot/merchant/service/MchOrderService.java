@@ -27,8 +27,7 @@ public class MchOrderService {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, query);
 
-        LambdaQueryWrapper<OrderEntity> wrapper = QueryHelper.getQueryWrapper(query, OrderEntity.class);
-
+        LambdaQueryWrapper<OrderEntity> wrapper = QueryHelper.getQueryWrapper(query);
         return orderRepo.page(page, wrapper);
     }
 }
