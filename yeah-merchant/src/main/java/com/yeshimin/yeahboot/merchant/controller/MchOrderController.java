@@ -59,7 +59,7 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
      * 订单物流-商家下单
      */
     @PublicAccess
-    @PostMapping("/delivery/submit")
+//    @PostMapping("/delivery/submit")
     public R<Void> deliverySubmit() throws Exception {
         PrintReq printReq = new PrintReq();
         COrderReq cOrderReq = new COrderReq();
@@ -97,7 +97,7 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
      * 订单物流 - 第三方回调通知（快递100）
      */
     @PublicAccess
-    @PostMapping(value = "/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+//    @PostMapping(value = "/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public Map<String, Object> deliveryCallback(@RequestParam("taskId") String taskId,
                                                 @RequestParam("sign") String sign,
                                                 @RequestParam("param") String paramJson) {

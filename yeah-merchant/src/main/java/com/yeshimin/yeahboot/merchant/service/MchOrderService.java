@@ -32,8 +32,6 @@ public class MchOrderService {
     private final ProductSkuSpecRepo productSkuSpecRepo;
     private final ProductSpecDefRepo productSpecDefRepo;
     private final ProductSpecOptDefRepo productSpecOptDefRepo;
-    private final CartItemRepo cartItemRepo;
-    private final MemberAddressRepo memberAddressRepo;
 
     /**
      * 查询店铺订单
