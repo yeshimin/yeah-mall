@@ -1,19 +1,27 @@
 package com.yeshimin.yeahboot.merchant.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchOrderQueryDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.OrderShipDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.UpdateShipInfoDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderShopProductVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,6 +40,7 @@ public class MchOrderService {
     private final ProductSkuSpecRepo productSkuSpecRepo;
     private final ProductSpecDefRepo productSpecDefRepo;
     private final ProductSpecOptDefRepo productSpecOptDefRepo;
+    private final DeliveryProviderRepo deliveryProviderRepo;
 
     /**
      * 查询店铺订单
@@ -71,6 +80,66 @@ public class MchOrderService {
         result.setOrder(order);
         result.setShopProducts(listOrderShopProductVo);
         return result;
+    }
+
+
+    /**
+     * 发货
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void shipOrder(Long userId, OrderShipDto dto) {
+        // 检查：订单是否存在
+        OrderEntity order = orderRepo.getOneById(dto.getOrderId());
+        // 检查：订单是否属于该商家
+        permissionService.checkMch(userId, order);
+
+        // 检查：物流公司编码是否存在
+        if (deliveryProviderRepo.countByShopIdAndCode(order.getShopId(), dto.getDeliveryProviderCode()) == 0) {
+            throw new RuntimeException("物流公司编码不存在");
+        }
+
+        // 检查：订单状态是否为待发货
+        if (!Objects.equals(order.getStatus(), OrderStatusEnum.WAIT_SHIP.getValue())) {
+            throw new RuntimeException("仅当前订单状态为【待发货】时，才能发货");
+        }
+        boolean updateStatusSuccess = orderRepo.updateStatus(
+                order.getId(), OrderStatusEnum.WAIT_SHIP.getValue(), OrderStatusEnum.WAIT_RECEIVE.getValue());
+        if (!updateStatusSuccess) {
+            throw new RuntimeException("订单发货失败，请稍后重试");
+        }
+
+        LambdaUpdateWrapper<OrderEntity> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(OrderEntity::getId, order.getId())
+                .set(OrderEntity::getDeliveryProviderCode, dto.getDeliveryProviderCode())
+                .set(OrderEntity::getTrackingNo, dto.getTrackingNo())
+                .set(OrderEntity::getShipTime, LocalDateTime.now());
+        orderRepo.update(updateWrapper);
+    }
+
+    /**
+     * 更新发货信息
+     */
+    public void updateShipInfo(Long userId, UpdateShipInfoDto dto) {
+        // 检查：订单是否存在
+        OrderEntity order = orderRepo.getOneById(dto.getOrderId());
+        // 检查：订单是否属于该商家
+        permissionService.checkMchAndShop(userId, order);
+
+        // 检查：物流公司编码是否存在
+        if (deliveryProviderRepo.countByShopIdAndCode(order.getShopId(), dto.getDeliveryProviderCode()) == 0) {
+            throw new BaseException("物流公司编码不存在");
+        }
+
+        // 检查：是否已发货
+        if (StrUtil.isBlank(order.getTrackingNo())) {
+            throw new BaseException("仅已发货订单，才能更新发货信息");
+        }
+
+        LambdaUpdateWrapper<OrderEntity> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(OrderEntity::getId, order.getId())
+                .set(OrderEntity::getDeliveryProviderCode, dto.getDeliveryProviderCode())
+                .set(OrderEntity::getTrackingNo, dto.getTrackingNo());
+        orderRepo.update(updateWrapper);
     }
 
     // ================================================================================

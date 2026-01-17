@@ -178,4 +178,19 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
     private String shipperPostalCode;
 
     // 发货方发货地址相关 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    /**
+     * 快递公司编码
+     */
+    private String deliveryProviderCode;
+
+    /**
+     * 快递单号
+     */
+    private String trackingNo;
+
+    /**
+     * 发货时间（手动发货时该时间不一定准确）
+     */
+    private LocalDateTime shipTime;
 }

@@ -11,9 +11,9 @@ import org.springframework.stereotype.Repository;
 public class DeliveryProviderRepo extends BaseRepo<DeliveryProviderMapper, DeliveryProviderEntity> {
 
     /**
-     * countByName
+     * countByShopIdAndName
      */
-    public long countByName(Long shopId, String name) {
+    public long countByShopIdAndName(Long shopId, String name) {
         return lambdaQuery()
                 .eq(DeliveryProviderEntity::getShopId, shopId)
                 .eq(DeliveryProviderEntity::getName, name)
@@ -21,9 +21,9 @@ public class DeliveryProviderRepo extends BaseRepo<DeliveryProviderMapper, Deliv
     }
 
     /**
-     * countByCode
+     * countByShopIdAndCode
      */
-    public long countByCode(Long shopId, String code) {
+    public long countByShopIdAndCode(Long shopId, String code) {
         return lambdaQuery()
                 .eq(DeliveryProviderEntity::getShopId, shopId)
                 .eq(DeliveryProviderEntity::getCode, code)

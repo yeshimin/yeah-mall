@@ -14,6 +14,8 @@ import com.yeshimin.yeahboot.data.repository.OrderRepo;
 import com.yeshimin.yeahboot.merchant.common.properties.Kuaidi100Properties;
 import com.yeshimin.yeahboot.merchant.domain.dto.Kd100CallbackParam;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchOrderQueryDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.OrderShipDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.UpdateShipInfoDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderDetailVo;
 import com.yeshimin.yeahboot.merchant.service.MchOrderService;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.api.COrder;
@@ -25,7 +27,6 @@ import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.request.corder.COrderRe
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.utils.SignUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.util.DigestUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -148,6 +149,27 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
         Long userId = super.getUserId();
         OrderDetailVo result = service.queryOrderDetail(userId, id);
         return R.ok(result);
+    }
+
+    /**
+     * 发货
+     * 场景：手动发货后填写物流公司和快递单号
+     */
+    @PostMapping("/ship")
+    public R<Void> shipOrder(@Validated @RequestBody OrderShipDto dto) {
+        Long userId = super.getUserId();
+        service.shipOrder(userId, dto);
+        return R.ok();
+    }
+
+    /**
+     * 更新发货信息
+     */
+    @PostMapping("/updateShipInfo")
+    public R<Void> updateShipInfo(@Validated @RequestBody UpdateShipInfoDto dto) {
+        Long userId = super.getUserId();
+        service.updateShipInfo(userId, dto);
+        return R.ok();
     }
 
     // ================================================================================

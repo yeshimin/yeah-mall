@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.common.enums;
 
 import com.yeshimin.yeahboot.common.common.enums.base.IValueEnum;
+import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
 import lombok.Getter;
 
 /**

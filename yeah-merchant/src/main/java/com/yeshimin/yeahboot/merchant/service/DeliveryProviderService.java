@@ -33,11 +33,11 @@ public class DeliveryProviderService {
         permissionService.checkMchAndShop(userId, dto);
 
         // 检查：名称是否重复
-        if (deliveryProviderRepo.countByName(dto.getShopId(), dto.getName()) > 0) {
+        if (deliveryProviderRepo.countByShopIdAndName(dto.getShopId(), dto.getName()) > 0) {
             throw new BaseException("名称已存在");
         }
         // 检查：编码是否重复
-        if (deliveryProviderRepo.countByCode(dto.getShopId(), dto.getCode()) > 0) {
+        if (deliveryProviderRepo.countByShopIdAndCode(dto.getShopId(), dto.getCode()) > 0) {
             throw new BaseException("编码已存在");
         }
 
@@ -61,13 +61,13 @@ public class DeliveryProviderService {
 
         // 按需检查：名称是否重复
         if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(dto.getName(), entity.getName())) {
-            if (deliveryProviderRepo.countByName(dto.getShopId(), dto.getName()) > 0) {
+            if (deliveryProviderRepo.countByShopIdAndName(dto.getShopId(), dto.getName()) > 0) {
                 throw new BaseException("名称已存在");
             }
         }
         // 按需检查：编码是否重复
         if (StrUtil.isNotBlank(dto.getCode()) && !Objects.equals(dto.getCode(), entity.getCode())) {
-            if (deliveryProviderRepo.countByCode(dto.getShopId(), dto.getCode()) > 0) {
+            if (deliveryProviderRepo.countByShopIdAndCode(dto.getShopId(), dto.getCode()) > 0) {
                 throw new BaseException("编码已存在");
             }
         }

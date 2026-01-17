@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.app.common.enums;
+package com.yeshimin.yeahboot.data.common.enums;
 
 import com.yeshimin.yeahboot.common.common.enums.base.IValueEnum;
 import lombok.Getter;
