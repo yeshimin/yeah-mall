@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.merchant.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -16,6 +17,7 @@ import com.yeshimin.yeahboot.merchant.domain.dto.OrderShipDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.UpdateShipInfoDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderShopProductVo;
+import com.yeshimin.yeahboot.service.JuheExpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,8 @@ public class MchOrderService {
     private final ProductSpecDefRepo productSpecDefRepo;
     private final ProductSpecOptDefRepo productSpecOptDefRepo;
     private final DeliveryProviderRepo deliveryProviderRepo;
+
+    private final JuheExpService juheExpService;
 
     /**
      * 查询店铺订单
@@ -119,6 +123,7 @@ public class MchOrderService {
     /**
      * 更新发货信息
      */
+    @Transactional(rollbackFor = Exception.class)
     public void updateShipInfo(Long userId, UpdateShipInfoDto dto) {
         // 检查：订单是否存在
         OrderEntity order = orderRepo.getOneById(dto.getOrderId());
@@ -140,6 +145,19 @@ public class MchOrderService {
                 .set(OrderEntity::getDeliveryProviderCode, dto.getDeliveryProviderCode())
                 .set(OrderEntity::getTrackingNo, dto.getTrackingNo());
         orderRepo.update(updateWrapper);
+    }
+
+    /**
+     * 查询订单物流信息
+     */
+    public JSONObject queryTracking(Long userId, Long orderId) {
+        // 检查：订单是否存在
+        OrderEntity order = orderRepo.getOneById(orderId);
+        // 检查：订单是否属于该商家
+        permissionService.checkMch(userId, order);
+
+        // 查询物流信息
+        return juheExpService.queryExpress(order.getDeliveryProviderCode(), order.getTrackingNo(), null, null);
     }
 
     // ================================================================================

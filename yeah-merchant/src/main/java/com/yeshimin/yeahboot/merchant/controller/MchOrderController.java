@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
@@ -170,6 +171,16 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
         Long userId = super.getUserId();
         service.updateShipInfo(userId, dto);
         return R.ok();
+    }
+
+    /**
+     * 查询订单物流信息
+     */
+    @GetMapping("/queryTracking")
+    public R<JSONObject> queryTracking(@RequestParam("orderId") Long orderId) {
+        Long userId = super.getUserId();
+        JSONObject result = service.queryTracking(userId, orderId);
+        return R.ok(result);
     }
 
     // ================================================================================

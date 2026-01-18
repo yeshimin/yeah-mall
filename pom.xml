@@ -20,6 +20,7 @@
         <module>yeah-admin-module</module>
         <module>yeah-app</module>
         <module>yeah-biz-data</module>
+        <module>yeah-biz-service</module>
         <module>yeah-common</module>
         <module>yeah-merchant</module>
     </modules>
@@ -152,10 +153,16 @@
                 <artifactId>yeah-common-data</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
-            <!-- app data module -->
+            <!-- biz data module -->
             <dependency>
                 <groupId>com.yeshimin.yeahboot</groupId>
                 <artifactId>yeah-biz-data</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <!-- biz service module -->
+            <dependency>
+                <groupId>com.yeshimin.yeahboot</groupId>
+                <artifactId>yeah-biz-service</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <!-- notification module -->

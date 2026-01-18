@@ -52,4 +52,16 @@ public class DeliveryProviderRepo extends BaseRepo<DeliveryProviderMapper, Deliv
                 .set(DeliveryProviderEntity::getIsDefault, false)
                 .update();
     }
+
+    /**
+     * clearByShopId
+     */
+    public boolean clearByShopId(Long shopId) {
+        if (shopId == null) {
+            throw new IllegalArgumentException("shopId不能为空");
+        }
+        return this.lambdaUpdate()
+                .eq(DeliveryProviderEntity::getShopId, shopId)
+                .remove();
+    }
 }

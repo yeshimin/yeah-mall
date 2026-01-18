@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.DeliveryProviderEntity;
 import com.yeshimin.yeahboot.data.mapper.DeliveryProviderMapper;
@@ -8,6 +9,7 @@ import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.DeliveryProviderCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.DeliveryProviderUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ShopDataIdDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.SyncExpCompanyDto;
 import com.yeshimin.yeahboot.merchant.service.DeliveryProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -33,6 +35,17 @@ public class DeliveryProviderController extends ShopCrudController<DeliveryProvi
     }
 
     // ================================================================================
+
+    /**
+     * 同步快递公司信息
+     * 使用第三方接口
+     */
+    @PostMapping("/syncExpCompany")
+    public R<JSONObject> syncExpCompany(@Validated @RequestBody SyncExpCompanyDto dto) {
+        Long userId = super.getUserId();
+        service.syncExpCompany(userId, dto);
+        return R.ok();
+    }
 
     /**
      * 创建

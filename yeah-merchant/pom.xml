@@ -34,6 +34,11 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-biz-data</artifactId>
         </dependency>
+        <!-- biz service module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-biz-service</artifactId>
+        </dependency>
         <!-- storage module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>

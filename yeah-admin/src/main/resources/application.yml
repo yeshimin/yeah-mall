@@ -253,5 +253,9 @@ yeah-boot:
       customer: OVERWRITE_ME
       secret: OVERWRITE_ME
       user-id: OVERWRITE_ME
+    juhe-api:
+      key: OVERWRITE_ME
+      query-exp-url: http://v.juhe.cn/exp/index
+      query-com-url: http://v.juhe.cn/exp/com
   # 买家端-收货地址最大数量
   member-address-max-count: 20
