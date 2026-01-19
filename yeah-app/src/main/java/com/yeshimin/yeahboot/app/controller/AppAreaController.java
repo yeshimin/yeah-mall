@@ -1,9 +1,9 @@
 package com.yeshimin.yeahboot.app.controller;
 
-import com.yeshimin.yeahboot.app.domain.vo.AreaVo;
-import com.yeshimin.yeahboot.app.service.AppAreaService;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
+import com.yeshimin.yeahboot.data.domain.vo.AreaVo;
+import com.yeshimin.yeahboot.service.AreaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AppAreaController extends BaseController {
 
-    private final AppAreaService areaService;
+    private final AreaService areaService;
 
     /**
      * 查询省份

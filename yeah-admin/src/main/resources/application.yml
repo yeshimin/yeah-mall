@@ -56,6 +56,8 @@ mybatis-plus:
     db-config:
       # 实体查询时，字段为非空串才设置查询条件
       select-strategy: not_empty
+  # mapper scan
+  mapper-locations: classpath:/mapper/**/*.xml
 
 # auth相关
 auth:
