@@ -7,10 +7,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.entity.DeliveryProviderEntity;
 import com.yeshimin.yeahboot.data.repository.DeliveryProviderRepo;
-import com.yeshimin.yeahboot.merchant.domain.dto.DeliveryProviderCreateDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.DeliveryProviderUpdateDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.ShopDataIdDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.SyncExpCompanyDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.service.JuheExpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -136,7 +133,7 @@ public class DeliveryProviderService {
      * 设置默认
      */
     @Transactional(rollbackFor = Exception.class)
-    public void setDefault(Long userId, ShopDataIdDto dto) {
+    public void setDefault(Long userId, DeliveryProviderSetDefaultDto dto) {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
 
@@ -145,11 +142,35 @@ public class DeliveryProviderService {
         // 检查：店铺数据权限
         permissionService.checkShopId(dto.getShopId(), entity.getShopId());
 
-        // 先取消所有默认
-        deliveryProviderRepo.clearDefault(dto.getShopId());
-        // 设置默认
-        entity.setIsDefault(true);
+        if (dto.getIsDefault()) {
+            // 先取消所有默认
+            deliveryProviderRepo.clearDefault(dto.getShopId());
+            // 设置默认
+            entity.setIsDefault(true);
+            boolean r = entity.updateById();
+            log.info("设置默认物流提供商，结果：{}", r);
+        } else {
+            entity.setIsDefault(false);
+            boolean r = entity.updateById();
+            log.info("取消默认物流提供商，结果：{}", r);
+        }
+    }
+
+    /**
+     * 设置主流
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void setDefault(Long userId, DeliveryProviderSetPopularDto dto) {
+        // 权限检查和控制
+        permissionService.checkMchAndShop(userId, dto);
+
+        // 检查：是否存在
+        DeliveryProviderEntity entity = deliveryProviderRepo.getOneById(dto.getId());
+        // 检查：店铺数据权限
+        permissionService.checkShopId(dto.getShopId(), entity.getShopId());
+
+        entity.setIsPopular(dto.getIsPopular());
         boolean r = entity.updateById();
-        log.info("设置默认物流提供商，结果：{}", r);
+        log.info("设置主流物流提供商，结果：{}", r);
     }
 }

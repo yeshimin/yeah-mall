@@ -6,10 +6,7 @@ import com.yeshimin.yeahboot.data.domain.entity.DeliveryProviderEntity;
 import com.yeshimin.yeahboot.data.mapper.DeliveryProviderMapper;
 import com.yeshimin.yeahboot.data.repository.DeliveryProviderRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
-import com.yeshimin.yeahboot.merchant.domain.dto.DeliveryProviderCreateDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.DeliveryProviderUpdateDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.ShopDataIdDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.SyncExpCompanyDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.service.DeliveryProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -71,7 +68,17 @@ public class DeliveryProviderController extends ShopCrudController<DeliveryProvi
      * 设置默认
      */
     @PostMapping("/setDefault")
-    public R<Void> setDefault(@Validated @RequestBody ShopDataIdDto dto) {
+    public R<Void> setDefault(@Validated @RequestBody DeliveryProviderSetDefaultDto dto) {
+        Long userId = super.getUserId();
+        service.setDefault(userId, dto);
+        return R.ok();
+    }
+
+    /**
+     * 设置主流
+     */
+    @PostMapping("/setPopular")
+    public R<Void> setPopular(@Validated @RequestBody DeliveryProviderSetPopularDto dto) {
         Long userId = super.getUserId();
         service.setDefault(userId, dto);
         return R.ok();

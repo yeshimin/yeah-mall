@@ -8,14 +8,17 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ShopDataIdDto extends ShopDataBaseDomain {
+public class DeliveryProviderSetPopularDto extends ShopDataBaseDomain {
 
+    /**
+     * 主键ID
+     */
     @NotNull(message = "ID不能为空")
     private Long id;
 
     /**
-     * 是否默认
+     * 是否主流
      */
-    @NotNull(message = "是否默认不能为空")
-    private Boolean isDefault;
+    @NotNull(message = "是否主流不能为空")
+    private Boolean isPopular;
 }

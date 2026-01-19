@@ -32,4 +32,9 @@ public class DeliveryProviderEntity extends ShopConditionBaseEntity<DeliveryProv
      * 是否默认（只能启用一个）
      */
     private Boolean isDefault;
+
+    /**
+     * 是否主流
+     */
+    private Boolean isPopular;
 }

@@ -8,8 +8,11 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ShopDataIdDto extends ShopDataBaseDomain {
+public class DeliveryProviderSetDefaultDto extends ShopDataBaseDomain {
 
+    /**
+     * 主键ID
+     */
     @NotNull(message = "ID不能为空")
     private Long id;
 
