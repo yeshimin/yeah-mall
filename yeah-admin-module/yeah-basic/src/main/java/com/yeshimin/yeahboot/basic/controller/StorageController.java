@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 存储管理
+ * 存储管理 - 提供存储能力
  */
 @RestController
 @RequestMapping("/basic/storage")
