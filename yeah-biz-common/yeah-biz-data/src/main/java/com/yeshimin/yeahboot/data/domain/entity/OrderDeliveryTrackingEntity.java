@@ -41,9 +41,29 @@ public class OrderDeliveryTrackingEntity extends ConditionBaseEntity<OrderDelive
     private String trackingNo;
 
     /**
+     * 快递公司编码
+     */
+    private String trackingCom;
+
+    /**
+     * 寄件人手机号后四位
+     */
+    private String senderPhone;
+
+    /**
+     * 收件人手机号后四位
+     */
+    private String receiverPhone;
+
+    /**
      * 物流状态
      */
     private String trackingStatus;
+
+    /**
+     * 状态锁定（不会再变化）
+     */
+    private Boolean statusLocked;
 
     /**
      * 上次查询的原始响应数据
@@ -54,4 +74,14 @@ public class OrderDeliveryTrackingEntity extends ConditionBaseEntity<OrderDelive
      * 上次查询时间
      */
     private LocalDateTime lastQueryTime;
+
+    /**
+     * 上次成功查询的原始响应数据
+     */
+    private String lastSuccessRespData;
+
+    /**
+     * 上次成功查询时间
+     */
+    private LocalDateTime lastSuccessQueryTime;
 }

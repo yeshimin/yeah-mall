@@ -43,7 +43,7 @@ public class DeliveryProviderService {
             throw new BaseException("同步快递公司信息失败");
         }
 
-        if (!Objects.equals(respObj.getString("resultcode"), "200")) {
+        if (!Objects.equals(respObj.getString("error_code"), "0")) {
             throw new BaseException("同步快递公司信息失败，" + respObj.getString("reason"));
         }
 
