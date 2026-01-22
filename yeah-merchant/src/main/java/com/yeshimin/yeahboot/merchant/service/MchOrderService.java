@@ -43,6 +43,7 @@ public class MchOrderService {
     private final ProductSpecDefRepo productSpecDefRepo;
     private final ProductSpecOptDefRepo productSpecOptDefRepo;
     private final DeliveryProviderRepo deliveryProviderRepo;
+    private final OrderDeliveryTrackingRepo orderDeliveryTrackingRepo;
 
     private final JuheExpService juheExpService;
 
@@ -80,12 +81,17 @@ public class MchOrderService {
 
         // --------------------------------------------------------------------------------
 
+        // 查询物流跟踪信息
+        OrderDeliveryTrackingEntity tracking = orderDeliveryTrackingRepo.findOneByOrderNo(order.getOrderNo());
+        JSONObject deliveryTracking = tracking != null && StrUtil.isNotBlank(tracking.getLastSuccessRespData()) ?
+                JSONObject.parseObject(tracking.getLastSuccessRespData()) : null;
+
         OrderDetailVo result = new OrderDetailVo();
         result.setOrder(order);
         result.setShopProducts(listOrderShopProductVo);
+        result.setDeliveryTracking(deliveryTracking);
         return result;
     }
-
 
     /**
      * 发货
@@ -112,12 +118,17 @@ public class MchOrderService {
             throw new RuntimeException("订单发货失败，请稍后重试");
         }
 
+        // 更新订单
         LambdaUpdateWrapper<OrderEntity> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(OrderEntity::getId, order.getId())
                 .set(OrderEntity::getDeliveryProviderCode, dto.getDeliveryProviderCode())
                 .set(OrderEntity::getTrackingNo, dto.getTrackingNo())
                 .set(OrderEntity::getShipTime, LocalDateTime.now());
         orderRepo.update(updateWrapper);
+
+        // 添加订单物流跟踪记录
+        boolean r = orderDeliveryTrackingRepo.createOne(order, dto.getTrackingNo(), dto.getDeliveryProviderCode());
+        log.info("创建订单物流跟踪记录，结果：{}，订单ID：{}", r, order.getId());
     }
 
     /**
@@ -150,9 +161,12 @@ public class MchOrderService {
     /**
      * 查询订单物流信息
      */
-    public JSONObject queryTracking(Long userId, Long orderId) {
+    public JSONObject queryTracking(Long userId, String orderNo) {
         // 检查：订单是否存在
-        OrderEntity order = orderRepo.getOneById(orderId);
+        OrderEntity order = orderRepo.findOneByOrderNo(orderNo);
+        if (order == null) {
+            throw new BaseException("订单不存在");
+        }
         // 检查：订单是否属于该商家
         permissionService.checkMch(userId, order);
 

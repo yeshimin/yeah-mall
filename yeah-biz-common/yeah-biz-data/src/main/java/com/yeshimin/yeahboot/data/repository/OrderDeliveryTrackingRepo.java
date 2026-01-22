@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.data.repository;
 
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.domain.entity.OrderDeliveryTrackingEntity;
+import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.mapper.OrderDeliveryTrackingMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -17,13 +18,37 @@ public class OrderDeliveryTrackingRepo extends BaseRepo<OrderDeliveryTrackingMap
      * findListForQuery
      * 同时满足以下条件：
      * 1.状态未锁定
-     * 2.上次成功查询时间已经过去25分钟（时间要job执行频率，以防边界问题）
+     * 2.30天以内的数据
      */
     public List<OrderDeliveryTrackingEntity> findListForQuery() {
-        LocalDateTime thresholdTime = LocalDateTime.now().minusMinutes(25);
         return lambdaQuery()
                 .eq(OrderDeliveryTrackingEntity::getStatusLocked, false)
-                .le(OrderDeliveryTrackingEntity::getLastSuccessQueryTime, thresholdTime)
+                .ge(OrderDeliveryTrackingEntity::getCreateTime, LocalDateTime.now().minusDays(30))
                 .list();
+    }
+
+    /**
+     * findOneByOrderNo
+     */
+    public OrderDeliveryTrackingEntity findOneByOrderNo(String orderNo) {
+        return lambdaQuery()
+                .eq(OrderDeliveryTrackingEntity::getOrderNo, orderNo)
+                .orderByDesc(OrderDeliveryTrackingEntity::getCreateTime)
+                .last("LIMIT 1")
+                .one();
+    }
+
+    /**
+     * createOne
+     */
+    public boolean createOne(OrderEntity order, String trackingNo, String trackingCom) {
+        OrderDeliveryTrackingEntity entity = new OrderDeliveryTrackingEntity();
+        entity.setMchId(order.getMchId());
+        entity.setShopId(order.getShopId());
+        entity.setOrderId(order.getId());
+        entity.setOrderNo(order.getOrderNo());
+        entity.setTrackingNo(trackingNo);
+        entity.setTrackingCom(trackingCom);
+        return super.save(entity);
     }
 }
