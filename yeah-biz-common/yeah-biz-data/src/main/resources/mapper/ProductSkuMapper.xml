@@ -8,4 +8,11 @@
         SET s.stock = s.stock - #{quantity}
         WHERE s.id = #{id} AND s.stock > 0
     </update>
+
+    <!-- 增加库存 -->
+    <update id="increaseStock">
+        UPDATE s_product_sku s
+        SET s.stock = s.stock + #{quantity}
+        WHERE s.id = #{id}
+    </update>
 </mapper>

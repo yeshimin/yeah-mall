@@ -2,7 +2,10 @@ package com.yeshimin.yeahboot.merchant.job;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.yeshimin.yeahboot.data.domain.entity.OrderDeliveryTrackingEntity;
+import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.repository.OrderDeliveryTrackingRepo;
+import com.yeshimin.yeahboot.data.repository.OrderRepo;
+import com.yeshimin.yeahboot.merchant.service.MchOrderService;
 import com.yeshimin.yeahboot.service.JuheExpService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -20,7 +24,11 @@ import java.util.Objects;
 public class DefaultJob {
 
     private final OrderDeliveryTrackingRepo orderDeliveryTrackingRepo;
+    private final OrderRepo orderRepo;
+
     private final JuheExpService juheExpService;
+
+    private final MchOrderService mchOrderService;
 
     /**
      * 同步物流跟踪信息
@@ -70,6 +78,31 @@ public class DefaultJob {
         orderDeliveryTrackingRepo.updateBatchById(listTracking);
 
         log.info("同步物流跟踪信息-结束");
+    }
+
+    /**
+     * 待付款订单超时取消
+     * 每分钟执行一次
+     */
+    @SneakyThrows
+    @Scheduled(fixedDelay = 60000)
+    public void autoCancelOrder() {
+        log.info("待付款订单超时取消-开始");
+
+        // 查询待处理的订单列表
+        List<Long> orderIds = orderRepo.findIdListForPayExpired()
+                .stream().map(OrderEntity::getId).collect(Collectors.toList());
+
+        for (Long orderId : orderIds) {
+            try {
+                // 取消订单
+                mchOrderService.cancelOrder(orderId, "支付超时自动取消");
+            } catch (Exception e) {
+                log.error("取消超时未付款订单失败，订单ID：{}", orderId, e);
+            }
+        }
+
+        log.info("待付款订单超时取消-结束");
     }
 
     /**

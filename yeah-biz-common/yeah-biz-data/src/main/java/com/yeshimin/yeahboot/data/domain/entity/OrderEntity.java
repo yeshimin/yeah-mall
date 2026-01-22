@@ -61,6 +61,21 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      */
     private LocalDateTime paySuccessTime;
 
+    /**
+     * 支付超时时间
+     */
+    private LocalDateTime payExpireTime;
+
+    /**
+     * 订单关闭时间
+     */
+    private LocalDateTime closeTime;
+
+    /**
+     * 订单关闭原因
+     */
+    private String closeReason;
+
     // 收货方地址相关 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     /**

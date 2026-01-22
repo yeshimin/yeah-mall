@@ -21,19 +21,19 @@ public class MchOrderQueryDto extends ShopDataBaseDomain {
     private String orderNo;
 
     /**
-     * 状态：1-待付款 2-待发货 3-待收货 4-交易成功 5-交易关闭 6-退款 7-售后
+     * 订单状态
      */
     @QueryField(type = QueryField.Type.EQ)
     private String status;
 
     /**
-     * 退款状态：0-无 1-申请中 2-处理中 3-退款成功 4-已拒绝
+     * 退款状态
      */
     @QueryField(type = QueryField.Type.EQ)
     private String refundStatus;
 
     /**
-     * 售后状态：0-无 1-申请中 2-处理中 3-售后完成 4-已驳回
+     * 售后状态
      */
     @QueryField(type = QueryField.Type.EQ)
     private String afterSaleStatus;

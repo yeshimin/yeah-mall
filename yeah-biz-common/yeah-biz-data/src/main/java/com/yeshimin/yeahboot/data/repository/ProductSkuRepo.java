@@ -107,6 +107,16 @@ public class ProductSkuRepo extends BaseRepo<ProductSkuMapper, ProductSkuEntity>
     }
 
     /**
+     * 增加库存
+     */
+    public boolean increaseStock(Long id, Integer quantity) {
+        if (id == null || quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("id和quantity不能为空且quantity必须大于0");
+        }
+        return productSkuMapper.increaseStock(id, quantity);
+    }
+
+    /**
      * findListBySpuId
      */
     public List<ProductSkuEntity> findListBySpuId(Long spuId) {

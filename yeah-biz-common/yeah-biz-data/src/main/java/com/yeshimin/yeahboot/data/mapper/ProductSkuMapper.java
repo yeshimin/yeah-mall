@@ -12,4 +12,9 @@ public interface ProductSkuMapper extends BaseMapper<ProductSkuEntity> {
      * 扣减库存
      */
     boolean occurStock(@Param("id") Long id, @Param("quantity") Integer quantity);
+
+    /**
+     * 增加库存
+     */
+    boolean increaseStock(@Param("id") Long id, @Param("quantity") Integer quantity);
 }
