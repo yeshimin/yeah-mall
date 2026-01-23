@@ -3,10 +3,7 @@ package com.yeshimin.yeahboot.app.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yeshimin.yeahboot.app.domain.dto.OrderNoDto;
-import com.yeshimin.yeahboot.app.domain.dto.OrderPreviewDto;
-import com.yeshimin.yeahboot.app.domain.dto.OrderQueryDto;
-import com.yeshimin.yeahboot.app.domain.dto.OrderSubmitDto;
+import com.yeshimin.yeahboot.app.domain.dto.*;
 import com.yeshimin.yeahboot.app.domain.vo.*;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
 import com.yeshimin.yeahboot.app.service.WxPayService;
@@ -145,5 +142,15 @@ public class AppOrderController extends BaseController {
     public R<List<OrderShopVo>> preview(@Validated @RequestBody OrderPreviewDto dto) {
         Long userId = WebContextUtils.getUserId();
         return R.ok(appOrderService.preview(userId, dto));
+    }
+
+    /**
+     * 确认收货
+     */
+    @PostMapping("/confirmReceive")
+    public R<Void> confirmReceive(@Validated @RequestBody ConfirmReceiveDto dto) {
+        Long userId = super.getUserId();
+        appOrderService.confirmReceive(userId, dto, "买家签收");
+        return R.ok();
     }
 }
