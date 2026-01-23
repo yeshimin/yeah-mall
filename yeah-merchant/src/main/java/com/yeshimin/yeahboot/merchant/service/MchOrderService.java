@@ -184,36 +184,15 @@ public class MchOrderService {
     }
 
     /**
-     * 取消订单
+     * 取消超时订单
+     * job触发，不需要检查权限
      */
     @Transactional(rollbackFor = Exception.class)
-    public void cancelOrder(Long orderId, String closeReason) {
+    public void cancelExpiredOrder(Long orderId, String closeReason) {
         // 检查：订单是否存在
         OrderEntity order = orderRepo.getOneById(orderId);
 
-        // 检查：订单状态是否为待付款
-        if (!Objects.equals(order.getStatus(), OrderStatusEnum.WAIT_PAY.getValue())) {
-            throw new RuntimeException("仅当前订单状态为【待付款】时，才能取消订单");
-        }
-
-        boolean updateStatusSuccess = orderRepo.updateStatus(
-                order.getId(), OrderStatusEnum.WAIT_PAY.getValue(), OrderStatusEnum.CLOSED.getValue());
-        if (!updateStatusSuccess) {
-            throw new RuntimeException("订单取消失败，请稍后重试");
-        }
-        order.setStatus(OrderStatusEnum.CLOSED.getValue());
-        order.setCloseTime(LocalDateTime.now());
-        order.setCloseReason(closeReason);
-        order.updateById();
-
-        // 查询订单明细
-        List<OrderItemEntity> orderItems = orderItemRepo.findListByOrderId(order.getId());
-        // 释放库存
-        for (OrderItemEntity item : orderItems) {
-            productSkuRepo.increaseStock(item.getSkuId(), item.getQuantity());
-        }
-
-        // 退回优惠券之类的逻辑 TODO 做优惠券的时候再处理
+        orderService.cancelOrder(order, closeReason);
     }
 
     /**

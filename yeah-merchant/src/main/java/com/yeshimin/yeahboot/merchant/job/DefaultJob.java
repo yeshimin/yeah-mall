@@ -99,8 +99,8 @@ public class DefaultJob {
 
         for (Long orderId : orderIds) {
             try {
-                // 取消订单
-                mchOrderService.cancelOrder(orderId, "支付超时自动取消");
+                // 取消超时订单
+                mchOrderService.cancelExpiredOrder(orderId, "支付超时自动取消");
             } catch (Exception e) {
                 log.error("取消超时未付款订单失败，订单ID：{}", orderId, e);
             }

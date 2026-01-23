@@ -11,6 +11,7 @@ import com.yeshimin.yeahboot.app.service.WxPayService;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
+import com.yeshimin.yeahboot.common.domain.base.IdDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import lombok.RequiredArgsConstructor;
@@ -153,6 +154,16 @@ public class AppOrderController extends BaseController {
         Long userId = super.getUserId();
         JSONObject result = appOrderService.queryTracking(userId, orderId);
         return R.ok(result);
+    }
+
+    /**
+     * 取消订单
+     */
+    @PostMapping("/cancel")
+    public R<Void> cancel(@Validated @RequestBody IdDto dto) {
+        Long userId = super.getUserId();
+        appOrderService.cancelOrder(userId, dto.getId(), "买家取消");
+        return R.ok();
     }
 
     /**
