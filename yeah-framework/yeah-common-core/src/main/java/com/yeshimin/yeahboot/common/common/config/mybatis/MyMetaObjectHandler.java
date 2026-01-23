@@ -20,9 +20,6 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         LocalDateTime now = LocalDateTime.now();
         String operator = this.getOperator();
 
-        // id置空，自动生成 ; 现在id使用ASSIGN_ID，再加上BaseEntity.id的create场景的@Null注解，这里不需要再置空了，否则报错
-//        metaObject.setValue("id", null);
-
         this.setFieldValByName("deleted", 0, metaObject);
         this.setFieldValByName("deleteTime", CommonConsts.MAX_TIME, metaObject);
 
