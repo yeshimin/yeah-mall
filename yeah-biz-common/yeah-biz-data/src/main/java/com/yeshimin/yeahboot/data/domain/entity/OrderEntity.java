@@ -208,4 +208,19 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      * 发货时间（手动发货时该时间不一定准确）
      */
     private LocalDateTime shipTime;
+
+    /**
+     * 签收超时时间
+     */
+    private LocalDateTime receiveExpireTime;
+
+    /**
+     * 签收时间
+     */
+    private LocalDateTime receiveTime;
+
+    /**
+     * 签收备注
+     */
+    private String receiveRemark;
 }

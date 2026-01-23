@@ -66,4 +66,18 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
                 .le(OrderEntity::getPayExpireTime, LocalDateTime.now())
                 .list();
     }
+
+    /**
+     * findIdListForReceiveExpired
+     * 自动确认收货
+     * 匹配条件：
+     * 1.订单状态为【待收货】
+     * 2.已经到达签收超时时间
+     */
+    public List<OrderEntity> findIdListForReceiveExpired() {
+        return lambdaQuery().select(OrderEntity::getId)
+                .eq(OrderEntity::getStatus, OrderStatusEnum.WAIT_RECEIVE.getValue())
+                .le(OrderEntity::getReceiveExpireTime, LocalDateTime.now())
+                .list();
+    }
 }

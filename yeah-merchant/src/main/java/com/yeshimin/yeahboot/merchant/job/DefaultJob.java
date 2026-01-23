@@ -106,16 +106,27 @@ public class DefaultJob {
     }
 
     /**
-     * 待收货订单超过30天自动签收
+     * 待收货订单签收超时的自动确认收货
      * 每天1点执行一次
      */
     @SneakyThrows
     @Scheduled(cron = "0 0 1 * * ?")
     public void autoReceiveOrder() {
-        log.info("待收货订单超过30天自动签收-开始");
+        log.info("待收货订单签收超时的自动确认收货-开始");
 
-        // TODO 自动签收逻辑
+        // 查询待处理的订单列表
+        List<Long> orderIds = orderRepo.findIdListForReceiveExpired()
+                .stream().map(OrderEntity::getId).collect(Collectors.toList());
 
-        log.info("待收货订单超过30天自动签收-结束");
+        for (Long orderId : orderIds) {
+            try {
+                // 自动签收
+                mchOrderService.confirmReceive(orderId, "签收超时自动确认");
+            } catch (Exception e) {
+                log.error("待收货订单自动签收失败，订单ID：{}", orderId, e);
+            }
+        }
+
+        log.info("待收货订单签收超时的自动确认收货-结束");
     }
 }

@@ -207,6 +207,30 @@ public class MchOrderService {
         // 退回优惠券之类的逻辑 TODO 做优惠券的时候再处理
     }
 
+    /**
+     * 确认收货
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void confirmReceive(Long orderId, String receiveRemark) {
+        // 检查：订单是否存在
+        OrderEntity order = orderRepo.getOneById(orderId);
+
+        // 检查：订单状态是否为待收货
+        if (!Objects.equals(order.getStatus(), OrderStatusEnum.WAIT_RECEIVE.getValue())) {
+            throw new RuntimeException("仅当前订单状态为【待收货】时，才能签收");
+        }
+
+        boolean updateStatusSuccess = orderRepo.updateStatus(
+                order.getId(), OrderStatusEnum.WAIT_RECEIVE.getValue(), OrderStatusEnum.COMPLETED.getValue());
+        if (!updateStatusSuccess) {
+            throw new RuntimeException("订单签收失败，请稍后重试");
+        }
+        order.setStatus(OrderStatusEnum.COMPLETED.getValue());
+        order.setReceiveTime(LocalDateTime.now());
+        order.setReceiveRemark(receiveRemark);
+        order.updateById();
+    }
+
     // ================================================================================
 
     /**
