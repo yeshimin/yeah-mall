@@ -1,6 +1,8 @@
 package com.yeshimin.yeahboot.common.common.config.mybatis;
 
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
+import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import org.springframework.context.annotation.Bean;
@@ -23,4 +25,12 @@ public class MyBatisPlusConfig {
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
         return interceptor;
     }
+
+//    /**
+//     * 自定义IdentifierGenerator
+//     */
+//    @Bean
+//    public IdentifierGenerator identifierGenerator() {
+//        return new DefaultIdentifierGenerator(1,1);
+//    }
 }

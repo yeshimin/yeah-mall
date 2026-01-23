@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = {"com.yeshimin.yeahboot"})
-@MapperScan("com.yeshimin.yeahboot.**.mapper") // 单体模式注释掉这个；如果各admin、app等模块独立打包，则需要启用
+//@MapperScan("com.yeshimin.yeahboot.**.mapper") // 单体模式注释掉这个；如果各admin、app等模块独立打包，则需要启用
 public class YeahMerchantApplication {
 
     public static void main(String[] args) {

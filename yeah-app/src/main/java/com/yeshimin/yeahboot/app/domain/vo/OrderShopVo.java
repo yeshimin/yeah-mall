@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.domain.vo;
 
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
+import com.yeshimin.yeahboot.data.domain.vo.OrderShopProductVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

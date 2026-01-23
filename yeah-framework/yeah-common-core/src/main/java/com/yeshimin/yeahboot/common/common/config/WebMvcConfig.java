@@ -3,6 +3,8 @@ package com.yeshimin.yeahboot.common.common.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -68,8 +70,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
         javaTimeModule.addDeserializer(LocalDate.class,
                 new LocalDateDeserializer(DateTimeFormatter.ofPattern(DATE_FORMAT)));
 
+        // 【框架修改】由于数据库主键使用SnowFlake算法，返回long类型给前端会丢失精度
+        // 将所有 Long 类型序列化为 String
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
+        simpleModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(javaTimeModule);
+        mapper.registerModule(simpleModule);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         // 反序列化时忽略不识别的字段
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

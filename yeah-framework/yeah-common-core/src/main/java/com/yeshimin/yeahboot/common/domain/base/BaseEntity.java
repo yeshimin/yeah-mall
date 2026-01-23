@@ -20,7 +20,7 @@ public abstract class BaseEntity<T extends Model<T>> extends Model<T> {
     /**
      * 主键ID
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     @NotNull(message = "主键ID不能为空", groups = {Update.class})
     @Null(message = "主键ID必须为空", groups = {Create.class})
     private Long id;

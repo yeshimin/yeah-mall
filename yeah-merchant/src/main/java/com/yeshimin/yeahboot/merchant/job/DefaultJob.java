@@ -71,6 +71,10 @@ public class DefaultJob {
                 if (Objects.equals(status, "1")) {
                     tracking.setStatusLocked(true);
                 }
+            } else {
+                log.warn("查询快递信息失败, orderNo: {}, trackingNo: {}, response: {}",
+                        tracking.getOrderNo(), tracking.getTrackingNo(),
+                        jsonResp != null ? jsonResp.toJSONString() : "");
             }
         }
 

@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.dto.*;
@@ -142,6 +143,25 @@ public class AppOrderController extends BaseController {
     public R<List<OrderShopVo>> preview(@Validated @RequestBody OrderPreviewDto dto) {
         Long userId = WebContextUtils.getUserId();
         return R.ok(appOrderService.preview(userId, dto));
+    }
+
+    /**
+     * 查询订单详情
+     */
+    @GetMapping("/detail")
+    public R<OrderDetailVo> queryDetail(@RequestParam("orderNo") String orderNo) {
+        Long userId = super.getUserId();
+        return R.ok(appOrderService.queryDetail(userId, orderNo));
+    }
+
+    /**
+     * 查询订单物流信息
+     */
+    @GetMapping("/queryTracking")
+    public R<JSONObject> queryTracking(@RequestParam("orderId") Long orderId) {
+        Long userId = super.getUserId();
+        JSONObject result = appOrderService.queryTracking(userId, orderId);
+        return R.ok(result);
     }
 
     /**

@@ -1,29 +1,16 @@
-package com.yeshimin.yeahboot.merchant.domain.vo;
+package com.yeshimin.yeahboot.data.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
-import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * 商家端订单详情下店铺商品信息VO
- * 数据结构同app端OrderShopProductVo类
- */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class OrderShopProductVo extends BaseDomain {
-
-    /**
-     * 订单ID
-     */
-    @JsonIgnore
-    private Long orderId;
-
-    // 以下字段同app端ShopCartItemVo类，直接在此展开
+public class ShopProductItemVo extends BaseDomain {
 
     /**
      * ID

@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.merchant.domain.vo;
 import com.alibaba.fastjson2.JSONObject;
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
+import com.yeshimin.yeahboot.data.domain.vo.OrderShopProductVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
