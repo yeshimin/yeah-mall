@@ -43,7 +43,7 @@ public class AppOrderController extends BaseController {
         OrderEntity order = appOrderService.submit(userId, dto);
 
         // 生成支付信息
-        WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, order.getOrderNo());
+        WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, order.getId());
 
         OrderSubmitVo vo = BeanUtil.copyProperties(payInfoVo, OrderSubmitVo.class);
         vo.setOrderId(order.getId());
@@ -57,7 +57,7 @@ public class AppOrderController extends BaseController {
     @PostMapping("/genPayInfo")
     public R<WxPayInfoVo> genPayInfo(@Validated @RequestBody OrderNoDto dto) {
         Long userId = super.getUserId();
-        WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, dto.getOrderNo());
+        WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, dto.getOrderId());
         return R.ok(payInfoVo);
     }
 

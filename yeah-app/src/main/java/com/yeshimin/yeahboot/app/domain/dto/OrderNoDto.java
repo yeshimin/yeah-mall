@@ -4,7 +4,7 @@ import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * 订单编号DTO
@@ -14,8 +14,8 @@ import javax.validation.constraints.NotBlank;
 public class OrderNoDto extends BaseDomain {
 
     /**
-     * 订单编号
+     * 订单ID
      */
-    @NotBlank(message = "订单编号不能为空")
-    private String orderNo;
+    @NotNull(message = "订单ID不能为空")
+    private Long orderId;
 }
