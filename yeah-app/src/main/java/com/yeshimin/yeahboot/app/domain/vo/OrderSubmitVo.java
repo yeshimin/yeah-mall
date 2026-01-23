@@ -9,6 +9,12 @@ import lombok.EqualsAndHashCode;
 public class OrderSubmitVo extends WxPayInfoVo {
 
     /**
+     * 订单ID
+     */
+    @Schema(description = "订单ID")
+    private Long orderId;
+
+    /**
      * 订单编号
      */
     @Schema(description = "订单编号")

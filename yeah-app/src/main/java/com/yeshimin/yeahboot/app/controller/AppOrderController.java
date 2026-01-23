@@ -46,6 +46,7 @@ public class AppOrderController extends BaseController {
         WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, order.getOrderNo());
 
         OrderSubmitVo vo = BeanUtil.copyProperties(payInfoVo, OrderSubmitVo.class);
+        vo.setOrderId(order.getId());
         vo.setOrderNo(order.getOrderNo());
         return R.ok(vo);
     }
@@ -60,23 +61,13 @@ public class AppOrderController extends BaseController {
         return R.ok(payInfoVo);
     }
 
-//    /**
-//     * 查询支付订单信息
-//     */
-//    @GetMapping("queryPayOrderInfo")
-//    public R<Transaction> queryPayOrderInfo(@RequestParam("orderNo") String orderNo) {
-//        Long userId = super.getUserId();
-//        Transaction result = appOrderService.queryPayOrderInfo(userId, orderNo);
-//        return R.ok(result);
-//    }
-
     /**
      * 查询订单支付结果
      */
     @GetMapping("/queryPayResult")
-    public R<OrderPayResultVo> queryPayResult(@RequestParam("orderNo") String orderNo) {
+    public R<OrderPayResultVo> queryPayResult(@RequestParam("orderId") Long orderId) {
         Long userId = super.getUserId();
-        OrderPayResultVo payResultVo = appOrderService.queryPayResult(userId, orderNo);
+        OrderPayResultVo payResultVo = appOrderService.queryPayResult(userId, orderId);
         return R.ok(payResultVo);
     }
 
@@ -149,9 +140,9 @@ public class AppOrderController extends BaseController {
      * 查询订单详情
      */
     @GetMapping("/detail")
-    public R<OrderDetailVo> queryDetail(@RequestParam("orderNo") String orderNo) {
+    public R<OrderDetailVo> queryDetail(@RequestParam("orderId") Long orderId) {
         Long userId = super.getUserId();
-        return R.ok(appOrderService.queryDetail(userId, orderNo));
+        return R.ok(appOrderService.queryDetail(userId, orderId));
     }
 
     /**

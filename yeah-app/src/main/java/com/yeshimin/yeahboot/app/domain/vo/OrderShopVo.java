@@ -31,6 +31,11 @@ public class OrderShopVo extends BaseDomain {
     List<OrderShopProductVo> items;
 
     /**
+     * 订单ID
+     */
+    private Long orderId;
+
+    /**
      * 订单编号
      */
     private String orderNo;
