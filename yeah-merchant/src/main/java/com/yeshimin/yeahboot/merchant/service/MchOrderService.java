@@ -20,6 +20,7 @@ import com.yeshimin.yeahboot.merchant.domain.vo.OrderShopProductVo;
 import com.yeshimin.yeahboot.service.JuheExpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,12 @@ public class MchOrderService {
     private final OrderDeliveryTrackingRepo orderDeliveryTrackingRepo;
 
     private final JuheExpService juheExpService;
+
+    /**
+     * 订单签收超时时间（天）
+     */
+    @Value("${order-receive-timeout-days:30}")
+    private Integer orderReceiveTimeoutDays;
 
     /**
      * 查询店铺订单
@@ -123,7 +130,9 @@ public class MchOrderService {
         updateWrapper.eq(OrderEntity::getId, order.getId())
                 .set(OrderEntity::getDeliveryProviderCode, dto.getDeliveryProviderCode())
                 .set(OrderEntity::getTrackingNo, dto.getTrackingNo())
-                .set(OrderEntity::getShipTime, LocalDateTime.now());
+                .set(OrderEntity::getShipTime, LocalDateTime.now())
+                // 计算并设置订单签收超时时间
+                .set(OrderEntity::getReceiveExpireTime, this.calcOrderReceiveExpireTime());
         orderRepo.update(updateWrapper);
 
         // 添加订单物流跟踪记录
@@ -301,5 +310,12 @@ public class MchOrderService {
 
             return vo;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 计算订单签收超时时间
+     */
+    private LocalDateTime calcOrderReceiveExpireTime() {
+        return LocalDateTime.now().plusDays(orderReceiveTimeoutDays);
     }
 }
