@@ -20,9 +20,6 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         LocalDateTime now = LocalDateTime.now();
         String operator = this.getOperator();
 
-        // id置空，自动生成
-        metaObject.setValue("id", null);
-
         this.setFieldValByName("deleted", 0, metaObject);
         this.setFieldValByName("deleteTime", CommonConsts.MAX_TIME, metaObject);
 
