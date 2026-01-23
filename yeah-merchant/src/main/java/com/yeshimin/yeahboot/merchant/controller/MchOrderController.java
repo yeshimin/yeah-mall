@@ -177,9 +177,9 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
      * 查询订单物流信息
      */
     @GetMapping("/queryTracking")
-    public R<JSONObject> queryTracking(@RequestParam("orderNo") String orderNo) {
+    public R<JSONObject> queryTracking(@RequestParam("orderId") Long orderId) {
         Long userId = super.getUserId();
-        JSONObject result = service.queryTracking(userId, orderNo);
+        JSONObject result = service.queryTracking(userId, orderId);
         return R.ok(result);
     }
 

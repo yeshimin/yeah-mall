@@ -170,9 +170,9 @@ public class MchOrderService {
     /**
      * 查询订单物流信息
      */
-    public JSONObject queryTracking(Long userId, String orderNo) {
+    public JSONObject queryTracking(Long userId, Long orderId) {
         // 检查：订单是否存在
-        OrderEntity order = orderRepo.findOneByOrderNo(orderNo);
+        OrderEntity order = orderRepo.findOneById(orderId);
         if (order == null) {
             throw new BaseException("订单不存在");
         }
