@@ -55,6 +55,14 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
     }
 
     /**
+     * 更新退款状态
+     */
+    public boolean updateRefundStatus(Long orderId, String statusFrom, String statusTo) {
+        int count = orderMapper.updateRefundStatus(orderId, statusFrom, statusTo);
+        return count > 0;
+    }
+
+    /**
      * findIdListForPayExpired
      * 匹配条件：
      * 1.订单状态为【待付款】

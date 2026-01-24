@@ -167,6 +167,16 @@ public class AppOrderController extends BaseController {
     }
 
     /**
+     * 申请退款
+     */
+    @PostMapping("/applyRefund")
+    public R<Void> applyRefund(@Validated @RequestBody ApplyRefundDto dto) {
+        Long userId = super.getUserId();
+        appOrderService.applyRefund(userId, dto);
+        return R.ok();
+    }
+
+    /**
      * 确认收货
      */
     @PostMapping("/confirmReceive")

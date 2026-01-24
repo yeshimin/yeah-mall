@@ -13,10 +13,7 @@ import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.mapper.OrderMapper;
 import com.yeshimin.yeahboot.data.repository.OrderRepo;
 import com.yeshimin.yeahboot.merchant.common.properties.Kuaidi100Properties;
-import com.yeshimin.yeahboot.merchant.domain.dto.Kd100CallbackParam;
-import com.yeshimin.yeahboot.merchant.domain.dto.MchOrderQueryDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.OrderShipDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.UpdateShipInfoDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderDetailVo;
 import com.yeshimin.yeahboot.merchant.service.MchOrderService;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.api.COrder;
@@ -181,6 +178,26 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
         Long userId = super.getUserId();
         JSONObject result = service.queryTracking(userId, orderId);
         return R.ok(result);
+    }
+
+    /**
+     * 确认退款
+     */
+    @PostMapping("/confirmRefund")
+    public R<Void> confirmRefund(@Validated @RequestBody ConfirmRefundDto dto) {
+        Long userId = super.getUserId();
+        service.confirmRefund(userId, dto);
+        return R.ok();
+    }
+
+    /**
+     * 拒绝退款
+     */
+    @PostMapping("/rejectRefund")
+    public R<Void> rejectRefund(@Validated @RequestBody RejectRefundDto dto) {
+        Long userId = super.getUserId();
+        service.rejectRefund(userId, dto);
+        return R.ok();
     }
 
     // ================================================================================

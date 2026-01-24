@@ -9,15 +9,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
+import com.yeshimin.yeahboot.data.common.enums.RefundStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.OrderDeliveryTrackingEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderItemEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.domain.vo.OrderShopProductVo;
 import com.yeshimin.yeahboot.data.repository.*;
-import com.yeshimin.yeahboot.merchant.domain.dto.MchOrderQueryDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.OrderShipDto;
-import com.yeshimin.yeahboot.merchant.domain.dto.UpdateShipInfoDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderDetailVo;
 import com.yeshimin.yeahboot.service.JuheExpService;
 import com.yeshimin.yeahboot.service.OrderService;
@@ -216,6 +215,66 @@ public class MchOrderService {
         order.setStatus(OrderStatusEnum.COMPLETED.getValue());
         order.setReceiveTime(LocalDateTime.now());
         order.setReceiveRemark(receiveRemark);
+        order.updateById();
+    }
+
+    /**
+     * 确认退款
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void confirmRefund(Long userId, ConfirmRefundDto dto) {
+        // 检查：订单是否存在
+        OrderEntity order = orderRepo.getOneById(dto.getOrderId());
+        // 检查：订单是否属于该商家
+        permissionService.checkMch(userId, order);
+
+        // 检查：仅当订单状态为【退款】，且退款状态为【申请中】或【退款失败】时，才能操作
+        if (!(Objects.equals(order.getStatus(), OrderStatusEnum.REFUND.getValue()) &&
+                (Objects.equals(order.getRefundStatus(), RefundStatusEnum.APPLYING.getValue())
+                        || Objects.equals(order.getRefundStatus(), RefundStatusEnum.FAILED.getValue())))) {
+            throw new RuntimeException("仅当订单状态为【退款】，且退款状态为【申请中】或【退款失败】时，才能操作");
+        }
+
+        // 更新退款状态
+        boolean updateSuccess = orderRepo.updateRefundStatus(order.getId(),
+                order.getRefundStatus(), RefundStatusEnum.PROCESSING.getValue());
+        if (!updateSuccess) {
+            throw new RuntimeException("订单退款失败，请稍后重试");
+        }
+        order.setRefundStatus(RefundStatusEnum.PROCESSING.getValue());
+        order.setRefundConfirmTime(LocalDateTime.now());
+        order.setRefundConfirmRemark(dto.getRemark());
+        order.updateById();
+
+        // TODO 发起第三方退款操作，在回调中更新订单状态为已退款
+    }
+
+    /**
+     * 拒绝退款
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void rejectRefund(Long userId, RejectRefundDto dto) {
+        // 检查：订单是否存在
+        OrderEntity order = orderRepo.getOneById(dto.getOrderId());
+        // 检查：订单是否属于该商家
+        permissionService.checkMch(userId, order);
+
+        // 检查：仅当订单状态为【退款】，且退款状态为【申请中】或【退款失败】时，才能操作
+        if (!(Objects.equals(order.getStatus(), OrderStatusEnum.REFUND.getValue()) &&
+                (Objects.equals(order.getRefundStatus(), RefundStatusEnum.APPLYING.getValue())
+                        || Objects.equals(order.getRefundStatus(), RefundStatusEnum.FAILED.getValue())))) {
+            throw new RuntimeException("仅当订单状态为【退款】，且退款状态为【申请中】或【退款失败】时，才能操作");
+        }
+
+        // 更新退款状态
+        boolean updateSuccess = orderRepo.updateRefundStatus(order.getId(),
+                order.getRefundStatus(), RefundStatusEnum.REJECTED.getValue());
+        if (!updateSuccess) {
+            throw new RuntimeException("订单拒绝退款失败，请稍后重试");
+        }
+        order.setRefundStatus(RefundStatusEnum.REJECTED.getValue());
+        order.setRefundRejectTime(LocalDateTime.now());
+        order.setRefundRejectReason(dto.getReason());
         order.updateById();
     }
 

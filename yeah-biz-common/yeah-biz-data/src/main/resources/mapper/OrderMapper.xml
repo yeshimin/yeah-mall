@@ -7,4 +7,9 @@
         update s_order set status = #{statusTo} where id = #{id} and status = #{statusFrom} and deleted = 0
     </update>
 
+    <!-- 更新退款状态 -->
+    <update id="updateRefundStatus">
+        update s_order set refund_status = #{statusTo} where id = #{id} and refund_status = #{statusFrom} and deleted = 0
+    </update>
+
 </mapper>

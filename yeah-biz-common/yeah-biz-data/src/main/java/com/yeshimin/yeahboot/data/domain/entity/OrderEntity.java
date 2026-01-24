@@ -37,7 +37,7 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
     private String status;
 
     /**
-     * 退款状态：0-无 1-申请中 2-处理中 3-退款成功 4-已拒绝
+     * 退款状态：0-无 1-申请中 2-处理中 3-退款成功 4-已拒绝 5-退款失败
      */
     private String refundStatus;
 
@@ -75,6 +75,36 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      * 订单关闭原因
      */
     private String closeReason;
+
+    /**
+     * 退款申请时间
+     */
+    private LocalDateTime refundApplyTime;
+
+    /**
+     * 退款申请原因
+     */
+    private String refundApplyReason;
+
+    /**
+     * 退款确认时间
+     */
+    private LocalDateTime refundConfirmTime;
+
+    /**
+     * 退款确认备注
+     */
+    private String refundConfirmRemark;
+
+    /**
+     * 退款拒绝时间
+     */
+    private LocalDateTime refundRejectTime;
+
+    /**
+     * 退款拒绝原因
+     */
+    private String refundRejectReason;
 
     // 收货方地址相关 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
