@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.service;
+package com.yeshimin.yeahboot.app.service;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
@@ -11,9 +11,9 @@ import com.wechat.pay.java.service.refund.RefundService;
 import com.wechat.pay.java.service.refund.model.AmountReq;
 import com.wechat.pay.java.service.refund.model.CreateRequest;
 import com.wechat.pay.java.service.refund.model.Refund;
-import com.yeshimin.yeahboot.common.properties.WxPayProperties;
-import com.yeshimin.yeahboot.common.utils.WxPayUtils;
-import com.yeshimin.yeahboot.data.domain.vo.WxPayInfoVo;
+import com.yeshimin.yeahboot.app.common.properties.WxPayProperties;
+import com.yeshimin.yeahboot.app.common.utils.WxPayUtils;
+import com.yeshimin.yeahboot.app.domain.vo.WxPayInfoVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Headers;
