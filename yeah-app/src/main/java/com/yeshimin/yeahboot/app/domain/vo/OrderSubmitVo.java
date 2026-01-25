@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.app.domain.vo;
 
+import com.yeshimin.yeahboot.service.WxPayInfoVo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

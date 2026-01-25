@@ -86,12 +86,6 @@
             <groupId>com.yeshimin</groupId>
             <artifactId>manticoresearch-java-8</artifactId>
         </dependency>
-
-        <!-- 微信支付SDK -->
-        <dependency>
-            <groupId>com.github.wechatpay-apiv3</groupId>
-            <artifactId>wechatpay-java</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
