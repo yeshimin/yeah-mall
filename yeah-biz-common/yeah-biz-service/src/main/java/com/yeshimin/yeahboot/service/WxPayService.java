@@ -1,14 +1,19 @@
-package com.yeshimin.yeahboot.app.service;
+package com.yeshimin.yeahboot.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAPublicKeyConfig;
 import com.wechat.pay.java.service.payments.jsapi.JsapiService;
 import com.wechat.pay.java.service.payments.jsapi.model.*;
 import com.wechat.pay.java.service.payments.model.Transaction;
-import com.yeshimin.yeahboot.app.common.properties.WxPayProperties;
-import com.yeshimin.yeahboot.app.common.utils.WxPayUtils;
-import com.yeshimin.yeahboot.app.domain.vo.WxPayInfoVo;
+import com.wechat.pay.java.service.refund.RefundService;
+import com.wechat.pay.java.service.refund.model.AmountReq;
+import com.wechat.pay.java.service.refund.model.CreateRequest;
+import com.wechat.pay.java.service.refund.model.Refund;
+import com.yeshimin.yeahboot.common.properties.WxPayProperties;
+import com.yeshimin.yeahboot.common.utils.WxPayUtils;
+import com.yeshimin.yeahboot.data.domain.vo.WxPayInfoVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Headers;
@@ -30,6 +35,7 @@ public class WxPayService {
 
     private Config config;
     private JsapiService jsapiService;
+    private RefundService refundService;
 
     @PostConstruct
     public void init() {
@@ -44,6 +50,7 @@ public class WxPayService {
                     .apiV3Key(wxPayProperties.getApiV3Key())
                     .build();
             jsapiService = new JsapiService.Builder().config(config).build();
+            refundService = new RefundService.Builder().config(config).build();
         } catch (Exception e) {
             log.error("WxPayService init error", e);
         }
@@ -58,7 +65,7 @@ public class WxPayService {
         request.setMchid(wxPayProperties.getMchId());
         request.setDescription(description);
         request.setOutTradeNo(outTradeNo);
-        request.setNotifyUrl(wxPayProperties.getApi().getNotifyUrl());
+        request.setNotifyUrl(wxPayProperties.getApi().getPayNotifyUrl());
 
         // 支付金额
         Amount amount = new Amount();
@@ -130,6 +137,33 @@ public class WxPayService {
                 wxPayProperties.getApiV3Key(), serial, wxPayProperties.getWechatPayPublicKey(), headers, notifyData);
         log.info("wxpay.handlePayNotify notification: {}", JSON.toJSONString(notification));
         return notification;
+    }
+
+    /**
+     * 退款
+     * https://pay.weixin.qq.com/doc/v3/merchant/4012791903
+     */
+    public Refund refund(String outTradeNo, String outRefundNo, String reason, long refundAmount, long totalAmount) {
+        CreateRequest request = new CreateRequest();
+        // 业务订单编号
+        request.setOutTradeNo(outTradeNo);
+        // 自定义退款编号
+        request.setOutRefundNo(outRefundNo);
+        // 退款原因
+        if (StrUtil.isNotBlank(reason)) {
+            request.setReason(reason);
+        }
+        // 回调通知地址
+        request.setNotifyUrl(wxPayProperties.getApi().getRefundNotifyUrl());
+        // 退款金额
+        AmountReq amount = new AmountReq();
+        amount.setRefund(refundAmount);
+        amount.setTotal(totalAmount);
+        request.setAmount(amount);
+
+        Refund response = refundService.create(request);
+        log.info("wxpay.refund, req: {}, resp: {}", JSON.toJSONString(request), JSON.toJSONString(response));
+        return response;
     }
 
     // ================================================================================

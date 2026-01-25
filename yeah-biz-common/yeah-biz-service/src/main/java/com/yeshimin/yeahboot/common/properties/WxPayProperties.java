@@ -1,8 +1,8 @@
-package com.yeshimin.yeahboot.app.common.properties;
+package com.yeshimin.yeahboot.common.properties;
 
 import cn.hutool.core.util.StrUtil;
-import com.yeshimin.yeahboot.app.common.utils.WxPayUtils;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
+import com.yeshimin.yeahboot.common.utils.WxPayUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -82,7 +82,7 @@ public class WxPayProperties {
     public static class Api {
         private String host;
         private String method;
-        private String prepayUrl;
-        private String notifyUrl;
+        private String payNotifyUrl;
+        private String refundNotifyUrl;
     }
 }

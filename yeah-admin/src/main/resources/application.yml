@@ -245,7 +245,8 @@ yeah-boot:
         host: https://api.mch.weixin.qq.com
         method: POST
         prepay-url: /v3/pay/transactions/jsapi
-        notify-url: OVERWRITE_ME
+        pay-notify-url: OVERWRITE_ME
+        refund-notify-url: OVERWRITE_ME
   # 物流相关-快递100
   delivery:
     kuaidi100:
