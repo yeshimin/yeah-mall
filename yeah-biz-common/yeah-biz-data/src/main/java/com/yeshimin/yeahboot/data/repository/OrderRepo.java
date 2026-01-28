@@ -56,6 +56,25 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
     }
 
     /**
+     * 更新订单状态
+     * 场景：取消订单
+     */
+    public boolean updateStatus2(Long orderId, String statusFrom, String statusTo, LocalDateTime closeTime, String closeReason) {
+        int count = orderMapper.updateOrderStatus(orderId, statusFrom, statusTo);
+        if (count == 0) {
+            return false;
+        }
+
+        LambdaUpdateWrapper<OrderEntity> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(OrderEntity::getId, orderId)
+                .set(OrderEntity::getCloseTime, closeTime)
+                .set(OrderEntity::getCloseReason, closeReason);
+        super.update(updateWrapper);
+
+        return true;
+    }
+
+    /**
      * 更新退款状态
      */
     public boolean updateRefundStatus(Long orderId, String statusFrom, String statusTo) {
