@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 商家资源表
  */
 @RestController
-@RequestMapping("/mchRes")
+@RequestMapping("/mch/mchRes")
 @RequiredArgsConstructor
 public class MchResController {
 

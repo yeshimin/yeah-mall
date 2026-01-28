@@ -672,13 +672,23 @@ public class WxPayUtils {
         @JSONField(name = "resource")
         private Resource resource;
         private String plaintext;
+        // 支付回调里解析的业务数据
         private OrderInfo orderInfo;
+        // 退款回调里解析的业务数据
+        private RefundInfo refundInfo;
 
         public OrderInfo parseOrderInfo() {
             if (this.plaintext != null && !this.plaintext.trim().isEmpty()) {
                 this.orderInfo = WxPayUtils.fromJson(this.plaintext, OrderInfo.class);
             }
             return orderInfo;
+        }
+
+        public RefundInfo parseRefundInfo() {
+            if (this.plaintext != null && !this.plaintext.trim().isEmpty()) {
+                this.refundInfo = WxPayUtils.fromJson(this.plaintext, RefundInfo.class);
+            }
+            return refundInfo;
         }
 
         private void validate() {
@@ -799,6 +809,39 @@ public class WxPayUtils {
     }
 
     /**
+     * refund info class, parse from ciphertext
+     */
+    @Data
+    public static class RefundInfo {
+        @JSONField(name = "mchid")
+        private String mchId;
+
+        @JSONField(name = "transaction_id")
+        private String transactionId;
+
+        @JSONField(name = "out_trade_no")
+        private String outTradeNo;
+
+        @JSONField(name = "refund_id")
+        private String refundId;
+
+        @JSONField(name = "out_refund_no")
+        private String outRefundNo;
+
+        @JSONField(name = "refund_status")
+        private String refundStatus;
+
+        @JSONField(name = "success_time")
+        private OffsetDateTime successTime;
+
+        @JSONField(name = "user_received_account")
+        private String userReceivedAccount;
+
+        @JSONField(name = "amount")
+        private RefundAmount amount;
+    }
+
+    /**
      * payer class
      */
     @Data
@@ -808,7 +851,7 @@ public class WxPayUtils {
     }
 
     /**
-     * amount class
+     * pay amount class
      */
     @Data
     public static class Amount {
@@ -823,6 +866,24 @@ public class WxPayUtils {
 
         @JSONField(name = "payer_currency")
         private String payerCurrency;
+    }
+
+    /**
+     * refund amount class
+     */
+    @Data
+    public static class RefundAmount {
+        @JSONField(name = "total")
+        private int total;
+
+        @JSONField(name = "refund")
+        private int refund;
+
+        @JSONField(name = "payer_total")
+        private int payerTotal;
+
+        @JSONField(name = "payer_refund")
+        private int payerRefund;
     }
 
     /**

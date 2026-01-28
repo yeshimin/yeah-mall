@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.data.repository;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
@@ -60,6 +61,20 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
     public boolean updateRefundStatus(Long orderId, String statusFrom, String statusTo) {
         int count = orderMapper.updateRefundStatus(orderId, statusFrom, statusTo);
         return count > 0;
+    }
+
+    /**
+     * 更新退款状态
+     */
+    public boolean updateRefundStatus2(Long orderId, String refundStatus, String summary, LocalDateTime successTime) {
+        LambdaUpdateWrapper<OrderEntity> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(OrderEntity::getId, orderId)
+                // 仅当订单状态为【退款】时才更新退款子状态
+                .eq(OrderEntity::getStatus, OrderStatusEnum.REFUND.getValue())
+                .set(OrderEntity::getRefundStatus, refundStatus)
+                .set(OrderEntity::getRefundSummary, summary)
+                .set(successTime != null, OrderEntity::getPaySuccessTime, successTime);
+        return super.update(updateWrapper);
     }
 
     /**

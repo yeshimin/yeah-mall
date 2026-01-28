@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wechat.pay.java.service.refund.model.Refund;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.service.IdService;
 import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
 import com.yeshimin.yeahboot.data.common.enums.RefundStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.OrderDeliveryTrackingEntity;
@@ -20,12 +22,14 @@ import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderDetailVo;
 import com.yeshimin.yeahboot.service.JuheExpService;
 import com.yeshimin.yeahboot.service.OrderService;
+import com.yeshimin.yeahboot.service.WxPayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -43,8 +47,11 @@ public class MchOrderService {
     private final OrderItemRepo orderItemRepo;
     private final DeliveryProviderRepo deliveryProviderRepo;
     private final OrderDeliveryTrackingRepo orderDeliveryTrackingRepo;
+    private final OrderRefundRepo orderRefundRepo;
 
+    private final IdService idService;
     private final JuheExpService juheExpService;
+    private final WxPayService wxPayService;
     private final OrderService orderService;
 
     /**
@@ -246,7 +253,30 @@ public class MchOrderService {
         order.setRefundConfirmRemark(dto.getRemark());
         order.updateById();
 
-        // TODO 发起第三方退款操作，在回调中更新订单状态为已退款
+        // 退款编号
+        String refundNo = idService.nextEncodedId();
+        // 全部金额
+        BigDecimal totalAmount = new BigDecimal("0.01");//order.getTotalAmount(); // TODO
+        // 退款金额
+        BigDecimal refundAmount = new BigDecimal("0.01");//order.getTotalAmount(); // TODO // 暂时仅支持全额退款
+        // 退款原因
+        String refundReason = dto.getRemark();
+        // 添加退款记录
+        orderRefundRepo.createOne(order, refundNo, totalAmount, refundAmount, refundReason);
+
+        // 调用第三方退款接口
+        long totalAmountFen = totalAmount.multiply(new BigDecimal(100)).longValue();
+        long refundAmountFen = refundAmount.multiply(new BigDecimal(100)).longValue();
+        Refund refundResp = null;
+        try {
+            refundResp = wxPayService.refund(
+                    order.getOrderNo(), refundNo, refundReason, refundAmountFen, totalAmountFen);
+        } catch (Exception e) {
+            log.error("调用第三方退款接口失败", e);
+        }
+        if (refundResp == null) {
+            throw new BaseException("调用第三方退款接口失败");
+        }
     }
 
     /**

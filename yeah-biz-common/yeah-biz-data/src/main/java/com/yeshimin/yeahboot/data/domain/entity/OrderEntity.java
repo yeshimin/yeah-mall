@@ -106,6 +106,16 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      */
     private String refundRejectReason;
 
+    /**
+     * 第三方退款成功时间
+     */
+    private LocalDateTime refundSuccessTime;
+
+    /**
+     * 第三方退款摘要备注
+     */
+    private String refundSummary;
+
     // 收货方地址相关 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     /**

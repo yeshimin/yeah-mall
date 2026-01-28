@@ -78,14 +78,14 @@ public class AppOrderController extends BaseController {
      * https://pay.weixin.qq.com/doc/v3/merchant/4012791861
      */
     @PublicAccess
-    @PostMapping("/wxpay/notify")
+    @PostMapping("/wxpay/payNotify")
     public ResponseEntity<Void> wxPayNotify(
             @RequestBody(required = false) String notifyData,
             @RequestHeader(value = "Wechatpay-Serial", required = false) String serial,
             @RequestHeader(value = "Wechatpay-Signature", required = false) String signature,
             @RequestHeader(value = "Wechatpay-Timestamp", required = false) String timestamp,
             @RequestHeader(value = "Wechatpay-Nonce", required = false) String nonce) {
-        log.info("wxpay.notify serial: {}, signature: {}, timestamp: {}, nonce: {}",
+        log.info("wxpay.payNotify serial: {}, signature: {}, timestamp: {}, nonce: {}",
                 serial, signature, timestamp, nonce);
 
         // 验证签名
@@ -104,6 +104,43 @@ public class AppOrderController extends BaseController {
         }
         if (!handleSuccess) {
             log.warn("微信支付通知处理失败");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 微信退款通知
+     * https://pay.weixin.qq.com/doc/v3/merchant/4012791906
+     */
+    @PublicAccess
+    @PostMapping("/wxpay/refundNotify")
+    public ResponseEntity<Void> wxRefundNotify(
+            @RequestBody(required = false) String notifyData,
+            @RequestHeader(value = "Wechatpay-Serial", required = false) String serial,
+            @RequestHeader(value = "Wechatpay-Signature", required = false) String signature,
+            @RequestHeader(value = "Wechatpay-Timestamp", required = false) String timestamp,
+            @RequestHeader(value = "Wechatpay-Nonce", required = false) String nonce) {
+        log.info("wxpay.refundNotify serial: {}, signature: {}, timestamp: {}, nonce: {}",
+                serial, signature, timestamp, nonce);
+
+        // 验证签名
+        boolean verifySuccess = wxPayService.verifySign(notifyData, serial, signature, timestamp, nonce);
+        if (!verifySuccess) {
+            log.warn("微信退款通知验签失败");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        // 处理业务
+        boolean handleSuccess = false;
+        try {
+            handleSuccess = appOrderService.handleRefundNotify(notifyData, serial, signature, timestamp, nonce);
+        } catch (Exception e) {
+            log.error("微信退款通知处理异常", e);
+        }
+        if (!handleSuccess) {
+            log.warn("微信退款通知处理失败");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 

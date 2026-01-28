@@ -126,9 +126,9 @@ public class WxPayService {
     }
 
     /**
-     * 解析支付回调通知数据
+     * 解析支付/退款回调通知数据
      */
-    public WxPayUtils.Notification parsePayNotification(
+    public WxPayUtils.Notification parseNotification(
             String notifyData, String serial, String signature, String timestamp, String nonce) {
         // 解密数据
         Headers headers = this.buildHeaders(serial, signature, timestamp, nonce);
@@ -158,6 +158,7 @@ public class WxPayService {
         AmountReq amount = new AmountReq();
         amount.setRefund(refundAmount);
         amount.setTotal(totalAmount);
+        amount.setCurrency("CNY");
         request.setAmount(amount);
 
         Refund response = refundService.create(request);
