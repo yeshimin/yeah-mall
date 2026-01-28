@@ -95,8 +95,6 @@ public class LocalStorageProvider implements StorageProvider {
         result.setFileKey(fileKey);
         result.setSuffix(suffix);
         result.setOriginalName(fileOriginName);
-        result.setIsPublic(isPublic);
-        result.setIsPublic(isPublic);
 
         return result;
     }

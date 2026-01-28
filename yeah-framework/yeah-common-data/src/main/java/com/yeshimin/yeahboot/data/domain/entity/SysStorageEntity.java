@@ -7,6 +7,8 @@ import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * 系统存储表
  */
@@ -61,4 +63,15 @@ public class SysStorageEntity extends ConditionBaseEntity<SysStorageEntity> {
      * 是否公开
      */
     private Boolean isPublic;
+
+    /**
+     * 是否被使用
+     * 场景：比如用户上传多张图片，但是整体流程退出了，这些图片就变成了未使用状态，可以定期清理
+     */
+    private Boolean isUsed;
+
+    /**
+     * 可清理时间
+     */
+    private LocalDateTime cleanableTime;
 }
