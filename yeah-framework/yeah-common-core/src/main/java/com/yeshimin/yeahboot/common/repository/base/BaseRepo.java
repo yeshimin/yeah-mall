@@ -33,6 +33,17 @@ public abstract class BaseRepo<M extends BaseMapper<E>, E extends BaseEntity<E>>
     }
 
     /**
+     * getOneById
+     */
+    public E getOneById(Long id, String errMsg) {
+        E entity = this.findOneById(id);
+        if (entity == null) {
+            throw new BaseException(errMsg);
+        }
+        return entity;
+    }
+
+    /**
      * countByIds
      */
     public long countByIds(Collection<Long> ids) {
