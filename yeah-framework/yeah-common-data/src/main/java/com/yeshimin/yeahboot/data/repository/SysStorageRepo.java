@@ -62,7 +62,7 @@ public class SysStorageRepo extends BaseRepo<SysStorageMapper, SysStorageEntity>
     /**
      * 标记使用
      */
-    private void markUse(boolean isUsed, String... fileKey) {
+    public void markUse(boolean isUsed, String... fileKey) {
         log.info("markUse fileKey: isUsed: {}, {}", isUsed, Arrays.toString(fileKey));
 
         if (fileKey == null || fileKey.length == 0) {
