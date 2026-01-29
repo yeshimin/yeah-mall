@@ -79,7 +79,6 @@ public class MinioStorageProvider implements StorageProvider {
         result.setFileKey(fileKey);
         result.setSuffix(suffix);
         result.setOriginalName(mFile.getOriginalFilename());
-        result.setIsPublic(isPublic);
 
         return result;
     }
@@ -117,7 +116,6 @@ public class MinioStorageProvider implements StorageProvider {
         result.setFileKey(fileKey);
         result.setSuffix(suffix);
         result.setOriginalName(fileOriginName);
-        result.setIsPublic(isPublic);
 
         return result;
     }

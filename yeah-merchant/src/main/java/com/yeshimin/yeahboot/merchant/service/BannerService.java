@@ -59,7 +59,7 @@ public class BannerService extends BaseService {
         // path用日期
         String path = YsmUtils.dateStr();
         // 存储文件
-        SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true);
+        SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true, true);
         if (!result.getSuccess()) {
             log.info("result: {}", JSON.toJSONString(result));
             throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
@@ -94,7 +94,7 @@ public class BannerService extends BaseService {
             // path用日期
             String path = YsmUtils.dateStr();
             // 存储文件
-            SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true);
+            SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true, true);
             if (!result.getSuccess()) {
                 log.info("result: {}", JSON.toJSONString(result));
                 throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");

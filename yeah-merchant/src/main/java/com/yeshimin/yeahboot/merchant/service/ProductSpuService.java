@@ -113,7 +113,7 @@ public class ProductSpuService {
         // path用日期
         String path = YsmUtils.dateStr();
         // 存储文件
-        SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true);
+        SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true, true);
         if (!result.getSuccess()) {
             log.info("result: {}", JSON.toJSONString(result));
             throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
@@ -372,25 +372,6 @@ public class ProductSpuService {
 
             return specVo;
         }).sorted(Comparator.comparing(ProductSpecVo::getSort)).collect(Collectors.toList());
-    }
-
-    // ================================================================================
-
-    /**
-     * 存储文件，获取文件key
-     */
-    public SysStorageEntity storeFile(MultipartFile file, StorageTypeEnum storageType) {
-        // 决定bucket，除了local存储方式需要使用this.bucket，其他方式都指定为null
-        String bucket = storageType == StorageTypeEnum.LOCAL ? this.bucket : null;
-        // path用日期
-        String path = YsmUtils.dateStr();
-        // 存储文件
-        SysStorageEntity result = storageManager.put(bucket, path, file, storageType, true);
-        if (!result.getSuccess()) {
-            log.info("result: {}", JSON.toJSONString(result));
-            throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
-        }
-        return result;
     }
 
     // ================================================================================

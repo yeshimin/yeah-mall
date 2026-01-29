@@ -1,15 +1,16 @@
 package com.yeshimin.yeahboot.basic.controller;
 
-import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
-import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.basic.domain.vo.FileUploadVo;
-import com.yeshimin.yeahboot.data.mapper.SysStorageMapper;
-import com.yeshimin.yeahboot.data.repository.SysStorageRepo;
 import com.yeshimin.yeahboot.basic.service.storage.StorageService;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
+import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.R;
+import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
+import com.yeshimin.yeahboot.data.mapper.SysStorageMapper;
+import com.yeshimin.yeahboot.data.repository.SysStorageRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,12 @@ public class StorageController extends CrudController<SysStorageMapper, SysStora
     public R<FileUploadVo> upload(@RequestParam("file") MultipartFile file,
                                   @RequestParam(required = false) Integer storageType,
                                   @RequestParam(required = false) String path,
-                                  @RequestParam(required = false, defaultValue = "false") Boolean isPublic) {
+                                  @RequestParam(required = false, defaultValue = "false") Boolean isPublic,
+                                  @RequestParam(required = false, defaultValue = "true") Boolean isUsed) {
+        // 检查参数：路径是否逃逸
+        if (YsmUtils.isPathEscaped(path)) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "路径非法");
+        }
         // 检查参数：【存储类型】
         StorageTypeEnum storageTypeEnum = null;
         if (storageType != null) {
@@ -50,7 +56,7 @@ public class StorageController extends CrudController<SysStorageMapper, SysStora
                 throw new BaseException(ErrorCodeEnum.FAIL, "不支持的存储类型");
             }
         }
-        FileUploadVo vo = storageService.upload(file, storageTypeEnum, path, isPublic);
+        FileUploadVo vo = storageService.upload(file, storageTypeEnum, path, isPublic, isUsed);
         return R.ok(vo);
     }
 

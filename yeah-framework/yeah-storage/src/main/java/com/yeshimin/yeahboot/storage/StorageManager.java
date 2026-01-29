@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -58,21 +59,30 @@ public class StorageManager {
 
     public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, Object file,
                                 @Nullable StorageTypeEnum storageType) {
-        return this.put(bucketName, path, file, storageType, false);
+        return this.put(bucketName, path, file, storageType, false, false);
     }
 
+    /**
+     * 全参方法
+     */
     public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, Object file,
-                                @Nullable StorageTypeEnum storageType, boolean isPublic) {
+                                @Nullable StorageTypeEnum storageType, boolean isPublic, boolean isUsed) {
         this.checkEnabled();
         SysStorageEntity entity = this.getProvider(storageType).put(bucketName, path, file, isPublic);
         entity.setIsPublic(isPublic);
+        entity.setIsUsed(isUsed);
+        // 暂定如果一天后还没被使用到则可以清理掉
+        entity.setCleanableTime(LocalDateTime.now().plusDays(1));
         boolean r = entity.insert();
         log.info("StorageManager.put.result: {}", r);
         return entity;
     }
 
-    public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, byte[] fileBytes,
-                                String fileOriginName, @Nullable StorageTypeEnum storageType, boolean isPublic) {
+    /**
+     * 暂时用不到
+     */
+    private SysStorageEntity put(@Nullable String bucketName, @Nullable String path, byte[] fileBytes,
+                                 String fileOriginName, @Nullable StorageTypeEnum storageType, boolean isPublic) {
         this.checkEnabled();
         SysStorageEntity entity =
                 this.getProvider(storageType).put(bucketName, path, fileBytes, fileOriginName, isPublic);
@@ -149,6 +159,7 @@ public class StorageManager {
             }
             return provider;
         }
+        // storageProviders是根据配置的priority排序的
         return storageProviders.get(0);
     }
 

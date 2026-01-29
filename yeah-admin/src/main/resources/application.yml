@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: yeah-admin
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -179,7 +183,7 @@ yeah-boot:
       # 七牛云存储相关配置
       qiniu:
         enabled: false
-        priority: 1
+        priority: 2
         public-bucket: yeahbootpublic
         public-domain: OVERWRITE_ME
         access-key: OVERWRITE_ME
@@ -189,7 +193,7 @@ yeah-boot:
       # minio存储相关配置
       minio:
         enabled: false
-        priority: 1
+        priority: 3
         public-bucket: yeahbootpublic
         endpoint: OVERWRITE_ME
         bucket: OVERWRITE_ME
