@@ -136,6 +136,11 @@ public class ProductSkuService {
             throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
         }
 
+        // 按需释放旧图片
+        if (StrUtil.isNotBlank(entity.getMainImage())) {
+            storageManager.unmarkUse(entity.getMainImage());
+        }
+
         // 更新记录
         entity.setMainImage(result.getFileKey());
         boolean r = entity.updateById();

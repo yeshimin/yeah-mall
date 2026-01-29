@@ -93,6 +93,11 @@ public class AppMemberService {
             throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
         }
 
+        // 按需释放旧图片
+        if (StrUtil.isNotBlank(member.getAvatar())) {
+            storageManager.unmarkUse(member.getAvatar());
+        }
+
         member.setAvatar(result.getFileKey());
         boolean r = member.updateById();
         log.debug("updateAvatar.result：{}", r);

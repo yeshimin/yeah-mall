@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.merchant.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
@@ -102,8 +103,10 @@ public class ProductSpuImageService extends BaseService {
                 throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
             }
 
-            // 先删除旧文件
-            storageManager.delete(entity.getImageUrl());
+            // 按需释放旧图片
+            if (StrUtil.isNotBlank(entity.getImageUrl())) {
+                storageManager.unmarkUse(entity.getImageUrl());
+            }
 
             // 设置新的值
             entity.setImageUrl(result.getFileKey());
