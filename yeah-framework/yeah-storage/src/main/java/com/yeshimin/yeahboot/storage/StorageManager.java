@@ -145,6 +145,20 @@ public class StorageManager {
         return path;
     }
 
+    /**
+     * 标记使用
+     */
+    public void markUse(String... fileKey) {
+        this.markUse(true, fileKey);
+    }
+
+    /**
+     * 取消使用标记
+     */
+    public void unmarkUse(String... fileKey) {
+        this.markUse(false, fileKey);
+    }
+
     // ================================================================================
 
     private StorageProvider getProvider() {
@@ -178,5 +192,12 @@ public class StorageManager {
      */
     private String getKeyWithSuffix(String key, String suffix) {
         return StrUtil.isBlank(suffix) ? key : key + "." + suffix;
+    }
+
+    /**
+     * 标记使用
+     */
+    private void markUse(boolean isUsed, String... fileKey) {
+        sysStorageRepo.markUse(isUsed, fileKey);
     }
 }

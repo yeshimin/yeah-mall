@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DefaultJob {
+public class AdminDefaultJob {
 
     private final SysStorageRepo sysStorageRepo;
 

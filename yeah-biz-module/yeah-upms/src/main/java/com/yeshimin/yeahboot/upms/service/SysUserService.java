@@ -39,7 +39,6 @@ public class SysUserService {
     private final SysUserOrgRepo sysUserOrgRepo;
     private final SysPostRepo sysPostRepo;
     private final SysUserPostRepo sysUserPostRepo;
-    private final SysStorageRepo sysStorageRepo;
 
     private final PasswordService passwordService;
 
@@ -80,7 +79,7 @@ public class SysUserService {
 
         // 处理文件存储
         if (StrUtil.isNotBlank(dto.getAvatar())) {
-            sysStorageRepo.markUse(dto.getAvatar());
+            storageManager.markUse(dto.getAvatar());
         }
 
         return entity;
@@ -262,9 +261,9 @@ public class SysUserService {
 
         // 按需更新头像
         if (StrUtil.isNotBlank(dto.getAvatar()) && !Objects.equals(dto.getAvatar(), oldAvatar)) {
-            sysStorageRepo.markUse(dto.getAvatar());
+            storageManager.markUse(dto.getAvatar());
             // 将旧的标记为未使用以待自动清理
-            sysStorageRepo.unmarkUse(oldAvatar);
+            storageManager.unmarkUse(oldAvatar);
         } else {
             // 置空，跳过更新
             entity.setAvatar(null);
