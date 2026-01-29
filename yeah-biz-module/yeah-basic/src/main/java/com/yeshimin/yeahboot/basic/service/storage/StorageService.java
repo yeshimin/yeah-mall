@@ -30,9 +30,10 @@ public class StorageService extends BaseService {
      * 上传文件
      */
     @Transactional(rollbackFor = Exception.class)
-    public FileUploadVo upload(MultipartFile file, StorageTypeEnum storageType, String path, Boolean isPublic) {
+    public FileUploadVo upload(MultipartFile file, StorageTypeEnum storageType, String path,
+                               Boolean isPublic, Boolean isUsed) {
         // 存储文件
-        SysStorageEntity result = storageManager.put(null, path, file, storageType, isPublic, true);
+        SysStorageEntity result = storageManager.put(null, path, file, storageType, isPublic, isUsed);
         if (!result.getSuccess()) {
             log.info("result: {}", JSON.toJSONString(result));
             throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");

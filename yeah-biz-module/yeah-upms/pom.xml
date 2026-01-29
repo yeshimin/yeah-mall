@@ -22,6 +22,11 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-common-data</artifactId>
         </dependency>
+        <!-- storage module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-storage</artifactId>
+        </dependency>
 
         <!-- MySQL Connector -->
         <dependency>

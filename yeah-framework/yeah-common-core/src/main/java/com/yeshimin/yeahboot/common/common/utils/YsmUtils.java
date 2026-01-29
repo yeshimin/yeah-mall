@@ -295,4 +295,11 @@ public class YsmUtils {
                 .filter(path -> !path.isEmpty())
                 .collect(Collectors.joining("/"));
     }
+
+    /**
+     * 判断路径是否逃逸
+     */
+    public static boolean isPathEscaped(String path) {
+        return path != null && path.contains("..");
+    }
 }

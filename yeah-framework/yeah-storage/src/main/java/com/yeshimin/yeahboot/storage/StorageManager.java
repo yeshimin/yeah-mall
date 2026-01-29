@@ -159,6 +159,7 @@ public class StorageManager {
             }
             return provider;
         }
+        // storageProviders是根据配置的priority排序的
         return storageProviders.get(0);
     }
 

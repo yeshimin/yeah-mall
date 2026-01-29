@@ -1,1 +1,1 @@
-for admin module
+only for admin module

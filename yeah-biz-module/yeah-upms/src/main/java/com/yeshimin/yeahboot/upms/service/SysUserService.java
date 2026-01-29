@@ -11,6 +11,7 @@ import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.data.domain.dto.SysUserQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.repository.*;
+import com.yeshimin.yeahboot.storage.StorageManager;
 import com.yeshimin.yeahboot.upms.domain.dto.*;
 import com.yeshimin.yeahboot.upms.domain.vo.MineVo;
 import com.yeshimin.yeahboot.upms.domain.vo.SysUserResTreeNodeVo;
@@ -38,8 +39,11 @@ public class SysUserService {
     private final SysUserOrgRepo sysUserOrgRepo;
     private final SysPostRepo sysPostRepo;
     private final SysUserPostRepo sysUserPostRepo;
+    private final SysStorageRepo sysStorageRepo;
 
     private final PasswordService passwordService;
+
+    private final StorageManager storageManager;
 
     /**
      * 创建
@@ -73,6 +77,11 @@ public class SysUserService {
 
         // 创建用于角色关联记录
         sysUserRoleRepo.createUserRoleRelations(entity.getId(), dto.getRoleIds());
+
+        // 处理文件存储
+        if (StrUtil.isNotBlank(dto.getAvatar())) {
+            sysStorageRepo.markUse(dto.getAvatar());
+        }
 
         return entity;
     }
@@ -237,6 +246,9 @@ public class SysUserService {
             sysUserRoleRepo.createUserRoleRelations(entity.getId(), dto.getRoleIds());
         }
 
+        // 获取旧值
+        String oldAvatar = entity.getAvatar();
+
         // 更新用户信息
         BeanUtil.copyProperties(dto, entity);
 
@@ -246,6 +258,16 @@ public class SysUserService {
         } else {
             // 置空，跳过更新
             entity.setPassword(null);
+        }
+
+        // 按需更新头像
+        if (StrUtil.isNotBlank(dto.getAvatar()) && !Objects.equals(dto.getAvatar(), oldAvatar)) {
+            sysStorageRepo.markUse(dto.getAvatar());
+            // 将旧的标记为未使用以待自动清理
+            sysStorageRepo.unmarkUse(oldAvatar);
+        } else {
+            // 置空，跳过更新
+            entity.setAvatar(null);
         }
 
         entity.updateById();

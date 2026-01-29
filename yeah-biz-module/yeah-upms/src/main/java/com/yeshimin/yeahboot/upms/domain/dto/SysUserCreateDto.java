@@ -52,6 +52,11 @@ public class SysUserCreateDto extends BaseDomain {
     private String nickname;
 
     /**
+     * 头像
+     */
+    private String avatar;
+
+    /**
      * 手机号
      */
     private String mobile;

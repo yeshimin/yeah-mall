@@ -34,6 +34,11 @@ public class SysUserEntity extends ConditionBaseEntity<SysUserEntity> {
     private String nickname;
 
     /**
+     * 头像
+     */
+    private String avatar;
+
+    /**
      * 手机号
      */
     private String mobile;
