@@ -4,25 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.yeshimin</groupId>
-        <artifactId>yeah-boot</artifactId>
+        <groupId>com.yeshimin.yeahboot</groupId>
+        <artifactId>yeah-framework</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.yeshimin.yeahboot</groupId>
-    <artifactId>yeah-framework</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <modules>
-        <module>yeah-auth</module>
-        <module>yeah-common-core</module>
-        <module>yeah-common-data</module>
-        <module>yeah-flowcontrol</module>
-        <module>yeah-generator</module>
-        <module>yeah-notification</module>
-        <module>yeah-storage</module>
-        <module>yeah-websocket</module>
-    </modules>
+    <artifactId>yeah-websocket</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -30,4 +17,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <!-- common core module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-common-core</artifactId>
+        </dependency>
+
+        <!-- WebSocket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+    </dependencies>
 </project>
