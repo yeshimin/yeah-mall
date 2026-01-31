@@ -3,6 +3,9 @@ package com.yeshimin.yeahboot.data.common.enums;
 import com.yeshimin.yeahboot.common.common.enums.base.IValueEnum;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 订单状态枚举
  */
@@ -20,6 +23,18 @@ public enum OrderStatusEnum implements IValueEnum {
     private final String value;
     private final String desc;
 
+    // 待评价状态集合
+    public static final List<String> WAIT_REVIEW_STATUS = Arrays.asList(
+            OrderStatusEnum.COMPLETED.getValue(),
+            OrderStatusEnum.REFUND.getValue(),
+            OrderStatusEnum.AFTER_SALE.getValue());
+
+    // 退款和售后状态集合
+    public static final List<String> REFUND_AND_AFTER_SALE_STATUS = Arrays.asList(
+            OrderStatusEnum.REFUND.getValue(),
+            OrderStatusEnum.AFTER_SALE.getValue()
+    );
+
     OrderStatusEnum(String value, String desc) {
         this.value = value;
         this.desc = desc;
@@ -32,5 +47,17 @@ public enum OrderStatusEnum implements IValueEnum {
             }
         }
         return null;
+    }
+
+    /**
+     * 判断是否可评价
+     */
+    public static boolean isReviewable(String status) {
+        OrderStatusEnum statusEnum = of(status);
+        if (statusEnum == null) {
+            throw new IllegalArgumentException("订单状态错误");
+        }
+
+        return WAIT_REVIEW_STATUS.contains(status);
     }
 }

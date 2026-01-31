@@ -14,7 +14,7 @@ public enum OrderAggreStatusEnum implements IValueEnum {
     WAIT_SHIP("2", "待发货"),
     WAIT_RECEIVE("3", "待收货"),
     REFUND_AND_AFTER_SALE("4", "退款/售后"),
-    COMMENT("5", "评价");
+    REVIEW("5", "评价");
 
     private final String value;
     private final String desc;
@@ -60,6 +60,6 @@ public enum OrderAggreStatusEnum implements IValueEnum {
     }
 
     public boolean isExtendMode() {
-        return this.value.equals(COMMENT.getValue());
+        return this.value.equals(REVIEW.getValue());
     }
 }

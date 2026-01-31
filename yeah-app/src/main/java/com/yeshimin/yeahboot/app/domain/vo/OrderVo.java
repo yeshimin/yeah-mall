@@ -57,7 +57,7 @@ public class OrderVo extends BaseDomain {
     /**
      * 是否已评价
      */
-    private Boolean reviewed;
+    private Boolean isReviewed;
 
     /**
      * 微信预支付ID

@@ -14,6 +14,7 @@ public class ShopProductItemVo extends BaseDomain {
 
     /**
      * ID
+     * 预览场景是skuId，订单列表场景是订单明细ID
      */
     private Long id;
 

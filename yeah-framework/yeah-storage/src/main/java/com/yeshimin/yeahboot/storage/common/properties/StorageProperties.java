@@ -105,6 +105,7 @@ public class StorageProperties {
         private BizBanner banner;
         private BizProduct product;
         private BizAvatar avatar;
+        private BizAppCommon appCommon;
     }
 
     @Data
@@ -127,6 +128,12 @@ public class StorageProperties {
 
     @Data
     public static class BizAvatar {
+        private String bucket;
+        private String path;
+    }
+
+    @Data
+    public static class BizAppCommon {
         private String bucket;
         private String path;
     }

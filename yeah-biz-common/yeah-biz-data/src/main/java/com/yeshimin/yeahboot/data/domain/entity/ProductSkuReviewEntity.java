@@ -5,15 +5,13 @@ import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
-
 /**
- * 订单明细表
+ * 商品SKU评价表
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("s_order_item")
-public class OrderItemEntity extends ShopConditionBaseEntity<OrderItemEntity> {
+@TableName("s_product_sku_review")
+public class ProductSkuReviewEntity extends ShopConditionBaseEntity<ProductSkuReviewEntity> {
 
     /**
      * 会员ID
@@ -26,7 +24,7 @@ public class OrderItemEntity extends ShopConditionBaseEntity<OrderItemEntity> {
     private Long orderId;
 
     /**
-     * 订单编号（冗余）
+     * 订单编号
      */
     private String orderNo;
 
@@ -36,37 +34,47 @@ public class OrderItemEntity extends ShopConditionBaseEntity<OrderItemEntity> {
     private Long skuId;
 
     /**
-     * SKU name（快照）
+     * SKU name
      */
     private String skuName;
 
     /**
-     * SPU ID（快照）
+     * SPU ID
      */
     private Long spuId;
 
     /**
-     * SPU name（快照）
+     * SPU name
      */
     private String spuName;
 
     /**
-     * SPU主图（快照）
+     * SPU主图
      */
     private String spuMainImage;
 
     /**
-     * 商品单价
+     * 综合评价：1-5
      */
-    private BigDecimal unitPrice;
+    private Integer overallRating;
 
     /**
-     * 商品数量
+     * 评价内容
      */
-    private Integer quantity;
+    private String content;
 
     /**
-     * 商品总价
+     * 是否匿名
      */
-    private BigDecimal totalPrice;
+    private Boolean isAnonymous;
+
+    /**
+     * 买家昵称
+     */
+    private String nickname;
+
+    /**
+     * 买家头像
+     */
+    private String avatar;
 }

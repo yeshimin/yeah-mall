@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -28,5 +30,13 @@ public class OrderItemRepo extends BaseRepo<OrderItemMapper, OrderItemEntity> {
      */
     public List<OrderItemEntity> findListByOrderId(Long orderId) {
         return lambdaQuery().eq(OrderItemEntity::getOrderId, orderId).list();
+    }
+
+    /**
+     * findIdSetByOrderId
+     */
+    public Set<Long> findIdSetByOrderId(Long orderId) {
+        return super.lambdaQuery().eq(OrderItemEntity::getOrderId, orderId).select(OrderItemEntity::getId)
+                .list().stream().map(OrderItemEntity::getId).collect(Collectors.toSet());
     }
 }

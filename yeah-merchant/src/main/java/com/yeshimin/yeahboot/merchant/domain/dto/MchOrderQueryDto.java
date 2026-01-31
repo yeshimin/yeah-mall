@@ -42,7 +42,7 @@ public class MchOrderQueryDto extends ShopDataBaseDomain {
      * 是否已评价
      */
     @QueryField(type = QueryField.Type.EQ)
-    private Boolean reviewed;
+    private Boolean isReviewed;
 
     /**
      * 订单创建时间

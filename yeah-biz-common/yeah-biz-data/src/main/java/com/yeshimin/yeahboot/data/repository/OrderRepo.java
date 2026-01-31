@@ -122,4 +122,11 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
                 .le(OrderEntity::getReceiveExpireTime, LocalDateTime.now())
                 .list();
     }
+
+    /**
+     * 更新为已评价
+     */
+    public boolean updateIsReviewed(Long orderId) {
+        return lambdaUpdate().eq(OrderEntity::getId, orderId).set(OrderEntity::getIsReviewed, true).update();
+    }
 }

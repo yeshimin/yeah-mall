@@ -22,6 +22,16 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
     private Long memberId;
 
     /**
+     * 会员昵称（快照）
+     */
+    private String memberNickname;
+
+    /**
+     * 会员头像（快照）
+     */
+    private String memberAvatar;
+
+    /**
      * 订单编号
      */
     private String orderNo;
@@ -49,7 +59,7 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
     /**
      * 是否已评价
      */
-    private Boolean reviewed;
+    private Boolean isReviewed;
 
     /**
      * 微信预支付ID

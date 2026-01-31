@@ -216,6 +216,10 @@ yeah-boot:
       avatar:
           bucket: avatar
           path: ''
+      # app common
+      app-common:
+        bucket: app-common
+        path: ''
   # 通知相关
   notification:
     aliyun:
