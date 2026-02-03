@@ -21,7 +21,7 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
         webSocketHandlerRegistry
-                .addHandler(defaultWebSocketHandler, "/ns/default")
+                .addHandler(defaultWebSocketHandler, "/ws/ns/default")
                 .addInterceptors(new DefaultHandshakeInterceptor())
                 .setAllowedOrigins("*");
     }
