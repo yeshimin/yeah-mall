@@ -1,7 +1,7 @@
-package com.yeshimin.yeahboot.ws.config;
+package com.yeshimin.yeahboot.ws.websocket.config;
 
 import com.yeshimin.yeahboot.ws.websocket.handler.DefaultWebSocketHandler;
-import com.yeshimin.yeahboot.ws.websocket.interceptor.MyHandshakeInterceptor;
+import com.yeshimin.yeahboot.ws.websocket.interceptor.DefaultHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -22,7 +22,7 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
         webSocketHandlerRegistry
                 .addHandler(defaultWebSocketHandler, "/ns/default")
-                .addInterceptors(new MyHandshakeInterceptor())
+                .addInterceptors(new DefaultHandshakeInterceptor())
                 .setAllowedOrigins("*");
     }
 }

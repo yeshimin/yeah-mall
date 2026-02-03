@@ -1,0 +1,42 @@
+package com.yeshimin.yeahboot.admin.controller;
+
+import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
+import com.yeshimin.yeahboot.common.controller.base.BaseController;
+import com.yeshimin.yeahboot.common.domain.base.R;
+import com.yeshimin.yeahboot.ws.websocket.service.WebSocketService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * admin端-测试相关
+ */
+@Slf4j
+@RestController
+@RequestMapping("/admin/test")
+@RequiredArgsConstructor
+public class AdminTestController extends BaseController {
+
+    private final WebSocketService wsService;
+
+    /**
+     * 发送websocket消息测试
+     */
+    @PostMapping("/wsSend")
+    public R<Void> wsSend(@RequestBody String message) {
+        wsService.sendMessageToUser(message, AuthSubjectEnum.ADMIN.getValue(), String.valueOf(1L));
+        return R.ok();
+    }
+
+    /**
+     * websocket广播测试
+     */
+    @PostMapping("/wsBroadcast")
+    public R<Void> wsBroadcast(@RequestBody String message) {
+        wsService.sendMessageBroadcast(message, AuthSubjectEnum.ADMIN.getValue());
+        return R.ok();
+    }
+}

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * app端用户管理
+ * admin端-app用户管理
  */
 @Slf4j
 @RestController
