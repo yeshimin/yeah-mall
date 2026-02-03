@@ -21,6 +21,7 @@
         <module>yeah-generator</module>
         <module>yeah-notification</module>
         <module>yeah-storage</module>
+        <module>yeah-websocket</module>
     </modules>
 
     <properties>

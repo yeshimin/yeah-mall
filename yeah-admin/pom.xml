@@ -59,6 +59,11 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-notification</artifactId>
         </dependency>
+        <!-- websocket module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-websocket</artifactId>
+        </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->
         <dependency>

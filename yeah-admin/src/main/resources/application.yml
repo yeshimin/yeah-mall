@@ -74,7 +74,7 @@ auth:
       default-leeway: 60
     subjects:
       - name: admin
-        api-prefix: '/admin,/basic,/auth'
+        api-prefix: '/admin,/basic,/auth,/ns'
         jwt:
           # 签发密钥
           secret: on3hoonguBi7cahdohv4iu0wiaqueiro
@@ -94,7 +94,7 @@ auth:
         # 同一个账号的最大在线终端数量（默认-1，表示不限制）
         max-online-terminal-count: -1
       - name: app
-        api-prefix: '/app,/auth'
+        api-prefix: '/app,/auth,/ns'
         jwt:
           # 签发密钥
           secret: ierohgh2ohl8paiXoi8kah0uhohsiewu
@@ -272,3 +272,12 @@ yeah-boot:
   order-pay-timeout-minutes: 30
   # 订单签收超时时间（天）
   order-receive-timeout-days: 30
+  # Websocket相关
+  websocket:
+    heartbeat:
+      # 是否启用心跳检测
+      enabled: false
+      # 心跳检测间隔（秒）
+      interval: 30
+      # 心跳检测超时时间（秒）
+      timeout: 90

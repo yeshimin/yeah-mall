@@ -73,7 +73,8 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     private String extractToken(HttpServletRequest request) {
         String authHeader = request.getHeader(CommonConsts.TOKEN_HEADER_KEY);
         if (StringUtils.isBlank(authHeader)) {
-            return null;
+            // 再尝试从query参数中获取
+            return this.getTokenFromParameter(request);
         } else {
             return authHeader.replace("Bearer ", "");
         }
@@ -103,5 +104,22 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         boolean r = access != null && access.authOnDemand();
         log.debug("isAuthOnDemand: {}, url: {}", r, url);
         return r;
+    }
+
+    /**
+     * getTokenFromParameter
+     * 先后尝试获取access_token, accessToken, token
+     */
+    private String getTokenFromParameter(HttpServletRequest request) {
+        String token = request.getParameter("access_token");
+        if (StringUtils.isNotBlank(token)) {
+            return token;
+        }
+        token = request.getParameter("accessToken");
+        if (StringUtils.isNotBlank(token)) {
+            return token;
+        }
+        token = request.getParameter("token");
+        return token;
     }
 }
