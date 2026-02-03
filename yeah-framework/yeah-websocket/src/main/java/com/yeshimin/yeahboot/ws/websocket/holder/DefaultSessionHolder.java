@@ -26,6 +26,7 @@ public class DefaultSessionHolder {
      * put
      */
     public @Nullable WebSocketSession put(SessionKey sk, WebSocketSession value) {
+        log.info("sk.hashCode: {}", sk.hashCode());
         WebSocketSession oldSession = SESSIONS.put(sk, value);
 
         SUBJECT_SESSIONS.putIfAbsent(sk.getSubject(), new ConcurrentHashMap<>());

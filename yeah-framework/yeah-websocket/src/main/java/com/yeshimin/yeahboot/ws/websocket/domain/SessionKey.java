@@ -1,12 +1,11 @@
 package com.yeshimin.yeahboot.ws.websocket.domain;
 
-import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class SessionKey extends BaseDomain {
+@EqualsAndHashCode
+public class SessionKey {
 
     public SessionKey() {
         this.bizType = "default";

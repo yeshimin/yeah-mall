@@ -114,7 +114,7 @@ auth:
         # 同一个账号的最大在线终端数量（默认-1，表示不限制）
         max-online-terminal-count: -1
       - name: mch
-        api-prefix: /mch
+        api-prefix: '/mch,/ws'
         jwt:
           # 签发密钥
           secret: uu5aeshaili2aetheeTiuf8zeiVaegub
