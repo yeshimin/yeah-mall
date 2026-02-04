@@ -14,13 +14,14 @@ public class CsMessageRepo extends BaseRepo<CsMessageMapper, CsMessageEntity> {
     /**
      * createOne
      */
-    public CsMessageEntity createOne(CsConversationEntity conversation,
+    public CsMessageEntity createOne(CsConversationEntity conversation, Integer msgDirection,
                                      Long msgFrom, Long msgTo, String msgContent, Integer msgType) {
         CsMessageEntity entity = new CsMessageEntity();
         entity.setMchId(conversation.getMchId());
         entity.setShopId(conversation.getShopId());
         entity.setMemberId(conversation.getMemberId());
         entity.setConversationId(conversation.getId());
+        entity.setMsgDirection(msgDirection);
         entity.setMsgFrom(msgFrom);
         entity.setMsgTo(msgTo);
         entity.setMsgContent(msgContent);

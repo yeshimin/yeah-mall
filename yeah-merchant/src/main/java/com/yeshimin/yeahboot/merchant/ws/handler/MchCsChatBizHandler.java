@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.merchant.ws.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
+import com.yeshimin.yeahboot.data.common.enums.CsMsgDirectionEnum;
 import com.yeshimin.yeahboot.data.common.enums.CsMsgTypeEnum;
 import com.yeshimin.yeahboot.data.domain.entity.CsConversationEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
@@ -97,8 +98,8 @@ public class MchCsChatBizHandler implements BizCommandHandler {
                     break;
                 }
                 // 创建消息
-                csMessageRepo.createOne(conversation, payload.getFrom(), payload.getTo(),
-                        payload.getContent(), payload.getType());
+                csMessageRepo.createOne(conversation, CsMsgDirectionEnum.MCH2MEM.getIntValue(),
+                        payload.getFrom(), payload.getTo(), payload.getContent(), payload.getType());
                 // 发送给买家
                 wsService.sendMessageToUser(JSON.toJSONString(command),
                         AuthSubjectEnum.APP.getValue(), String.valueOf(memberId));

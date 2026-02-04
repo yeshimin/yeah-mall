@@ -24,6 +24,11 @@ public class CsMessageEntity extends ShopConditionBaseEntity<CsMessageEntity> {
     private Long conversationId;
 
     /**
+     * 消息方向（见代码枚举类）
+     */
+    private Integer msgDirection;
+
+    /**
      * msg from
      */
     private Long msgFrom;

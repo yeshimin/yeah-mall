@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.app.ws.command.EchoCommand;
 import com.yeshimin.yeahboot.app.ws.command.MsgCommand;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
+import com.yeshimin.yeahboot.data.common.enums.CsMsgDirectionEnum;
 import com.yeshimin.yeahboot.data.common.enums.CsMsgTypeEnum;
 import com.yeshimin.yeahboot.data.domain.entity.CsConversationEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
@@ -95,8 +96,8 @@ public class AppCsChatBizHandler implements BizCommandHandler {
                 // 获取会话，如果不存在则创建
                 CsConversationEntity conversation = csConversationRepo.getOrCreateOne(mchId, shopId, memberId);
                 // 创建消息
-                csMessageRepo.createOne(conversation, payload.getFrom(), payload.getTo(),
-                        payload.getContent(), payload.getType());
+                csMessageRepo.createOne(conversation, CsMsgDirectionEnum.MEM2MCH.getIntValue(),
+                        payload.getFrom(), payload.getTo(), payload.getContent(), payload.getType());
                 // 发送给商家
                 wsService.sendMessageToUser(JSON.toJSONString(command),
                         AuthSubjectEnum.MERCHANT.getValue(), String.valueOf(payload.getTo()));
