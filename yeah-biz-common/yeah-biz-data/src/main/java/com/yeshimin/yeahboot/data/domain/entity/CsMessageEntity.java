@@ -41,5 +41,5 @@ public class CsMessageEntity extends ShopConditionBaseEntity<CsMessageEntity> {
     /**
      * 消息类型（见代码枚举类）
      */
-    private Byte msgType;
+    private Integer msgType;
 }

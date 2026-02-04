@@ -14,11 +14,6 @@ import lombok.EqualsAndHashCode;
 public class CsConversationEntity extends ShopConditionBaseEntity<CsConversationEntity> {
 
     /**
-     * 店铺ID
-     */
-    private Long shopId;
-
-    /**
      * 会员ID
      */
     private Long memberId;
