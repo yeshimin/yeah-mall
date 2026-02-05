@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.app.controller;
+package com.yeshimin.yeahboot.merchant.controller;
 
 import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * APP端文件存储相关
+ * 商家端文件存储相关
  */
 @Slf4j
 @RestController
-@RequestMapping("/app/storage")
+@RequestMapping("/mch/storage")
 @RequiredArgsConstructor
-public class AppFileStorageController extends BaseController {
+public class MchFileStorageController extends BaseController {
 
     private final StorageManager storageManager;
 

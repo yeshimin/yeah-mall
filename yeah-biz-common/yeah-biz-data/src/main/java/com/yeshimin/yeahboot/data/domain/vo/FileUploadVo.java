@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.app.domain.vo;
+package com.yeshimin.yeahboot.data.domain.vo;
 
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;

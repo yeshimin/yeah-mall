@@ -220,6 +220,10 @@ yeah-boot:
       app-common:
         bucket: app-common
         path: ''
+      # mch common
+      mch-common:
+        bucket: mch-common
+        path: ''
   # 通知相关
   notification:
     aliyun:
