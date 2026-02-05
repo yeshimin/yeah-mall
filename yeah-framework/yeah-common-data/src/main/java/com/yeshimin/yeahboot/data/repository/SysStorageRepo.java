@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.data.repository;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
@@ -66,6 +67,10 @@ public class SysStorageRepo extends BaseRepo<SysStorageMapper, SysStorageEntity>
         log.info("markUse fileKey: isUsed: {}, {}", isUsed, Arrays.toString(fileKey));
 
         if (fileKey == null || fileKey.length == 0) {
+            return;
+        }
+        String[] fileKeys = Arrays.stream(fileKey).filter(StrUtil::isNotBlank).toArray(String[]::new);
+        if (fileKeys.length == 0) {
             return;
         }
 
