@@ -22,4 +22,14 @@ public class MerchantEntity extends ConditionBaseEntity<MerchantEntity> {
      * 登录密码
      */
     private String loginPassword;
+
+    /**
+     * 昵称
+     */
+    private String nickname;
+
+    /**
+     * 头像
+     */
+    private String avatar;
 }

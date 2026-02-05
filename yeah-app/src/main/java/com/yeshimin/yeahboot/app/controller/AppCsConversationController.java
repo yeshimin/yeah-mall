@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.app.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.dto.ConversationInitDto;
+import com.yeshimin.yeahboot.app.domain.vo.CsConversationVo;
 import com.yeshimin.yeahboot.app.service.AppCsConversationService;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
@@ -31,7 +32,7 @@ public class AppCsConversationController extends BaseController {
      * 如果已存在则返回已存在的会话
      */
     @RequestMapping("/init")
-    public R<CsConversationEntity> initConversation(@Validated @RequestBody ConversationInitDto dto) {
+    public R<CsConversationVo> initConversation(@Validated @RequestBody ConversationInitDto dto) {
         Long userId = super.getUserId();
         return R.ok(service.initConversation(userId, dto.getConversationId(), dto.getShopId()));
     }

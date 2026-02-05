@@ -21,4 +21,9 @@ public class ShopUpdateDto extends BaseDomain {
      * 店铺名称
      */
     private String shopName;
+
+    /**
+     * 店铺logo
+     */
+    private String shopLogo;
 }
