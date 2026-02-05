@@ -7,26 +7,26 @@ import com.yeshimin.yeahboot.data.domain.entity.CsMessageEntity;
 import com.yeshimin.yeahboot.data.mapper.CsConversationMapper;
 import com.yeshimin.yeahboot.data.repository.CsConversationRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
-import com.yeshimin.yeahboot.merchant.service.CsConversationService;
+import com.yeshimin.yeahboot.merchant.service.MchCsConversationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 客服会话表
+ * 商家端客服会话表
  */
 @RestController
 @RequestMapping("/mch/csConversation")
-public class CsConversationController extends ShopCrudController<CsConversationMapper, CsConversationEntity, CsConversationRepo> {
+public class MchCsConversationController extends ShopCrudController<CsConversationMapper, CsConversationEntity, CsConversationRepo> {
 
     @Autowired
-    private CsConversationService service;
+    private MchCsConversationService service;
 
-    public CsConversationController(CsConversationRepo repo) {
+    public MchCsConversationController(CsConversationRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
-        super.setModule("mch:csConversation").disableCreate().disableUpdate();
+        super.setModule("mch:csConversation").disableCreate().disableUpdate().disableDelete();
     }
 
     // ================================================================================

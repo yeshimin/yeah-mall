@@ -39,4 +39,9 @@ public class ProductDetailVo extends BaseDomain {
      * 商品SKU规格信息
      */
     private Set<Long> skuOptIds;
+
+    /**
+     * 店铺信息
+     */
+    private ShopVo shop;
 }

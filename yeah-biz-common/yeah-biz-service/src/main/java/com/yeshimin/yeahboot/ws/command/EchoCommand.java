@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.app.ws.command;
+package com.yeshimin.yeahboot.ws.command;
 
 import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.ws.mq.command.BaseCommand;

@@ -5,10 +5,7 @@ import com.manticoresearch.client.model.SearchResponse;
 import com.yeshimin.yeahboot.app.common.enums.ProductSortEnum;
 import com.yeshimin.yeahboot.app.domain.dto.HotProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
-import com.yeshimin.yeahboot.app.domain.vo.AppProductQueryVo;
-import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
-import com.yeshimin.yeahboot.app.domain.vo.ProductSkuVo;
-import com.yeshimin.yeahboot.app.domain.vo.ProductVo;
+import com.yeshimin.yeahboot.app.domain.vo.*;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.data.domain.vo.ProductSpecVo;
@@ -33,6 +30,7 @@ public class AppProductSpuService {
     private final ProductSpecOptRepo productSpecOptRepo;
     private final ProductSkuRepo productSkuRepo;
     private final ProductSkuSpecRepo productSkuSpecRepo;
+    private final ShopRepo shopRepo;
 
     private final AppFullTextSearchService fullTextSearchService;
 
@@ -115,6 +113,11 @@ public class AppProductSpuService {
         Set<Long> skuOptIds = productSkuSpecRepo.findListBySkuIds(skuIds)
                 .stream().map(ProductSkuSpecEntity::getOptId).collect(Collectors.toSet());
 
+        // 店铺信息
+        ShopEntity shop = shopRepo.getOneById(entity.getShopId());
+        ShopVo shopVo = BeanUtil.copyProperties(shop, ShopVo.class);
+        shopVo.setShopId(shop.getId());
+
         ProductDetailVo result = new ProductDetailVo();
         ProductVo productVo = BeanUtil.copyProperties(entity, ProductVo.class);
         result.setProduct(productVo);
@@ -122,6 +125,7 @@ public class AppProductSpuService {
         result.setSpecs(specs);
         result.setSkus(skus);
         result.setSkuOptIds(skuOptIds);
+        result.setShop(shopVo);
         return result;
     }
 

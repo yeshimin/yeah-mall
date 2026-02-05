@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CsConversationService {
+public class MchCsConversationService {
 
     private final CsConversationRepo csConversationRepo;
     private final CsMessageRepo csMessageRepo;
