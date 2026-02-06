@@ -26,6 +26,13 @@ public class UpdateProfileDto extends BaseDomain {
     private String nickname;
 
     /**
+     * 头像
+     */
+    @Length(max = 255, message = "头像长度不能超过255个字符")
+    @Schema(description = "头像")
+    private String avatar;
+
+    /**
      * 性别
      */
     @EnumValue(enumClass = GenderEnum.class, message = "性别参数错误")

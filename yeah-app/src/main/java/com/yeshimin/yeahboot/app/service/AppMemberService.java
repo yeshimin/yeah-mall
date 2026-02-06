@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -65,6 +66,14 @@ public class AppMemberService {
         if (dto.getBirthday() != null) {
             member.setBirthday(dto.getBirthday());
         }
+
+        // 处理头像
+        if (StrUtil.isNotBlank(dto.getAvatar()) && !Objects.equals(dto.getAvatar(), member.getAvatar())) {
+            storageManager.markUse(dto.getAvatar());
+            storageManager.unmarkUse(member.getAvatar());
+            member.setAvatar(dto.getAvatar());
+        }
+
         boolean r = member.updateById();
         log.debug("updateProfile.result：{}", r);
 
