@@ -2,12 +2,9 @@ package com.yeshimin.yeahboot.app.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yeshimin.yeahboot.app.domain.vo.CsConversationVo;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.data.domain.entity.CsConversationEntity;
-import com.yeshimin.yeahboot.data.domain.entity.CsMessageEntity;
-import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
-import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
+import com.yeshimin.yeahboot.data.domain.entity.*;
+import com.yeshimin.yeahboot.data.domain.vo.CsConversationInfoVo;
 import com.yeshimin.yeahboot.data.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +29,8 @@ public class AppCsConversationService {
      * 买家初始化会话
      */
     @Transactional(rollbackFor = Exception.class)
-    public CsConversationVo initConversation(Long userId, @Nullable Long conversationId, Long shopId) {
-        CsConversationEntity conversation = null;
+    public CsConversationInfoVo initConversation(Long userId, @Nullable Long conversationId, Long shopId) {
+        CsConversationEntity conversation;
         if (conversationId != null) {
             conversation = csConversationRepo.findOneById(conversationId);
             if (conversation == null) {
@@ -51,9 +48,9 @@ public class AppCsConversationService {
         // 查询买家
         MemberEntity member = memberRepo.getOneById(conversation.getMemberId(), "买家不存在");
         // 查询商家
-        MemberEntity merchant = memberRepo.getOneById(conversation.getMchId(), "商家不存在");
+        MerchantEntity merchant = merchantRepo.getOneById(conversation.getMchId(), "商家不存在");
 
-        CsConversationVo vo = new CsConversationVo();
+        CsConversationInfoVo vo = new CsConversationInfoVo();
         vo.setId(conversation.getId());
         vo.setMemberId(member.getId());
         vo.setMemberNickname(member.getNickname());

@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.app.domain.vo;
+package com.yeshimin.yeahboot.data.domain.vo;
 
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CsConversationVo extends BaseDomain {
+public class CsConversationInfoVo extends BaseDomain {
 
     /**
      * 会话ID

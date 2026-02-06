@@ -1,4 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeshimin.yeahboot.data.mapper.CsConversationMapper">
+
+    <!-- 查询会话列表 -->
+    <select id="query" resultType="com.yeshimin.yeahboot.data.domain.vo.CsConversationVo">
+        select
+            c.*,
+            m.nickname as memberNickname,
+            m.avatar as memberAvatar
+        from s_cs_conversation c
+        left join s_member m on c.member_id = m.id and m.deleted = 0
+        where c.deleted = 0
+        and c.mch_id = #{mchId}
+        and c.shop_id = #{query.shopId}
+        <if test="query.lastMessage != null and query.lastMessage != ''">
+            and c.last_message like concat('%', #{query.lastMessage}, '%')
+        </if>
+        <if test="query.memberNickname != null and query.memberNickname != ''">
+            and m.nickname like concat('%', #{query.memberNickname}, '%')
+        </if>
+        <if test="query.lastMessageTimeBegin != null">
+            and c.last_message_time >= #{query.lastMessageTimeBegin}
+        </if>
+        <if test="query.lastMessageTimeEnd != null">
+            and #{query.lastMessageTimeEnd} >= c.last_message_time
+        </if>
+        order by c.update_time desc
+    </select>
+
 </mapper>
