@@ -22,4 +22,9 @@ public class ProductSpuImageEntity extends ShopConditionBaseEntity<ProductSpuIma
      * 图片URL
      */
     private String imageUrl;
+
+    /**
+     * 排序：大于等于1
+     */
+    private Integer sort;
 }
