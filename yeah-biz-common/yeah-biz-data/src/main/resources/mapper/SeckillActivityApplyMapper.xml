@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeshimin.yeahboot.data.mapper.SeckillActivityApplyMapper">
+
+    <!-- 查询 -->
+    <select id="query" resultType="com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyVo">
+        select
+            apply.id as applyId,
+            mch.id as mchId,
+            mch.nickname as mchName,
+            shop.id as shopId,
+            shop.shop_name as shopName,
+            act.id as activityId,
+            act.name as activityName,
+            ss.id as sessionId,
+            ss.name as sessionName,
+            spu.id as seckillSpuId,
+            spu.name as spuName,
+            spu.main_image as mainImage,
+            spu.detail_desc as detailDesc,
+            apply.audit_status as auditStatus
+        from s_seckill_activity_apply apply
+        left join s_merchant mch on apply.mch_id = mch.id and mch.deleted = 0
+        left join s_shop shop on apply.shop_id = shop.id and shop.deleted = 0
+        left join s_seckill_activity act on apply.activity_id = act.id and act.deleted = 0
+        left join s_seckill_session ss on apply.session_id = ss.id and ss.deleted = 0
+        left join s_seckill_spu spu on apply.seckill_spu_id = spu.id and spu.deleted = 0
+        where apply.activity_id = #{query.activityId}
+        <!-- sessionId -->
+        <if test="query.sessionId != null">
+            and apply.session_id = #{query.sessionId}
+        </if>
+        <!-- auditStatus -->
+        <if test="query.auditStatus != null">
+            and apply.audit_status = #{query.auditStatus}
+        </if>
+    </select>
+
+</mapper>

@@ -302,4 +302,16 @@ public class YsmUtils {
     public static boolean isPathEscaped(String path) {
         return path != null && path.contains("..");
     }
+
+    /**
+     * check datetime pair
+     * 1. begin < end
+     * 2. one of them is null
+     */
+    public static boolean checkDateTime(LocalDateTime begin, LocalDateTime end) {
+        if (begin != null && end != null && begin.isAfter(end)) {
+            return false;
+        }
+        return (begin == null || end != null) && (begin != null || end == null);
+    }
 }
