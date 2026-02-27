@@ -15,7 +15,7 @@ public class SeckillActivityApplyQueryDto extends BaseQueryDto {
     /**
      * 秒杀活动ID
      */
-    @NotNull(message = "秒杀活动ID不能为空")
+//    @NotNull(message = "秒杀活动ID不能为空")
     private Long activityId;
 
     /**

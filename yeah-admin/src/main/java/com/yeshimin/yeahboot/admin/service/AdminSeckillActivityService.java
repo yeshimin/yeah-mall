@@ -144,8 +144,8 @@ public class AdminSeckillActivityService {
                 break;
             // 开始报名，仅当【发布】、【结束报名】状态才可操作
             case START_APPLY:
-                if (!Objects.equals(entity.getStatus(), SeckillActivityStatusEnum.PUBLISHED.getValue()) ||
-                        !Objects.equals(entity.getStatus(), SeckillActivityStatusEnum.END_APPLY.getValue())) {
+                if (!SeckillActivityStatusEnum.PUBLISHED.equalsValue(entity.getStatus()) &&
+                        !SeckillActivityStatusEnum.END_APPLY.equalsValue(entity.getStatus())) {
                     throw new RuntimeException("仅当【发布】、【结束报名】状态才可操作");
                 }
                 entity.setStatus(status.getValue());

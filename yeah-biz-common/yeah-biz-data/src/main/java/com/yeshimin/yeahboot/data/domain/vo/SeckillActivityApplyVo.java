@@ -80,4 +80,14 @@ public class SeckillActivityApplyVo extends BaseDomain {
      * 审核状态，见枚举：SeckillActivityApplyAuditStatusEnum
      */
     private Integer auditStatus;
+
+    /**
+     * 申请备注
+     */
+    private String applyRemark;
+
+    /**
+     * 审核备注
+     */
+    private String auditRemark;
 }

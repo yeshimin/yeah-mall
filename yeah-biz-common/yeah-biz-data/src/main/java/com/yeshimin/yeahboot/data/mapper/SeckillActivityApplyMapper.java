@@ -7,6 +7,7 @@ import com.yeshimin.yeahboot.data.domain.dto.SeckillActivityApplyQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityApplyEntity;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyVo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface SeckillActivityApplyMapper extends BaseMapper<SeckillActivityApplyEntity> {
@@ -14,5 +15,7 @@ public interface SeckillActivityApplyMapper extends BaseMapper<SeckillActivityAp
     /**
      * 查询
      */
-    IPage<SeckillActivityApplyVo> query(Page<SeckillActivityApplyEntity> page, SeckillActivityApplyQueryDto query);
+    IPage<SeckillActivityApplyVo> query(Page<SeckillActivityApplyEntity> page,
+                                        @Param("query") SeckillActivityApplyQueryDto query,
+                                        @Param("mchId") Long mchId);
 }

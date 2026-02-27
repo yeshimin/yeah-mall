@@ -12,19 +12,28 @@ import com.yeshimin.yeahboot.data.mapper.SeckillActivityApplyMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Slf4j
 @Repository
 public class SeckillActivityApplyRepo extends BaseRepo<SeckillActivityApplyMapper, SeckillActivityApplyEntity> {
 
     /**
-     * countBySessionIdAndSpuId
+     * countPendingOrPassedBySessionIdAndSpuId
      */
-    public long countBySessionIdAndSpuId(Long sessionId, Long spuId) {
+    public long countPendingOrPassedBySessionIdAndSpuId(Long sessionId, Long spuId) {
         return lambdaQuery()
                 .eq(SeckillActivityApplyEntity::getSessionId, sessionId)
-                .eq(SeckillActivityApplyEntity::getSeckillSpuId, spuId)
+                .eq(SeckillActivityApplyEntity::getSpuId, spuId)
+                .in(SeckillActivityApplyEntity::getAuditStatus,
+                        SeckillActivityApplyAuditStatusEnum.PENDING.getIntValue(),
+                        SeckillActivityApplyAuditStatusEnum.PASSED.getIntValue())
                 .count();
     }
+
+    /**
+     * findOneBySessionIdAndSpuId
+     */
 
     /**
      * createOne
@@ -47,7 +56,15 @@ public class SeckillActivityApplyRepo extends BaseRepo<SeckillActivityApplyMappe
      * 查询
      */
     public IPage<SeckillActivityApplyVo> query(Page<SeckillActivityApplyEntity> page,
-                                               SeckillActivityApplyQueryDto query) {
-        return getBaseMapper().query(page, query);
+                                               SeckillActivityApplyQueryDto query, Long mchId) {
+        return getBaseMapper().query(page, query, mchId);
+    }
+
+    /**
+     * findListByMchId
+     */
+    public List<SeckillActivityApplyEntity> findListByMchId(Long mchId) {
+        return lambdaQuery().eq(SeckillActivityApplyEntity::getMchId, mchId)
+                .orderByDesc(SeckillActivityApplyEntity::getCreateTime).list();
     }
 }

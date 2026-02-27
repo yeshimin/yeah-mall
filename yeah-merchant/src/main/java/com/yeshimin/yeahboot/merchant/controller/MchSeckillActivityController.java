@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.merchant.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
+import com.yeshimin.yeahboot.common.domain.base.IdNameVo;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityEntity;
 import com.yeshimin.yeahboot.merchant.domain.dto.SeckillApplySubmitDto;
@@ -31,6 +32,15 @@ public class MchSeckillActivityController extends BaseController {
     @GetMapping("/query")
     public R<IPage<SeckillActivityVo>> query(Page<SeckillActivityEntity> page, SeckillActivityEntity query) {
         return R.ok(service.query(page, query));
+    }
+
+    /**
+     * 查询商家报名的活动
+     */
+    @GetMapping("/queryApplyActivity")
+    public R<List<IdNameVo>> queryApplyActivity() {
+        Long userId = super.getUserId();
+        return R.ok(service.queryApplyActivity(userId));
     }
 
     /**

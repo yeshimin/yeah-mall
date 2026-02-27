@@ -59,7 +59,7 @@ public class SeckillSpuEntity extends ConditionBaseEntity<SeckillSpuEntity> {
     private String detailDesc;
 
     /**
-     * 审核状态，见枚举：SeckillActivityEnrollAuditStatusEnum
+     * 审核状态，见枚举：SeckillActivityApplyAuditStatusEnum
      */
     private Integer auditStatus;
 }

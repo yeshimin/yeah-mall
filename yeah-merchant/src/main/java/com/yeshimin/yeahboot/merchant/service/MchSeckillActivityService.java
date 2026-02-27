@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
+import com.yeshimin.yeahboot.common.domain.base.IdNameVo;
 import com.yeshimin.yeahboot.data.common.enums.SeckillActivityApplyAuditStatusEnum;
 import com.yeshimin.yeahboot.data.common.enums.SeckillActivityStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.*;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +55,16 @@ public class MchSeckillActivityService {
     }
 
     /**
+     * 查询商家报名的活动
+     */
+    public List<IdNameVo> queryApplyActivity(Long userId) {
+        List<Long> activityIds = seckillActivityApplyRepo.findListByMchId(userId)
+                .stream().map(SeckillActivityApplyEntity::getActivityId).collect(Collectors.toList());
+        return activityRepo.findListByIds(activityIds)
+                .stream().map(e -> new IdNameVo(e.getId(), e.getName())).collect(Collectors.toList());
+    }
+
+    /**
      * 查询场次
      */
     public List<SeckillSessionVo> querySession(Long activityId) {
@@ -80,8 +92,14 @@ public class MchSeckillActivityService {
         if (!SeckillActivityStatusEnum.isPublished(activity.getStatus())) {
             throw new BaseException("活动未发布");
         }
-        // 检查：同一场次同一spu只能报名一次
-        if (seckillActivityApplyRepo.countBySessionIdAndSpuId(session.getId(), dto.getSpuId()) > 0) {
+        // 检查：活动是否在报名期间
+        LocalDateTime now = LocalDateTime.now();
+        if (!SeckillActivityStatusEnum.START_APPLY.equalsValue(activity.getStatus()) ||
+                now.isBefore(activity.getApplyBeginTime()) || now.isAfter(activity.getApplyEndTime())) {
+            throw new BaseException("活动未开始或已结束");
+        }
+        // 检查：同一场次同一spu只能报名一次 ; 审核通过的或审核中的，就不允许在提交相同的了
+        if (seckillActivityApplyRepo.countPendingOrPassedBySessionIdAndSpuId(session.getId(), dto.getSpuId()) > 0) {
             throw new BaseException("同一场次同一商品只能报名一次");
         }
 

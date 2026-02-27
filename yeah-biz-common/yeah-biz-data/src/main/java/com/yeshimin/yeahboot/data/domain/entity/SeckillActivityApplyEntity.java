@@ -44,7 +44,7 @@ public class SeckillActivityApplyEntity extends ConditionBaseEntity<SeckillActiv
     private Long seckillSpuId;
 
     /**
-     * 审核状态，见枚举：SeckillActivityEnrollAuditStatusEnum
+     * 审核状态，见枚举：SeckillActivityApplyAuditStatusEnum
      */
     private Integer auditStatus;
 

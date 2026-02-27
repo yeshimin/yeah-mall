@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.admin.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillApplyAuditDto;
+import com.yeshimin.yeahboot.admin.domain.vo.SeckillActivityApplyDetailVo;
 import com.yeshimin.yeahboot.admin.service.AdminSeckillActivityApplyService;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
@@ -30,6 +31,14 @@ public class AdminSeckillActivityApplyController extends BaseController {
     public R<IPage<SeckillActivityApplyVo>> query(Page<SeckillActivityApplyEntity> page,
                                                   @Validated SeckillActivityApplyQueryDto query) {
         return R.ok(service.query(page, query));
+    }
+
+    /**
+     * 详情
+     */
+    @GetMapping("/detail")
+    public R<SeckillActivityApplyDetailVo> detail(@RequestParam Long id) {
+        return R.ok(service.detail(id));
     }
 
     /**
