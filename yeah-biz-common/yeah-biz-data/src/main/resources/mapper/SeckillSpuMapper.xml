@@ -1,4 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeshimin.yeahboot.data.mapper.SeckillSpuMapper">
+
+    <!-- 查询 -->
+    <select id="query" resultType="com.yeshimin.yeahboot.data.domain.vo.SeckillSpuVo">
+        select
+            spu.id as id,
+            spu.mch_id as mchId,
+            mch.nickname as mchName,
+            spu.shop_id as shopId,
+            shop.shop_name as shopName,
+            spu.spu_id as spuId,
+            spu.activity_id as activityId,
+            activity.name as activityName,
+            spu.session_id as sessionId,
+            session.name as sessionName,
+            spu.name as name,
+            spu.sales as sales,
+            spu.main_image as mainImage,
+            spu.detail_desc as detailDesc,
+            spu.audit_status as auditStatus
+        from s_seckill_spu spu
+            left join s_merchant mch on spu.mch_id = mch.id and mch.deleted = 0
+            left join s_shop shop on spu.shop_id = shop.id and shop.deleted = 0
+            left join s_seckill_activity activity on spu.activity_id = activity.id and activity.deleted = 0
+            left join s_seckill_session session on spu.session_id = session.id and session.deleted = 0
+        where spu.deleted = 0
+        <!-- mchId -->
+        <if test="mchId != null">
+            and spu.mch_id = #{mchId}
+        </if>
+        <!-- query.auditStatus -->
+        <if test="query.auditStatus != null">
+            and spu.audit_status = #{query.auditStatus}
+        </if>
+        <!-- query.activityId -->
+        <if test="query.activityId != null">
+            and spu.activity_id = #{query.activityId}
+        </if>
+        <!-- query.sessionId -->
+        <if test="query.sessionId != null">
+            and spu.session_id = #{query.sessionId}
+        </if>
+        <!-- query.mchName -->
+        <if test="query.mchName != null">
+            and mch.nickname like concat('%', #{query.mchName}, '%')
+        </if>
+        <!-- query.shopName -->
+        <if test="query.shopName != null">
+            and shop.shop_name like concat('%', #{query.shopName}, '%')
+        </if>
+        <!-- query.spuName -->
+        <if test="query.spuName != null">
+            and spu.name like concat('%', #{query.spuName}, '%')
+        </if>
+    </select>
+
 </mapper>

@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.data.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
+import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,17 +11,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("s_seckill_spu")
-public class SeckillSpuEntity extends ConditionBaseEntity<SeckillSpuEntity> {
-
-    /**
-     * 商户ID
-     */
-    private Long mchId;
-
-    /**
-     * 店铺ID
-     */
-    private Long shopId;
+public class SeckillSpuEntity extends ShopConditionBaseEntity<SeckillSpuEntity> {
 
     /**
      * 原始SPU ID

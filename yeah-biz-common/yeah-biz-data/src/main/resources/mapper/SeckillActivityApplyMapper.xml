@@ -22,12 +22,12 @@
             apply.apply_remark as applyRemark,
             apply.audit_remark as auditRemark
         from s_seckill_activity_apply apply
-        left join s_merchant mch on apply.mch_id = mch.id and mch.deleted = 0
-        left join s_shop shop on apply.shop_id = shop.id and shop.deleted = 0
-        left join s_seckill_activity act on apply.activity_id = act.id and act.deleted = 0
-        left join s_seckill_session ss on apply.session_id = ss.id and ss.deleted = 0
-        left join s_seckill_spu spu on apply.seckill_spu_id = spu.id and spu.deleted = 0
-        <where>
+            left join s_merchant mch on apply.mch_id = mch.id and mch.deleted = 0
+            left join s_shop shop on apply.shop_id = shop.id and shop.deleted = 0
+            left join s_seckill_activity act on apply.activity_id = act.id and act.deleted = 0
+            left join s_seckill_session ss on apply.session_id = ss.id and ss.deleted = 0
+            left join s_seckill_spu spu on apply.seckill_spu_id = spu.id and spu.deleted = 0
+        where apply.deleted = 0
             <!-- mchId -->
             <if test="mchId != null">
                 and apply.mch_id = #{mchId}
@@ -44,7 +44,6 @@
             <if test="query.auditStatus != null">
                 and apply.audit_status = #{query.auditStatus}
             </if>
-        </where>
     </select>
 
 </mapper>
