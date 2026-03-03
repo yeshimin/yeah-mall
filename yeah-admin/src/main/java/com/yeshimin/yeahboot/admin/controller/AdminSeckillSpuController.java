@@ -1,12 +1,19 @@
 package com.yeshimin.yeahboot.admin.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.admin.domain.vo.AdminSeckillSpuDetailVo;
 import com.yeshimin.yeahboot.admin.service.AdminSeckillSpuService;
-import com.yeshimin.yeahboot.common.controller.base.CrudController;
+import com.yeshimin.yeahboot.common.controller.base.BaseController;
+import com.yeshimin.yeahboot.common.domain.base.R;
+import com.yeshimin.yeahboot.data.domain.dto.SeckillSpuQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSpuEntity;
-import com.yeshimin.yeahboot.data.mapper.SeckillSpuMapper;
-import com.yeshimin.yeahboot.data.repository.SeckillSpuRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillSpuVo;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -14,15 +21,24 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/admin/seckillSpu")
-public class AdminSeckillSpuController extends CrudController<SeckillSpuMapper, SeckillSpuEntity, SeckillSpuRepo> {
+@RequiredArgsConstructor
+public class AdminSeckillSpuController extends BaseController {
 
-    @Autowired
-    private AdminSeckillSpuService service;
+    private final AdminSeckillSpuService service;
 
-    public AdminSeckillSpuController(SeckillSpuRepo repo) {
-        // 由于lombok方案无法实现构造方法中调用super，只能显式调用
-        super(repo);
+    /**
+     * 查询
+     */
+    @GetMapping("/query")
+    public R<IPage<SeckillSpuVo>> query(Page<SeckillSpuEntity> page, @Validated SeckillSpuQueryDto query) {
+        return R.ok(service.query(page, query));
     }
 
-    // ================================================================================
+    /**
+     * 详情
+     */
+    @GetMapping("/detail")
+    public R<AdminSeckillSpuDetailVo> detail(@RequestParam Long id) {
+        return R.ok(service.detail(id));
+    }
 }

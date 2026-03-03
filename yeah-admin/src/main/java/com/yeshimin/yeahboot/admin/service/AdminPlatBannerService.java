@@ -12,7 +12,6 @@ import com.yeshimin.yeahboot.common.service.base.BaseService;
 import com.yeshimin.yeahboot.data.domain.entity.PlatBannerEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.PlatBannerRepo;
-import com.yeshimin.yeahboot.merchant.service.PermissionService;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +28,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdminPlatBannerService extends BaseService {
-
-    private final PermissionService permissionService;
 
     private final PlatBannerRepo bannerRepo;
 

@@ -1,4 +1,4 @@
-package com.yeshimin.yeahboot.merchant.domain.vo;
+package com.yeshimin.yeahboot.admin.domain.vo;
 
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
@@ -7,16 +7,16 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 
 /**
- * 商家端-秒杀活动商品SPU详情VO
+ * 管理端-秒杀活动商品SPU详情VO
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class MchSeckillSpuDetailVo extends BaseDomain {
+public class AdminSeckillSpuDetailVo extends BaseDomain {
 
     /**
      * 秒杀spu信息
      */
-    private MchSeckillSpuVo spu;
+    private AdminSeckillSpuVo spu;
 
     /**
      * 秒杀spu轮播图片信息
@@ -26,5 +26,5 @@ public class MchSeckillSpuDetailVo extends BaseDomain {
     /**
      * 秒杀sku信息
      */
-    private List<MchSeckillSkuVo> skuList;
+    private List<AdminSeckillSkuVo> skuList;
 }
