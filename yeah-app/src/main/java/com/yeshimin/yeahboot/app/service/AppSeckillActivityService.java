@@ -28,8 +28,8 @@ public class AppSeckillActivityService {
                 QueryHelper.getQueryWrapper(query, SeckillActivityEntity.class);
         // 【启用】的
         queryWrapper.eq(SeckillActivityEntity::getIsEnabled, true);
-        // 【已发布】的
-        queryWrapper.in(SeckillActivityEntity::getStatus, SeckillActivityStatusEnum.PUBLISHED_STATUS);
+        // 【APP端可见】的
+        queryWrapper.in(SeckillActivityEntity::getStatus, SeckillActivityStatusEnum.APP_VISIBLE);
         // 按【排序】字段正序
         queryWrapper.orderByAsc(SeckillActivityEntity::getSort);
         // 按【创建时间】字段倒序

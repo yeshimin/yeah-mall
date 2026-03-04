@@ -14,10 +14,11 @@ public enum SeckillActivityStatusEnum implements IValueEnum {
 
     CREATED("1", "新建"),
     PUBLISHED("2", "发布"),
-    START_APPLY("3", "开始报名"),
-    END_APPLY("4", "结束报名"),
-    START_ACTIVITY("5", "开始活动"),
-    END_ACTIVITY("6", "结束活动");
+    APPLY_STARTED("3", "开始报名"),
+    APPLY_FINISHED("4", "结束报名"),
+    ACTIVITY_STARTED("5", "活动开始"),
+    ACTIVITY_FINISHED("6", "活动结束"),
+    ACTIVITY_DOWN("7", "活动下架");
 
     private final String value;
     private final String desc;
@@ -41,10 +42,17 @@ public enum SeckillActivityStatusEnum implements IValueEnum {
      */
     public static final List<String> PUBLISHED_STATUS = Arrays.asList(
             SeckillActivityStatusEnum.PUBLISHED.getValue(),
-            SeckillActivityStatusEnum.START_APPLY.getValue(),
-            SeckillActivityStatusEnum.END_APPLY.getValue(),
-            SeckillActivityStatusEnum.START_ACTIVITY.getValue(),
-            SeckillActivityStatusEnum.END_ACTIVITY.getValue());
+            SeckillActivityStatusEnum.APPLY_STARTED.getValue(),
+            SeckillActivityStatusEnum.APPLY_FINISHED.getValue(),
+            SeckillActivityStatusEnum.ACTIVITY_STARTED.getValue(),
+            SeckillActivityStatusEnum.ACTIVITY_FINISHED.getValue());
+
+    /**
+     * app端可见状态集合：活动开始到活动结束
+     */
+    public static final List<String> APP_VISIBLE = Arrays.asList(
+            SeckillActivityStatusEnum.ACTIVITY_STARTED.getValue(),
+            SeckillActivityStatusEnum.ACTIVITY_FINISHED.getValue());
 
     /**
      * 是否已发布（及之后状态）

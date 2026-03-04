@@ -143,34 +143,42 @@ public class AdminSeckillActivityService {
                 entity.updateById();
                 break;
             // 开始报名，仅当【发布】、【结束报名】状态才可操作
-            case START_APPLY:
+            case APPLY_STARTED:
                 if (!SeckillActivityStatusEnum.PUBLISHED.equalsValue(entity.getStatus()) &&
-                        !SeckillActivityStatusEnum.END_APPLY.equalsValue(entity.getStatus())) {
+                        !SeckillActivityStatusEnum.APPLY_FINISHED.equalsValue(entity.getStatus())) {
                     throw new RuntimeException("仅当【发布】、【结束报名】状态才可操作");
                 }
                 entity.setStatus(status.getValue());
                 entity.updateById();
                 break;
-            // 结束报名，仅当【开始报名】状态才可操作
-            case END_APPLY:
-                if (!Objects.equals(entity.getStatus(), SeckillActivityStatusEnum.START_APPLY.getValue())) {
+            // 结束报名，仅当【报名开始】状态才可操作
+            case APPLY_FINISHED:
+                if (!Objects.equals(entity.getStatus(), SeckillActivityStatusEnum.APPLY_STARTED.getValue())) {
                     throw new RuntimeException("仅当【开始报名】状态才可操作");
                 }
                 entity.setStatus(status.getValue());
                 entity.updateById();
                 break;
-            // 开始活动，仅当【结束报名】状态才可操作
-            case START_ACTIVITY:
-                if (!Objects.equals(entity.getStatus(), SeckillActivityStatusEnum.END_APPLY.getValue())) {
+            // 开始活动，仅当【报名结束】状态才可操作
+            case ACTIVITY_STARTED:
+                if (!Objects.equals(entity.getStatus(), SeckillActivityStatusEnum.APPLY_FINISHED.getValue())) {
                     throw new RuntimeException("仅当【结束报名】状态才可操作");
                 }
                 entity.setStatus(status.getValue());
                 entity.updateById();
                 break;
-            // 结束活动，仅当【开始活动】状态才可操作
-            case END_ACTIVITY:
-                if (!Objects.equals(entity.getStatus(), SeckillActivityStatusEnum.START_ACTIVITY.getValue())) {
+            // 结束活动，仅当【活动开始】状态才可操作
+            case ACTIVITY_FINISHED:
+                if (!Objects.equals(entity.getStatus(), SeckillActivityStatusEnum.ACTIVITY_STARTED.getValue())) {
                     throw new RuntimeException("仅当【开始活动】状态才可操作");
+                }
+                entity.setStatus(status.getValue());
+                entity.updateById();
+                break;
+            // 活动下架，仅当【活动结束】状态才可操作
+            case ACTIVITY_DOWN:
+                if (!Objects.equals(entity.getStatus(), SeckillActivityStatusEnum.ACTIVITY_FINISHED.getValue())) {
+                    throw new RuntimeException("仅当【活动结束】状态才可操作");
                 }
                 entity.setStatus(status.getValue());
                 entity.updateById();

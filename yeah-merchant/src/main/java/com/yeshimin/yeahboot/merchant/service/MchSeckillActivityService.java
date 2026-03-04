@@ -94,7 +94,7 @@ public class MchSeckillActivityService {
         }
         // 检查：活动是否在报名期间
         LocalDateTime now = LocalDateTime.now();
-        if (!SeckillActivityStatusEnum.START_APPLY.equalsValue(activity.getStatus()) ||
+        if (!SeckillActivityStatusEnum.APPLY_STARTED.equalsValue(activity.getStatus()) ||
                 now.isBefore(activity.getApplyBeginTime()) || now.isAfter(activity.getApplyEndTime())) {
             throw new BaseException("活动未开始或已结束");
         }
