@@ -94,3 +94,8 @@ yeah-boot:
   id-generator:
     alphabet: GQT0FNR3taz1vDVEjsSJ2biZmLB8qk6OCMndohlKf4IAw7xr9eYgXWPcuHpU5y
     min-length: 8
+  # 消息队列 配置见MqProperties类
+  mq:
+    # 实现：redis | rabbitmq
+#    impl: redis
+    auto-ack: true

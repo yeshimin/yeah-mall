@@ -19,6 +19,7 @@
         <module>yeah-common-data</module>
         <module>yeah-flowcontrol</module>
         <module>yeah-generator</module>
+        <module>yeah-mq</module>
         <module>yeah-notification</module>
         <module>yeah-storage</module>
         <module>yeah-websocket</module>

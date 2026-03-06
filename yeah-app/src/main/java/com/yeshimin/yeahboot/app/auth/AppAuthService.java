@@ -2,8 +2,7 @@ package com.yeshimin.yeahboot.app.auth;
 
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson2.JSON;
-import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
+import com.yeshimin.yeahboot.app.domain.mq.payload.SmsMqPayload;
 import com.yeshimin.yeahboot.auth.service.TerminalAndTokenControlService;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
@@ -16,6 +15,8 @@ import com.yeshimin.yeahboot.common.service.IdService;
 import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
 import com.yeshimin.yeahboot.data.repository.MemberRepo;
+import com.yeshimin.yeahboot.mq.MqMessage;
+import com.yeshimin.yeahboot.mq.MqPublisher;
 import com.yeshimin.yeahboot.notification.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,8 @@ public class AppAuthService {
     private final CacheService cacheService;
     private final IdService idService;
     private final SmsService smsService;
+
+    private final MqPublisher mqPublisher;
 
     /**
      * 登录
@@ -102,12 +105,21 @@ public class AppAuthService {
         log.debug("smsCode: {}, key: {}", smsCode, key);
         // 执行缓存
         cacheService.set(key, smsCode, yeahBootProperties.getSmsCodeExpSeconds());
-        // 发送短信
-        SendSmsResponse response = smsService.sendSms(smsCode, dto.getMobile());
-        log.info("Response: {}", JSON.toJSONString(response));
+        // 发送短信（异步）
+        this.asyncSendSms(smsCode, dto.getMobile());
     }
 
     // ================================================================================
+
+    /**
+     * 异步发送短信验证码
+     */
+    private void asyncSendSms(String smsCode, String mobile) {
+        MqMessage message = new MqMessage();
+        message.setTopic(CommonConsts.LOGIN_SMS_CODE_TOPIC);
+        message.setPayload(SmsMqPayload.of(smsCode, mobile).toJsonString());
+        mqPublisher.publish(message);
+    }
 
     /**
      * 消费短信验证码

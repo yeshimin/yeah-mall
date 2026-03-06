@@ -59,6 +59,11 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-websocket</artifactId>
         </dependency>
+        <!-- mq module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-mq</artifactId>
+        </dependency>
 
         <!-- Spring Boot Test (For Unit and Integration Tests) -->
         <dependency>
