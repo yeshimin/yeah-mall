@@ -48,4 +48,7 @@ public class CommonConsts {
 
     // 配置文件属性值占位符
     public static final String VALUE_PLACEHOLDER = "OVERWRITE_ME";
+
+    // 登录短信验证码队列名称
+    public static final String LOGIN_SMS_CODE_TOPIC = "LOGIN_SMS_CODE";
 }
