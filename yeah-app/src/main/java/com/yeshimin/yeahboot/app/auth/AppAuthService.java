@@ -13,6 +13,7 @@ import com.yeshimin.yeahboot.common.common.properties.YeahBootProperties;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.common.service.IdService;
 import com.yeshimin.yeahboot.common.service.PasswordService;
+import com.yeshimin.yeahboot.data.common.consts.BizConsts;
 import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
 import com.yeshimin.yeahboot.data.repository.MemberRepo;
 import com.yeshimin.yeahboot.mq.MqMessage;
@@ -116,7 +117,7 @@ public class AppAuthService {
      */
     private void asyncSendSms(String smsCode, String mobile) {
         MqMessage message = new MqMessage();
-        message.setTopic(CommonConsts.LOGIN_SMS_CODE_TOPIC);
+        message.setTopic(BizConsts.LOGIN_SMS_CODE_TOPIC);
         message.setPayload(SmsMqPayload.of(smsCode, mobile).toJsonString());
         mqPublisher.publish(message);
     }
