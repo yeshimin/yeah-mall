@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -126,6 +127,20 @@ public class MchSeckillActivityService {
         storageManager.markUse(dto.getSkuList().stream()
                 .map(SeckillApplySkuItemDto::getMainImage).toArray(String[]::new));
 
+        // 计算sku最低价和最高价 dto里的seckillPrice
+        BigDecimal minOriginPrice = dto.getSkuList().stream()
+                .map(SeckillApplySkuItemDto::getOriginPrice)
+                .min(BigDecimal::compareTo).get();
+        BigDecimal minSeckillPrice = dto.getSkuList().stream()
+                .map(SeckillApplySkuItemDto::getSeckillPrice)
+                .min(BigDecimal::compareTo).get();
+        BigDecimal maxOriginPrice = dto.getSkuList().stream()
+                .map(SeckillApplySkuItemDto::getSeckillPrice)
+                .max(BigDecimal::compareTo).get();
+        BigDecimal maxSeckillPrice = dto.getSkuList().stream()
+                .map(SeckillApplySkuItemDto::getSeckillPrice)
+                .max(BigDecimal::compareTo).get();
+
         // 设置秒杀spu信息
         SeckillSpuEntity seckillSpu = new SeckillSpuEntity();
         seckillSpu.setMchId(spu.getMchId());
@@ -134,6 +149,10 @@ public class MchSeckillActivityService {
         seckillSpu.setActivityId(activity.getId());
         seckillSpu.setSessionId(session.getId());
         seckillSpu.setName(dto.getName());
+        seckillSpu.setMinOriginPrice(minOriginPrice);
+        seckillSpu.setMinSeckillPrice(minSeckillPrice);
+        seckillSpu.setMaxOriginPrice(maxOriginPrice);
+        seckillSpu.setMaxSeckillPrice(maxSeckillPrice);
         seckillSpu.setMainImage(dto.getMainImage());
         seckillSpu.setDetailDesc(dto.getDetailDesc());
         seckillSpu.setAuditStatus(SeckillActivityApplyAuditStatusEnum.PENDING.getIntValue()); // 待审核

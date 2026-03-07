@@ -5,6 +5,8 @@ import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
  * 秒杀商品SPU表
  */
@@ -37,6 +39,26 @@ public class SeckillSpuEntity extends ShopConditionBaseEntity<SeckillSpuEntity> 
      * 销量
      */
     private Long sales;
+
+    /**
+     * sku最低价-原价
+     */
+    private BigDecimal minOriginPrice;
+
+    /**
+     * sku最低价-秒杀价
+     */
+    private BigDecimal minSeckillPrice;
+
+    /**
+     * sku最高价-原价
+     */
+    private BigDecimal maxOriginPrice;
+
+    /**
+     * sku最高价-秒杀价
+     */
+    private BigDecimal maxSeckillPrice;
 
     /**
      * 主图

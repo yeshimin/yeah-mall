@@ -18,6 +18,10 @@
             spu.name as name,
             spu.sales as sales,
             spu.main_image as mainImage,
+            spu.min_origin_price as minOriginPrice,
+            spu.min_seckill_price as minSeckillPrice,
+            spu.max_origin_price as maxOriginPrice,
+            spu.max_seckill_price as maxSeckillPrice,
             spu.detail_desc as detailDesc,
             spu.audit_status as auditStatus
         from s_seckill_spu spu
