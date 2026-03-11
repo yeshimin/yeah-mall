@@ -2,8 +2,10 @@ package com.yeshimin.yeahboot.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.SeckillActivityVo;
 import com.yeshimin.yeahboot.app.service.AppSeckillService;
+import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.dto.SeckillSpuQueryDto;
@@ -42,5 +44,14 @@ public class AppSeckillController extends BaseController {
     public R<IPage<SeckillSpuVo>> queryProduct(Page<SeckillSpuEntity> page,
                                                @RequestParam("activityId") Long activityId) {
         return R.ok(service.queryProduct(page, activityId));
+    }
+
+    /**
+     * 查询商品详情
+     */
+    @PublicAccess
+    @GetMapping("/queryProductDetail")
+    public R<ProductDetailVo> queryProductDetail(@RequestParam Long id) {
+        return R.ok(service.queryProductDetail(id));
     }
 }
