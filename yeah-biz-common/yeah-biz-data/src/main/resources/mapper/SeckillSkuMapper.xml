@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeshimin.yeahboot.data.mapper.SeckillSkuMapper">
+
+    <!-- 扣减库存 -->
+    <update id="occurStock">
+        UPDATE s_seckill_spu s
+        SET s.stock = s.stock - #{quantity}
+        WHERE s.id = #{id} AND s.stock > 0
+    </update>
+
+    <!-- 增加库存 -->
+    <update id="increaseStock">
+        UPDATE s_seckill_spu s
+        SET s.stock = s.stock + #{quantity}
+        WHERE s.id = #{id}
+    </update>
 </mapper>

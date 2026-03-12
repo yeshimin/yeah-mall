@@ -4,11 +4,11 @@ import com.alibaba.fastjson2.JSON;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
+import java.time.Duration;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,6 +20,13 @@ import java.util.concurrent.TimeUnit;
 public class CacheService {
 
     private final StringRedisTemplate redisTemplate;
+
+    /**
+     * set
+     */
+    public void set(String key, String value) {
+        redisTemplate.opsForValue().set(key, value);
+    }
 
     /**
      * set with timeout seconds
@@ -92,6 +99,13 @@ public class CacheService {
     }
 
     /**
+     * expire
+     */
+    public Boolean expire(String key, Duration timeout) {
+        return redisTemplate.expire(key, timeout);
+    }
+
+    /**
      * expireAt
      */
     public Boolean expireAt(String key, int expireAtS) {
@@ -110,5 +124,20 @@ public class CacheService {
      */
     public Boolean exists(String key) {
         return redisTemplate.hasKey(key);
+    }
+
+    /**
+     * execute lua script
+     */
+    public Object executeLua(String luaScript, List<String> keys, List<String> args) {
+        DefaultRedisScript<Object> redisScript = new DefaultRedisScript<>();
+        redisScript.setScriptText(luaScript);
+        redisScript.setResultType(Object.class);
+
+        // 如果 keys 或 args 为 null，传空数组
+        List<String> keyList = keys != null ? keys : Collections.emptyList();
+        Object[] argArray = args != null ? args.toArray() : new Object[]{};
+
+        return redisTemplate.execute(redisScript, keyList, argArray);
     }
 }

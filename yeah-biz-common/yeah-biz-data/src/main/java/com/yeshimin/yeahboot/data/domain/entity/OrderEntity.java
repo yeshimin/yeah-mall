@@ -37,6 +37,11 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
     private String orderNo;
 
     /**
+     * 订单类型：见订单类型枚举
+     */
+    private Integer orderType;
+
+    /**
      * 总金额
      */
     private BigDecimal totalAmount;

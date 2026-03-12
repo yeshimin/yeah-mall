@@ -56,6 +56,16 @@ public class AppOrderController extends BaseController {
     }
 
     /**
+     * 秒杀
+     */
+    @PostMapping("/seckill")
+    public R<OrderSeckillVo> seckill(@Validated @RequestBody OrderSubmitDto dto) {
+        Long userId = super.getUserId();
+        OrderSeckillVo result = appOrderService.seckill(userId, dto);
+        return R.ok(result);
+    }
+
+    /**
      * 生成支付信息
      */
     @PostMapping("/genPayInfo")

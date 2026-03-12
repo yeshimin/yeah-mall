@@ -5,17 +5,22 @@ import cn.hutool.core.util.StrUtil;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivityEnabledUpdateDto;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivitySaveDto;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivityStatusUpdateDto;
+import com.yeshimin.yeahboot.common.service.CacheService;
+import com.yeshimin.yeahboot.data.common.consts.BizConsts;
 import com.yeshimin.yeahboot.data.common.enums.SeckillActivityStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSessionEntity;
+import com.yeshimin.yeahboot.data.domain.entity.SeckillSkuEntity;
 import com.yeshimin.yeahboot.data.repository.SeckillActivityRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSessionRepo;
+import com.yeshimin.yeahboot.data.repository.SeckillSkuRepo;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +34,9 @@ public class AdminSeckillActivityService {
 
     private final SeckillActivityRepo seckillActivityRepo;
     private final SeckillSessionRepo seckillSessionRepo;
+    private final SeckillSkuRepo seckillSkuRepo;
+
+    private final CacheService cacheService;
 
     /**
      * 创建
@@ -166,6 +174,9 @@ public class AdminSeckillActivityService {
                 }
                 entity.setStatus(status.getValue());
                 entity.updateById();
+
+                // 准备活动相关缓存
+                this.readyCache(entity.getId());
                 break;
             // 结束活动，仅当【活动开始】状态才可操作
             case ACTIVITY_FINISHED:
@@ -174,6 +185,9 @@ public class AdminSeckillActivityService {
                 }
                 entity.setStatus(status.getValue());
                 entity.updateById();
+
+                // 清理活动相关缓存
+                this.clearCache(entity.getId());
                 break;
             // 活动下架，仅当【活动结束】状态才可操作
             case ACTIVITY_DOWN:
@@ -200,5 +214,36 @@ public class AdminSeckillActivityService {
         entity.setIsEnabled(dto.getIsEnabled());
         boolean r = entity.updateById();
         log.info("更新【是否启用】，结果：{}", r);
+    }
+
+    // ================================================================================
+
+    /**
+     * 准备活动相关缓存
+     */
+    private void readyCache(Long activityId) {
+        // 获取活动下所有sku
+        List<SeckillSkuEntity> skus = seckillSkuRepo.findListByActivityId(activityId);
+        for (SeckillSkuEntity sku : skus) {
+            // 库存
+            cacheService.set(String.format(BizConsts.SECKILL_STOCK_KEY, sku), String.valueOf(sku.getStock()));
+
+            // 用户购买记录，无需预设，等用户购买时再记录
+            // do nothing
+        }
+    }
+
+    /**
+     * 清理活动相关缓存，设置ttl，不直接删除
+     */
+    private void clearCache(Long activityId) {
+        // 查询活动下所有sku
+        List<Long> skuIds = seckillSkuRepo.findSkuIdsByActivityId(activityId);
+        for (Long skuId : skuIds) {
+            // 库存
+            cacheService.expire(String.format(BizConsts.SECKILL_STOCK_KEY, skuId), Duration.ofDays(1));
+            // 用户购买记录
+            cacheService.expire(String.format(BizConsts.SECKILL_USER_KEY, skuId), Duration.ofDays(1));
+        }
     }
 }
