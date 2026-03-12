@@ -8,6 +8,8 @@ import com.yeshimin.yeahboot.app.domain.dto.*;
 import com.yeshimin.yeahboot.app.domain.vo.*;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
+import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.IdDto;
@@ -173,6 +175,20 @@ public class AppOrderController extends BaseController {
     public R<List<OrderShopVo>> preview(@Validated @RequestBody OrderPreviewDto dto) {
         Long userId = WebContextUtils.getUserId();
         return R.ok(appOrderService.preview(userId, dto));
+    }
+
+    /**
+     * 预览订单 for 秒杀场景
+     * 暂时仅支持一个店铺下一个或多个商品订单
+     */
+    @PostMapping("/previewForSeckill")
+    public R<List<OrderShopVo>> previewForSeckill(@Validated @RequestBody OrderPreviewDto dto) {
+        // 检查参数：数量固定为1，且只能有一个商品项
+        if (dto.getItems().size() != 1 || dto.getItems().get(0).getQuantity() != 1) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "参数错误");
+        }
+        Long userId = WebContextUtils.getUserId();
+        return R.ok(appOrderService.previewForSeckill(userId, dto));
     }
 
     /**
