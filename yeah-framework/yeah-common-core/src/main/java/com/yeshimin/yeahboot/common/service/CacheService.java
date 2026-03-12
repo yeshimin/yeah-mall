@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -19,6 +20,13 @@ import java.util.concurrent.TimeUnit;
 public class CacheService {
 
     private final StringRedisTemplate redisTemplate;
+
+    /**
+     * set
+     */
+    public void set(String key, String value) {
+        redisTemplate.opsForValue().set(key, value);
+    }
 
     /**
      * set with timeout seconds
@@ -88,6 +96,13 @@ public class CacheService {
      */
     public Boolean expire(String key, long timeoutSeconds) {
         return redisTemplate.expire(key, timeoutSeconds, TimeUnit.SECONDS);
+    }
+
+    /**
+     * expire
+     */
+    public Boolean expire(String key, Duration timeout) {
+        return redisTemplate.expire(key, timeout);
     }
 
     /**
