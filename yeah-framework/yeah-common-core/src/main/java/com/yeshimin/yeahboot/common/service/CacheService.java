@@ -140,4 +140,25 @@ public class CacheService {
 
         return redisTemplate.execute(redisScript, keyList, argArray);
     }
+
+    /**
+     * get members of set
+     */
+    public Set<String> members(String key) {
+        return redisTemplate.opsForSet().members(key);
+    }
+
+    /**
+     * is member
+     */
+    public Boolean isMember(String key, String member) {
+        return redisTemplate.opsForSet().isMember(key, member);
+    }
+
+    /**
+     * add member to set
+     */
+    public Long addMember(String key, String member) {
+        return redisTemplate.opsForSet().add(key, member);
+    }
 }

@@ -4,17 +4,23 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.app.common.enums.OrderSceneEnum;
 import com.yeshimin.yeahboot.app.domain.dto.*;
+import com.yeshimin.yeahboot.app.domain.mq.payload.SeckillMqPayload;
 import com.yeshimin.yeahboot.app.domain.vo.*;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.IdDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
+import com.yeshimin.yeahboot.common.service.CacheService;
+import com.yeshimin.yeahboot.data.common.consts.BizConsts;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityCacheVo;
+import com.yeshimin.yeahboot.mq.MqMessage;
+import com.yeshimin.yeahboot.mq.MqPublisher;
 import com.yeshimin.yeahboot.service.WxPayInfoVo;
 import com.yeshimin.yeahboot.service.WxPayService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +30,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 订单表
@@ -36,7 +44,10 @@ import java.util.List;
 public class AppOrderController extends BaseController {
 
     private final AppOrderService appOrderService;
+
     private final WxPayService wxPayService;
+    private final CacheService cacheService;
+    private final MqPublisher mqPublisher;
 
     /**
      * 提交订单
@@ -56,12 +67,62 @@ public class AppOrderController extends BaseController {
     }
 
     /**
+     * 提交订单 for 秒杀场景
+     */
+    @PostMapping("/submitForSeckill")
+    public R<Void> submitForSeckill(@Validated @RequestBody OrderSubmitDto dto) {
+        // 检查参数：场景固定为（秒杀场景）
+        if (!Objects.equals(dto.getScene(), String.valueOf(OrderSceneEnum.SECKILL.getValue()))) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "场景值参数错误");
+        }
+        // 检查参数：数量固定为1，且只能有一个商品项
+        if (dto.getItems().size() != 1 || dto.getItems().get(0).getQuantity() != 1) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "参数错误");
+        }
+        // 检查参数：当前用户是否已经抢占到该sku的购买资格
+        Long userId = super.getUserId();
+        Long skuId = dto.getItems().get(0).getSkuId();
+        boolean isOk = cacheService.isMember(String.format(BizConsts.SECKILL_QUOTA_KEY, skuId), String.valueOf(userId));
+        if (!isOk) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "您没有抢占到该商品");
+        }
+
+        // 尝试添加购买记录，如果已经下单购买，则不允许再次下单
+        long count = cacheService.addMember(String.format(BizConsts.SECKILL_RECORD_KEY, skuId), String.valueOf(userId));
+        if (count == 0) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "不能重复下单");
+        }
+
+        // 发布到秒杀队列异步处理
+        MqMessage message = new MqMessage();
+        message.setTopic(BizConsts.SECKILL_ORDER_TOPIC);
+        message.setPayload(SeckillMqPayload.of(dto, userId).toJsonString());
+        mqPublisher.publish(message);
+
+        return R.ok();
+    }
+
+    /**
      * 秒杀
      */
     @PostMapping("/seckill")
-    public R<OrderSeckillVo> seckill(@Validated @RequestBody OrderSubmitDto dto) {
+    public R<OrderSeckillVo> seckill(@Validated @RequestBody SeckillDto dto) {
+        // 检查参数：skuId和activityId对应关系是否正确
+        boolean isMember = cacheService.isMember(String.format(
+                BizConsts.SECKILL_ACTIVITY_SKUS_KEY, dto.getActivityId()), String.valueOf(dto.getSkuId()));
+        if (!isMember) {
+            throw new BaseException("活动信息错误");
+        }
         // 判断秒杀是否已经开始
-        // TODO
+        SeckillActivityCacheVo activityCacheVo = cacheService.get(
+                String.format(BizConsts.SECKILL_ACTIVITY_KEY, dto.getActivityId()), SeckillActivityCacheVo.class);
+        if (activityCacheVo == null) {
+            throw new BaseException("活动配置未找到");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isBefore(activityCacheVo.getActivityBeginTime()) || now.isAfter(activityCacheVo.getActivityEndTime())) {
+            throw new BaseException("不在活动期间");
+        }
 
         Long userId = super.getUserId();
         OrderSeckillVo result = appOrderService.seckill(userId, dto);
@@ -196,7 +257,7 @@ public class AppOrderController extends BaseController {
      */
     @PostMapping("/preview")
     public R<List<OrderShopVo>> preview(@Validated @RequestBody OrderPreviewDto dto) {
-        Long userId = WebContextUtils.getUserId();
+        Long userId = super.getUserId();
         return R.ok(appOrderService.preview(userId, dto));
     }
 
@@ -210,7 +271,14 @@ public class AppOrderController extends BaseController {
         if (dto.getItems().size() != 1 || dto.getItems().get(0).getQuantity() != 1) {
             throw new BaseException(ErrorCodeEnum.FAIL, "参数错误");
         }
-        Long userId = WebContextUtils.getUserId();
+        // 检查参数：当前用户是否已经抢占到该sku的购买资格
+        Long userId = super.getUserId();
+        Long skuId = dto.getItems().get(0).getSkuId();
+        boolean isOk = cacheService.isMember(String.format(BizConsts.SECKILL_QUOTA_KEY, skuId), String.valueOf(userId));
+        if (!isOk) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "您没有抢占到该商品");
+        }
+
         return R.ok(appOrderService.previewForSeckill(userId, dto));
     }
 

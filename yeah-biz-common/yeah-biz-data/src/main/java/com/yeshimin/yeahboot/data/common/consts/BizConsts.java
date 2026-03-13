@@ -5,6 +5,9 @@ public class BizConsts {
     // 登录短信验证码队列名称
     public static final String LOGIN_SMS_CODE_TOPIC = "LOGIN_SMS_CODE";
 
+    // --------------------------------------------------------------------------------
+    // 秒杀相关
+
     // 秒杀下单队列名称
     public static final String SECKILL_ORDER_TOPIC = "SECKILL_ORDER";
 
@@ -17,10 +20,20 @@ public class BizConsts {
                     "redis.call('sadd', KEYS[2], ARGV[1]);" +
                     "return stock - 1;";
 
+    // 秒杀活动信息缓存key    seckill:activity:<activityId>
+    public static final String SECKILL_ACTIVITY_KEY = "seckill:activity:%s";
+    // 秒杀活动下的sku集合    seckill:activity:skus:<activityId>
+    public static final String SECKILL_ACTIVITY_SKUS_KEY = "seckill:activity:skus:%s";
+
     // 秒杀库存缓存key    seckill:stock:sku:<skuId>
     public static final String SECKILL_STOCK_KEY = "seckill:stock:sku:%s";
-    // 秒杀sku用户购买记录缓存key    seckill:user:sku:<skuId>
-    public static final String SECKILL_USER_KEY = "seckill:user:sku:%s";
+    // 秒杀sku用户名额缓存key    seckill:user:sku:<skuId>
+    public static final String SECKILL_QUOTA_KEY = "seckill:quota:sku:%s";
+    // 秒杀sku购买记录缓存key    seckill:record:sku:<skuId>
+    public static final String SECKILL_RECORD_KEY = "seckill:record:sku:%s";
     // 秒杀业务处理结果缓存key    seckill:result:sku:<skuId>:user:<userId>
     public static final String SECKILL_RESULT_KEY = "seckill:result:sku:%s:user:%s";
+
+    // 秒杀相关
+    // --------------------------------------------------------------------------------
 }

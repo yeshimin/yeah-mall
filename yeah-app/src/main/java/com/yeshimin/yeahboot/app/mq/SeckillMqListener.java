@@ -35,7 +35,7 @@ public class SeckillMqListener implements MqListener {
         Long skuId = payloadObj.getItems().get(0).getSkuId();
 
         try {
-            OrderEntity order = appOrderService.submitForPreview(userId, payloadObj);
+            OrderEntity order = appOrderService.submitForSeckill(userId, payloadObj);
 
             // 生成支付信息
             WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, order.getId());

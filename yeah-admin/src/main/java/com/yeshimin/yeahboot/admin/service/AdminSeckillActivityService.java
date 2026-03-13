@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.admin.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivityEnabledUpdateDto;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivitySaveDto;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivityStatusUpdateDto;
@@ -11,6 +12,7 @@ import com.yeshimin.yeahboot.data.common.enums.SeckillActivityStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSessionEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSkuEntity;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityCacheVo;
 import com.yeshimin.yeahboot.data.repository.SeckillActivityRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSessionRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSkuRepo;
@@ -24,6 +26,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -176,7 +179,7 @@ public class AdminSeckillActivityService {
                 entity.updateById();
 
                 // 准备活动相关缓存
-                this.readyCache(entity.getId());
+                this.readyCache(entity);
                 break;
             // 结束活动，仅当【活动开始】状态才可操作
             case ACTIVITY_FINISHED:
@@ -221,14 +224,23 @@ public class AdminSeckillActivityService {
     /**
      * 准备活动相关缓存
      */
-    private void readyCache(Long activityId) {
+    private void readyCache(SeckillActivityEntity activity) {
+        // 活动信息
+        SeckillActivityCacheVo activityCacheVo = BeanUtil.copyProperties(activity, SeckillActivityCacheVo.class);
+        cacheService.set(
+                String.format(BizConsts.SECKILL_ACTIVITY_KEY, activity.getId()), JSON.toJSONString(activityCacheVo));
+
         // 获取活动下所有sku
-        List<SeckillSkuEntity> skus = seckillSkuRepo.findListByActivityId(activityId);
+        List<SeckillSkuEntity> skus = seckillSkuRepo.findListByActivityId(activity.getId());
         for (SeckillSkuEntity sku : skus) {
+            // activity下的sku集合
+            cacheService.addMember(
+                    String.format(BizConsts.SECKILL_ACTIVITY_SKUS_KEY, activity.getId()), String.valueOf(sku.getId()));
+
             // 库存
             cacheService.set(String.format(BizConsts.SECKILL_STOCK_KEY, sku.getId()), String.valueOf(sku.getStock()));
 
-            // 用户购买记录，无需预设，等用户购买时再记录
+            // 用户名额 和 用户购买记录，无需预设，等用户抢购和下单时处理
             // do nothing
         }
     }
@@ -237,13 +249,26 @@ public class AdminSeckillActivityService {
      * 清理活动相关缓存，设置ttl，不直接删除
      */
     private void clearCache(Long activityId) {
+        // 活动信息
+        cacheService.expire(String.format(BizConsts.SECKILL_ACTIVITY_KEY, activityId), Duration.ofDays(1));
+        // activity下的sku集合
+        cacheService.expire(String.format(BizConsts.SECKILL_ACTIVITY_SKUS_KEY, activityId), Duration.ofDays(1));
+
         // 查询活动下所有sku
-        List<Long> skuIds = seckillSkuRepo.findSkuIdsByActivityId(activityId);
+        List<Long> skuIds = seckillSkuRepo.findIdsByActivityId(activityId);
         for (Long skuId : skuIds) {
             // 库存
             cacheService.expire(String.format(BizConsts.SECKILL_STOCK_KEY, skuId), Duration.ofDays(1));
+            // 用户名额
+            cacheService.expire(String.format(BizConsts.SECKILL_QUOTA_KEY, skuId), Duration.ofDays(1));
             // 用户购买记录
-            cacheService.expire(String.format(BizConsts.SECKILL_USER_KEY, skuId), Duration.ofDays(1));
+            cacheService.expire(String.format(BizConsts.SECKILL_RECORD_KEY, skuId), Duration.ofDays(1));
+
+            // 秒杀结果，需要处理sku下所有购买成功的用户
+            Set<String> members = cacheService.members(String.format(BizConsts.SECKILL_QUOTA_KEY, skuId));
+            for (String member : members) {
+                cacheService.expire(String.format(BizConsts.SECKILL_RESULT_KEY, skuId, member), Duration.ofDays(1));
+            }
         }
     }
 }

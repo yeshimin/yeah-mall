@@ -25,11 +25,11 @@ public class SeckillSkuRepo extends BaseRepo<SeckillSkuMapper, SeckillSkuEntity>
     }
 
     /**
-     * findSkuIdsByActivityId
+     * findIdsByActivityId
      */
-    public List<Long> findSkuIdsByActivityId(Long activityId) {
-        return lambdaQuery().eq(SeckillSkuEntity::getActivityId, activityId).select(SeckillSkuEntity::getSkuId).list()
-                .stream().map(SeckillSkuEntity::getSkuId).collect(Collectors.toList());
+    public List<Long> findIdsByActivityId(Long activityId) {
+        return lambdaQuery().eq(SeckillSkuEntity::getActivityId, activityId).select(SeckillSkuEntity::getId).list()
+                .stream().map(SeckillSkuEntity::getId).collect(Collectors.toList());
     }
 
     /**

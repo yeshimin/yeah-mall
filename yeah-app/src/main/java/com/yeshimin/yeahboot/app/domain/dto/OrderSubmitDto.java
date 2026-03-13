@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -31,6 +32,7 @@ public class OrderSubmitDto extends BaseDomain {
     /**
      * 订单场景
      */
+    @NotBlank(message = "订单场景不能为空")
     @EnumValue(enumClass = OrderSceneEnum.class)
     private String scene;
 }

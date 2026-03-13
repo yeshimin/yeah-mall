@@ -4,10 +4,12 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson2.JSON;
 import com.yeshimin.yeahboot.app.domain.dto.OrderSubmitDto;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class SeckillMqPayload extends OrderSubmitDto {
 
     private Long userId;
