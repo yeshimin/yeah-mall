@@ -226,7 +226,7 @@ public class AdminSeckillActivityService {
         List<SeckillSkuEntity> skus = seckillSkuRepo.findListByActivityId(activityId);
         for (SeckillSkuEntity sku : skus) {
             // 库存
-            cacheService.set(String.format(BizConsts.SECKILL_STOCK_KEY, sku), String.valueOf(sku.getStock()));
+            cacheService.set(String.format(BizConsts.SECKILL_STOCK_KEY, sku.getId()), String.valueOf(sku.getStock()));
 
             // 用户购买记录，无需预设，等用户购买时再记录
             // do nothing

@@ -17,8 +17,10 @@ public class BizConsts {
                     "redis.call('sadd', KEYS[2], ARGV[1]);" +
                     "return stock - 1;";
 
-    // 秒杀库存缓存key    seckill:stock:<skuId>
-    public static final String SECKILL_STOCK_KEY = "seckill:stock:%s";
-    // 秒杀sku用户购买记录缓存key    seckill:user:<skuId>
-    public static final String SECKILL_USER_KEY = "seckill:user:%s";
+    // 秒杀库存缓存key    seckill:stock:sku:<skuId>
+    public static final String SECKILL_STOCK_KEY = "seckill:stock:sku:%s";
+    // 秒杀sku用户购买记录缓存key    seckill:user:sku:<skuId>
+    public static final String SECKILL_USER_KEY = "seckill:user:sku:%s";
+    // 秒杀业务处理结果缓存key    seckill:result:sku:<skuId>:user:<userId>
+    public static final String SECKILL_RESULT_KEY = "seckill:result:sku:%s:user:%s";
 }

@@ -1,13 +1,13 @@
 package com.yeshimin.yeahboot.app.domain.vo;
 
-import com.yeshimin.yeahboot.service.WxPayInfoVo;
+import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class OrderSeckillVo extends WxPayInfoVo {
+public class OrderSeckillVo extends BaseDomain {
 
     /**
      * 是否成功

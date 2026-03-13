@@ -2,19 +2,15 @@ package com.yeshimin.yeahboot.app.mq;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson2.JSON;
-import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.yeshimin.yeahboot.app.domain.mq.payload.SeckillMqPayload;
-import com.yeshimin.yeahboot.app.domain.mq.payload.SmsMqPayload;
 import com.yeshimin.yeahboot.app.domain.vo.OrderSubmitVo;
+import com.yeshimin.yeahboot.app.domain.vo.SeckillBizResultVo;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
-import com.yeshimin.yeahboot.common.common.log.MdcLogFilter;
-import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
-import com.yeshimin.yeahboot.common.domain.base.R;
+import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.data.common.consts.BizConsts;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.mq.MqListener;
 import com.yeshimin.yeahboot.mq.MqMessage;
-import com.yeshimin.yeahboot.notification.service.SmsService;
 import com.yeshimin.yeahboot.service.WxPayInfoVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,24 +22,39 @@ import org.springframework.stereotype.Component;
 public class SeckillMqListener implements MqListener {
 
     private final AppOrderService appOrderService;
+    private final CacheService cacheService;
 
     @Override
     public void onMessage(MqMessage message) {
         String payload = message.getPayload();
         SeckillMqPayload payloadObj = JSON.parseObject(payload, SeckillMqPayload.class);
 
+        SeckillBizResultVo result = new SeckillBizResultVo();
+
         Long userId = payloadObj.getUserId();
-        OrderEntity order = appOrderService.submitForPreview(userId, payloadObj);
+        Long skuId = payloadObj.getItems().get(0).getSkuId();
 
-        // 生成支付信息
-        WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, order.getId());
+        try {
+            OrderEntity order = appOrderService.submitForPreview(userId, payloadObj);
 
-        OrderSubmitVo vo = BeanUtil.copyProperties(payInfoVo, OrderSubmitVo.class);
-        vo.setOrderId(order.getId());
-        vo.setOrderNo(order.getOrderNo());
+            // 生成支付信息
+            WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, order.getId());
+
+            OrderSubmitVo vo = BeanUtil.copyProperties(payInfoVo, OrderSubmitVo.class);
+            vo.setOrderId(order.getId());
+            vo.setOrderNo(order.getOrderNo());
+
+            result.setSuccess(true);
+            result.setMessage("秒杀订单处理成功");
+            result.setData(vo);
+        } catch (Exception e) {
+            log.error("秒杀订单提交失败", e);
+            result.setSuccess(false);
+            result.setMessage("秒杀订单处理失败：" + e.getMessage());
+        }
 
         // set to cache
-        // TODO 记录 成功或失败，还有失败原因；成功的话，需要订单和支付信息
+        cacheService.set(String.format(BizConsts.SECKILL_RESULT_KEY, userId, skuId), JSON.toJSONString(result));
     }
 
     @Override
