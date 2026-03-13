@@ -129,15 +129,29 @@ public class CacheService {
     /**
      * execute lua script
      */
-    public Object executeLua(String luaScript, List<String> keys, List<String> args) {
-        DefaultRedisScript<Object> redisScript = new DefaultRedisScript<>();
+    public Long executeLua(String luaScript, List<String> keys, List<String> args) {
+        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
         redisScript.setScriptText(luaScript);
-        redisScript.setResultType(Object.class);
+        redisScript.setResultType(Long.class);
 
         // 如果 keys 或 args 为 null，传空数组
         List<String> keyList = keys != null ? keys : Collections.emptyList();
         Object[] argArray = args != null ? args.toArray() : new Object[]{};
 
         return redisTemplate.execute(redisScript, keyList, argArray);
+    }
+
+    /**
+     * get members of set
+     */
+    public Set<String> members(String key) {
+        return redisTemplate.opsForSet().members(key);
+    }
+
+    /**
+     * is member
+     */
+    public Boolean isMember(String key, String member) {
+        return redisTemplate.opsForSet().isMember(key, member);
     }
 }
