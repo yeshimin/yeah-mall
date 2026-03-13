@@ -21,6 +21,7 @@ public class CacheService {
 
     private final StringRedisTemplate redisTemplate;
 
+
     /**
      * set
      */
@@ -153,5 +154,12 @@ public class CacheService {
      */
     public Boolean isMember(String key, String member) {
         return redisTemplate.opsForSet().isMember(key, member);
+    }
+
+    /**
+     * add member to set
+     */
+    public Long addMember(String key, String member) {
+        return redisTemplate.opsForSet().add(key, member);
     }
 }
