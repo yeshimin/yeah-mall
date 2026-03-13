@@ -54,7 +54,7 @@ public class SeckillMqListener implements MqListener {
         }
 
         // set to cache
-        cacheService.set(String.format(BizConsts.SECKILL_RESULT_KEY, userId, skuId), JSON.toJSONString(result));
+        cacheService.set(String.format(BizConsts.SECKILL_RESULT_KEY, skuId, userId), JSON.toJSONString(result));
     }
 
     @Override

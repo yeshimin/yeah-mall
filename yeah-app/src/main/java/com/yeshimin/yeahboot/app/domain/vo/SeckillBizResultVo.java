@@ -1,6 +1,6 @@
 package com.yeshimin.yeahboot.app.domain.vo;
 
-import com.yeshimin.yeahboot.service.WxPayInfoVo;
+import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SeckillBizResultVo extends WxPayInfoVo {
+public class SeckillBizResultVo extends BaseDomain {
 
     /**
      * 秒杀处理是否成功

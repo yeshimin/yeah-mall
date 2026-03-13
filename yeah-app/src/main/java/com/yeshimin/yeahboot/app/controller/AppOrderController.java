@@ -60,8 +60,21 @@ public class AppOrderController extends BaseController {
      */
     @PostMapping("/seckill")
     public R<OrderSeckillVo> seckill(@Validated @RequestBody OrderSubmitDto dto) {
+        // 判断秒杀是否已经开始
+        // TODO
+
         Long userId = super.getUserId();
         OrderSeckillVo result = appOrderService.seckill(userId, dto);
+        return R.ok(result);
+    }
+
+    /**
+     * 查询秒杀结果
+     */
+    @GetMapping("/querySeckillResult")
+    public R<SeckillBizResultVo> querySeckillResult(@RequestParam("skuId") Long skuId) {
+        Long userId = super.getUserId();
+        SeckillBizResultVo result = appOrderService.querySeckillResult(userId, skuId);
         return R.ok(result);
     }
 
