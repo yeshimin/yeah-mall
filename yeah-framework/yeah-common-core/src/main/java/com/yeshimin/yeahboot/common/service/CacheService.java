@@ -21,7 +21,6 @@ public class CacheService {
 
     private final StringRedisTemplate redisTemplate;
 
-
     /**
      * set
      */
@@ -161,5 +160,40 @@ public class CacheService {
      */
     public Long addMember(String key, String member) {
         return redisTemplate.opsForSet().add(key, member);
+    }
+
+    /**
+     * remove member from set
+     */
+    public Long removeMember(String key, String member) {
+        return redisTemplate.opsForSet().remove(key, member);
+    }
+
+    /**
+     * increase
+     */
+    public Long increase(String key) {
+        return this.increase(key, 1);
+    }
+
+    /**
+     * increase by delta
+     */
+    public Long increase(String key, long delta) {
+        return redisTemplate.opsForValue().increment(key, delta);
+    }
+
+    /**
+     * decrease
+     */
+    public Long decrease(String key) {
+        return this.decrease(key, 1L);
+    }
+
+    /**
+     * decrease by delta
+     */
+    public Long decrease(String key, long delta) {
+        return redisTemplate.opsForValue().decrement(key, delta);
     }
 }
