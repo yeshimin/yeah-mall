@@ -199,6 +199,9 @@ public class AdminSeckillActivityService {
                 }
                 entity.setStatus(status.getValue());
                 entity.updateById();
+
+                // 清理【秒杀中的活动集合缓存key】；【活动结束】时不清理，【活动下架】时清理。
+                cacheService.removeMember(BizConsts.SECKILL_ACTIVITY_ING_KEY, String.valueOf(entity.getId()));
                 break;
             default:
                 // 不支持
@@ -225,6 +228,8 @@ public class AdminSeckillActivityService {
      * 准备活动相关缓存
      */
     private void readyCache(SeckillActivityEntity activity) {
+        // 记录到进行中的活动集合中
+        cacheService.addMember(BizConsts.SECKILL_ACTIVITY_ING_KEY, String.valueOf(activity.getId()));
         // 活动信息
         SeckillActivityCacheVo activityCacheVo = BeanUtil.copyProperties(activity, SeckillActivityCacheVo.class);
         cacheService.set(
@@ -239,9 +244,6 @@ public class AdminSeckillActivityService {
 
             // 库存
             cacheService.set(String.format(BizConsts.SECKILL_STOCK_KEY, sku.getId()), String.valueOf(sku.getStock()));
-
-            // 用户名额 和 用户购买记录，无需预设，等用户抢购和下单时处理
-            // do nothing
         }
     }
 
@@ -262,11 +264,12 @@ public class AdminSeckillActivityService {
             // 用户名额
             cacheService.expire(String.format(BizConsts.SECKILL_QUOTA_KEY, skuId), Duration.ofDays(1));
             // 用户购买记录
-            cacheService.expire(String.format(BizConsts.SECKILL_RECORD_KEY, skuId), Duration.ofDays(1));
+            cacheService.expire(String.format(BizConsts.SECKILL_ORDER_KEY, skuId), Duration.ofDays(1));
 
-            // 秒杀结果，需要处理sku下所有购买成功的用户
+            // 秒杀结果，需要清理sku下所有抢购成功的用户相关数据
             Set<String> members = cacheService.members(String.format(BizConsts.SECKILL_QUOTA_KEY, skuId));
             for (String member : members) {
+                cacheService.expire(String.format(BizConsts.SECKILL_EVENT_KEY, skuId, member), Duration.ofDays(1));
                 cacheService.expire(String.format(BizConsts.SECKILL_RESULT_KEY, skuId, member), Duration.ofDays(1));
             }
         }

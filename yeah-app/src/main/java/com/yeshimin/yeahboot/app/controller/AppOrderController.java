@@ -88,10 +88,20 @@ public class AppOrderController extends BaseController {
         }
 
         // 尝试添加购买记录，如果已经下单购买，则不允许再次下单
-        long count = cacheService.addMember(String.format(BizConsts.SECKILL_RECORD_KEY, skuId), String.valueOf(userId));
+        long count = cacheService.addMember(String.format(BizConsts.SECKILL_ORDER_KEY, skuId), String.valueOf(userId));
         if (count == 0) {
             throw new BaseException(ErrorCodeEnum.FAIL, "不能重复下单");
         }
+
+        // 记录下单时间
+        String seckillEventKey = String.format(BizConsts.SECKILL_EVENT_KEY, skuId, userId);
+        SeckillEventCacheVo seckillEvent = cacheService.get(seckillEventKey, SeckillEventCacheVo.class);
+        if (seckillEvent == null) {
+            log.error("seckillEvent is null, key: {}", seckillEventKey);
+            throw new BaseException(ErrorCodeEnum.FAIL, "秒杀信息未找到");
+        }
+        seckillEvent.setOrderTime(LocalDateTime.now());
+        cacheService.set(seckillEventKey, JSONObject.toJSONString(seckillEvent));
 
         // 发布到秒杀队列异步处理
         MqMessage message = new MqMessage();

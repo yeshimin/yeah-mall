@@ -285,3 +285,9 @@ yeah-boot:
       interval: 30
       # 心跳检测超时时间（秒）
       timeout: 90
+  # 秒杀相关
+  seckill:
+    # 抢占名额后，下单超时时间（分钟）
+    order-timeout-minutes: 1
+    # 下单后，支付超时时间（分钟）
+    pay-timeout-minutes: 5

@@ -20,6 +20,8 @@ public class BizConsts {
                     "redis.call('sadd', KEYS[2], ARGV[1]);" +
                     "return stock - 1;";
 
+    // 秒杀中的活动集合缓存key
+    public static final String SECKILL_ACTIVITY_ING_KEY = "seckill:activity:ing";
     // 秒杀活动信息缓存key    seckill:activity:<activityId>
     public static final String SECKILL_ACTIVITY_KEY = "seckill:activity:%s";
     // 秒杀活动下的sku集合    seckill:activity:skus:<activityId>
@@ -27,10 +29,12 @@ public class BizConsts {
 
     // 秒杀库存缓存key    seckill:stock:sku:<skuId>
     public static final String SECKILL_STOCK_KEY = "seckill:stock:sku:%s";
-    // 秒杀sku用户名额缓存key    seckill:user:sku:<skuId>
+    // 秒杀sku用户名额缓存key    seckill:quota:sku:<skuId>
     public static final String SECKILL_QUOTA_KEY = "seckill:quota:sku:%s";
-    // 秒杀sku购买记录缓存key    seckill:record:sku:<skuId>
-    public static final String SECKILL_RECORD_KEY = "seckill:record:sku:%s";
+    // 秒杀sku下单记录缓存key    seckill:order:sku:<skuId>
+    public static final String SECKILL_ORDER_KEY = "seckill:order:sku:%s";
+    // 秒杀sku用户的各个事件节点时间缓存key    seckill:event:sku:<skuId>:user:<userId>
+    public static final String SECKILL_EVENT_KEY = "seckill:event:sku:%s:user:%s";
     // 秒杀业务处理结果缓存key    seckill:result:sku:<skuId>:user:<userId>
     public static final String SECKILL_RESULT_KEY = "seckill:result:sku:%s:user:%s";
 
