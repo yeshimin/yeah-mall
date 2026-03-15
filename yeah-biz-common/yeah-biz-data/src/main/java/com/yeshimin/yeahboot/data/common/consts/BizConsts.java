@@ -10,6 +10,8 @@ public class BizConsts {
 
     // 秒杀下单队列名称
     public static final String SECKILL_ORDER_TOPIC = "SECKILL_ORDER";
+    // 秒杀订单取消队列名称
+    public static final String SECKILL_ORDER_CANCEL_TOPIC = "SECKILL_ORDER_CANCEL";
 
     // 秒杀扣减库存的lua脚本
     public static final String SECKILL_STOCK_SCRIPT =
@@ -37,6 +39,9 @@ public class BizConsts {
     public static final String SECKILL_EVENT_KEY = "seckill:event:sku:%s:user:%s";
     // 秒杀业务处理结果缓存key    seckill:result:sku:<skuId>:user:<userId>
     public static final String SECKILL_RESULT_KEY = "seckill:result:sku:%s:user:%s";
+    // 秒杀订单支付超时阻止缓存key    seckill:block:sku:<skuId>
+    // 此key同时可以用来做“每个用户只能参与一次”的逻辑
+    public static final String SECKILL_BLOCK_KEY = "seckill:block:sku:%s";
 
     // 秒杀相关
     // --------------------------------------------------------------------------------

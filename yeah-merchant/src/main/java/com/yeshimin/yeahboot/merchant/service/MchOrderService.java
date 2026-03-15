@@ -199,6 +199,8 @@ public class MchOrderService {
         OrderEntity order = orderRepo.getOneById(orderId);
 
         orderService.cancelOrder(order, closeReason);
+        // 关闭第三方订单
+        wxPayService.closeOrder(order.getOrderNo());
     }
 
     /**

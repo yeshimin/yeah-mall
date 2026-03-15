@@ -263,8 +263,10 @@ public class AdminSeckillActivityService {
             cacheService.expire(String.format(BizConsts.SECKILL_STOCK_KEY, skuId), Duration.ofDays(1));
             // 用户名额
             cacheService.expire(String.format(BizConsts.SECKILL_QUOTA_KEY, skuId), Duration.ofDays(1));
-            // 用户购买记录
+            // 用户下单记录
             cacheService.expire(String.format(BizConsts.SECKILL_ORDER_KEY, skuId), Duration.ofDays(1));
+            // block集合
+            cacheService.expire(String.format(BizConsts.SECKILL_BLOCK_KEY, skuId), Duration.ofDays(1));
 
             // 秒杀结果，需要清理sku下所有抢购成功的用户相关数据
             Set<String> members = cacheService.members(String.format(BizConsts.SECKILL_QUOTA_KEY, skuId));

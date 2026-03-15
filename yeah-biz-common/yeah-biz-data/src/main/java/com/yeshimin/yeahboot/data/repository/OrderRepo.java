@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.data.repository;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
+import com.yeshimin.yeahboot.data.common.enums.OrderTypeEnum;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,8 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
 
     /**
      * 更新订单状态
-     * 场景：取消订单
+     * 场景：取消/关闭订单
+     * 逻辑：先更新主要状态，再更新次要信息
      */
     public boolean updateStatus2(Long orderId, String statusFrom, String statusTo, LocalDateTime closeTime, String closeReason) {
         int count = orderMapper.updateOrderStatus(orderId, statusFrom, statusTo);
@@ -105,6 +107,7 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
     public List<OrderEntity> findIdListForPayExpired() {
         return lambdaQuery().select(OrderEntity::getId)
                 .eq(OrderEntity::getStatus, OrderStatusEnum.WAIT_PAY.getValue())
+                .eq(OrderEntity::getOrderType, OrderTypeEnum.NORMAL.getValue()) // 只处理【普通订单】
                 .le(OrderEntity::getPayExpireTime, LocalDateTime.now())
                 .list();
     }

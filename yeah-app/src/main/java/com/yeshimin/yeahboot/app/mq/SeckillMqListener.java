@@ -2,9 +2,11 @@ package com.yeshimin.yeahboot.app.mq;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.yeshimin.yeahboot.app.domain.mq.payload.SeckillMqPayload;
 import com.yeshimin.yeahboot.app.domain.vo.OrderSubmitVo;
 import com.yeshimin.yeahboot.app.domain.vo.SeckillBizResultVo;
+import com.yeshimin.yeahboot.app.domain.vo.SeckillEventCacheVo;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.data.common.consts.BizConsts;
@@ -34,6 +36,16 @@ public class SeckillMqListener implements MqListener {
         Long userId = payloadObj.getUserId();
         Long skuId = payloadObj.getItems().get(0).getSkuId();
 
+        // 检查block标识
+        if (cacheService.isMember(String.format(BizConsts.SECKILL_BLOCK_KEY, skuId), String.valueOf(userId))) {
+            result.setSuccess(false);
+            result.setMessage("因下单或支付超时被限制，暂不可再参与");
+
+            // set to cache
+            cacheService.set(String.format(BizConsts.SECKILL_RESULT_KEY, skuId, userId), JSON.toJSONString(result));
+            return;
+        }
+
         try {
             OrderEntity order = appOrderService.submitForSeckill(userId, payloadObj);
 
@@ -47,6 +59,18 @@ public class SeckillMqListener implements MqListener {
             result.setSuccess(true);
             result.setMessage("秒杀订单处理成功");
             result.setData(vo);
+
+            // 记录订单ID
+            String seckillEventKey = String.format(BizConsts.SECKILL_EVENT_KEY, skuId, userId);
+            SeckillEventCacheVo seckillEvent = cacheService.get(seckillEventKey, SeckillEventCacheVo.class);
+            if (seckillEvent == null) {
+                log.error("seckillEvent is null, key: {}", seckillEventKey);
+                result.setSuccess(false);
+                result.setMessage("秒杀信息未找到");
+            } else {
+                seckillEvent.setOrderId(order.getId());
+                cacheService.set(seckillEventKey, JSONObject.toJSONString(seckillEvent));
+            }
         } catch (Exception e) {
             log.error("秒杀订单提交失败", e);
             result.setSuccess(false);

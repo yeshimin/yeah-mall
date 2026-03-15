@@ -166,6 +166,20 @@ public class WxPayService {
         return response;
     }
 
+    /**
+     * 关闭订单
+     * https://pay.weixin.qq.com/doc/v3/merchant/4012791901
+     */
+    public void closeOrder(String outTradeNo) {
+        CloseOrderRequest request = new CloseOrderRequest();
+        // 商户订单号
+        request.setOutTradeNo(outTradeNo);
+        // 商户号
+        request.setMchid(wxPayProperties.getMchId());
+
+        jsapiService.closeOrder(request);
+    }
+
     // ================================================================================
 
     private Headers buildHeaders(String serial, String signature, String timestamp, String nonce) {

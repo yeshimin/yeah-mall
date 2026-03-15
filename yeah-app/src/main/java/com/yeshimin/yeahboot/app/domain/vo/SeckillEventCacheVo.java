@@ -17,5 +17,7 @@ public class SeckillEventCacheVo extends BaseDomain {
 
     private LocalDateTime orderTime;
 
+    private Long orderId;
+
     private LocalDateTime payTime;
 }

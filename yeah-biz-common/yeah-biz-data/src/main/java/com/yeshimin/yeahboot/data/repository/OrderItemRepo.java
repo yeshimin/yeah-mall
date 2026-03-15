@@ -39,4 +39,11 @@ public class OrderItemRepo extends BaseRepo<OrderItemMapper, OrderItemEntity> {
         return super.lambdaQuery().eq(OrderItemEntity::getOrderId, orderId).select(OrderItemEntity::getId)
                 .list().stream().map(OrderItemEntity::getId).collect(Collectors.toSet());
     }
+
+    /**
+     * findOneByMemberIdAndSkuId
+     */
+    public OrderItemEntity findOneByMemberIdAndSkuId(Long memberId, Long skuId) {
+        return lambdaQuery().eq(OrderItemEntity::getMemberId, memberId).eq(OrderItemEntity::getSkuId, skuId).one();
+    }
 }
