@@ -55,4 +55,10 @@ public class MchOrderQueryDto extends ShopDataBaseDomain {
      */
     @QueryField(type = QueryField.Type.BETWEEN)
     private LocalDateTime[] paySuccessTime;
+
+    /**
+     * 订单类型：见【订单类型枚举】
+     */
+    @QueryField(type = QueryField.Type.EQ)
+    private Integer orderType;
 }
