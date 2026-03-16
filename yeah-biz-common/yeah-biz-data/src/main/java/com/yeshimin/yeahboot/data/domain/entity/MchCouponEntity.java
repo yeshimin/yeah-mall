@@ -54,7 +54,7 @@ public class MchCouponEntity extends ShopConditionBaseEntity<MchCouponEntity> {
     /**
      * 已领取数量
      */
-    private Integer receive;
+    private Integer received;
 
     /**
      * 已使用数量
