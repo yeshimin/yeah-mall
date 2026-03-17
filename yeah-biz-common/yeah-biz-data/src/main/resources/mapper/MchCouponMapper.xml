@@ -41,4 +41,12 @@
         cp.create_time DESC
     </select>
 
+    <!-- 领取优惠券 -->
+    <update id="receiveCoupon">
+        UPDATE s_mch_coupon c
+        SET c.received = c.received + #{count}
+        WHERE c.id = #{id}
+        AND c.quantity > c.received + #{count}
+    </update>
+
 </mapper>

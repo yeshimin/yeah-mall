@@ -17,4 +17,9 @@ public interface MchCouponMapper extends BaseMapper<MchCouponEntity> {
     Page<CouponVo> queryCenterList(Page<CouponVo> page,
                                    @Param("userId") Long userId,
                                    @Param("query") CouponCenterQueryDto query);
+
+    /**
+     * 领取优惠券
+     */
+    int receiveCoupon(@Param("id") Long id, @Param("count") Integer count);
 }

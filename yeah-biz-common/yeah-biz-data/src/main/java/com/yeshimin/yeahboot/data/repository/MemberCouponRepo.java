@@ -9,4 +9,14 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 public class MemberCouponRepo extends BaseRepo<MemberCouponMapper, MemberCouponEntity> {
+
+    /**
+     * countByMemberIdAndCouponId
+     */
+    public Long countByMemberIdAndCouponId(Long memberId, Long couponId) {
+        return lambdaQuery()
+                .eq(MemberCouponEntity::getMemberId, memberId)
+                .eq(MemberCouponEntity::getCouponId, couponId)
+                .count();
+    }
 }

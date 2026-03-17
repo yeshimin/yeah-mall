@@ -23,4 +23,11 @@ public class MchCouponRepo extends BaseRepo<MchCouponMapper, MchCouponEntity> {
     public Page<CouponVo> queryCenterList(Long userId, Page<CouponVo> page, CouponCenterQueryDto query) {
         return mchCouponMapper.queryCenterList(page, userId, query);
     }
+
+    /**
+     * 领取优惠券
+     */
+    public int receiveCoupon(Long id, Integer count) {
+        return mchCouponMapper.receiveCoupon(id, count);
+    }
 }
