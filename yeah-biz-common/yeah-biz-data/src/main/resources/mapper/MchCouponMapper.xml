@@ -1,4 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeshimin.yeahboot.data.mapper.MchCouponMapper">
+
+    <!-- 查询领券中心优惠券列表 -->
+    <select id="queryCenterList" resultType="com.yeshimin.yeahboot.data.domain.vo.CouponVo">
+        select
+            cp.id,
+            cp.create_time,
+            cp.update_time,
+            cp.mch_id,
+            cp.shop_id,
+            cp.name,
+            cp.description,
+            cp.type,
+            cp.amount,
+            cp.discount,
+            cp.min_amount,
+            cp.quantity,
+            cp.received,
+            cp.used,
+            cp.per_limit,
+            cp.use_range,
+            cp.target_id,
+            cp.begin_time,
+            cp.end_time,
+            cp.sort,
+            (select count(ucp.id) from s_member_coupon ucp where ucp.deleted = 0 and ucp.coupon_id = cp.id) as receivedCount
+        from s_mch_coupon cp
+        where cp.deleted = 0
+        <!-- useRange -->
+        <if test="query.useRange != null">
+            and cp.use_range = #{query.useRange}
+        </if>
+        ORDER BY
+            CASE
+                WHEN NOW() BETWEEN cp.begin_time AND cp.end_time THEN 3
+                WHEN cp.begin_time > NOW() THEN 2
+            ELSE 1
+            END DESC,
+        cp.create_time DESC
+    </select>
+
 </mapper>

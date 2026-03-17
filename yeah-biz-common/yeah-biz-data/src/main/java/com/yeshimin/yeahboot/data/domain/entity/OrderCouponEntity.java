@@ -57,7 +57,7 @@ public class OrderCouponEntity extends ShopConditionBaseEntity<OrderCouponEntity
     private BigDecimal minAmount;
 
     /**
-     * 使用范围：1-全场通用 2-指定商品 3-指定分类
+     * 使用范围：1-店铺通用 2-指定商品 3-指定分类
      */
     private Byte useRange;
 
