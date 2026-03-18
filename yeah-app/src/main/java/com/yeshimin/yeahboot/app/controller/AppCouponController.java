@@ -3,14 +3,13 @@ package com.yeshimin.yeahboot.app.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.service.AppCouponService;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
+import com.yeshimin.yeahboot.common.domain.base.IdDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.dto.CouponCenterQueryDto;
 import com.yeshimin.yeahboot.data.domain.vo.CouponVo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * app端优惠券相关
@@ -34,10 +33,10 @@ public class AppCouponController extends BaseController {
     /**
      * 用户领取优惠券
      */
-    @GetMapping("/receive")
-    public R<Void> receive(@RequestParam("couponId") Long couponId) {
+    @PostMapping("/receive")
+    public R<Void> receive(@Validated @RequestBody IdDto dto) {
         Long userId = super.getUserId();
-        service.receive(userId, couponId);
+        service.receive(userId, dto.getId());
         return R.ok();
     }
 }

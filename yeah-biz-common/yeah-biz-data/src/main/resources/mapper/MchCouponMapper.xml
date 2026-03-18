@@ -28,6 +28,7 @@
             (select count(ucp.id) from s_member_coupon ucp where ucp.deleted = 0 and ucp.coupon_id = cp.id) as receivedCount
         from s_mch_coupon cp
         where cp.deleted = 0
+        and cp.is_enabled = 1
         <!-- useRange -->
         <if test="query.useRange != null">
             and cp.use_range = #{query.useRange}

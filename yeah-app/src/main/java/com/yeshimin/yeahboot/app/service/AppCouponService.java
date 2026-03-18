@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.app.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.dto.CouponCenterQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.MchCouponEntity;
@@ -57,8 +58,10 @@ public class AppCouponService {
             throw new BaseException("优惠券已领取完");
         }
 
-        MemberCouponEntity memberCoupon = BeanUtil.copyProperties(coupon, MemberCouponEntity.class);
+        MemberCouponEntity memberCoupon =
+                BeanUtil.copyProperties(coupon, MemberCouponEntity.class, CommonConsts.COPY_IGNORE_FIELDS);
         memberCoupon.setMemberId(userId);
+        memberCoupon.setCouponId(coupon.getId());
         memberCouponRepo.save(memberCoupon);
     }
 }
