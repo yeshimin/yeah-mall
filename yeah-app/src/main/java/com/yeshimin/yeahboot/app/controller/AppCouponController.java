@@ -6,7 +6,9 @@ import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.IdDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.dto.CouponCenterQueryDto;
+import com.yeshimin.yeahboot.data.domain.dto.CouponQueryDto;
 import com.yeshimin.yeahboot.data.domain.vo.CouponVo;
+import com.yeshimin.yeahboot.data.domain.vo.MemberCouponVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,15 @@ public class AppCouponController extends BaseController {
     public R<Page<CouponVo>> queryCenterList(Page<CouponVo> page, CouponCenterQueryDto query) {
         Long userId = super.getUserId();
         return R.ok(service.queryCenterList(userId, page, query));
+    }
+
+    /**
+     * 查询用户领取的优惠券列表
+     */
+    @GetMapping("/receiveList")
+    public R<Page<MemberCouponVo>> queryReceiveList(Page<MemberCouponVo> page, CouponQueryDto query) {
+        Long userId = super.getUserId();
+        return R.ok(service.queryReceiveList(userId, page, query));
     }
 
     /**

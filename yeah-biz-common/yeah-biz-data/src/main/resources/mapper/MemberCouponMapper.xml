@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeshimin.yeahboot.data.mapper.MemberCouponMapper">
+
+    <!-- 查询用户领取的优惠券列表 -->
+    <select id="queryReceiveList" resultType="com.yeshimin.yeahboot.data.domain.vo.MemberCouponVo">
+        select
+            cp.id,
+            cp.create_time,
+            cp.update_time,
+            cp.name,
+            cp.description,
+            cp.type,
+            cp.amount,
+            cp.discount,
+            cp.min_amount,
+            cp.use_range,
+            cp.target_id,
+            cp.begin_time,
+            cp.end_time,
+            cp.is_used,
+            cp.used_time
+        from s_member_coupon cp
+        where cp.deleted = 0
+        and cp.member_id = #{userId}
+        <!-- 状态筛选 -->
+        <if test="query.condition == 1">
+            and cp.is_used = 0
+            and now() between cp.begin_time and cp.end_time
+        </if>
+        <if test="query.condition == 2">
+            and cp.is_used = 1
+        </if>
+        <if test="query.condition == 3">
+            and cp.is_used = 0
+            and now() > cp.end_time
+        </if>
+        order by cp.create_time desc
+    </select>
+
 </mapper>

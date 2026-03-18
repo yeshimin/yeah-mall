@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.dto.CouponCenterQueryDto;
+import com.yeshimin.yeahboot.data.domain.dto.CouponQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.MchCouponEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MemberCouponEntity;
 import com.yeshimin.yeahboot.data.domain.vo.CouponVo;
+import com.yeshimin.yeahboot.data.domain.vo.MemberCouponVo;
 import com.yeshimin.yeahboot.data.repository.MchCouponRepo;
 import com.yeshimin.yeahboot.data.repository.MemberCouponRepo;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,13 @@ public class AppCouponService {
      */
     public Page<CouponVo> queryCenterList(Long userId, Page<CouponVo> page, CouponCenterQueryDto query) {
         return mchCouponRepo.queryCenterList(userId, page, query);
+    }
+
+    /**
+     * 查询用户领取的优惠券列表
+     */
+    public Page<MemberCouponVo> queryReceiveList(Long userId, Page<MemberCouponVo> page, CouponQueryDto query) {
+        return memberCouponRepo.queryReceiveList(userId, page, query);
     }
 
     /**

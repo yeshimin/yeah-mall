@@ -75,4 +75,14 @@ public class MemberCouponEntity extends ShopConditionBaseEntity<MemberCouponEnti
      * 有效期截止时间
      */
     private LocalDateTime endTime;
+
+    /**
+     * 是否已使用
+     */
+    private Boolean isUsed;
+
+    /**
+     * 使用时间
+     */
+    private LocalDateTime usedTime;
 }
