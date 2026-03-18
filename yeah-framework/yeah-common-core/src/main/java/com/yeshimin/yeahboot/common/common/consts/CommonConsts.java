@@ -48,4 +48,7 @@ public class CommonConsts {
 
     // 配置文件属性值占位符
     public static final String VALUE_PLACEHOLDER = "OVERWRITE_ME";
+
+    // copyProperties 忽略的字段集合
+    public static final String[] COPY_IGNORE_FIELDS = new String[]{"id", "deleteTime", "deleted", "createTime", "createBy", "updateTime", "updateBy"};
 }
