@@ -52,4 +52,9 @@ public class ProductSpuUpdateDto extends ShopDataBaseDomain {
      */
 //    @NotNull(message = "商品详细描述不能为空", groups = {Update.class})
     private String detailDesc;
+
+    /**
+     * 详情描述富文本中的图片集合
+     */
+    private List<String> detailImages;
 }

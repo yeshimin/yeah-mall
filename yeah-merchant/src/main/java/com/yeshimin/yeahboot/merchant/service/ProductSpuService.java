@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.merchant.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -47,6 +48,8 @@ public class ProductSpuService {
     private final ProductSpecRepo productSpecRepo;
     private final ProductSpecOptRepo productSpecOptRepo;
     private final ProductCategoryRepo productCategoryRepo;
+    private final ProductSpuDetailImageRepo productSpuDetailImageRepo;
+    private final ProductSpuImageRepo productSpuImageRepo;
 
     private final StorageProperties storageProperties;
     private final StorageManager storageManager;
@@ -90,6 +93,12 @@ public class ProductSpuService {
         specs.setSpuId(spu.getId());
         specs.setSpecs(dto.getSpecs());
         this.setSpec(userId, specs);
+
+        // 设置详情描述富文本中的图片为已使用
+        if (CollectionUtil.isNotEmpty(dto.getDetailImages())) {
+            storageManager.markUse(dto.getDetailImages().toArray(new String[0]));
+            productSpuDetailImageRepo.createMany(spu, dto.getDetailImages());
+        }
 
         // 同步到全文搜索引擎
         fullTextSearchService.syncProduct(spu, null, null, false);
@@ -178,6 +187,10 @@ public class ProductSpuService {
         List<ProductSpecVo> specs = this.querySpec(userId, entity);
         vo.setSpecs(specs);
 
+        // 查询详情描述富文本中的图片集合
+        List<String> detailImages = productSpuDetailImageRepo.findImageUrlListBySpuId(entity.getId());
+        vo.setDetailImages(detailImages);
+
         return vo;
     }
 
@@ -215,6 +228,19 @@ public class ProductSpuService {
         specs.setSpecs(dto.getSpecs());
         this.setSpec(userId, specs);
 
+        // 按需更新详情描述富文本中的图片记录
+        if (CollectionUtil.isNotEmpty(dto.getDetailImages())) {
+            // unmarkUse
+            List<ProductSpuDetailImageEntity> oldDetailImagesEntity =
+                    productSpuDetailImageRepo.findListBySpuId(old.getId());
+            List<String> detailImages = productSpuDetailImageRepo.findImageUrlListBySpuId(old.getId());
+            storageManager.unmarkUse(detailImages.toArray(new String[0]));
+            productSpuDetailImageRepo.removeByIds(oldDetailImagesEntity);
+            // markUse
+            storageManager.markUse(dto.getDetailImages().toArray(new String[0]));
+            productSpuDetailImageRepo.createMany(old, dto.getDetailImages());
+        }
+
         // 同步到全文搜索引擎
         List<String> skuNames = this.getSkuNames(old.getId());
         List<String> skuSpecs = this.getSkuSpecs(old.getId());
@@ -237,6 +263,28 @@ public class ProductSpuService {
         // 删除spu规格配置
         productSpecRepo.deleteBySpuIds(ids);
         productSpecOptRepo.deleteBySpuIds(ids);
+
+        // 释放并删除相关图片：主图、轮播图、详情描述图片
+        for (Long id : ids) {
+            ProductSpuEntity spu = productSpuRepo.getOneById(id);
+
+            // 主图 释放
+            storageManager.unmarkUse(spu.getMainImage());
+
+            // 轮播图 释放+删除
+            List<ProductSpuImageEntity> listSpuImage = productSpuImageRepo.findListBySpuId(id);
+            List<String> spuImageUrls =
+                    listSpuImage.stream().map(ProductSpuImageEntity::getImageUrl).collect(Collectors.toList());
+            storageManager.unmarkUse(spuImageUrls.toArray(new String[0]));
+            productSpuImageRepo.removeByIds(listSpuImage);
+
+            // 详情描述图片 释放+删除
+            List<ProductSpuDetailImageEntity> listSpuDetailImage = productSpuDetailImageRepo.findListBySpuId(id);
+            List<String> spuDetailImageUrls =
+                    listSpuDetailImage.stream().map(ProductSpuDetailImageEntity::getImageUrl).collect(Collectors.toList());
+            storageManager.unmarkUse(spuDetailImageUrls.toArray(new String[0]));
+        }
+
         // 删除spu
         productSpuRepo.removeByIds(ids);
 

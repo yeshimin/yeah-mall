@@ -17,4 +17,9 @@ public class ProductSpuDetailVo extends ProductSpuVo {
      * 规格配置信息
      */
     private List<ProductSpecVo> specs;
+
+    /**
+     * 详情描述富文本中的图片集合
+     */
+    private List<String> detailImages;
 }
