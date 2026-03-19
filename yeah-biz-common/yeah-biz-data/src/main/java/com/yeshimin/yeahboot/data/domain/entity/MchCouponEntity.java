@@ -87,11 +87,6 @@ public class MchCouponEntity extends ShopConditionBaseEntity<MchCouponEntity> {
     private LocalDateTime endTime;
 
     /**
-     * 排序：大于等于1
-     */
-    private Integer sort;
-
-    /**
      * 是否启用
      */
     private Boolean isEnabled;

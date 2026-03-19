@@ -4,25 +4,25 @@ import com.yeshimin.yeahboot.common.common.enums.base.IValueEnum;
 import lombok.Getter;
 
 /**
- * 优惠券使用范围枚举
+ * 优惠券类型枚举
  */
 @Getter
-public enum CouponUseRangeEnum implements IValueEnum {
+public enum CouponTypeEnum implements IValueEnum {
 
-    SHOP("1", "店铺通用"),
-    PRODUCT("2", "指定商品"),
-    CATEGORY("3", "指定分类");
+    FULL_REDUCTION("1", "满减券"),
+    DISCOUNT("2", "折扣券"),
+    NO_THRESHOLD("3", "无门槛券");
 
     private final String value;
     private final String desc;
 
-    CouponUseRangeEnum(String value, String desc) {
+    CouponTypeEnum(String value, String desc) {
         this.value = value;
         this.desc = desc;
     }
 
-    public static CouponUseRangeEnum of(String value) {
-        for (CouponUseRangeEnum e : CouponUseRangeEnum.values()) {
+    public static CouponTypeEnum of(String value) {
+        for (CouponTypeEnum e : CouponTypeEnum.values()) {
             if (e.getValue().equals(value)) {
                 return e;
             }
@@ -31,8 +31,8 @@ public enum CouponUseRangeEnum implements IValueEnum {
     }
 
     // of Integer value
-    public static CouponUseRangeEnum of(Integer value) {
-        for (CouponUseRangeEnum e : CouponUseRangeEnum.values()) {
+    public static CouponTypeEnum of(Integer value) {
+        for (CouponTypeEnum e : CouponTypeEnum.values()) {
             if (e.getValue().equals(String.valueOf(value))) {
                 return e;
             }

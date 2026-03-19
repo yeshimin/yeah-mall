@@ -22,7 +22,7 @@ public class MchMemberCouponController extends MchCrudController<MemberCouponMap
     public MchMemberCouponController(MemberCouponRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
-        super.setModule("mch:memberCoupon").disableCreate().disableQuery().disableDetail().disableUpdate().disableDelete();
+        super.setModule("mch:memberCoupon").disableCreate().disableDetail().disableUpdate().disableDelete();
     }
 
     // ================================================================================
