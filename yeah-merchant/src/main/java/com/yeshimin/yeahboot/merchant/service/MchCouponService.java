@@ -3,7 +3,6 @@ package com.yeshimin.yeahboot.merchant.service;
 import cn.hutool.core.bean.BeanUtil;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
-import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.common.enums.CouponTypeEnum;
 import com.yeshimin.yeahboot.data.common.enums.CouponUseRangeEnum;
 import com.yeshimin.yeahboot.data.domain.entity.MchCouponEntity;
@@ -15,7 +14,6 @@ import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchCouponCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchCouponUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchCouponUpdateStatusDto;
-import com.yeshimin.yeahboot.merchant.domain.vo.MchCouponDetailVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -84,14 +82,6 @@ public class MchCouponService {
         MchCouponEntity entity = BeanUtil.copyProperties(dto, MchCouponEntity.class);
         boolean r = entity.updateById();
         log.info("更新优惠券状态结果：{}", r);
-    }
-
-    /**
-     * 详情
-     */
-    public MchCouponDetailVo detail(Long userId, Long id) {
-        // TODO
-        return null;
     }
 
     // ================================================================================

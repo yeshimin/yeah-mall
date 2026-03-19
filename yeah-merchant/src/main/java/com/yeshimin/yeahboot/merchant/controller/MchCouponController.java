@@ -8,11 +8,13 @@ import com.yeshimin.yeahboot.merchant.controller.base.MchCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchCouponCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchCouponUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchCouponUpdateStatusDto;
-import com.yeshimin.yeahboot.merchant.domain.vo.MchCouponDetailVo;
 import com.yeshimin.yeahboot.merchant.service.MchCouponService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 商家优惠券表
@@ -60,14 +62,5 @@ public class MchCouponController extends MchCrudController<MchCouponMapper, MchC
         Long userId = super.getUserId();
         service.updateStatus(userId, dto);
         return R.ok();
-    }
-
-    /**
-     * 详情
-     */
-    @GetMapping("/detail")
-    public R<MchCouponDetailVo> detail(Long id) {
-        Long userId = super.getUserId();
-        return R.ok(service.detail(userId, id));
     }
 }
