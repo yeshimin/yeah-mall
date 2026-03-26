@@ -21,4 +21,11 @@ public class CouponQueryDto extends BaseDomain {
     @NotNull(message = "条件不能为空")
     @EnumValue(enumClass = MemberCouponQueryConditionEnum.class)
     private Integer condition;
+
+    // of
+    public static CouponQueryDto of(Integer condition) {
+        CouponQueryDto dto = new CouponQueryDto();
+        dto.setCondition(condition);
+        return dto;
+    }
 }

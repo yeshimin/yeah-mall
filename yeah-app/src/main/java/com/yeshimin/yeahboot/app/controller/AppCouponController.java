@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.app.domain.dto.AvailableCouponQueryDto;
 import com.yeshimin.yeahboot.app.service.AppCouponService;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.IdDto;
@@ -12,6 +13,8 @@ import com.yeshimin.yeahboot.data.domain.vo.MemberCouponVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * app端优惠券相关
@@ -49,5 +52,14 @@ public class AppCouponController extends BaseController {
         Long userId = super.getUserId();
         service.receive(userId, dto.getId());
         return R.ok();
+    }
+
+    /**
+     * 查询可使用的优惠券列表
+     */
+    @PostMapping("/availableList")
+    public R<List<MemberCouponVo>> queryAvailableList(@Validated @RequestBody AvailableCouponQueryDto query) {
+        Long userId = super.getUserId();
+        return R.ok(service.queryAvailableList(userId, query));
     }
 }
