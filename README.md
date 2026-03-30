@@ -94,13 +94,18 @@ yeah-boot
 
 项目根目录的 `sql/` 下提供了初始化脚本压缩包，建议按以下顺序导入：
 
-- `sql/00.main.sql.zip`：主库初始化脚本，包含核心表结构与基础数据
+- `sql/00.yeah_boot_main.sql.zip`：主库初始化脚本，包含核心表结构与基础数据
 - `sql/01.street_and_village_data.sql.zip`：街道与村庄数据，因数据量较大，按需导入
 
 建议顺序：
 
-1. 先导入 `00.main`
+1. 先导入 `00.yeah_boot_main`
 2. 如业务需要更完整的地区数据，再导入 `01.street_and_village_data`
+
+### 管理后台默认账号
+
+- 用户名：`admin`
+- 密码：`123456`
 
 ### 构建项目
 
@@ -188,6 +193,7 @@ yeah-boot.storage.impl.qiniu.secret-key=your-qiniu-secret-key
 
 - `yeah-boot.safe-mode=true` 表示关闭接口权限校验，适合本地联调或初始化阶段使用
 - 阿里云短信与七牛云存储相关配置按需启用，不使用时可不配置
+- 仓库中的 JWT 相关 key/secret 仅用于测试或开发环境，正式部署前务必替换为你自己的安全配置
 - 除上述自定义配置外，仍需补充 `spring.datasource.*`、`spring.redis.*` 等标准 Spring Boot 配置
 
 ## 开发建议
