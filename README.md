@@ -4,6 +4,8 @@
 
 > 基于 Java 8 / Spring Boot 2.7 的多模块后端快速开发框架，面向后台管理与 App 场景。
 
+> 当前项目基于 `yeah-boot` 框架开发，框架仓库：<https://github.com/yeshimin/yeah-boot>
+
 ## 项目简介
 
 `yeah-boot` 采用 Maven 聚合 + 多模块拆分的组织方式，将启动工程、基础框架、通用数据层和业务模块解耦。
@@ -94,17 +96,22 @@ yeah-boot
 
 项目根目录的 `sql/` 下提供了初始化脚本压缩包，建议按以下顺序导入：
 
-- `sql/00.yeah_boot_main.sql.zip`：主库初始化脚本，包含核心表结构与基础数据
+- `sql/00_yeah_mall_main.sql.zip`：主库初始化脚本，包含核心表结构与基础数据
 - `sql/01.street_and_village_data.sql.zip`：街道与村庄数据，因数据量较大，按需导入
 
 建议顺序：
 
-1. 先导入 `00.yeah_boot_main`
+1. 先导入 `00_yeah_mall_main`
 2. 如业务需要更完整的地区数据，再导入 `01.street_and_village_data`
 
 ### 管理后台默认账号
 
 - 用户名：`admin`
+- 密码：`123456`
+
+### 商家端默认账号
+
+- 用户名：`mch001`
 - 密码：`123456`
 
 ### 构建项目
