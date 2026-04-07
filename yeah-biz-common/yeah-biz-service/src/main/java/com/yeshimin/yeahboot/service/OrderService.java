@@ -319,6 +319,6 @@ public class OrderService {
             return;
         }
 
-        memberCouponRepo.releaseCoupon(orderCoupon.getCouponId());
+        memberCouponRepo.releaseCoupon(orderCoupon.getMemberCouponId());
     }
 }

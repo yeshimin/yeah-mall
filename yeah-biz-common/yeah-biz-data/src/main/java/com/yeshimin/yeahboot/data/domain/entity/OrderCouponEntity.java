@@ -22,6 +22,11 @@ public class OrderCouponEntity extends ShopConditionBaseEntity<OrderCouponEntity
     private Long orderId;
 
     /**
+     * 会员优惠券ID
+     */
+    private Long memberCouponId;
+
+    /**
      * 优惠券ID
      */
     private Long couponId;

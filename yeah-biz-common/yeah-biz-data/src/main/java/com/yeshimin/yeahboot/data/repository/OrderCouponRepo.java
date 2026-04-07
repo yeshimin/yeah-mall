@@ -27,7 +27,8 @@ public class OrderCouponRepo extends BaseRepo<OrderCouponMapper, OrderCouponEnti
         orderCoupon.setMchId(order.getMchId());
         orderCoupon.setShopId(order.getShopId());
         orderCoupon.setOrderId(order.getId());
-        orderCoupon.setCouponId(memberCoupon.getId());
+        orderCoupon.setMemberCouponId(memberCoupon.getId());
+        orderCoupon.setCouponId(memberCoupon.getCouponId());
         orderCoupon.setName(memberCoupon.getName());
         orderCoupon.setDescription(memberCoupon.getDescription());
         orderCoupon.setType(memberCoupon.getType());
