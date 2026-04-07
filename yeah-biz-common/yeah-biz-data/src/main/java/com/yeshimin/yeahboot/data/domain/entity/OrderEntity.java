@@ -47,6 +47,16 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
     private BigDecimal totalAmount;
 
     /**
+     * 优惠金额
+     */
+    private BigDecimal discountAmount;
+
+    /**
+     * 最终金额
+     */
+    private BigDecimal finalAmount;
+
+    /**
      * 状态：1-待付款 2-待发货 3-待收货 4-交易成功 5-交易关闭 6-退款 7-售后
      */
     private String status;

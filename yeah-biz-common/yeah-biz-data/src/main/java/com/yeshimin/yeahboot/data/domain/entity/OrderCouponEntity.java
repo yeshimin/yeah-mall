@@ -59,7 +59,7 @@ public class OrderCouponEntity extends ShopConditionBaseEntity<OrderCouponEntity
     /**
      * 使用范围：1-店铺通用 2-指定商品 3-指定分类
      */
-    private Byte useRange;
+    private Integer useRange;
 
     /**
      * 目标ID（取决于使用范围）

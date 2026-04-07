@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @Repository
 @RequiredArgsConstructor
@@ -32,5 +34,28 @@ public class MemberCouponRepo extends BaseRepo<MemberCouponMapper, MemberCouponE
      */
     public Page<MemberCouponVo> queryReceiveList(Long userId, Page<MemberCouponVo> page, CouponQueryDto query) {
         return memberCouponMapper.queryReceiveList(page, userId, query);
+    }
+
+    /**
+     * releaseCoupon
+     */
+    public boolean releaseCoupon(Long couponId) {
+        return lambdaUpdate()
+                .set(MemberCouponEntity::getIsUsed, false)
+                .set(MemberCouponEntity::getUsedTime, null)
+                .eq(MemberCouponEntity::getId, couponId)
+                .update();
+    }
+
+    /**
+     * occurCoupon
+     */
+    public boolean occurCoupon(Long couponId) {
+        return lambdaUpdate()
+                .set(MemberCouponEntity::getIsUsed, true)
+                .set(MemberCouponEntity::getUsedTime, LocalDateTime.now())
+                .eq(MemberCouponEntity::getId, couponId)
+                .eq(MemberCouponEntity::getIsUsed, false)
+                .update();
     }
 }

@@ -30,6 +30,11 @@ public class OrderSubmitDto extends BaseDomain {
     private Long addressId;
 
     /**
+     * 用户优惠券ID
+     */
+    private Long couponId;
+
+    /**
      * 订单场景
      */
     @NotBlank(message = "订单场景不能为空")
