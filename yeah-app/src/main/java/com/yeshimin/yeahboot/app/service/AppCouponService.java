@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -183,7 +184,16 @@ public class AppCouponService {
                         return false;
                     }
 
-                    return scopeAmount.compareTo(coupon.getMinAmount()) >= 0;
+                    if (scopeAmount.compareTo(coupon.getMinAmount()) < 0) {
+                        return false;
+                    }
+
+                    // 优惠后金额不能小于0.01
+                    BigDecimal discountAmount = couponType == CouponTypeEnum.DISCOUNT
+                            ? scopeAmount.multiply(coupon.getDiscount())
+                            : scopeAmount.subtract(coupon.getAmount());
+                    discountAmount = discountAmount.setScale(2, RoundingMode.HALF_UP);
+                    return discountAmount.compareTo(BigDecimal.ZERO) > 0;
                 }).collect(Collectors.toList());
     }
 }

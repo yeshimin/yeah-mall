@@ -24,7 +24,6 @@
             cp.target_id,
             cp.begin_time,
             cp.end_time,
-            cp.sort,
             (select count(ucp.id) from s_member_coupon ucp where ucp.deleted = 0 and ucp.coupon_id = cp.id) as receivedCount
         from s_mch_coupon cp
         where cp.deleted = 0
