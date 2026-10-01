@@ -147,12 +147,17 @@ start() {
 
   check_start_requirements
 
-  # 此变量只包含一个 Spring Boot 参数，必须整体引用传递。
-  SPRING_CONFIG_ARG="--spring.config.additional-location=optional:file:${CONFIG_DIR}/"
-
   if [ -n "$SPRING_PROFILES_ACTIVE" ]; then
     export SPRING_PROFILES_ACTIVE
   fi
+
+  # 用位置参数保存 Spring Boot 参数，避免多参数字符串在 Shell 中被错误合并。
+  set -- \
+    "--spring.config.additional-location=optional:file:${CONFIG_DIR}/" \
+    "--server.port=${PORT}"
+
+  # 需要额外覆盖时，按下面的方式逐项追加，不要拼接为一个字符串：
+  # set -- "$@" "--logging.level.com.example=DEBUG"
 
   echo "启动服务: $JAR_PATH"
   echo "端口: $PORT"
@@ -162,8 +167,7 @@ start() {
   # JAVA_OPTS 仅支持简单的空格分隔 JVM 参数；敏感配置必须放在 config/。
   # shellcheck disable=SC2086
   set -f
-  nohup "$JAVA_BIN" $JAVA_OPTS -jar "$JAR_PATH" "$SPRING_CONFIG_ARG" \
-    --server.port="$PORT" >> "$LOG_FILE" 2>&1 &
+  nohup "$JAVA_BIN" $JAVA_OPTS -jar "$JAR_PATH" "$@" >> "$LOG_FILE" 2>&1 &
   NEW_PID=$!
   set +f
   printf '%s\n' "$NEW_PID" > "$PID_FILE"
