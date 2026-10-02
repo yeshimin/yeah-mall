@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.upms.domain.dto;
 
+import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.common.common.enums.DataStatusEnum;
 import com.yeshimin.yeahboot.common.common.enums.GenderEnum;
 import com.yeshimin.yeahboot.common.common.sensitive.SensitiveData;
@@ -10,7 +11,9 @@ import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
@@ -67,12 +70,14 @@ public class SysUserCreateDto extends BaseDomain {
     /**
      * 手机号
      */
+    @Pattern(regexp = CommonConsts.PATTERN_MOBILE, message = "手机号格式不正确")
     @SensitiveData(type = SensitiveType.MOBILE, scenes = SensitiveScene.LOG)
     private String mobile;
 
     /**
      * 邮箱
      */
+    @Email(message = "邮箱格式不正确")
     @SensitiveData(type = SensitiveType.EMAIL, scenes = SensitiveScene.LOG)
     private String email;
 

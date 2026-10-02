@@ -18,6 +18,9 @@ public class CommonConsts {
     public static final String DEFAULT_TIME_PATTERN = "HH:mm:ss";
     public static final String DEFAULT_TIME_ZONE = "GMT+8";
 
+    // 手机号正则
+    public static final String PATTERN_MOBILE = "^1\\d{12}$";
+
     /**
      * 树形结构的根节点ID
      */
