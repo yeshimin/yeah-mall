@@ -79,7 +79,7 @@ yeah-boot:
         priority: 1
         public-bucket: public
         bucket: yeahboot
-        base-path: /Users/yeshimin/Desktop/YsmSpace/upload/yeah-boot
+        base-path: /root/ysm.d/yeahboot.d/yeah-boot/upload
       # 七牛云存储相关配置
       qiniu:
         enabled: true
