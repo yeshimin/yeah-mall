@@ -19,7 +19,7 @@ public class CommonConsts {
     public static final String DEFAULT_TIME_ZONE = "GMT+8";
 
     // 手机号正则
-    public static final String PATTERN_MOBILE = "^1\\d{12}$";
+    public static final String PATTERN_MOBILE = "(?:0|86|\\+86)?1[3-9]\\d{9}"; // see hutool PatternPool.MOBILE
 
     /**
      * 树形结构的根节点ID

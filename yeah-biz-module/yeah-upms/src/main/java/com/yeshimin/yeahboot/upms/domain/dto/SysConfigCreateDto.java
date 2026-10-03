@@ -42,6 +42,9 @@ public class SysConfigCreateDto extends BaseDomain {
     @EnumValue(enumClass = DataStatusEnum.class, message = "状态不正确")
     private String status;
 
+    @NotNull(message = "公开访问状态不能为空")
+    private Boolean publicAccess;
+
     @NotNull(message = "排序不能为空")
     @Min(value = 1, message = "排序必须大于等于1")
     private Integer sort;

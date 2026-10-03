@@ -44,6 +44,11 @@ public class SysConfigEntity extends ConditionBaseEntity<SysConfigEntity> {
     private String status;
 
     /**
+     * 是否允许匿名公开访问
+     */
+    private Boolean publicAccess;
+
+    /**
      * 排序
      */
     private Integer sort;

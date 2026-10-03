@@ -1,21 +1,32 @@
 package com.yeshimin.yeahboot.admin.auth;
 
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.yeshimin.yeahboot.auth.domain.vo.CaptchaVo;
+import com.yeshimin.yeahboot.auth.service.CaptchaService;
 import com.yeshimin.yeahboot.auth.service.TerminalAndTokenControlService;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.enums.AuthTerminalEnum;
 import com.yeshimin.yeahboot.common.common.enums.DataStatusEnum;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
+import com.yeshimin.yeahboot.common.common.enums.SysConfigEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.service.PasswordService;
+import com.yeshimin.yeahboot.data.domain.entity.SysRoleEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysUserEntity;
+import com.yeshimin.yeahboot.data.repository.SysRoleRepo;
 import com.yeshimin.yeahboot.data.repository.SysUserRepo;
+import com.yeshimin.yeahboot.data.service.DynamicConfigService;
 import com.yeshimin.yeahboot.upms.domain.dto.AuthenticateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.LoginDto;
+import com.yeshimin.yeahboot.upms.domain.dto.SysUserCreateDto;
 import com.yeshimin.yeahboot.upms.domain.vo.AuthenticateVo;
 import com.yeshimin.yeahboot.upms.domain.vo.LoginVo;
+import com.yeshimin.yeahboot.upms.service.SysUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 
 /**
  * 鉴权服务
@@ -25,10 +36,14 @@ import org.springframework.stereotype.Service;
 public class AdminAuthService {
 
     private final SysUserRepo sysUserRepo;
+    private final SysRoleRepo sysRoleRepo;
+    private final SysUserService sysUserService;
 
     private final PasswordService passwordService;
     private final TerminalAndTokenControlService controlService;
     private final AdminLoginAttemptService loginAttemptService;
+    private final DynamicConfigService dynamicConfigService;
+    private final CaptchaService captchaService;
 
     /**
      * 登录
@@ -71,6 +86,52 @@ public class AdminAuthService {
      */
     public void clearLoginLimit(ClearLoginLimitDto dto) {
         loginAttemptService.clear(dto.getUsername(), dto.getTerminal());
+    }
+
+    /**
+     * 生成管理后台自注册验证码
+     */
+    public CaptchaVo generateRegisterCaptcha() {
+        this.checkRegisterEnabled();
+        CaptchaVo vo = captchaService.generateCaptcha();
+        vo.setEnabled(true);
+        return vo;
+    }
+
+    /**
+     * 管理后台自注册
+     */
+    public void register(AdminRegisterDto dto) {
+        this.checkRegisterEnabled();
+        captchaService.checkCaptcha(dto.getKey(), dto.getCode());
+
+        String roleCode = dynamicConfigService.getString(SysConfigEnum.AUTH_LOGIN_REGISTER_DEFAULT_ROLE_CODE);
+        if (StrUtil.isBlank(roleCode)) {
+            throw new BaseException("自注册默认角色未配置");
+        }
+        SysRoleEntity role = sysRoleRepo.findOneByCode(roleCode);
+        if (role == null || !DataStatusEnum.ENABLED.equalsValue(role.getStatus())) {
+            throw new BaseException("自注册默认角色不可用");
+        }
+
+        SysUserCreateDto createDto = new SysUserCreateDto();
+        createDto.setUsername(dto.getUsername());
+        createDto.setPassword(dto.getPassword());
+        createDto.setStatus(DataStatusEnum.ENABLED.getValue());
+        createDto.setRoleIds(Collections.singleton(role.getId()));
+        sysUserService.create(createDto);
+    }
+
+    // ================================================================================
+
+    private void checkRegisterEnabled() {
+        if (!this.isRegisterEnabled()) {
+            throw new BaseException("当前未开放注册");
+        }
+    }
+
+    private boolean isRegisterEnabled() {
+        return BooleanUtil.isTrue(dynamicConfigService.getBoolean(SysConfigEnum.AUTH_LOGIN_REGISTER_ENABLED));
     }
 
     // ================================================================================

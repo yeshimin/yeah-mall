@@ -64,6 +64,7 @@ public class SysConfigService {
         entity.setConfigValue(dto.getConfigValue());
         entity.setValueType(dto.getValueType());
         entity.setStatus(dto.getStatus());
+        entity.setPublicAccess(dto.getPublicAccess());
         entity.setSort(dto.getSort());
         entity.setRemark(dto.getRemark());
         entity.updateById();

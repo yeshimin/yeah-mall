@@ -51,6 +51,30 @@ public class AdminAuthController extends BaseController {
     }
 
     /**
+     * 管理后台自注册验证码
+     */
+    @PublicAccess
+    @RateLimit(groupType = GroupType.IP, limitGroupCount = 10, timeWindow = 60_000,
+            description = "同一IP一分钟最多获取10次注册验证码")
+    @GetMapping("/registerCaptcha")
+    public R<CaptchaVo> registerCaptcha() {
+        return R.ok(adminAuthService.generateRegisterCaptcha());
+    }
+
+    /**
+     * 管理后台自注册
+     */
+    @PublicAccess
+    @RateLimit(groupType = GroupType.IP, limitGroupCount = 5, timeWindow = 60 * 60 * 1000,
+            description = "同一IP一小时最多注册5次")
+    @SysLog(value = "管理后台自注册", category = SysLogCategoryEnum.AUTH)
+    @PostMapping("/register")
+    public R<Void> register(@Valid @RequestBody AdminRegisterDto dto) {
+        adminAuthService.register(dto);
+        return R.ok();
+    }
+
+    /**
      * 解除登录限制
      */
     @PreAuthorize("@pms.hasPermission('api:admin:auth:clearLoginLimit')")
@@ -65,6 +89,8 @@ public class AdminAuthController extends BaseController {
      * 图形验证码
      */
     @PublicAccess
+    @RateLimit(groupType = GroupType.IP, limitGroupCount = 10, timeWindow = 60_000,
+            description = "同一IP一分钟最多获取10次登录验证码")
     @GetMapping("/captcha")
     public R<CaptchaVo> captcha() {
         Boolean captchaEnabled = this.isCaptchaEnabled();

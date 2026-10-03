@@ -14,6 +14,32 @@ public enum SysConfigEnum {
     CAPTCHA_ENABLED("yeah-boot.captcha-enabled", SysConfigValueTypeEnum.BOOLEAN, "true"),
 
     /**
+     * 是否显示管理后台登录页公告
+     */
+    AUTH_LOGIN_NOTICE_ENABLED("auth.login.notice.enabled", SysConfigValueTypeEnum.BOOLEAN, "false"),
+
+    /**
+     * 管理后台登录页公告标题
+     */
+    AUTH_LOGIN_NOTICE_TITLE("auth.login.notice.title", SysConfigValueTypeEnum.STRING, ""),
+
+    /**
+     * 管理后台登录页公告内容
+     */
+    AUTH_LOGIN_NOTICE_CONTENT("auth.login.notice.content", SysConfigValueTypeEnum.STRING, ""),
+
+    /**
+     * 是否开放管理后台自注册
+     */
+    AUTH_LOGIN_REGISTER_ENABLED("auth.login.register.enabled", SysConfigValueTypeEnum.BOOLEAN, "false"),
+
+    /**
+     * 管理后台自注册默认角色编码
+     */
+    AUTH_LOGIN_REGISTER_DEFAULT_ROLE_CODE(
+            "auth.login.register.default-role-code", SysConfigValueTypeEnum.STRING, ""),
+
+    /**
      * 管理后台登录失败统计窗口，单位：秒
      */
     ADMIN_LOGIN_FAILURE_WINDOW_SECONDS(

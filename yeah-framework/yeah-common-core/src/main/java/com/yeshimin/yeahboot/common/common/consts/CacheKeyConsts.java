@@ -14,4 +14,6 @@ public class CacheKeyConsts {
 
     // 系统参数
     public static final String SYSTEM_CONFIG = "sys:config";
+    // 所有允许匿名访问的系统参数，值按分组组织
+    public static final String SYSTEM_PUBLIC_CONFIG = "sys:config:public";
 }
