@@ -127,6 +127,25 @@ mvn clean install
 SPRING_PROFILES_ACTIVE=prod sh deploy.sh start
 ```
 
+### 多 JDK 部署
+
+部署脚本默认要求 JDK 8，可通过环境变量为不同服务选择独立运行时。`JAVA_BIN` 优先级最高；未设置时，脚本会优先使用 `JENV_JAVA_VERSION`，再尝试解析服务目录中的 `.java-version`，最后回退到系统 `java`。
+
+使用服务目录的 `.java-version` 时，需将该文件与部署后的 `deploy.sh` 放在同一目录，例如文件内容为 `1.8`。
+
+```bash
+# 当前 JDK 8 维护线服务：默认要求 JDK 8
+JENV_JAVA_VERSION=1.8 JAVA_MIN_VERSION=8 sh deploy.sh start
+
+# JDK 21 主线服务：显式指定运行时与最低版本
+JENV_JAVA_VERSION=21 JAVA_MIN_VERSION=21 sh deploy.sh start
+
+# 不使用 jenv 时，直接指定 Java 可执行文件
+JAVA_BIN=/opt/jdk-8/bin/java sh deploy.sh start
+```
+
+同一台服务器上的每个服务应使用独立目录、Jar、端口、`config/`、日志和 PID 文件。
+
 ### 启动模式
 
 当前支持两种启动方式：
