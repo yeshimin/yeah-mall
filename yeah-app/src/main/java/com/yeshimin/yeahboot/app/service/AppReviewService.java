@@ -1,11 +1,16 @@
 package com.yeshimin.yeahboot.app.service;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.dto.ReviewPublishDto;
 import com.yeshimin.yeahboot.app.domain.dto.ReviewPublishItemDto;
+import com.yeshimin.yeahboot.app.domain.vo.ProductReviewListVo;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderItemEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ProductSkuReviewImageEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuReviewEntity;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.storage.StorageManager;
@@ -14,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -78,5 +86,30 @@ public class AppReviewService {
             // 创建评价图片记录
             productSkuReviewImageRepo.saveImage(skuReview, item.getImages());
         }
+    }
+
+    /**
+     * 查询商品评价列表
+     */
+    public IPage<ProductReviewListVo> list(Page page, Long spuId, Boolean hasImage) {
+        // 先分页查询当前SPU下的评价主记录。
+        Page<ProductSkuReviewEntity> pageReview = productSkuReviewRepo.queryPage(page, spuId, hasImage);
+
+        // 取出当前页评价ID，后续批量查询图片，避免逐条查库。
+        List<Long> reviewIds = pageReview.getRecords().stream()
+                .map(ProductSkuReviewEntity::getId)
+                .collect(Collectors.toList());
+
+        // 将评价图片按 reviewId 分组，便于和主记录装配。
+        Map<Long, List<String>> mapImages = productSkuReviewImageRepo.findListByReviewIds(reviewIds).stream()
+                .collect(Collectors.groupingBy(ProductSkuReviewImageEntity::getReviewId,
+                        Collectors.mapping(ProductSkuReviewImageEntity::getImage, Collectors.toList())));
+
+        // 将分页主记录转换成前端展示VO，并补上图片列表。
+        return pageReview.convert(review -> {
+            ProductReviewListVo vo = BeanUtil.copyProperties(review, ProductReviewListVo.class);
+            vo.setImages(mapImages.getOrDefault(review.getId(), Collections.emptyList()));
+            return vo;
+        });
     }
 }

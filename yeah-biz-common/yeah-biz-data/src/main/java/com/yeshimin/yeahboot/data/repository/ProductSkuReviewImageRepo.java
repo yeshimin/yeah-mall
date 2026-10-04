@@ -7,6 +7,8 @@ import com.yeshimin.yeahboot.data.mapper.ProductReviewImageMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,5 +43,15 @@ public class ProductSkuReviewImageRepo extends BaseRepo<ProductReviewImageMapper
         boolean r = super.saveBatch(list);
         log.info("productReviewImage.saveBatch result:{}", r);
         return r;
+    }
+
+    /**
+     * 根据评价ID集合查询图片
+     */
+    public List<ProductSkuReviewImageEntity> findListByReviewIds(Collection<Long> reviewIds) {
+        if (reviewIds == null || reviewIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return lambdaQuery().in(ProductSkuReviewImageEntity::getReviewId, reviewIds).list();
     }
 }

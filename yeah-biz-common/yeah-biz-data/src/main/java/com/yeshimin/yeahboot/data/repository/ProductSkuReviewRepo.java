@@ -1,15 +1,20 @@
 package com.yeshimin.yeahboot.data.repository;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.domain.entity.OrderItemEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuReviewEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSkuReviewMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class ProductSkuReviewRepo extends BaseRepo<ProductSkuReviewMapper, ProductSkuReviewEntity> {
+
+    private final ProductSkuReviewMapper productSkuReviewMapper;
 
     /**
      * createOne
@@ -44,5 +49,12 @@ public class ProductSkuReviewRepo extends BaseRepo<ProductSkuReviewMapper, Produ
         }
         review.insert();
         return review;
+    }
+
+    /**
+     * 分页查询商品评价列表
+     */
+    public Page<ProductSkuReviewEntity> queryPage(Page<ProductSkuReviewEntity> page, Long spuId, Boolean hasImage) {
+        return productSkuReviewMapper.queryPage(page, spuId, hasImage);
     }
 }

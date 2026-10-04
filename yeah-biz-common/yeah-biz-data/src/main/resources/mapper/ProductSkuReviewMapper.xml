@@ -1,4 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeshimin.yeahboot.data.mapper.ProductSkuReviewMapper">
+
+    <!-- 分页查询商品评价列表 -->
+    <select id="queryPage" resultType="com.yeshimin.yeahboot.data.domain.entity.ProductSkuReviewEntity">
+        select
+            r.id,
+            r.create_time,
+            r.update_time,
+            r.mch_id,
+            r.shop_id,
+            r.member_id,
+            r.order_id,
+            r.order_no,
+            r.sku_id,
+            r.sku_name,
+            r.spu_id,
+            r.spu_name,
+            r.spu_main_image,
+            r.overall_rating,
+            r.content,
+            r.is_anonymous,
+            r.nickname,
+            r.avatar
+        from s_product_sku_review r
+        where r.deleted = 0
+        and r.spu_id = #{spuId}
+        <!-- 仅保留存在评价图片记录的评价 -->
+        <if test="hasImage != null and hasImage">
+            and exists (
+                select 1
+                from s_product_sku_review_image i
+                where i.deleted = 0
+                and i.review_id = r.id
+            )
+        </if>
+        order by r.create_time desc
+    </select>
 </mapper>
