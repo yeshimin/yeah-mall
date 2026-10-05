@@ -2,16 +2,24 @@ package com.yeshimin.yeahboot.upms.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.auth.service.TokenService;
+import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
+import com.yeshimin.yeahboot.common.common.enums.DataStatusEnum;
+import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.common.domain.base.IdNameVo;
+import com.yeshimin.yeahboot.common.common.properties.YeahBootProperties;
+import com.yeshimin.yeahboot.common.domain.base.IdNameStatusVo;
 import com.yeshimin.yeahboot.common.service.PasswordService;
 import com.yeshimin.yeahboot.data.domain.dto.SysUserQueryDto;
+import com.yeshimin.yeahboot.data.domain.vo.SysUserAuthResourceVo;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.storage.StorageManager;
+import com.yeshimin.yeahboot.upms.common.enums.ResTypeEnum;
 import com.yeshimin.yeahboot.upms.domain.dto.*;
 import com.yeshimin.yeahboot.upms.domain.vo.MineVo;
 import com.yeshimin.yeahboot.upms.domain.vo.SysUserResTreeNodeVo;
@@ -41,8 +49,10 @@ public class SysUserService {
     private final SysUserPostRepo sysUserPostRepo;
 
     private final PasswordService passwordService;
+    private final TokenService tokenService;
 
     private final StorageManager storageManager;
+    private final YeahBootProperties yeahBootProperties;
 
     /**
      * 创建
@@ -53,12 +63,12 @@ public class SysUserService {
         if (sysUserRepo.countByUsername(dto.getUsername()) > 0) {
             throw new BaseException("用户名已存在");
         }
-        // 检查：组织是否存在
-        if (CollUtil.isNotEmpty(dto.getOrgIds())) {
-            if (sysOrgRepo.countByIds(dto.getOrgIds()) != dto.getOrgIds().size()) {
-                throw new BaseException("组织ID不正确");
-            }
+        // 检查：超级管理员不能禁用
+        if (DataStatusEnum.DISABLED.equalsValue(dto.getStatus()) && this.isSuperAdminUsername(dto.getUsername())) {
+            throw new BaseException("超级管理员不能禁用");
         }
+        // 检查：组织、岗位和角色是否存在
+        this.validateRelationIds(dto.getOrgIds(), dto.getPostIds(), dto.getRoleIds());
 
         // 密码加密
         String encodedPassword = passwordService.encodePassword(dto.getPassword());
@@ -127,8 +137,8 @@ public class SysUserService {
                 if (sysPost == null) {
                     return null;
                 }
-                return new IdNameVo(sysPost.getId(), sysPost.getName());
-            }).collect(Collectors.toList()));
+                return new IdNameStatusVo(sysPost.getId(), sysPost.getName(), sysPost.getStatus());
+            }).filter(Objects::nonNull).distinct().collect(Collectors.toList()));
 
             // 组织
             List<SysUserOrgEntity> userOrgs = mapUserOrgs.getOrDefault(e.getId(), Collections.emptyList());
@@ -137,8 +147,8 @@ public class SysUserService {
                 if (sysOrg == null) {
                     return null;
                 }
-                return new IdNameVo(sysOrg.getId(), sysOrg.getName());
-            }).collect(Collectors.toList()));
+                return new IdNameStatusVo(sysOrg.getId(), sysOrg.getName(), sysOrg.getStatus());
+            }).filter(Objects::nonNull).distinct().collect(Collectors.toList()));
 
             // 角色
             List<SysUserRoleEntity> userRoles = mapUserRoles.getOrDefault(e.getId(), Collections.emptyList());
@@ -147,8 +157,8 @@ public class SysUserService {
                 if (sysRole == null) {
                     return null;
                 }
-                return new IdNameVo(sysRole.getId(), sysRole.getName());
-            }).filter(Objects::nonNull).collect(Collectors.toList()));
+                return new IdNameStatusVo(sysRole.getId(), sysRole.getName(), sysRole.getStatus());
+            }).filter(Objects::nonNull).distinct().collect(Collectors.toList()));
             return vo;
         });
     }
@@ -186,8 +196,8 @@ public class SysUserService {
             if (sysPost == null) {
                 return null;
             }
-            return new IdNameVo(sysPost.getId(), sysPost.getName());
-        }).collect(Collectors.toList()));
+            return new IdNameStatusVo(sysPost.getId(), sysPost.getName(), sysPost.getStatus());
+        }).filter(Objects::nonNull).distinct().collect(Collectors.toList()));
 
         // 组织
         vo.setOrgs(listUserOrg.stream().map(r -> {
@@ -195,8 +205,8 @@ public class SysUserService {
             if (sysOrg == null) {
                 return null;
             }
-            return new IdNameVo(sysOrg.getId(), sysOrg.getName());
-        }).collect(Collectors.toList()));
+            return new IdNameStatusVo(sysOrg.getId(), sysOrg.getName(), sysOrg.getStatus());
+        }).filter(Objects::nonNull).distinct().collect(Collectors.toList()));
 
         // 角色
         vo.setRoles(listUserRole.stream().map(r -> {
@@ -204,8 +214,8 @@ public class SysUserService {
             if (sysRole == null) {
                 return null;
             }
-            return new IdNameVo(sysRole.getId(), sysRole.getName());
-        }).filter(Objects::nonNull).collect(Collectors.toList()));
+            return new IdNameStatusVo(sysRole.getId(), sysRole.getName(), sysRole.getStatus());
+        }).filter(Objects::nonNull).distinct().collect(Collectors.toList()));
         return vo;
     }
 
@@ -213,21 +223,27 @@ public class SysUserService {
      * 更新
      */
     @Transactional(rollbackFor = Exception.class)
-    public SysUserEntity update(SysUserUpdateDto dto) {
+    public SysUserEntity update(Long userId, SysUserUpdateDto dto) {
         // 检查：是否存在
         SysUserEntity entity = sysUserRepo.getOneById(dto.getId());
+        // 检查：不能禁用自己
+        if (DataStatusEnum.DISABLED.equalsValue(dto.getStatus()) && Objects.equals(userId, entity.getId())) {
+            throw new BaseException("不能禁用自己");
+        }
+        // 检查：超级管理员不能禁用
+        String nextUsername = StrUtil.isNotBlank(dto.getUsername()) ? dto.getUsername() : entity.getUsername();
+        if (DataStatusEnum.DISABLED.equalsValue(dto.getStatus())
+                && (this.isSuperAdmin(entity) || this.isSuperAdminUsername(nextUsername))) {
+            throw new BaseException("超级管理员不能禁用");
+        }
         // 检查：用户名是否冲突
         if (StrUtil.isNotBlank(dto.getUsername()) && !Objects.equals(entity.getUsername(), dto.getUsername())) {
             if (sysUserRepo.countByUsername(dto.getUsername()) > 0) {
                 throw new BaseException("用户名已存在");
             }
         }
-        // 检查：组织是否存在
-        if (CollUtil.isNotEmpty(dto.getOrgIds())) {
-            if (sysOrgRepo.countByIds(dto.getOrgIds()) != dto.getOrgIds().size()) {
-                throw new BaseException("组织ID不正确");
-            }
-        }
+        // 检查：组织、岗位和角色是否存在
+        this.validateRelationIds(dto.getOrgIds(), dto.getPostIds(), dto.getRoleIds());
 
         // 清空并重新创建用户与组织关联记录
         if (dto.getOrgIds() != null) {
@@ -247,17 +263,10 @@ public class SysUserService {
 
         // 获取旧值
         String oldAvatar = entity.getAvatar();
+        String oldStatus = entity.getStatus();
 
         // 更新用户信息
         BeanUtil.copyProperties(dto, entity);
-
-        // 密码
-        if (StrUtil.isNotBlank(dto.getPassword())) {
-            entity.setPassword(passwordService.encodePassword(dto.getPassword()));
-        } else {
-            // 置空，跳过更新
-            entity.setPassword(null);
-        }
 
         // 按需更新头像
         if (StrUtil.isNotBlank(dto.getAvatar()) && !Objects.equals(dto.getAvatar(), oldAvatar)) {
@@ -270,7 +279,22 @@ public class SysUserService {
         }
 
         entity.updateById();
+
+        // “禁用”逻辑；仅当“启用”变为“禁用”时命中
+        if (DataStatusEnum.ENABLED.equalsValue(oldStatus) && DataStatusEnum.DISABLED.equalsValue(dto.getStatus())) {
+            tokenService.deleteUserTokens(AuthSubjectEnum.ADMIN.getValue(), String.valueOf(entity.getId()));
+        }
         return entity;
+    }
+
+    /**
+     * 重置用户密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void resetPassword(SysUserResetPasswordDto dto) {
+        SysUserEntity entity = sysUserRepo.getOneById(dto.getId());
+        entity.setPassword(passwordService.encodePassword(dto.getPassword()));
+        entity.updateById();
     }
 
     /**
@@ -278,21 +302,50 @@ public class SysUserService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long userId, List<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return;
+        }
+
+        if (ids.stream().anyMatch(id -> Objects.equals(userId, id))) {
+            throw new BaseException("不能删除自己");
+        }
+
+        List<SysUserEntity> users = new ArrayList<>();
         for (Long id : ids) {
-            // 检查：不能删除自己
-            if (Objects.equals(userId, id)) {
-                throw new BaseException("不能删除自己");
-            }
             // 检查：是否存在
             SysUserEntity entity = sysUserRepo.findOneById(id);
             if (entity == null) {
-                throw new RuntimeException(String.format("用户[%s]未找到", id));
+                throw new BaseException(String.format("用户[%s]未找到", id));
             }
+            if (this.isSuperAdmin(entity)) {
+                throw new BaseException("不能删除超级管理员");
+            }
+            users.add(entity);
+        }
+
+        for (SysUserEntity entity : users) {
+            Long id = entity.getId();
             entity.deleteById();
 
             // 删除user-role关联
             boolean result = sysUserRoleRepo.deleteByUserId(id);
             log.debug("deleteByUserId.id[{}]result: {}", id, result);
+
+            // 删除user-org关联
+            result = sysUserOrgRepo.deleteByUserId(id);
+            log.debug("deleteUserOrgByUserId.id[{}]result: {}", id, result);
+
+            // 删除user-post关联
+            result = sysUserPostRepo.deleteByUserId(id);
+            log.debug("deleteUserPostByUserId.id[{}]result: {}", id, result);
+
+            // 删除后台登录token
+            tokenService.deleteUserTokens(AuthSubjectEnum.ADMIN.getValue(), String.valueOf(id));
+
+            // 将头像标记为未使用以待自动清理
+            if (StrUtil.isNotBlank(entity.getAvatar())) {
+                storageManager.unmarkUse(entity.getAvatar());
+            }
         }
     }
 
@@ -346,16 +399,24 @@ public class SysUserService {
      * 查询用户资源
      */
     public List<SysUserResTreeNodeVo> queryUserResources(Long userId) {
+        SysUserEntity user = sysUserRepo.getOneById(userId);
+        boolean permissionBypassed = this.isPermissionBypassed(user);
+
         // 1.查询用户对应的勾选的资源
-        List<Long> roleIds = sysUserRoleRepo.findListByUserId(userId)
-                .stream().map(SysUserRoleEntity::getRoleId).collect(Collectors.toList());
-        Set<Long> checkedSet = sysRoleResRepo.findListByRoleIds(roleIds)
-                .stream().map(SysRoleResEntity::getResId).collect(Collectors.toSet());
+        List<Long> roleIds = this.findEnabledRoleIdsByUserId(userId);
+        Set<Long> checkedSet = permissionBypassed ? Collections.emptySet() :
+                sysRoleResRepo.findListByRoleIds(roleIds)
+                        .stream().map(SysRoleResEntity::getResId).collect(Collectors.toSet());
 
         // 2.查询资源树
         List<SysUserResTreeNodeVo> listAllVo = sysResRepo.list()
-                .stream().map(e -> {
+                .stream().filter(this::isEnabled)
+                .map(e -> {
                     SysUserResTreeNodeVo vo = BeanUtil.copyProperties(e, SysUserResTreeNodeVo.class);
+                    vo.setNodeKey("res:" + e.getId());
+                    vo.setResId(e.getId());
+                    vo.setTypeName(this.getResTypeName(e.getType()));
+                    vo.setMounted(Boolean.FALSE);
                     // 初始化子节点集合对象
                     vo.setChildren(new ArrayList<>());
                     return vo;
@@ -367,7 +428,7 @@ public class SysUserService {
 
         listAllVo.forEach(vo -> {
             // set checked
-            vo.setChecked(checkedSet.contains(vo.getId()));
+            vo.setChecked(permissionBypassed || checkedSet.contains(vo.getId()));
 
             SysUserResTreeNodeVo parent = mapAll.get(vo.getParentId());
             if (parent != null) {
@@ -376,6 +437,73 @@ public class SysUserService {
         });
 
         return listAllVo.stream().filter(vo -> vo.getParentId() == 0).collect(Collectors.toList());
+    }
+
+    /**
+     * 更新用户个人信息
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateMine(Long userId, SysUserUpdateMineDto dto) {
+        // 检查：用户是否存在
+        SysUserEntity entity = sysUserRepo.findOneById(userId);
+        if (entity == null) {
+            throw new RuntimeException("用户未找到");
+        }
+
+        // 密码，需要校验原密码
+        if (StrUtil.isNotBlank(dto.getOldPassword()) && StrUtil.isNotBlank(dto.getNewPassword())) {
+            if (!passwordService.validatePassword(dto.getOldPassword(), entity.getPassword())) {
+                throw new BaseException("原密码错误");
+            }
+            entity.setPassword(passwordService.encodePassword(dto.getNewPassword()));
+        } else {
+            // 置空，跳过更新
+            entity.setPassword(null);
+        }
+
+        // 按需更新头像
+        if (dto.getAvatar() != null) {
+            // 置空
+            if (StrUtil.isBlank(dto.getAvatar())) {
+                if (StrUtil.isNotBlank(entity.getAvatar())) {
+                    storageManager.unmarkUse(entity.getAvatar());
+                }
+                entity.setAvatar("");
+            }
+            // 更新
+            else {
+                // 将旧的标记为未使用以待自动清理
+                storageManager.unmarkUse(entity.getAvatar());
+
+                entity.setAvatar(dto.getAvatar());
+                storageManager.markUse(dto.getAvatar());
+            }
+        }
+
+        // 昵称
+        if (StrUtil.isNotBlank(dto.getNickname())) {
+            entity.setNickname(dto.getNickname());
+        }
+        // 手机号，确认校验格式
+        if (StrUtil.isNotBlank(dto.getMobile()) && !Objects.equals(dto.getMobile(), entity.getMobile())) {
+            if (!Validator.isMobile(dto.getMobile())) {
+                throw new BaseException("手机号格式不正确");
+            }
+            entity.setMobile(dto.getMobile());
+        }
+        // 邮箱，确认校验格式
+        if (StrUtil.isNotBlank(dto.getEmail()) && !Objects.equals(dto.getEmail(), entity.getEmail())) {
+            if (!Validator.isEmail(dto.getEmail())) {
+                throw new BaseException("邮箱格式不正确");
+            }
+            entity.setEmail(dto.getEmail());
+        }
+        // 性别
+        if (dto.getGender() != null) {
+            entity.setGender(dto.getGender());
+        }
+
+        entity.updateById();
     }
 
     // ================================================================================
@@ -436,20 +564,16 @@ public class SysUserService {
         if (user == null) {
             throw new BaseException("用户未找到");
         }
-
-        // 查询角色
-        List<Long> roleIds = sysUserRoleRepo.findListByUserId(userId)
-                .stream().map(SysUserRoleEntity::getRoleId).collect(Collectors.toList());
-        Set<String> roles = roleIds.isEmpty() ? Collections.emptySet() :
-                sysRoleRepo.listByIds(roleIds).stream()
-                        .map(SysRoleEntity::getCode).filter(StrUtil::isNotBlank).collect(Collectors.toSet());
-
-        // 查询资源
-        List<Long> resIds = sysRoleResRepo.findListByRoleIds(roleIds)
-                .stream().map(SysRoleResEntity::getResId).distinct().collect(Collectors.toList());
-        Set<String> resources = resIds.isEmpty() ? Collections.emptySet() :
-                sysResRepo.listByIds(resIds).stream()
-                        .map(SysResEntity::getPermission).filter(StrUtil::isNotBlank).collect(Collectors.toSet());
+        // 检查：用户是否已禁用
+        if (!this.isEnabled(user)) {
+            throw new BaseException(ErrorCodeEnum.FORBIDDEN, "用户已禁用");
+        }
+        // 一次关联查询获取有效角色编码和有效权限标识；挂载关系只作为授权来源，最终鉴权按权限标识取并集
+        List<SysUserAuthResourceVo> authResources = sysUserRepo.queryAuthResources(userId);
+        Set<String> roles = authResources.stream().map(SysUserAuthResourceVo::getRoleCode)
+                .filter(StrUtil::isNotBlank).collect(Collectors.toSet());
+        Set<String> resources = authResources.stream().map(SysUserAuthResourceVo::getPermission)
+                .filter(StrUtil::isNotBlank).collect(Collectors.toSet());
 
         UserRolesAndResourcesVo vo = new UserRolesAndResourcesVo();
         vo.setUser(user);
@@ -465,15 +589,25 @@ public class SysUserService {
     public MineVo mine(Long userId) {
         SysUserEntity user = sysUserRepo.getOneById(userId);
 
-        List<Long> roleIds = sysUserRoleRepo.findListByUserId(userId)
-                .stream().map(SysUserRoleEntity::getRoleId).collect(Collectors.toList());
-        List<SysRoleEntity> roles = sysRoleRepo.findListByIds(roleIds);
+        List<SysRoleEntity> roles = this.findEnabledRolesByUserId(userId);
+        List<Long> roleIds = roles.stream().map(SysRoleEntity::getId).collect(Collectors.toList());
 
         List<Long> orgIds = sysUserOrgRepo.findListByUserId(userId)
                 .stream().map(SysUserOrgEntity::getOrgId).collect(Collectors.toList());
         List<SysOrgEntity> orgs = sysOrgRepo.findListByIds(orgIds);
 
-        List<String> permissions = Collections.singletonList("*:*:*");
+        List<String> permissions;
+        // 判断是否跳过权限校验，即返回“所有权限”
+        if (this.isPermissionBypassed(user)) {
+            permissions = Collections.singletonList("*:*:*");
+        } else {
+            List<Long> resIds = sysRoleResRepo.findListByRoleIds(roleIds)
+                    .stream().map(SysRoleResEntity::getResId).distinct().collect(Collectors.toList());
+            permissions = resIds.isEmpty() ? Collections.emptyList() :
+                    sysResRepo.findListByIds(resIds).stream()
+                            .filter(this::isEnabled)
+                            .map(SysResEntity::getPermission).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+        }
 
         MineVo vo = new MineVo();
         vo.setUser(user);
@@ -481,6 +615,73 @@ public class SysUserService {
         vo.setOrgs(orgs);
         vo.setPermissions(permissions);
         return vo;
+    }
+
+    private List<SysRoleEntity> findEnabledRolesByUserId(Long userId) {
+        List<Long> roleIds = sysUserRoleRepo.findListByUserId(userId)
+                .stream().map(SysUserRoleEntity::getRoleId).distinct().collect(Collectors.toList());
+        if (CollUtil.isEmpty(roleIds)) {
+            return Collections.emptyList();
+        }
+        return sysRoleRepo.findListByIds(roleIds).stream()
+                .filter(this::isEnabled)
+                .collect(Collectors.toList());
+    }
+
+    private List<Long> findEnabledRoleIdsByUserId(Long userId) {
+        return this.findEnabledRolesByUserId(userId).stream()
+                .map(SysRoleEntity::getId)
+                .collect(Collectors.toList());
+    }
+
+    private boolean isEnabled(SysUserEntity entity) {
+        return entity != null && DataStatusEnum.ENABLED.equalsValue(entity.getStatus());
+    }
+
+    private boolean isEnabled(SysRoleEntity entity) {
+        return entity != null && DataStatusEnum.ENABLED.equalsValue(entity.getStatus());
+    }
+
+    private boolean isEnabled(SysResEntity entity) {
+        return entity != null && DataStatusEnum.ENABLED.equalsValue(entity.getStatus());
+    }
+
+    private boolean isPermissionBypassed(SysUserEntity user) {
+        if (Objects.equals(Boolean.TRUE, yeahBootProperties.getSafeMode())) {
+            return true;
+        }
+        return this.isSuperAdmin(user);
+    }
+
+    private boolean isSuperAdmin(SysUserEntity user) {
+        return user != null && this.isSuperAdminUsername(user.getUsername());
+    }
+
+    private boolean isSuperAdminUsername(String username) {
+        if (StrUtil.isBlank(yeahBootProperties.getSuperAdmin())) {
+            return false;
+        }
+        return Objects.equals(yeahBootProperties.getSuperAdmin(), username);
+    }
+
+    /**
+     * 校验用户关联的组织、岗位和角色ID
+     */
+    private void validateRelationIds(Set<Long> orgIds, Set<Long> postIds, Set<Long> roleIds) {
+        if (CollUtil.isNotEmpty(orgIds) && sysOrgRepo.countByIds(orgIds) != orgIds.size()) {
+            throw new BaseException("组织ID不正确");
+        }
+        if (CollUtil.isNotEmpty(postIds) && sysPostRepo.countByIds(postIds) != postIds.size()) {
+            throw new BaseException("岗位ID不正确");
+        }
+        if (CollUtil.isNotEmpty(roleIds) && sysRoleRepo.countByIds(roleIds) != roleIds.size()) {
+            throw new BaseException("角色ID不正确");
+        }
+    }
+
+    private String getResTypeName(Integer type) {
+        ResTypeEnum typeEnum = ResTypeEnum.of(String.valueOf(type));
+        return typeEnum == null ? "" : typeEnum.getDesc();
     }
 
     // ================================================================================

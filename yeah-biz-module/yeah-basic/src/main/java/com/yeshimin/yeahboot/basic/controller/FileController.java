@@ -1,6 +1,9 @@
 package com.yeshimin.yeahboot.basic.controller;
 
+import com.yeshimin.yeahboot.common.common.enums.SysLogCategoryEnum;
+import com.yeshimin.yeahboot.common.common.log.SysLog;
 import com.yeshimin.yeahboot.data.domain.entity.SysFileEntity;
+import com.yeshimin.yeahboot.basic.domain.dto.FileDeleteDto;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.basic.domain.vo.FileUploadVo;
 import com.yeshimin.yeahboot.data.mapper.SysFileMapper;
@@ -17,6 +20,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+
 /**
  * 文件管理 - 底层依赖storage
  */
@@ -30,7 +35,7 @@ public class FileController extends CrudController<SysFileMapper, SysFileEntity,
     public FileController(SysFileRepo service) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(service);
-        super.setModule("basic:file").disableCreate().disableUpdate().disableDelete();
+        super.setModule("api:basic:file").disableCreate().disableUpdate().disableDelete();
     }
 
     /**
@@ -56,6 +61,7 @@ public class FileController extends CrudController<SysFileMapper, SysFileEntity,
      * 下载文件
      */
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':download')")
+    @SysLog(value = "下载文件", category = SysLogCategoryEnum.FILE)
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> download(@RequestParam("fileKey") String fileKey) {
         return fileService.download(fileKey);
@@ -65,9 +71,10 @@ public class FileController extends CrudController<SysFileMapper, SysFileEntity,
      * 删除文件
      */
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
+    @SysLog(value = "删除文件", category = SysLogCategoryEnum.FILE)
     @PostMapping("/delete")
-    public R<Void> delete(@RequestParam("fileKey") String fileKey) {
-        fileService.delete(fileKey);
+    public R<Void> delete(@Valid @RequestBody FileDeleteDto dto) {
+        fileService.delete(dto);
         return R.ok();
     }
 }

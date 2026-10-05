@@ -2,7 +2,6 @@ package com.yeshimin.yeahboot.mq;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,7 +16,9 @@ public class MqProperties {
 
     @PostConstruct
     private void init() {
-        log.info("init [yeah-boot.mq] properties...this: {}", this);
+        log.info("init [yeah-boot.mq] properties...impl: {}, autoAck: {}, defaultGroup: {}, batchSize: {}, "
+                        + "blockTimeout: {}",
+                impl, autoAck, defaultGroup, batchSize, blockTimeout);
     }
 
     // redis | rabbitmq

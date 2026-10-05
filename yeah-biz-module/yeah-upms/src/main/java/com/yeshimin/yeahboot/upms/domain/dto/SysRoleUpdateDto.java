@@ -6,7 +6,7 @@ import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Set;
+import javax.validation.constraints.NotNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -15,6 +15,7 @@ public class SysRoleUpdateDto extends BaseDomain {
     /**
      * ID
      */
+    @NotNull(message = "ID不能为空")
     private Long id;
 
     /**
@@ -38,8 +39,4 @@ public class SysRoleUpdateDto extends BaseDomain {
      */
     private String remark;
 
-    /**
-     * 资源ID集合
-     */
-    private Set<Long> resIds;
 }

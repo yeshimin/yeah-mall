@@ -3,7 +3,6 @@ package com.yeshimin.yeahboot.mq.redis;
 import com.yeshimin.yeahboot.mq.MqListener;
 import com.yeshimin.yeahboot.mq.MqProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -13,11 +12,11 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.UUID;
 
 @Component
-//@ConditionalOnProperty(prefix = "yeah-boot.mq", name = "impl", havingValue = "redis")
 public class RedisMqListenerRegistrar {
 
     @Autowired
@@ -54,5 +53,10 @@ public class RedisMqListenerRegistrar {
         }
 
         container.start();
+    }
+
+    @PreDestroy
+    public void stop() {
+        container.stop();
     }
 }

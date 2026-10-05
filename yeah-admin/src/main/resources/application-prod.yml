@@ -1,0 +1,113 @@
+spring:
+  # mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: localhost
+    schema: yeah_boot
+    url: jdbc:mysql://${spring.datasource.host}:3306/${spring.datasource.schema}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useUnicode=true&zeroDateTimeBehavior=CONVERT_TO_NULL&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&allowMultiQueries=false&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true&useAffectedRows=false
+    username: root
+    password: 123456
+  # redis
+  redis:
+    host: localhost
+    port: 6379
+    password: ""
+    database: 1
+    timeout: 10000
+
+# auth相关
+auth:
+  token:
+    # 全局jwt配置（subject中可覆盖）
+    jwt:
+      # 签发密钥
+      secret: xeePu3xo3uoyo5Quooquai0ut1ha7aih
+      # 过期时间（秒）
+      expire-seconds: 3600
+      # 时间校验偏差（秒）
+      default-leeway: 60
+    subjects:
+      - name: admin
+        api-prefix: '/admin,/basic,/auth,/ws,/area'
+        jwt:
+          # 签发密钥
+          secret: wee8Deonee4egh5taif8noim8pee1aiJ
+          # 过期时间（秒）
+          expire-seconds: 3600
+          # 时间校验偏差（秒）
+          default-leeway: 60
+        terminals:
+          - name: web
+            # 同一个账号在该终端的最大在线token数量（默认-1，表示不限制）（不可超过总的最大在线token数量）
+            max-online-token-count: 1
+          - name: api
+            # 同一个账号在该终端的最大在线token数量（默认-1，表示不限制）（不可超过总的最大在线token数量）
+            max-online-token-count: -1
+        # 同一个账号的最大在线token数量（默认-1，表示不限制）
+        max-online-token-count: 10
+        # 同一个账号的最大在线终端数量（默认-1，表示不限制）
+        max-online-terminal-count: -1
+      - name: app
+        api-prefix: '/app,/auth,/ws'
+        jwt:
+          # 签发密钥
+          secret: caiQueipae5Phaeph7gaethae5ash6bu
+          # 过期时间（秒）
+          expire-seconds: 3600
+          # 时间校验偏差（秒）
+          default-leeway: 60
+        terminals:
+          - name: app
+            # 同一个账号在该终端的最大在线token数量（默认-1，表示不限制）（不可超过总的最大在线token数量）
+            max-online-token-count: 1
+          - name: api
+            # 同一个账号在该终端的最大在线token数量（默认-1，表示不限制）（不可超过总的最大在线token数量）
+            max-online-token-count: -1
+        # 同一个账号的最大在线token数量（默认-1，表示不限制）
+        max-online-token-count: 10
+        # 同一个账号的最大在线终端数量（默认-1，表示不限制）
+        max-online-terminal-count: -1
+
+yeah-boot:
+  # 文件/存储
+  storage:
+    enabled: true
+    impl:
+      # 本地文件系统存储相关配置
+      local:
+        enabled: true
+        priority: 1
+        public-bucket: public
+        bucket: yeahboot
+        base-path: /root/ysm.d/yeahboot.d/yeah-boot/upload
+      # 七牛云存储相关配置
+      qiniu:
+        enabled: true
+        priority: 2
+        public-bucket: yeahbootpublic
+        public-domain: OVERWRITE_ME
+        access-key: OVERWRITE_ME
+        secret-key: OVERWRITE_ME
+        bucket: OVERWRITE_ME
+        domain: OVERWRITE_ME
+        use-https: true
+      # minio存储相关配置
+      minio:
+        enabled: false
+        priority: 3
+        public-bucket: yeahbootpublic
+        endpoint: OVERWRITE_ME
+        bucket: OVERWRITE_ME
+        access-key: OVERWRITE_ME
+        secret-key: OVERWRITE_ME
+    biz:
+      # 文件管理
+      file:
+        bucket: filemanage
+        path: default
+  # 通知相关
+  notification:
+    aliyun:
+      sms:
+        access-key-id: OVERWRITE_ME
+        access-key-secret: OVERWRITE_ME

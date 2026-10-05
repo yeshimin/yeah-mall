@@ -29,6 +29,11 @@
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-auth</artifactId>
         </dependency>
+        <!-- ratelimit module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-flowcontrol</artifactId>
+        </dependency>
         <!-- biz data module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>

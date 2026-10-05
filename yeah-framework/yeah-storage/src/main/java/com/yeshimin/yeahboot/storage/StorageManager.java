@@ -63,6 +63,14 @@ public class StorageManager {
     }
 
     /**
+     * 获取最终使用的存储类型
+     */
+    public StorageTypeEnum getStorageType(@Nullable StorageTypeEnum storageType) {
+        this.checkEnabled();
+        return this.getProvider(storageType).getStorageType();
+    }
+
+    /**
      * 全参方法
      */
     public SysStorageEntity put(@Nullable String bucketName, @Nullable String path, Object file,
@@ -73,20 +81,6 @@ public class StorageManager {
         entity.setIsUsed(isUsed);
         // 暂定如果一天后还没被使用到则可以清理掉
         entity.setCleanableTime(LocalDateTime.now().plusDays(1));
-        boolean r = entity.insert();
-        log.info("StorageManager.put.result: {}", r);
-        return entity;
-    }
-
-    /**
-     * 暂时用不到
-     */
-    private SysStorageEntity put(@Nullable String bucketName, @Nullable String path, byte[] fileBytes,
-                                 String fileOriginName, @Nullable StorageTypeEnum storageType, boolean isPublic) {
-        this.checkEnabled();
-        SysStorageEntity entity =
-                this.getProvider(storageType).put(bucketName, path, fileBytes, fileOriginName, isPublic);
-        entity.setIsPublic(isPublic);
         boolean r = entity.insert();
         log.info("StorageManager.put.result: {}", r);
         return entity;

@@ -12,17 +12,16 @@
     <groupId>com.yeshimin.yeahboot</groupId>
     <artifactId>yeah-app</artifactId>
 
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
-        <!-- common module -->
+        <!-- common core module -->
         <dependency>
             <groupId>com.yeshimin.yeahboot</groupId>
             <artifactId>yeah-common-core</artifactId>
+        </dependency>
+        <!-- common data module -->
+        <dependency>
+            <groupId>com.yeshimin.yeahboot</groupId>
+            <artifactId>yeah-common-data</artifactId>
         </dependency>
         <!-- auth module -->
         <dependency>
@@ -95,6 +94,18 @@
         <dependency>
             <groupId>com.yeshimin</groupId>
             <artifactId>manticoresearch-java-8</artifactId>
+        </dependency>
+
+        <!-- P6Spy -->
+        <dependency>
+            <groupId>com.github.gavlyukovskiy</groupId>
+            <artifactId>p6spy-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- 阿里云短信sdk，App源码直接使用短信响应类型 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dysmsapi20170525</artifactId>
         </dependency>
     </dependencies>
 

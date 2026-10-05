@@ -1,126 +1,364 @@
-#!/bin/bash
+#!/usr/bin/env sh
 # ==========================================================
-# Java 服务管理脚本（Linux/macOS 通用，兼容 /bin/sh）
+# YeahBoot Java 服务管理脚本。
+#
+# 建议服务器目录：
+# <app-dir>/
+# ├── yeah-admin.jar
+# ├── deploy.sh
+# ├── config/                 # 服务器本地配置，禁止提交凭据。
+# ├── logs/
+# └── run/
 # ==========================================================
+
+set -u
+
+BASE_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd)
 
 JAR_NAME="yeah-admin.jar"
-PORT=8080
-JAVA_OPTS="-Dlogging.level.org.springframework.security=DEBUG -Dlogging.level.com.yeshimin.yeahboot=DEBUG"
-SPRING_OPTS="--yeah-boot.safe-mode=false;--yeah-boot.storage.impl.qiniu.access-key=******;--yeah-boot.storage.impl.qiniu.bucket=******;--yeah-boot.storage.impl.qiniu.domain=******;--yeah-boot.storage.impl.qiniu.public-domain=******;--yeah-boot.storage.impl.qiniu.secret-key=******;--yeah-boot.notification.aliyun.sms.access-key-id=******;--yeah-boot.notification.aliyun.sms.access-key-secret=******;--yeah-boot.notification.aliyun.sms.template-code=******;--yeah-boot.notification.aliyun.sms.sign-name=******"
+PORT="8080"
+CONFIG_DIR="config"
+JAVA_BIN="${JAVA_BIN:-}"
+JENV_JAVA_VERSION="${JENV_JAVA_VERSION:-}"
+JAVA_MIN_VERSION="${JAVA_MIN_VERSION:-8}"
+JAVA_OPTS="${JAVA_OPTS:--Xms256m -Xmx512m}"
+SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-}"
+START_WAIT_SECONDS="${START_WAIT_SECONDS:-3}"
+STOP_WAIT_SECONDS="${STOP_WAIT_SECONDS:-30}"
 
-BASE_DIR=$(cd "$(dirname "$0")" && pwd)
-PID_DIR="$BASE_DIR/run"
-mkdir -p "$PID_DIR"
-PID_FILE="$PID_DIR/app.pid"
+LOG_DIR="$BASE_DIR/logs"
+RUN_DIR="$BASE_DIR/run"
+PID_FILE="$RUN_DIR/app.pid"
+LOG_FILE="$LOG_DIR/yeah-admin.out"
+
+usage() {
+  cat <<EOF
+用法: $0 {start|stop|restart|status|logs} [选项]
+
+选项:
+  -j, --jar <文件>          Jar 文件名或绝对路径，默认: yeah-admin.jar
+  -p, --port <端口>         服务端口，默认: 8080
+  -c, --config-dir <目录>   Spring 外部配置目录，默认: ./config
+  -h, --help                显示帮助
+
+环境变量:
+  JAVA_BIN                  Java 命令路径，优先级最高
+  JENV_JAVA_VERSION         可选 jenv 版本，例如 1.8 或 21
+  JAVA_MIN_VERSION          最低 JDK 版本，默认: 8
+  JAVA_OPTS                 简单的空格分隔 JVM 参数
+  SPRING_PROFILES_ACTIVE    可选 Spring Profile，例如 prod
+  START_WAIT_SECONDS        启动后等待秒数，默认: 3
+  STOP_WAIT_SECONDS         优雅停止等待秒数，默认: 30
+
+不要把数据库、Redis、JWT、短信或对象存储凭据写入本脚本。
+请将其保存在服务器本地配置目录，并限制文件访问权限。
+EOF
+}
+
+is_running() {
+  [ -n "${1:-}" ] && kill -0 "$1" 2>/dev/null
+}
+
+is_managed_process() {
+  PID_TO_CHECK="${1:-}"
+  is_running "$PID_TO_CHECK" || return 1
+
+  PROCESS_COMMAND=$(ps -p "$PID_TO_CHECK" -o command= 2>/dev/null || true)
+  case "$PROCESS_COMMAND" in
+    *"$JAR_PATH"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
 get_pid() {
-  PID=""
   if [ -f "$PID_FILE" ]; then
-    PID=$(cat "$PID_FILE")
-    if ! ps -p "$PID" > /dev/null 2>&1; then
-      rm -f "$PID_FILE"
-      PID=""
+    PID=$(cat "$PID_FILE" 2>/dev/null || true)
+    if is_managed_process "$PID"; then
+      printf '%s\n' "$PID"
+      return 0
     fi
+    rm -f "$PID_FILE"
   fi
-  if [ -z "$PID" ]; then
-    PID=$(ps -ef | grep "java .*${JAR_NAME}" | grep -v grep | awk '{print $2}' | head -n 1)
-  fi
-  echo "$PID"
+  return 1
 }
 
-start() {
-  PID=$(get_pid)
-  if [ -n "$PID" ]; then
-    echo "⚠️  服务已在运行 (PID=$PID)"
-    exit 0
-  fi
+resolve_paths() {
+  case "$JAR_NAME" in
+    /*) JAR_PATH="$JAR_NAME" ;;
+    *) JAR_PATH="$BASE_DIR/$JAR_NAME" ;;
+  esac
 
-  echo "🚀 启动服务: $JAR_NAME (端口: $PORT)..."
-  #nohup java $JAVA_OPTS -jar "$JAR_NAME" $SPRING_OPTS --server.port="$PORT" > /dev/null 2>&1 &
-  nohup java $JAVA_OPTS -jar "$JAR_NAME" $SPRING_OPTS --server.port="$PORT" 2>&1 &
-  echo $! > "$PID_FILE"
+  case "$CONFIG_DIR" in
+    /*) ;;
+    *) CONFIG_DIR="$BASE_DIR/$CONFIG_DIR" ;;
+  esac
+}
 
-  sleep 1
-  PID=$(get_pid)
-  if [ -n "$PID" ]; then
-    echo "✅ 启动成功，PID=$PID"
-  else
-    echo "❌ 启动失败，请检查命令或环境"
+validate_positive_integer() {
+  VALUE="$1"
+  LABEL="$2"
+  case "$VALUE" in
+    ''|*[!0-9]*)
+      echo "$LABEL 必须是正整数: $VALUE" >&2
+      exit 1
+      ;;
+  esac
+  if [ "$VALUE" -lt 1 ]; then
+    echo "$LABEL 必须大于 0: $VALUE" >&2
+    exit 1
   fi
 }
 
-stop() {
-  PID=$(get_pid)
-  if [ -z "$PID" ]; then
-    echo "ℹ️  服务未运行"
+validate_port() {
+  case "$PORT" in
+    ''|*[!0-9]*)
+      echo "端口必须是数字: $PORT" >&2
+      exit 1
+      ;;
+  esac
+  if [ "$PORT" -lt 1 ] || [ "$PORT" -gt 65535 ]; then
+    echo "端口必须在 1 到 65535 之间: $PORT" >&2
+    exit 1
+  fi
+}
+
+resolve_java_bin() {
+  if [ -n "$JAVA_BIN" ]; then
     return
   fi
 
-  echo "🛑 停止服务 (PID=$PID)..."
-  kill "$PID"
-  i=0
-  while [ $i -lt 10 ]; do
-    sleep 0.5
-    if ! ps -p "$PID" > /dev/null 2>&1; then
-      rm -f "$PID_FILE"
-      echo "✅ 已停止"
-      return
+  if [ -n "$JENV_JAVA_VERSION" ]; then
+    if ! command -v jenv >/dev/null 2>&1; then
+      echo "已设置 JENV_JAVA_VERSION，但未安装 jenv" >&2
+      exit 1
     fi
-    i=$((i+1))
-  done
+    JENV_JAVA_HOME=$(jenv prefix "$JENV_JAVA_VERSION" 2>/dev/null) || {
+      echo "jenv 中未找到 Java 版本: $JENV_JAVA_VERSION" >&2
+      exit 1
+    }
+    JAVA_BIN="$JENV_JAVA_HOME/bin/java"
+    return
+  fi
 
-  echo "⚠️  正常停止失败，尝试强制杀进程..."
-  kill -9 "$PID"
-  rm -f "$PID_FILE"
-  echo "✅ 强制停止完成"
+  if [ -f "$BASE_DIR/.java-version" ] && command -v jenv >/dev/null 2>&1; then
+    JENV_LOCAL_VERSION=$(sed -n '1p' "$BASE_DIR/.java-version" | tr -d '[:space:]')
+    JENV_JAVA_HOME=$(jenv prefix "$JENV_LOCAL_VERSION" 2>/dev/null) || {
+      echo "无法根据 $BASE_DIR/.java-version 解析 jenv Java 版本: $JENV_LOCAL_VERSION" >&2
+      exit 1
+    }
+    JAVA_BIN="$JENV_JAVA_HOME/bin/java"
+    return
+  fi
+
+  JAVA_BIN="java"
 }
 
-status() {
-  PID=$(get_pid)
-  if [ -n "$PID" ]; then
-    echo "🟢 服务正在运行 (PID=$PID)"
-  else
-    echo "🔴 服务未运行"
+validate_java_version() {
+  java_version=$("$JAVA_BIN" -version 2>&1 | awk -F '"' '/version/ { print $2; exit }')
+  java_major=${java_version%%.*}
+
+  if [ "$java_major" = "1" ]; then
+    java_major=${java_version#1.}
+    java_major=${java_major%%.*}
+  fi
+
+  case "$java_major" in
+    ''|*[!0-9]*)
+      echo "无法识别 Java 版本: $java_version" >&2
+      exit 1
+      ;;
+  esac
+
+  if [ "$java_major" -lt "$JAVA_MIN_VERSION" ]; then
+    echo "需要 JDK $JAVA_MIN_VERSION 或更高版本，当前版本: $java_version" >&2
+    exit 1
   fi
 }
 
+check_start_requirements() {
+  validate_port
+  validate_positive_integer "$JAVA_MIN_VERSION" "JAVA_MIN_VERSION"
+  validate_positive_integer "$START_WAIT_SECONDS" "START_WAIT_SECONDS"
+  validate_positive_integer "$STOP_WAIT_SECONDS" "STOP_WAIT_SECONDS"
+
+  resolve_java_bin
+
+  if ! command -v "$JAVA_BIN" >/dev/null 2>&1; then
+    echo "Java 命令不可用: $JAVA_BIN" >&2
+    exit 1
+  fi
+  validate_java_version
+
+  if [ ! -f "$JAR_PATH" ]; then
+    echo "未找到 Jar 文件: $JAR_PATH" >&2
+    exit 1
+  fi
+
+  if ! mkdir -p "$LOG_DIR" "$RUN_DIR"; then
+    echo "无法创建 logs 或 run 目录" >&2
+    exit 1
+  fi
+}
+
+start() {
+  if PID=$(get_pid); then
+    echo "服务已在运行，PID=$PID"
+    return 0
+  fi
+
+  check_start_requirements
+
+  if [ -n "$SPRING_PROFILES_ACTIVE" ]; then
+    export SPRING_PROFILES_ACTIVE
+  fi
+
+  # 用位置参数保存 Spring Boot 参数，避免多参数字符串在 Shell 中被错误合并。
+  set -- \
+    "--spring.config.additional-location=optional:file:${CONFIG_DIR}/" \
+    "--server.port=${PORT}"
+
+  # 需要额外覆盖时，按下面的方式逐项追加，不要拼接为一个字符串：
+  # set -- "$@" "--logging.level.com.example=DEBUG"
+
+  echo "启动服务: $JAR_PATH"
+  echo "端口: $PORT"
+  echo "Java 命令: $JAVA_BIN（最低 JDK $JAVA_MIN_VERSION）"
+  echo "配置目录: $CONFIG_DIR"
+  echo "日志文件: $LOG_FILE"
+
+  # JAVA_OPTS 仅支持简单的空格分隔 JVM 参数；敏感配置必须放在 config/。
+  # shellcheck disable=SC2086
+  set -f
+  nohup "$JAVA_BIN" $JAVA_OPTS -jar "$JAR_PATH" "$@" >> "$LOG_FILE" 2>&1 &
+  NEW_PID=$!
+  set +f
+  printf '%s\n' "$NEW_PID" > "$PID_FILE"
+
+  sleep "$START_WAIT_SECONDS"
+  if is_managed_process "$NEW_PID"; then
+    echo "服务启动成功，PID=$NEW_PID"
+    return 0
+  fi
+
+  rm -f "$PID_FILE"
+  echo "服务启动失败，最近日志如下：" >&2
+  tail -n 80 "$LOG_FILE" 2>/dev/null || true
+  return 1
+}
+
+stop() {
+  if ! PID=$(get_pid); then
+    echo "服务未运行"
+    return 0
+  fi
+
+  validate_positive_integer "$STOP_WAIT_SECONDS" "STOP_WAIT_SECONDS"
+  echo "停止服务，PID=$PID"
+
+  if ! kill "$PID" 2>/dev/null; then
+    echo "无法停止服务，PID=$PID" >&2
+    return 1
+  fi
+
+  WAITED=0
+  while is_running "$PID"; do
+    if ! is_managed_process "$PID"; then
+      echo "PID=$PID 已不属于当前服务，拒绝继续发送信号" >&2
+      rm -f "$PID_FILE"
+      return 1
+    fi
+
+    if [ "$WAITED" -ge "$STOP_WAIT_SECONDS" ]; then
+      echo "优雅停止超时，尝试强制停止，PID=$PID"
+      if ! kill -9 "$PID" 2>/dev/null; then
+        echo "无法强制停止服务，PID=$PID" >&2
+        return 1
+      fi
+      sleep 1
+      if is_running "$PID"; then
+        echo "强制停止后服务仍在运行，PID=$PID" >&2
+        return 1
+      fi
+      break
+    fi
+
+    sleep 1
+    WAITED=$((WAITED + 1))
+  done
+
+  rm -f "$PID_FILE"
+  echo "服务已停止"
+}
+
+status() {
+  if PID=$(get_pid); then
+    echo "服务正在运行，PID=$PID，端口=$PORT"
+    return 0
+  fi
+
+  echo "服务未运行"
+  return 3
+}
+
+logs() {
+  if ! mkdir -p "$LOG_DIR" || ! touch "$LOG_FILE"; then
+    echo "无法访问日志文件: $LOG_FILE" >&2
+    return 1
+  fi
+  tail -n 200 -f "$LOG_FILE"
+}
+
 restart() {
-  stop
-  sleep 1
+  stop || return 1
   start
 }
 
-CMD=""
-while [ $# -gt 0 ]; do
+COMMAND="${1:-}"
+if [ "$#" -gt 0 ]; then
+  shift
+fi
+
+while [ "$#" -gt 0 ]; do
   case "$1" in
-    start|stop|restart|status)
-      CMD="$1"
-      shift
-      ;;
     -j|--jar)
-      JAR_NAME="$2"
+      JAR_NAME="${2:-}"
+      [ -n "$JAR_NAME" ] || { echo "参数 $1 需要 Jar 文件" >&2; exit 1; }
       shift 2
       ;;
     -p|--port)
-      PORT="$2"
+      PORT="${2:-}"
+      [ -n "$PORT" ] || { echo "参数 $1 需要端口" >&2; exit 1; }
       shift 2
       ;;
+    -c|--config-dir)
+      CONFIG_DIR="${2:-}"
+      [ -n "$CONFIG_DIR" ] || { echo "参数 $1 需要目录" >&2; exit 1; }
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
     *)
-      echo "未知参数: $1"
-      echo "用法: $0 {start|stop|restart|status} [-j jar文件名] [-p 端口]"
+      echo "未知选项: $1" >&2
+      usage >&2
       exit 1
       ;;
   esac
 done
 
-case "$CMD" in
+resolve_paths
+
+case "$COMMAND" in
   start) start ;;
   stop) stop ;;
   restart) restart ;;
   status) status ;;
+  logs) logs ;;
+  -h|--help|"") usage ;;
   *)
-    echo "用法: $0 {start|stop|restart|status} [-j jar文件名] [-p 端口]"
+    echo "未知命令: $COMMAND" >&2
+    usage >&2
     exit 1
     ;;
 esac
-

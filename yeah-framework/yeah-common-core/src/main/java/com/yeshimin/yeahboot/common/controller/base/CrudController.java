@@ -4,11 +4,14 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
+import com.yeshimin.yeahboot.common.common.enums.SysLogCategoryEnum;
+import com.yeshimin.yeahboot.common.common.log.SysLog;
 import com.yeshimin.yeahboot.common.controller.validation.Create;
 import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.common.controller.validation.Update;
 import com.yeshimin.yeahboot.common.domain.base.BaseEntity;
 import com.yeshimin.yeahboot.common.domain.base.R;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +54,9 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     /**
      * CRUD-创建
      */
+    @Operation(summary = "创建数据")
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
+    @SysLog(value = "创建数据", category = SysLogCategoryEnum.DATA)
     @PostMapping("/crud/create")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudCreate(@Validated(Create.class) @RequestBody E e) {
@@ -66,6 +71,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     /**
      * CRUD-查询
      */
+    @Operation(summary = "分页查询数据")
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
     @GetMapping("/crud/query")
     public R<Page<E>> crudQuery(Page<E> page, @Validated(Query.class) E query) {
@@ -80,6 +86,7 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     /**
      * CRUD-详情
      */
+    @Operation(summary = "查询数据详情")
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:detail')")
     @GetMapping("/crud/detail")
     public R<E> crudDetail(Long id) {
@@ -99,7 +106,9 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     /**
      * CRUD-更新
      */
+    @Operation(summary = "更新数据")
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
+    @SysLog(value = "更新数据", category = SysLogCategoryEnum.DATA)
     @PostMapping("/crud/update")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudUpdate(@Validated(Update.class) @RequestBody E e) {
@@ -117,7 +126,9 @@ public class CrudController<M extends BaseMapper<E>, E extends BaseEntity<E>, S 
     /**
      * CRUD-删除
      */
+    @Operation(summary = "删除数据")
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:delete')")
+    @SysLog(value = "删除数据", category = SysLogCategoryEnum.DATA)
     @PostMapping("/crud/delete")
     @Transactional(rollbackFor = Exception.class)
     public R<Void> crudDelete(@RequestBody Collection<Long> ids) {

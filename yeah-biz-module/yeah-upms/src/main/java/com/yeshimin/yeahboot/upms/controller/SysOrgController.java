@@ -1,5 +1,7 @@
 package com.yeshimin.yeahboot.upms.controller;
 
+import com.yeshimin.yeahboot.common.common.enums.SysLogCategoryEnum;
+import com.yeshimin.yeahboot.common.common.log.SysLog;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.IdsDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
@@ -12,6 +14,7 @@ import com.yeshimin.yeahboot.data.mapper.SysOrgMapper;
 import com.yeshimin.yeahboot.data.repository.SysOrgRepo;
 import com.yeshimin.yeahboot.upms.service.SysOrgService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,7 +33,11 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
     public SysOrgController(SysOrgRepo service) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(service);
-        setModule("admin:sysOrg");
+        setModule("api:admin:sysOrg")
+                .disableCreate()
+                .disableQuery()
+                .disableUpdate()
+                .disableDelete();
     }
 
     // ================================================================================
@@ -38,6 +45,8 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
     /**
      * 创建
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':create')")
+    @SysLog(value = "创建组织", category = SysLogCategoryEnum.DATA)
     @PostMapping("/create")
     public R<SysOrgEntity> create(@Valid @RequestBody SysOrgCreateDto dto) {
         return R.ok(sysOrgService.create(dto));
@@ -46,6 +55,7 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
     /**
      * 查询树
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':tree')")
     @GetMapping("/tree")
     public R<List<SysOrgTreeNodeVo>> tree(SysOrgTreeQueryDto dto) {
         return R.ok(sysOrgService.tree(dto));
@@ -54,6 +64,8 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
     /**
      * 更新
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':update')")
+    @SysLog(value = "更新组织", category = SysLogCategoryEnum.DATA)
     @PostMapping("/update")
     public R<SysOrgEntity> update(@Valid @RequestBody SysOrgUpdateDto dto) {
         return R.ok(sysOrgService.update(dto));
@@ -62,6 +74,8 @@ public class SysOrgController extends CrudController<SysOrgMapper, SysOrgEntity,
     /**
      * 删除
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
+    @SysLog(value = "删除组织", category = SysLogCategoryEnum.DATA)
     @PostMapping("/delete")
     public R<Void> delete(@Valid @RequestBody IdsDto dto) {
         sysOrgService.delete(dto.getIds());

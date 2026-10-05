@@ -71,6 +71,8 @@ manticore-search:
   base-path: http://localhost:9308
 
 yeah-boot:
+  # merchant模块单独启动/打包时启用@MapperScan
+  merchant-mapper-scan-enabled: true
   # 是否开启验证码校验
   captcha-enabled: false
   # ID编号生成器

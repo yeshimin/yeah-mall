@@ -1,5 +1,8 @@
 package com.yeshimin.yeahboot.data.domain.dto;
 
+import com.yeshimin.yeahboot.common.common.sensitive.SensitiveData;
+import com.yeshimin.yeahboot.common.common.sensitive.SensitiveScene;
+import com.yeshimin.yeahboot.common.common.sensitive.SensitiveType;
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,6 +15,11 @@ import java.util.Set;
 public class SysUserQueryDto extends BaseDomain {
 
     /**
+     * 用户ID集合
+     */
+    private Set<Long> ids;
+
+    /**
      * 用户名
      */
     private String username;
@@ -19,6 +27,7 @@ public class SysUserQueryDto extends BaseDomain {
     /**
      * 手机号
      */
+    @SensitiveData(type = SensitiveType.MOBILE, scenes = SensitiveScene.LOG)
     private String mobile;
 
     /**

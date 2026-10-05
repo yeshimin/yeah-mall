@@ -22,4 +22,9 @@ public class SysRoleResEntity extends ConditionBaseEntity<SysRoleResEntity> {
      * 资源ID
      */
     private Long resId;
+
+    /**
+     * 挂载ID；0表示非挂载授权
+     */
+    private Long mountId;
 }

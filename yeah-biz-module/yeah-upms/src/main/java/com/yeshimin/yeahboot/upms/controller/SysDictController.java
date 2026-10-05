@@ -1,5 +1,7 @@
 package com.yeshimin.yeahboot.upms.controller;
 
+import com.yeshimin.yeahboot.common.common.enums.SysLogCategoryEnum;
+import com.yeshimin.yeahboot.common.common.log.SysLog;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.upms.domain.dto.SysDictCreateDto;
@@ -11,6 +13,7 @@ import com.yeshimin.yeahboot.data.mapper.SysDictMapper;
 import com.yeshimin.yeahboot.data.repository.SysDictRepo;
 import com.yeshimin.yeahboot.upms.service.SysDictService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,7 +32,11 @@ public class SysDictController extends CrudController<SysDictMapper, SysDictEnti
     public SysDictController(SysDictRepo service) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(service);
-        setModule("admin:sysDict");
+        setModule("api:admin:sysDict")
+                .disableCreate()
+                .disableQuery()
+                .disableUpdate()
+                .disableDelete();
     }
 
     // ================================================================================
@@ -37,6 +44,8 @@ public class SysDictController extends CrudController<SysDictMapper, SysDictEnti
     /**
      * 创建
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':create')")
+    @SysLog(value = "创建字典", category = SysLogCategoryEnum.DATA)
     @PostMapping("/create")
     public R<SysDictEntity> create(@Valid @RequestBody SysDictCreateDto dto) {
         return R.ok(sysDictService.create(dto));
@@ -45,6 +54,7 @@ public class SysDictController extends CrudController<SysDictMapper, SysDictEnti
     /**
      * 查询树
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':tree')")
     @GetMapping("/tree")
     public R<List<SysDictTreeNodeVo>> tree(
             @RequestParam(value = "rootNodeCode", required = false) String rootNodeCode) {
@@ -54,6 +64,8 @@ public class SysDictController extends CrudController<SysDictMapper, SysDictEnti
     /**
      * 更新
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':update')")
+    @SysLog(value = "更新字典", category = SysLogCategoryEnum.DATA)
     @PostMapping("/update")
     public R<SysDictEntity> update(@Valid @RequestBody SysDictUpdateDto dto) {
         return R.ok(sysDictService.update(dto));
@@ -62,6 +74,8 @@ public class SysDictController extends CrudController<SysDictMapper, SysDictEnti
     /**
      * 删除
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
+    @SysLog(value = "删除字典", category = SysLogCategoryEnum.DATA)
     @PostMapping("/delete")
     public R<Void> delete(@Valid @RequestBody SysDictDeleteDto dto) {
         sysDictService.delete(dto.getIds(), dto.getForce());

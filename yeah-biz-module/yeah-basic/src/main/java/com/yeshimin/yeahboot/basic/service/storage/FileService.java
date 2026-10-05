@@ -1,6 +1,8 @@
 package com.yeshimin.yeahboot.basic.service.storage;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson2.JSON;
+import com.yeshimin.yeahboot.basic.domain.dto.FileDeleteDto;
 import com.yeshimin.yeahboot.basic.domain.vo.FileUploadVo;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
@@ -21,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -47,10 +51,11 @@ public class FileService extends BaseService {
      */
     @Transactional(rollbackFor = Exception.class)
     public FileUploadVo upload(MultipartFile file, StorageTypeEnum storageType) {
+        StorageTypeEnum finalStorageType = storageManager.getStorageType(storageType);
         // 决定bucket，除了local存储方式需要使用this.bucket，其他方式都指定为null
-        String bucket = storageType == StorageTypeEnum.LOCAL ? this.bucket : null;
+        String bucket = finalStorageType == StorageTypeEnum.LOCAL ? this.bucket : null;
         // 存储文件
-        SysStorageEntity result = storageManager.put(bucket, this.path, file, storageType, false, true);
+        SysStorageEntity result = storageManager.put(bucket, this.path, file, finalStorageType, false, true);
         if (!result.getSuccess()) {
             log.info("result: {}", JSON.toJSONString(result));
             throw new BaseException(ErrorCodeEnum.FAIL, "文件存储失败");
@@ -58,7 +63,7 @@ public class FileService extends BaseService {
 
         // 添加文件记录
         SysFileEntity sysFile = new SysFileEntity();
-        sysFile.setStorageType(StorageTypeEnum.LOCAL.getValue());
+        sysFile.setStorageType(result.getStorageType());
         sysFile.setBasePath(result.getBasePath());
         sysFile.setBucket(result.getBucket());
         sysFile.setPath(result.getPath());
@@ -92,6 +97,25 @@ public class FileService extends BaseService {
 
         // 删除存储
         storageManager.delete(fileKey);
+    }
+
+    /**
+     * 批量删除文件
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(FileDeleteDto dto) {
+        if (CollectionUtil.isNotEmpty(dto.getIds())) {
+            Set<String> fileKeys = sysFileRepo.findListByIds(dto.getIds())
+                    .stream().map(SysFileEntity::getFileKey).collect(Collectors.toSet());
+            if (CollectionUtil.isNotEmpty(fileKeys)) {
+                fileKeys.forEach(this::delete);
+            }
+            return;
+        }
+
+        if (CollectionUtil.isNotEmpty(dto.getFileKeys())) {
+            dto.getFileKeys().forEach(this::delete);
+        }
     }
 
     // ================================================================================

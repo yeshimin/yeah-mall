@@ -17,7 +17,9 @@ public class StorageProperties {
 
     @PostConstruct
     public void init() {
-        log.info("init [yeah-boot.storage] properties... enabled: {}, impl: {}, biz: {}", enabled, impl, biz);
+        log.info("init [yeah-boot.storage] properties...enabled: {}, impl: {}, biz: {}, local: {}, "
+                        + "qiniu: {}, minio: {}",
+                enabled, "******", "******", "******", "******", "******");
 
         if (!BooleanUtil.isTrue(enabled)) {
             log.info("[yeah-boot.storage] is disabled");
@@ -83,6 +85,7 @@ public class StorageProperties {
         private String secretKey;
         private String bucket;
         private String domain;
+        private Boolean useHttps = false;
     }
 
     @Data

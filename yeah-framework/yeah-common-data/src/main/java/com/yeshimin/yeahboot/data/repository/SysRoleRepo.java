@@ -38,6 +38,16 @@ public class SysRoleRepo extends BaseRepo<SysRoleMapper, SysRoleEntity> {
     }
 
     /**
+     * 按编码查询角色
+     */
+    public SysRoleEntity findOneByCode(String code) {
+        if (StrUtil.isBlank(code)) {
+            throw new IllegalArgumentException("code不能为空");
+        }
+        return this.lambdaQuery().eq(SysRoleEntity::getCode, code).one();
+    }
+
+    /**
      * createOne
      */
     public SysRoleEntity createOne(String code, String name, String status, String remark) {

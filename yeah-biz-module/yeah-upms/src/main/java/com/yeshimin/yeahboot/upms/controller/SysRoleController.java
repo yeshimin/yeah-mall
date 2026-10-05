@@ -1,5 +1,7 @@
 package com.yeshimin.yeahboot.upms.controller;
 
+import com.yeshimin.yeahboot.common.common.enums.SysLogCategoryEnum;
+import com.yeshimin.yeahboot.common.common.log.SysLog;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.IdsDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
@@ -12,7 +14,7 @@ import com.yeshimin.yeahboot.upms.domain.vo.SysRoleVo;
 import com.yeshimin.yeahboot.data.mapper.SysRoleMapper;
 import com.yeshimin.yeahboot.data.repository.SysRoleRepo;
 import com.yeshimin.yeahboot.upms.service.SysRoleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,13 +27,16 @@ import java.util.List;
 @RequestMapping("/admin/sysRole")
 public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEntity, SysRoleRepo> {
 
-    @Autowired
-    private SysRoleService sysRoleService;
+    private final SysRoleService sysRoleService;
 
-    public SysRoleController(SysRoleRepo sysRoleRepo) {
-        // 由于lombok方案无法实现构造方法中调用super，只能显式调用
+    public SysRoleController(SysRoleRepo sysRoleRepo, SysRoleService sysRoleService) {
         super(sysRoleRepo);
-        setModule("admin:sysRole");
+        this.sysRoleService = sysRoleService;
+        setModule("api:admin:sysRole")
+                .disableCreate()
+                .disableDetail()
+                .disableUpdate()
+                .disableDelete();
     }
 
     // ================================================================================
@@ -39,6 +44,8 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
     /**
      * 创建
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':create')")
+    @SysLog(value = "创建角色", category = SysLogCategoryEnum.DATA)
     @PostMapping("/create")
     public R<SysRoleEntity> create(@Valid @RequestBody SysRoleCreateDto dto) {
         return R.ok(sysRoleService.create(dto));
@@ -47,6 +54,7 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
     /**
      * 详情
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':detail')")
     @GetMapping("/detail")
     public R<SysRoleVo> detail(@RequestParam Long id) {
         return R.ok(sysRoleService.detail(id));
@@ -55,6 +63,8 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
     /**
      * 更新
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':update')")
+    @SysLog(value = "更新角色", category = SysLogCategoryEnum.DATA)
     @PostMapping("/update")
     public R<SysRoleEntity> update(@Valid @RequestBody SysRoleUpdateDto dto) {
         return R.ok(sysRoleService.update(dto));
@@ -63,6 +73,8 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
     /**
      * 删除
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
+    @SysLog(value = "删除角色", category = SysLogCategoryEnum.DATA)
     @PostMapping("/delete")
     public R<Void> delete(@Valid @RequestBody IdsDto dto) {
         sysRoleService.delete(dto.getIds());
@@ -74,6 +86,7 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
     /**
      * 查询指定角色对应的资源数据
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':queryResourceTree')")
     @GetMapping("/queryResourceTree")
     public R<List<SysRoleResTreeNodeVo>> queryResourceTree(@RequestParam Long roleId) {
         return R.ok(sysRoleService.queryResourceTree(roleId));
@@ -82,8 +95,11 @@ public class SysRoleController extends CrudController<SysRoleMapper, SysRoleEnti
     /**
      * 角色挂载资源（全量操作）
      */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':setResources')")
+    @SysLog(value = "设置角色资源", category = SysLogCategoryEnum.DATA)
     @PostMapping("/setResources")
-    public R<Boolean> setResources(@Valid @RequestBody SysRoleResSetDto dto) {
-        return R.ok(sysRoleService.setResources(dto));
+    public R<Void> setResources(@Valid @RequestBody SysRoleResSetDto dto) {
+        sysRoleService.setResources(dto);
+        return R.ok();
     }
 }

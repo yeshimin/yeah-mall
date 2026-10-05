@@ -120,6 +120,39 @@ yeah-boot
 mvn clean install
 ```
 
+### 环境 Profile
+
+`yeah-admin` 与 `yeah-app` 均提供以下配置文件：
+
+- `application.yml`：共享配置，默认激活 `dev`
+- `application-dev.yml`：本地开发环境配置
+- `application-prod.yml`：生产环境配置，可由 Jar 同级 `config/application-prod.yml` 覆盖
+
+本地开发默认使用 `dev`。启动生产环境时显式指定：
+
+```bash
+SPRING_PROFILES_ACTIVE=prod sh deploy.sh start
+```
+
+### 多 JDK 部署
+
+部署脚本默认要求 JDK 8，可通过环境变量为不同服务选择独立运行时。`JAVA_BIN` 优先级最高；未设置时，脚本会优先使用 `JENV_JAVA_VERSION`，再尝试解析服务目录中的 `.java-version`，最后回退到系统 `java`。
+
+使用服务目录的 `.java-version` 时，需将该文件与部署后的 `deploy.sh` 放在同一目录，例如文件内容为 `1.8`。
+
+```bash
+# 当前 JDK 8 维护线服务：默认要求 JDK 8
+JENV_JAVA_VERSION=1.8 JAVA_MIN_VERSION=8 sh deploy.sh start
+
+# JDK 21 主线服务：显式指定运行时与最低版本
+JENV_JAVA_VERSION=21 JAVA_MIN_VERSION=21 sh deploy.sh start
+
+# 不使用 jenv 时，直接指定 Java 可执行文件
+JAVA_BIN=/opt/jdk-8/bin/java sh deploy.sh start
+```
+
+同一台服务器上的每个服务应使用独立目录、Jar、端口、`config/`、日志和 PID 文件。
+
 ### 启动模式
 
 当前支持两种启动方式：
@@ -161,9 +194,9 @@ mvn -pl yeah-app -am spring-boot:run
 
 说明：
 
-- 当前 `yeah-app` 的 yml 配置尚未整理完善，直接启动大概率会失败
-- 如果需要独立启动 `yeah-app`，可先参考 `yeah-admin` 的对应配置自行补齐
-- 因未提供完整的独立配置模板，当前更推荐先使用单入口模式
+- `yeah-app` 已提供与 `yeah-admin` 一致的 `dev` / `prod` Profile 配置结构
+- 独立启动前需确保目标 Profile 的数据库、Redis、JWT 等基础设施配置完整
+- 单入口与双入口可按部署拓扑选择
 
 ### 启动前准备
 
@@ -203,6 +236,22 @@ yeah-boot.storage.impl.qiniu.secret-key=your-qiniu-secret-key
 - 仓库中的 JWT 相关 key/secret 仅用于测试或开发环境，正式部署前务必替换为你自己的安全配置
 - 除上述自定义配置外，仍需补充 `spring.datasource.*`、`spring.redis.*` 等标准 Spring Boot 配置
 
+### 登录页公告与自注册
+
+管理后台登录页公告和自注册能力通过系统参数动态控制。参数变更后会自动刷新缓存，前端登录页会通过公开参数接口获取当前状态，无需根据域名判断环境。
+
+| 参数键 | 类型 | 默认值 | 说明 |
+|---|---|---:|---|
+| `auth.login.notice.enabled` | BOOLEAN | `false` | 是否显示登录页公告 |
+| `auth.login.notice.title` | STRING | 空 | 公告标题 |
+| `auth.login.notice.content` | STRING | 空 | 公告正文，按纯文本显示并保留换行 |
+| `auth.login.register.enabled` | BOOLEAN | `false` | 是否开放管理后台自注册 |
+| `auth.login.register.default-role-code` | STRING | 空 | 自注册用户自动绑定的默认角色编码 |
+
+登录页公开参数需同时满足“启用”和“公开访问”两个条件。公开接口为 `GET /admin/sysConfig/publicConfig`，支持按 `groupCode` 查询多个参数，或按 `configKey` 精确查询一个参数，响应统一为 `NameValueVo` 列表。`auth.login.register.default-role-code` 不应开启公开访问。
+
+开启自注册前，必须先创建并启用受限角色，再将其角色编码填写到 `auth.login.register.default-role-code`。注册接口只接收用户名、密码和验证码，组织、岗位、角色、状态等字段由服务端控制。
+
 ## 开发建议
 
 - 业务通用能力优先放入 `yeah-framework` 或 `yeah-biz-common`
@@ -211,6 +260,8 @@ yeah-boot.storage.impl.qiniu.secret-key=your-qiniu-secret-key
 - 业务模块尽量复用现有通用返回、异常、Repo 与存储抽象
 
 ## Roadmap
+
+完整的待处理、部分完成和暂缓事项见 [项目路线图](./docs/ROADMAP.md)。
 
 - 支持更完善的全局限流模式
 - 补充更完整的配置示例与部署说明

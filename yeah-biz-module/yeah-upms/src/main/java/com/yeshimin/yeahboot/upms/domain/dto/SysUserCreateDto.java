@@ -1,12 +1,20 @@
 package com.yeshimin.yeahboot.upms.domain.dto;
 
+import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.common.common.enums.DataStatusEnum;
+import com.yeshimin.yeahboot.common.common.enums.GenderEnum;
+import com.yeshimin.yeahboot.common.common.sensitive.SensitiveData;
+import com.yeshimin.yeahboot.common.common.sensitive.SensitiveScene;
+import com.yeshimin.yeahboot.common.common.sensitive.SensitiveType;
 import com.yeshimin.yeahboot.common.common.validation.EnumValue;
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Data
@@ -32,12 +40,14 @@ public class SysUserCreateDto extends BaseDomain {
      * 用户名
      */
     @NotBlank(message = "用户名不能为空")
+    @Size(min = 2, max = 32, message = "用户名长度必须在2到32个字符之间")
     private String username;
 
     /**
      * 密码
      */
     @NotBlank(message = "密码不能为空")
+    @SensitiveData(scenes = SensitiveScene.LOG)
     private String password;
 
     /**
@@ -49,6 +59,7 @@ public class SysUserCreateDto extends BaseDomain {
     /**
      * 昵称
      */
+    @Size(max = 32, message = "昵称不能超过32个字符")
     private String nickname;
 
     /**
@@ -59,17 +70,22 @@ public class SysUserCreateDto extends BaseDomain {
     /**
      * 手机号
      */
+    @Pattern(regexp = CommonConsts.PATTERN_MOBILE, message = "手机号格式不正确")
+    @SensitiveData(type = SensitiveType.MOBILE, scenes = SensitiveScene.LOG)
     private String mobile;
 
     /**
      * 邮箱
      */
+    @Email(message = "邮箱格式不正确")
+    @SensitiveData(type = SensitiveType.EMAIL, scenes = SensitiveScene.LOG)
     private String email;
 
     /**
-     * 性别：1-男性 2-女性
+     * 性别：0-未知 1-男性 2-女性
      */
-    private String gender;
+    @EnumValue(enumClass = GenderEnum.class)
+    private Integer gender;
 
     /**
      * 备注

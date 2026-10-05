@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.mapper.SysStorageMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -63,6 +64,7 @@ public class SysStorageRepo extends BaseRepo<SysStorageMapper, SysStorageEntity>
     /**
      * 标记使用
      */
+    @Transactional(rollbackFor = Exception.class)
     public void markUse(boolean isUsed, String... fileKey) {
         log.info("markUse fileKey: isUsed: {}, {}", isUsed, Arrays.toString(fileKey));
 
@@ -79,15 +81,35 @@ public class SysStorageRepo extends BaseRepo<SysStorageMapper, SysStorageEntity>
 
         List<SysStorageEntity> list = this.findListByFileKeys(fileKeySet);
 
-        if (list.size() != fileKeySet.size()) {
-            throw new BaseException(ErrorCodeEnum.FAIL, "部分存储记录未找到");
+        // 标记为使用，严格校验
+        if (isUsed) {
+            if (list.size() != fileKeySet.size()) {
+                throw new BaseException(ErrorCodeEnum.FAIL, "部分存储记录未找到");
+            }
         }
+        // 标记取消使用，考虑到比如手动删除了记录等情况，为保证不报错，所以不做校验
+        else {
+            if (list.isEmpty()) {
+                return;
+            }
+        }
+
 
         List<Long> ids = list.stream().map(SysStorageEntity::getId).collect(Collectors.toList());
 
         LambdaUpdateWrapper<SysStorageEntity> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.in(SysStorageEntity::getId, ids)
-                .set(SysStorageEntity::getIsUsed, isUsed);
+        updateWrapper.in(SysStorageEntity::getId, ids);
+        if (isUsed) {
+            updateWrapper.eq(SysStorageEntity::getIsUsed, false)
+                    .set(SysStorageEntity::getIsUsed, true);
+            int updated = this.getBaseMapper().update(null, updateWrapper);
+            if (updated != ids.size()) {
+                throw new BaseException(ErrorCodeEnum.FAIL, "部分存储文件已被使用，请重新上传");
+            }
+            return;
+        }
+
+        updateWrapper.set(SysStorageEntity::getIsUsed, false);
         super.update(updateWrapper);
     }
 

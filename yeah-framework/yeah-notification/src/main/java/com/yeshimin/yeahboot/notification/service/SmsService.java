@@ -8,9 +8,12 @@ import com.aliyun.dysmsapi20170525.models.QuerySendDetailsResponse;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.aliyun.teaopenapi.models.Config;
+import com.yeshimin.yeahboot.common.common.enums.SysConfigEnum;
 import com.yeshimin.yeahboot.common.common.properties.NotificationAliyunSmsProperties;
+import com.yeshimin.yeahboot.data.service.DynamicConfigService;
 import com.yeshimin.yeahboot.notification.repository.NotifSmsApiLogRepo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -22,10 +25,12 @@ import java.util.Map;
  * https://help.aliyun.com/zh/sms/getting-started/use-sms-api?spm=a2c4g.11186623.help-menu-44282.d_1_2.180e3d13hr5Rn6#9661beebe3r58
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class SmsService {
 
     private final NotificationAliyunSmsProperties properties;
+    private final DynamicConfigService dynamicConfigService;
 
     private final NotifSmsApiLogRepo notifSmsApiLogRepo;
 
@@ -37,17 +42,17 @@ public class SmsService {
     }
 
     public SendSmsResponse sendSms(String smsCode, String... numbers) {
-        Map<String, String> templateParam = new HashMap<String, String>() {{
-            put("code", smsCode);
-        }};
-        return this.sendSms(properties.getTemplateCode(), templateParam, numbers);
+        Map<String, String> templateParam = new HashMap<>();
+        templateParam.put("code", smsCode);
+        String templateCode = dynamicConfigService.getString(SysConfigEnum.SMS_TEMPLATE_CODE);
+        return this.sendSms(templateCode, templateParam, numbers);
     }
 
     public SendSmsResponse sendSms(String templateCode, Map<String, String> templateParam, String... numbers) {
         // 构造请求对象，请填入请求参数值
         SendSmsRequest request = new SendSmsRequest()
                 .setPhoneNumbers(String.join(",", numbers))
-                .setSignName(properties.getSignName())
+                .setSignName(dynamicConfigService.getString(SysConfigEnum.SMS_SIGN_NAME))
                 .setTemplateCode(templateCode)
                 .setTemplateParam(JSON.toJSONString(templateParam));
 
@@ -57,7 +62,7 @@ public class SmsService {
             notifSmsApiLogRepo.createOne(JSON.toJSONString(request), JSON.toJSONString(response));
             return response;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("短信发送失败", e);
         }
         notifSmsApiLogRepo.createOne(JSON.toJSONString(request), null);
         return null;
@@ -83,7 +88,7 @@ public class SmsService {
             notifSmsApiLogRepo.createOne(JSON.toJSONString(request), JSON.toJSONString(response));
             return response;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("短信发送结果查询失败", e);
         }
         notifSmsApiLogRepo.createOne(JSON.toJSONString(request), null);
         return null;

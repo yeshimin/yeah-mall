@@ -1,6 +1,10 @@
 package com.yeshimin.yeahboot.data.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yeshimin.yeahboot.common.common.sensitive.SensitiveData;
+import com.yeshimin.yeahboot.common.common.sensitive.SensitiveScene;
+import com.yeshimin.yeahboot.common.common.sensitive.SensitiveType;
 import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,6 +25,8 @@ public class SysUserEntity extends ConditionBaseEntity<SysUserEntity> {
     /**
      * 密码（加密）
      */
+    @JsonIgnore
+    @SensitiveData(scenes = SensitiveScene.LOG)
     private String password;
 
     /**
@@ -41,17 +47,19 @@ public class SysUserEntity extends ConditionBaseEntity<SysUserEntity> {
     /**
      * 手机号
      */
+    @SensitiveData(type = SensitiveType.MOBILE, scenes = SensitiveScene.LOG)
     private String mobile;
 
     /**
      * 邮箱
      */
+    @SensitiveData(type = SensitiveType.EMAIL, scenes = SensitiveScene.LOG)
     private String email;
 
     /**
-     * 性别：1-男性 2-女性
+     * 性别：0-未知 1-男性 2-女性
      */
-    private String gender;
+    private Integer gender;
 
     /**
      * 备注

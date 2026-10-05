@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.domain.base.BaseQueryDto;
 import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -125,13 +127,12 @@ public class QueryHelper<T> {
 
                 // 获取查询类型
                 QueryField.Type type = queryField.value() == QueryField.Type.DEFAULT ?
-                        (queryField.type() == QueryField.Type.DEFAULT ? (QueryField.Type.EQ) : (queryField.type())) :
+                        (queryField.type() == QueryField.Type.DEFAULT ? QueryField.Type.EQ : queryField.type()) :
                         queryField.value();
 
                 listCondition.add(new Condition(field.getName(), type, value));
             } catch (IllegalAccessException e) {
-                log.error("{}", e.getMessage());
-                e.printStackTrace();
+                log.error("读取查询字段失败: {}", field.getName(), e);
             } finally {
                 field.setAccessible(isAccessible);
             }
@@ -139,8 +140,16 @@ public class QueryHelper<T> {
 
         for (Condition condition : listCondition) {
             String fieldName = condition.getProperty();
+            // 客户端传入的字段名必须是当前查询类的真实属性，避免任意字段名进入SQL
+            Field field = ReflectUtil.getField(query.getClass(), fieldName);
+            if (field == null
+                    || Modifier.isStatic(field.getModifiers())
+                    || field.isSynthetic()
+                    || CommonConsts.CONDITIONS_FIELD_NAME.equals(field.getName())) {
+                throw new BaseException("不支持的查询字段: " + fieldName);
+            }
             // 实体类字段命名转为表字段命名（小驼峰转下划线）
-            String columnName = StrUtil.toUnderlineCase(fieldName);
+            String columnName = StrUtil.toUnderlineCase(field.getName());
             QueryField.Type operator = condition.getOperator();
             Object value = condition.getValue();
 
