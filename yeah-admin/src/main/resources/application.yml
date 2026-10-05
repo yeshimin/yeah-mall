@@ -53,7 +53,7 @@ yeah-boot:
   # 是否为安全模式（场景：跳过@PreAuthorize @pms.hasPermission权限校验，方便权限配置或其他场景；一般为false，不需要动）
   safe-mode: false
   # 超级管理员账号，该账号可以跳过权限校验
-  super-admin: ''
+  super-admin: 'admin'
   # ID编号生成器
   id-generator:
     alphabet: GQT0FNR3taz1vDVEjsSJ2biZmLB8qk6OCMndohlKf4IAw7xr9eYgXWPcuHpU5y
