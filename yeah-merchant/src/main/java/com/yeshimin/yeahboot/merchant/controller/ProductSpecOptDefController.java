@@ -10,7 +10,6 @@ import com.yeshimin.yeahboot.data.repository.ProductSpecOptDefRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.service.ProductSpecOptDefService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +38,6 @@ public class ProductSpecOptDefController extends ShopCrudController<ProductSpecO
     /**
      * 创建
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':create')")
     @PostMapping("/create")
     public R<ProductSpecOptDefEntity> create(@Validated(Create.class) @RequestBody ProductSpecOptDefEntity e) {
         Long userId = super.getUserId();
@@ -49,7 +47,6 @@ public class ProductSpecOptDefController extends ShopCrudController<ProductSpecO
     /**
      * 查询
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':query')")
     @GetMapping("/query")
     public R<List<ProductSpecOptDefEntity>> query(@Validated(Query.class) ProductSpecOptDefEntity query) {
         Long userId = super.getUserId();
@@ -59,7 +56,6 @@ public class ProductSpecOptDefController extends ShopCrudController<ProductSpecO
     /**
      * 更新
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':update')")
     @PostMapping("/update")
     public R<ProductSpecOptDefEntity> update(@Validated(Update.class) @RequestBody ProductSpecOptDefEntity e) {
         Long userId = super.getUserId();
@@ -69,7 +65,6 @@ public class ProductSpecOptDefController extends ShopCrudController<ProductSpecO
     /**
      * 删除
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         Long userId = super.getUserId();

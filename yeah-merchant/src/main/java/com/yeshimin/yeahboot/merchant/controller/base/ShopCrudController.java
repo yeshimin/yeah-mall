@@ -21,7 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.Collection;
 
 /**
- * 提供基础的CRUD接口 for merchant shop data
+ * 提供基础的CRUD接口 for merchant shop data。
+ * 商家主体的接口范围由认证层按 /mch 前缀校验，数据范围由 PermissionService 校验。
  *
  * @param <M> BaseMapper
  * @param <E> Entity
@@ -45,7 +46,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     /**
      * CRUD-创建
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/crud/create")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudCreate(@Validated(Create.class) @RequestBody E e) {
@@ -63,7 +64,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     /**
      * CRUD-查询
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/crud/query")
     public R<Page<E>> crudQuery(Page<E> page, @Validated(Query.class) E query) {
         if (super.isQueryDisabled()) {
@@ -80,7 +81,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     /**
      * CRUD-详情
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:detail')")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/crud/detail")
     public R<E> crudDetail(Long id) {
         if (super.isDetailDisabled()) {
@@ -92,7 +93,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     /**
      * CRUD-更新
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/crud/update")
     @Transactional(rollbackFor = Exception.class)
     public R<E> crudUpdate(@Validated(Update.class) @RequestBody E e) {
@@ -124,7 +125,7 @@ public class ShopCrudController<M extends BaseMapper<E>, E extends ShopCondition
     /**
      * CRUD-删除
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:delete')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/crud/delete")
     @Transactional(rollbackFor = Exception.class)
     public R<Void> crudDelete(@RequestBody Collection<Long> ids) {

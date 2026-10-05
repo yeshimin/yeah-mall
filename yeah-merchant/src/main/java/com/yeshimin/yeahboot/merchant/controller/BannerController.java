@@ -11,7 +11,6 @@ import com.yeshimin.yeahboot.merchant.domain.dto.BannerUpdateDto;
 import com.yeshimin.yeahboot.merchant.service.BannerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,7 +41,6 @@ public class BannerController extends ShopCrudController<BannerMapper, BannerEnt
     /**
      * 创建
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':create')")
     @PostMapping("/create")
     public R<BannerEntity> create(@Validated BannerCreateDto dto) {
         Long userId = super.getUserId();
@@ -55,7 +53,6 @@ public class BannerController extends ShopCrudController<BannerMapper, BannerEnt
     /**
      * 更新
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':update')")
     @PostMapping("/update")
     public R<BannerEntity> update(@Validated BannerUpdateDto dto) {
         Long userId = super.getUserId();
@@ -68,7 +65,6 @@ public class BannerController extends ShopCrudController<BannerMapper, BannerEnt
     /**
      * 删除
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         Long userId = super.getUserId();

@@ -16,7 +16,6 @@ import com.yeshimin.yeahboot.merchant.service.PermissionService;
 import com.yeshimin.yeahboot.merchant.service.ProductSpuImageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,7 +48,6 @@ public class ProductSpuImageController extends ShopCrudController<ProductSpuImag
     /**
      * 创建
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':create')")
     @PostMapping("/create")
     public R<ProductSpuImageEntity> create(@Validated(Create.class) ProductSpuImageCreateDto dto) {
         Long userId = super.getUserId();
@@ -62,7 +60,6 @@ public class ProductSpuImageController extends ShopCrudController<ProductSpuImag
     /**
      * 更新
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':update')")
     @PostMapping("/update")
     public R<ProductSpuImageEntity> update(@Validated(Update.class) ProductSpuImageUpdateDto dto) {
         Long userId = super.getUserId();
@@ -75,7 +72,6 @@ public class ProductSpuImageController extends ShopCrudController<ProductSpuImag
     /**
      * 删除
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':delete')")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         Long userId = super.getUserId();

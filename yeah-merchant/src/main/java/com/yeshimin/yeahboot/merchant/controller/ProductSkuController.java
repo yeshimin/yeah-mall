@@ -12,7 +12,6 @@ import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSkuDetailVo;
 import com.yeshimin.yeahboot.merchant.service.ProductSkuService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +38,6 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     /**
      * 创建
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
     @PostMapping("/create")
     public R<ProductSkuEntity> create(@Validated @RequestBody ProductSkuCreateDto dto) {
         Long userId = super.getUserId();
@@ -49,7 +47,6 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     /**
      * 设置主图
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':setMainImage')")
     @PostMapping("/setMainImage")
     public R<ProductSkuEntity> setMainImage(@Validated ProductSkuMainImageSetDto dto) {
         Long userId = super.getUserId();
@@ -62,7 +59,6 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     /**
      * 详情
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':detail')")
     @GetMapping("/detail")
     public R<ProductSkuDetailVo> detail(@RequestParam Long id) {
         Long userId = super.getUserId();
@@ -72,7 +68,6 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     /**
      * 更新
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/update")
     public R<ProductSkuEntity> update(@Validated @RequestBody ProductSkuUpdateDto dto) {
         Long userId = super.getUserId();
@@ -82,7 +77,6 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     /**
      * 删除
      */
-    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:delete')")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         Long userId = super.getUserId();
