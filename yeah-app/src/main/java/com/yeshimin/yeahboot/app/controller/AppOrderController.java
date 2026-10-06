@@ -247,7 +247,7 @@ public class AppOrderController extends BaseController {
      * 查询个人订单
      */
     @GetMapping("/query")
-    public R<IPage<OrderShopVo>> query(Page<OrderEntity> page, @Validated OrderQueryDto dto) {
+    public R<IPage<OrderListVo>> query(Page<OrderEntity> page, @Validated OrderQueryDto dto) {
         Long userId = super.getUserId();
         return R.ok(appOrderService.query(userId, page, dto));
     }
