@@ -841,6 +841,9 @@ public class AppOrderService {
             vo.setOrderId(order.getId());
             vo.setOrderNo(order.getOrderNo());
             vo.setOrderStatus(order.getStatus());
+            vo.setTotalAmount(order.getTotalAmount());
+            vo.setDiscountAmount(order.getDiscountAmount());
+            vo.setFinalAmount(order.getFinalAmount());
             vo.setCreateTime(order.getCreateTime());
             vo.setPaySuccessTime(order.getPaySuccessTime());
             return vo;

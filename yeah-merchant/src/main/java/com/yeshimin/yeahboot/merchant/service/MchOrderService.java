@@ -257,18 +257,18 @@ public class MchOrderService {
 
         // 退款编号
         String refundNo = idService.nextEncodedId();
-        // 全部金额
-        BigDecimal totalAmount = new BigDecimal("0.01");//order.getTotalAmount(); // TODO
-        // 退款金额
-        BigDecimal refundAmount = new BigDecimal("0.01");//order.getTotalAmount(); // TODO // 暂时仅支持全额退款
+        // TODO 切换生产支付后，改为订单最终应付金额；测试阶段固定退1分。
+        BigDecimal totalAmount = BigDecimal.valueOf(WxPayService.TEST_PAYMENT_AMOUNT_FEN, 2);
+        // 首版仅支持全额退款，因此退款金额与测试支付金额一致。
+        BigDecimal refundAmount = totalAmount;
         // 退款原因
         String refundReason = dto.getRemark();
         // 添加退款记录
         orderRefundRepo.createOne(order, refundNo, totalAmount, refundAmount, refundReason);
 
         // 调用第三方退款接口
-        long totalAmountFen = totalAmount.multiply(new BigDecimal(100)).longValue();
-        long refundAmountFen = refundAmount.multiply(new BigDecimal(100)).longValue();
+        long totalAmountFen = WxPayService.TEST_PAYMENT_AMOUNT_FEN;
+        long refundAmountFen = WxPayService.TEST_PAYMENT_AMOUNT_FEN;
         Refund refundResp = null;
         try {
             refundResp = wxPayService.refund(
