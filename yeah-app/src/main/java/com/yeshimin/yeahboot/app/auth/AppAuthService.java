@@ -34,6 +34,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AppAuthService {
 
+    private static final String SMS_TEST_CODE = "999999";
+
     //    private final AppUserRepo appUserRepo;
     private final MemberRepo memberRepo;
 
@@ -104,7 +106,6 @@ public class AppAuthService {
         String smsCode = RandomUtil.randomNumbers(smsCodeLength);
         // 生成缓存key
         String key = String.format(CommonConsts.APP_SMS_CODE_KEY, dto.getMobile());
-        log.debug("smsCode: {}, key: {}", smsCode, key);
         // 执行缓存
         cacheService.set(key, smsCode, smsCodeExpSeconds);
         // 发送短信（异步）
@@ -128,8 +129,9 @@ public class AppAuthService {
      * 如果成功，则删除缓存
      */
     private boolean consumeSmsCode(String mobile, String smsCode) {
-        // TODO temp 测试的验证码
-        if ("999999".equals(smsCode)) {
+        // 测试验证码默认关闭，需在系统参数中显式开启。
+        if (dynamicConfigService.getBoolean(SysConfigEnum.APP_SMS_TEST_CODE_ENABLED)
+                && Objects.equals(SMS_TEST_CODE, smsCode)) {
             return true;
         }
         String key = String.format(CommonConsts.APP_SMS_CODE_KEY, mobile);

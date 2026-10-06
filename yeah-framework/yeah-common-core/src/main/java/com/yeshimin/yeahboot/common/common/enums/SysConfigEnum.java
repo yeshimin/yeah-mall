@@ -68,6 +68,11 @@ public enum SysConfigEnum {
     SMS_CODE_EXP_SECONDS("yeah-boot.sms-code-exp-seconds", SysConfigValueTypeEnum.INTEGER, "300"),
 
     /**
+     * 是否启用App短信测试验证码
+     */
+    APP_SMS_TEST_CODE_ENABLED("app.auth.sms-test-code.enabled", SysConfigValueTypeEnum.BOOLEAN, "false"),
+
+    /**
      * 阿里云短信模板编号
      */
     SMS_TEMPLATE_CODE("yeah-boot.notification.aliyun.sms.template-code", SysConfigValueTypeEnum.STRING, ""),
