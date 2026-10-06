@@ -16,13 +16,12 @@ import com.yeshimin.yeahboot.data.service.DynamicConfigService;
 import com.yeshimin.yeahboot.upms.domain.dto.SysConfigCreateDto;
 import com.yeshimin.yeahboot.upms.domain.dto.SysConfigUpdateDto;
 import com.yeshimin.yeahboot.upms.service.SysConfigService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 系统参数管理
