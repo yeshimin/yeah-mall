@@ -151,7 +151,12 @@ public class OrderService {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean handlePaySuccess(WxPayUtils.Notification notification) {
-        String outTradeNo = notification.getOrderInfo().getOutTradeNo();
+        WxPayUtils.OrderInfo orderInfo = notification.getOrderInfo();
+        if (orderInfo == null || !isExpectedTestPaymentAmount(orderInfo.getAmount())) {
+            log.error("处理支付成功失败，回调支付金额不符合测试金额策略");
+            return false;
+        }
+        String outTradeNo = orderInfo.getOutTradeNo();
 
         // 查询业务订单
         OrderEntity order = orderRepo.findOneByOrderNo(outTradeNo);
@@ -179,7 +184,7 @@ public class OrderService {
         // 更新支付成功时间
         LambdaUpdateWrapper<OrderEntity> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(OrderEntity::getId, order.getId())
-                .set(OrderEntity::getPaySuccessTime, notification.getOrderInfo().getSuccessTime().toLocalDateTime());
+                .set(OrderEntity::getPaySuccessTime, orderInfo.getSuccessTime().toLocalDateTime());
         orderRepo.update(updateWrapper);
 
         return true;
@@ -260,6 +265,10 @@ public class OrderService {
     @Transactional(rollbackFor = Exception.class)
     public boolean handleRefundNotify(WxPayUtils.Notification notification) {
         WxPayUtils.RefundInfo refundInfo = notification.getRefundInfo();
+        if (refundInfo == null || !isExpectedTestRefundAmount(refundInfo.getAmount())) {
+            log.error("处理退款通知失败，回调退款金额不符合测试金额策略");
+            return false;
+        }
         String orderNo = refundInfo.getOutTradeNo();
         String refundNo = refundInfo.getOutRefundNo();
 
@@ -320,5 +329,23 @@ public class OrderService {
         }
 
         memberCouponRepo.releaseCoupon(orderCoupon.getMemberCouponId());
+    }
+
+    /**
+     * TODO 切换生产支付后，使用订单最终应付金额校验微信回调金额。
+     */
+    private boolean isExpectedTestPaymentAmount(WxPayUtils.Amount amount) {
+        return amount != null
+                && amount.getTotal() == WxPayService.TEST_PAYMENT_AMOUNT_FEN
+                && "CNY".equals(amount.getCurrency());
+    }
+
+    /**
+     * TODO 切换生产支付后，使用订单退款记录中的实际金额校验微信退款回调。
+     */
+    private boolean isExpectedTestRefundAmount(WxPayUtils.RefundAmount amount) {
+        return amount != null
+                && amount.getTotal() == WxPayService.TEST_PAYMENT_AMOUNT_FEN
+                && amount.getRefund() == WxPayService.TEST_PAYMENT_AMOUNT_FEN;
     }
 }

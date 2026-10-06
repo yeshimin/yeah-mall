@@ -28,6 +28,11 @@ import javax.annotation.PostConstruct;
 @RequiredArgsConstructor
 public class WxPayService {
 
+    /**
+     * TODO 切换生产支付后，改为按订单最终应付金额计算。
+     */
+    public static final int TEST_PAYMENT_AMOUNT_FEN = 1;
+
     private final String ALGORITHM = "SHA256withRSA";
 
     private final WxPayProperties wxPayProperties;
@@ -68,7 +73,7 @@ public class WxPayService {
 
         // 支付金额
         Amount amount = new Amount();
-        amount.setTotal(1); // TODO 暂时写死1分钱
+        amount.setTotal(TEST_PAYMENT_AMOUNT_FEN);
         request.setAmount(amount);
         // 支付者
         Payer payer = new Payer();
