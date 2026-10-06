@@ -458,29 +458,29 @@ public class AppOrderService {
     /**
      * 查询个人订单
      */
-    public IPage<OrderShopVo> query(Long userId, Page<OrderEntity> page, OrderQueryDto dto) {
+    public IPage<OrderListVo> query(Long userId, Page<OrderEntity> page, OrderQueryDto dto) {
         OrderAggreStatusEnum aggreStatus = OrderAggreStatusEnum.of(dto.getAggreStatus());
         if (aggreStatus == null) {
             LambdaQueryWrapper<OrderEntity> wrapper = QueryHelper.getQueryWrapper(dto, OrderEntity.class);
             wrapper.eq(OrderEntity::getMemberId, userId);
-            return this.wrapOrderShopVo(orderRepo.page(page, wrapper));
+            return this.wrapOrderListVo(orderRepo.page(page, wrapper));
         }
 
         if (aggreStatus.isEqualMode()) {
             LambdaQueryWrapper<OrderEntity> wrapper = QueryHelper.getQueryWrapper(dto, OrderEntity.class);
             wrapper.eq(OrderEntity::getMemberId, userId);
             wrapper.eq(OrderEntity::getStatus, aggreStatus.toOrderStatusEnum().getValue());
-            return this.wrapOrderShopVo(orderRepo.page(page, wrapper));
+            return this.wrapOrderListVo(orderRepo.page(page, wrapper));
         } else if (aggreStatus.isInMode()) {
             LambdaQueryWrapper<OrderEntity> wrapper = QueryHelper.getQueryWrapper(dto, OrderEntity.class);
             wrapper.eq(OrderEntity::getMemberId, userId);
             wrapper.in(OrderEntity::getStatus, OrderStatusEnum.REFUND_AND_AFTER_SALE_STATUS);
-            return this.wrapOrderShopVo(orderRepo.page(page, wrapper));
+            return this.wrapOrderListVo(orderRepo.page(page, wrapper));
         } else if (aggreStatus.isExtendMode()) {
             LambdaQueryWrapper<OrderEntity> wrapper = QueryHelper.getQueryWrapper(dto, OrderEntity.class);
             wrapper.eq(OrderEntity::getMemberId, userId);
             wrapper.in(OrderEntity::getStatus, OrderStatusEnum.WAIT_REVIEW_STATUS);
-            return this.wrapOrderShopVo(orderRepo.page(page, wrapper));
+            return this.wrapOrderListVo(orderRepo.page(page, wrapper));
         } else {
             throw new BaseException("订单聚合状态异常");
         }
@@ -807,9 +807,9 @@ public class AppOrderService {
     // ================================================================================
 
     /**
-     * 订单实体类包装为订单店铺视图类
+     * 订单实体包装为App订单列表视图
      */
-    private IPage<OrderShopVo> wrapOrderShopVo(Page<OrderEntity> pageOrder) {
+    private IPage<OrderListVo> wrapOrderListVo(Page<OrderEntity> pageOrder) {
         List<OrderEntity> orders = pageOrder.getRecords();
 
         // 查询订单明细
@@ -833,7 +833,7 @@ public class AppOrderService {
         return pageOrder.convert(order -> {
             List<OrderShopProductVo> items = groupOrderShopProductVo.get(order.getId());
 
-            OrderShopVo vo = new OrderShopVo();
+            OrderListVo vo = new OrderListVo();
             vo.setShopId(order.getShopId());
             vo.setShopName(items.get(0).getShopName());
             vo.setItems(items);
@@ -841,6 +841,9 @@ public class AppOrderService {
             vo.setOrderId(order.getId());
             vo.setOrderNo(order.getOrderNo());
             vo.setOrderStatus(order.getStatus());
+            vo.setRefundStatus(order.getRefundStatus());
+            vo.setAfterSaleStatus(order.getAfterSaleStatus());
+            vo.setIsReviewed(order.getIsReviewed());
             vo.setTotalAmount(order.getTotalAmount());
             vo.setDiscountAmount(order.getDiscountAmount());
             vo.setFinalAmount(order.getFinalAmount());

@@ -5,7 +5,6 @@ import com.yeshimin.yeahboot.data.domain.vo.OrderShopProductVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -45,21 +44,6 @@ public class OrderShopVo extends BaseDomain {
      * 订单状态
      */
     private String orderStatus;
-
-    /**
-     * 商品总额
-     */
-    private BigDecimal totalAmount;
-
-    /**
-     * 优惠金额
-     */
-    private BigDecimal discountAmount;
-
-    /**
-     * 优惠后业务应付金额
-     */
-    private BigDecimal finalAmount;
 
     /**
      * 订单创建时间

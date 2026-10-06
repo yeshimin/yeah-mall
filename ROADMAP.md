@@ -51,7 +51,7 @@
 
 ### P0-03 App 订单列表移除模拟数据
 
-状态：`planned`
+状态：`in-progress`
 
 范围：App、后端。
 
