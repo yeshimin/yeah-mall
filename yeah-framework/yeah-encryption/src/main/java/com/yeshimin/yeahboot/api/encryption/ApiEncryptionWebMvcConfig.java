@@ -33,7 +33,7 @@ public class ApiEncryptionWebMvcConfig implements WebMvcConfigurer {
     /**
      * 禁用查询参数过滤器的外层 Servlet 自动注册。
      *
-     * <p>该 Bean 仍由 Spring Security 在 {@code AuthorizationFilter} 后显式插入，避免同一个过滤器
+     * <p>该 Bean 仍由 Spring Security 在 {@code FilterSecurityInterceptor} 后显式插入，避免同一个过滤器
      * 被容器链和安全链重复执行。</p>
      */
     @Bean

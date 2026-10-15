@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;

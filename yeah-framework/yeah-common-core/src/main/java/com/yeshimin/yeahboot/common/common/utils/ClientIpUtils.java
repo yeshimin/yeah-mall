@@ -1,7 +1,7 @@
 package com.yeshimin.yeahboot.common.common.utils;
 
-import cn.hutool.extra.servlet.JakartaServletUtil;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.hutool.extra.servlet.ServletUtil;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -25,7 +25,7 @@ public final class ClientIpUtils {
      * 从当前请求及可信代理转发头中解析客户端真实 IP。
      */
     public static String getClientIp(HttpServletRequest request) {
-        return JakartaServletUtil.getClientIP(request);
+        return ServletUtil.getClientIP(request);
     }
 
     /**
