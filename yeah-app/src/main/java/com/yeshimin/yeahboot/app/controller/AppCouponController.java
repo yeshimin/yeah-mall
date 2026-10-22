@@ -62,4 +62,13 @@ public class AppCouponController extends BaseController {
         Long userId = super.getUserId();
         return R.ok(service.queryAvailableList(userId, query));
     }
+
+    /**
+     * 查询拼团订单可使用的优惠券列表
+     */
+    @PostMapping("/availableGroupBuyList")
+    public R<List<MemberCouponVo>> queryAvailableGroupBuyList(@Validated @RequestBody AvailableCouponQueryDto query) {
+        Long userId = super.getUserId();
+        return R.ok(service.queryAvailableGroupBuyList(userId, query));
+    }
 }

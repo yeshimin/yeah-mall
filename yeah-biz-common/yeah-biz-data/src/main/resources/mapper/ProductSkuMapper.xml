@@ -6,7 +6,7 @@
     <update id="occurStock">
         UPDATE s_product_sku s
         SET s.stock = s.stock - #{quantity}
-        WHERE s.id = #{id} AND s.stock > 0
+        WHERE s.id = #{id} AND s.stock &gt;= #{quantity}
     </update>
 
     <!-- 增加库存 -->

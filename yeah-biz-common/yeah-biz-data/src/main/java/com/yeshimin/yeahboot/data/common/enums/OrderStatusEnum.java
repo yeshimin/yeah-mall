@@ -18,7 +18,8 @@ public enum OrderStatusEnum implements IValueEnum {
     COMPLETED("4", "交易成功"),
     CLOSED("5", "交易关闭"),
     REFUND("6", "退款"),
-    AFTER_SALE("7", "售后");
+    AFTER_SALE("7", "售后"),
+    WAIT_GROUP("8", "待成团");
 
     private final String value;
     private final String desc;

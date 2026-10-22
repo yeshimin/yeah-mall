@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeshimin.yeahboot.data.mapper.GroupBuyApplyMapper">
+
+    <!-- 锁定报名记录，避免并发审核重复预留库存。 -->
+    <select id="selectByIdForUpdate" resultType="com.yeshimin.yeahboot.data.domain.entity.GroupBuyApplyEntity">
+        SELECT *
+        FROM s_group_buy_apply
+        WHERE id = #{id}
+          AND deleted = 0
+        FOR UPDATE
+    </select>
+</mapper>

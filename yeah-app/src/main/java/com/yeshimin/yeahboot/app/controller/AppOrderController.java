@@ -67,6 +67,21 @@ public class AppOrderController extends BaseController {
     }
 
     /**
+     * 提交拼团订单
+     */
+    @PostMapping("/submitForGroupBuy")
+    public R<OrderSubmitVo> submitForGroupBuy(@Validated @RequestBody GroupBuyOrderSubmitDto dto) {
+        Long userId = super.getUserId();
+        OrderEntity order = appOrderService.submitForGroupBuy(userId, dto);
+        WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, order.getId());
+
+        OrderSubmitVo vo = BeanUtil.copyProperties(payInfoVo, OrderSubmitVo.class);
+        vo.setOrderId(order.getId());
+        vo.setOrderNo(order.getOrderNo());
+        return R.ok(vo);
+    }
+
+    /**
      * 提交订单 for 秒杀场景
      */
     @PostMapping("/submitForSeckill")
@@ -167,6 +182,15 @@ public class AppOrderController extends BaseController {
         Long userId = super.getUserId();
         OrderPayResultVo payResultVo = appOrderService.queryPayResult(userId, orderId);
         return R.ok(payResultVo);
+    }
+
+    /**
+     * 按订单号查询支付结果，兼容旧版App支付结果页。
+     */
+    @GetMapping("/queryPayOrderInfo")
+    public R<OrderPayResultVo> queryPayOrderInfo(@RequestParam("orderNo") String orderNo) {
+        Long userId = super.getUserId();
+        return R.ok(appOrderService.queryPayResultByOrderNo(userId, orderNo));
     }
 
     /**
@@ -290,6 +314,17 @@ public class AppOrderController extends BaseController {
         }
 
         return R.ok(appOrderService.previewForSeckill(userId, dto));
+    }
+
+    /**
+     * 预览拼团订单
+     */
+    @PostMapping("/previewForGroupBuy")
+    public R<List<OrderShopVo>> previewForGroupBuy(@Validated @RequestBody OrderPreviewDto dto) {
+        if (dto.getItems().size() != 1 || dto.getItems().get(0).getQuantity() != 1) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "参数错误");
+        }
+        return R.ok(appOrderService.previewForGroupBuy(super.getUserId(), dto));
     }
 
     /**

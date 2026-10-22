@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.data.domain.dto.CouponQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.MemberCouponEntity;
 import com.yeshimin.yeahboot.data.domain.vo.MemberCouponVo;
+import com.yeshimin.yeahboot.data.domain.dto.MchCouponRecordQueryDto;
+import com.yeshimin.yeahboot.data.domain.vo.MchCouponRecordVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -17,4 +19,12 @@ public interface MemberCouponMapper extends BaseMapper<MemberCouponEntity> {
     Page<MemberCouponVo> queryReceiveList(Page<MemberCouponVo> page,
                                           @Param("userId") Long userId,
                                           @Param("query") CouponQueryDto query);
+
+    /**
+     * 查询商家优惠券领取和使用记录
+     */
+    Page<MchCouponRecordVo> queryMchCouponRecord(Page<MchCouponRecordVo> page,
+                                                  @Param("mchId") Long mchId,
+                                                  @Param("shopId") Long shopId,
+                                                  @Param("query") MchCouponRecordQueryDto query);
 }

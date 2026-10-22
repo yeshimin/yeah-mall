@@ -80,6 +80,11 @@ public class MchCouponCreateDto extends ShopDataBaseDomain {
     private Long targetId;
 
     /**
+     * 是否支持拼团订单使用
+     */
+    private Boolean isSupportGroupBuy;
+
+    /**
      * 有效期起始时间
      */
     @NotNull(message = "有效期起始时间不能为空")

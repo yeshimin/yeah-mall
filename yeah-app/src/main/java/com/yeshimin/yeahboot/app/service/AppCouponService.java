@@ -15,12 +15,14 @@ import com.yeshimin.yeahboot.data.domain.entity.MchCouponEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MemberCouponEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.data.domain.entity.GroupBuySkuEntity;
 import com.yeshimin.yeahboot.data.domain.vo.CouponVo;
 import com.yeshimin.yeahboot.data.domain.vo.MemberCouponVo;
 import com.yeshimin.yeahboot.data.repository.MchCouponRepo;
 import com.yeshimin.yeahboot.data.repository.MemberCouponRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
+import com.yeshimin.yeahboot.data.repository.GroupBuySkuRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,7 @@ public class AppCouponService {
     private final MemberCouponRepo memberCouponRepo;
     private final ProductSkuRepo productSkuRepo;
     private final ProductSpuRepo productSpuRepo;
+    private final GroupBuySkuRepo groupBuySkuRepo;
 
     /**
      * 查询领券中心优惠券列表
@@ -70,14 +73,14 @@ public class AppCouponService {
         if (coupon.getReceived() >= coupon.getQuantity()) {
             throw new BaseException("优惠券已领取完");
         }
-        // 查询用于对该优惠券的领取数量
+        // 会员领取记录用于限制单人领取次数，库存扣减由后续条件更新兜底。
         long receivedCount = memberCouponRepo.countByMemberIdAndCouponId(userId, couponId);
         // 检查：是否已达到领取上限
         if (receivedCount >= coupon.getPerLimit()) {
             throw new BaseException("已超过领取数量限制");
         }
 
-        // 领取优惠券
+        // 条件更新防止并发领取突破优惠券总量。
         int updateCount = mchCouponRepo.receiveCoupon(couponId, 1);
         if (updateCount == 0) {
             throw new BaseException("优惠券已领取完");
@@ -85,6 +88,7 @@ public class AppCouponService {
 
         MemberCouponEntity memberCoupon =
                 BeanUtil.copyProperties(coupon, MemberCouponEntity.class, CommonConsts.COPY_IGNORE_FIELDS);
+        // 会员券保存领取时快照，后续商家改券不影响已领取优惠券规则。
         memberCoupon.setMemberId(userId);
         memberCoupon.setCouponId(coupon.getId());
         memberCouponRepo.save(memberCoupon);
@@ -94,7 +98,7 @@ public class AppCouponService {
      * 查询可使用的优惠券列表
      */
     public List<MemberCouponVo> queryAvailableList(Long userId, AvailableCouponQueryDto query) {
-        // 查询sku
+        // 订单预览只允许同店铺商品，优惠券的店铺范围才能确定。
         Set<Long> skuIds = query.getItems().stream().map(OrderPreviewItemDto::getSkuId).collect(Collectors.toSet());
         if (skuIds.size() != query.getItems().size()) {
             throw new BaseException("订单项中存在重复的SKU ID");
@@ -132,13 +136,68 @@ public class AppCouponService {
             totalAmount = totalAmount.add(itemAmount);
 
             ProductSpuEntity spu = mapSpu.get(sku.getSpuId());
-            // 分组累加商品金额
+            // 同时按SPU和类目累计金额，以匹配指定商品、指定类目和全店券。
             mapSpuAmount.merge(spu.getId(), itemAmount, BigDecimal::add);
             // 分组累加分类金额
             mapCategoryAmount.merge(spu.getCategoryId(), itemAmount, BigDecimal::add);
         }
 
-        // 先查询当前用户所有可用的红包
+        return filterAvailableCoupons(userId, shopId, mapSpuAmount, mapCategoryAmount, totalAmount, false);
+    }
+
+    /**
+     * 查询拼团订单可用的优惠券列表
+     */
+    public List<MemberCouponVo> queryAvailableGroupBuyList(Long userId, AvailableCouponQueryDto query) {
+        // 拼团请求中的SKU ID是拼团SKU，需映射回原商品后按原券使用范围判断。
+        Set<Long> groupBuySkuIds = query.getItems().stream()
+                .map(OrderPreviewItemDto::getSkuId).collect(Collectors.toSet());
+        if (groupBuySkuIds.size() != query.getItems().size()) {
+            throw new BaseException("订单项中存在重复的拼团SKU ID");
+        }
+        List<GroupBuySkuEntity> groupBuySkus = groupBuySkuRepo.findListByIds(groupBuySkuIds);
+        if (groupBuySkus.size() != groupBuySkuIds.size()) {
+            throw new BaseException("订单项中存在无效的拼团SKU ID");
+        }
+        Set<Long> shopIds = groupBuySkus.stream().map(GroupBuySkuEntity::getShopId).collect(Collectors.toSet());
+        if (shopIds.size() > 1) {
+            throw new BaseException("订单项中存在多家店铺的SKU");
+        }
+        Map<Long, Integer> quantityMap = query.getItems().stream()
+                .collect(Collectors.toMap(OrderPreviewItemDto::getSkuId, OrderPreviewItemDto::getQuantity));
+        Set<Long> sourceSkuIds = groupBuySkus.stream().map(GroupBuySkuEntity::getSkuId).collect(Collectors.toSet());
+        Map<Long, ProductSkuEntity> sourceSkuMap = productSkuRepo.findListByIds(sourceSkuIds).stream()
+                .collect(Collectors.toMap(ProductSkuEntity::getId, sku -> sku));
+        Set<Long> spuIds = groupBuySkus.stream().map(GroupBuySkuEntity::getSpuId).collect(Collectors.toSet());
+        Map<Long, ProductSpuEntity> spuMap = productSpuRepo.findListByIds(spuIds).stream()
+                .collect(Collectors.toMap(ProductSpuEntity::getId, spu -> spu));
+        if (sourceSkuMap.size() != sourceSkuIds.size() || spuMap.size() != spuIds.size()) {
+            throw new BaseException("原始商品信息不存在");
+        }
+
+        Map<Long, BigDecimal> spuAmount = new HashMap<>();
+        Map<Long, BigDecimal> categoryAmount = new HashMap<>();
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        for (GroupBuySkuEntity groupBuySku : groupBuySkus) {
+            int quantity = quantityMap.getOrDefault(groupBuySku.getId(), 0);
+            BigDecimal itemAmount = groupBuySku.getGroupPrice().multiply(BigDecimal.valueOf(quantity));
+            totalAmount = totalAmount.add(itemAmount);
+            ProductSpuEntity spu = spuMap.get(groupBuySku.getSpuId());
+            spuAmount.merge(spu.getId(), itemAmount, BigDecimal::add);
+            categoryAmount.merge(spu.getCategoryId(), itemAmount, BigDecimal::add);
+        }
+        // 最后一个参数要求优惠券显式开启“支持拼团”才可返回。
+        return filterAvailableCoupons(userId, groupBuySkus.get(0).getShopId(), spuAmount, categoryAmount, totalAmount, true);
+    }
+
+    /**
+     * 按订单金额与使用范围筛选可用优惠券
+     */
+    private List<MemberCouponVo> filterAvailableCoupons(Long userId, Long shopId,
+                                                         Map<Long, BigDecimal> mapSpuAmount,
+                                                         Map<Long, BigDecimal> mapCategoryAmount,
+                                                         BigDecimal totalAmount, boolean groupBuy) {
+        // 先按会员券基础状态取候选集，再在内存中结合本次订单金额和范围精确筛选。
         List<MemberCouponVo> allAvailableCoupons = memberCouponRepo.queryReceiveList(userId, Page.of(1, 999999),
                 CouponQueryDto.of(MemberCouponQueryConditionEnum.AVAILABLE.getIntValue())).getRecords();
 
@@ -146,6 +205,10 @@ public class AppCouponService {
         BigDecimal finalTotalAmount = totalAmount;
         return allAvailableCoupons.stream()
                 .filter(coupon -> {
+                    if (groupBuy && !Boolean.TRUE.equals(coupon.getIsSupportGroupBuy())) {
+                        // 拼团订单不默认兼容普通券，必须由商家显式授权。
+                        return false;
+                    }
                     // 判断优惠券类型
                     CouponTypeEnum couponType = CouponTypeEnum.of(coupon.getType());
                     if (couponType == null) {

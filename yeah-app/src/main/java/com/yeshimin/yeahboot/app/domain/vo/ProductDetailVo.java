@@ -44,4 +44,14 @@ public class ProductDetailVo extends BaseDomain {
      * 店铺信息
      */
     private ShopVo shop;
+
+    /**
+     * 营销活动状态；普通商品为空。
+     */
+    private String activityStatus;
+
+    /**
+     * 当前是否允许参与营销活动；普通商品为空。
+     */
+    private Boolean activityPurchasable;
 }

@@ -16,6 +16,7 @@
             cp.min_amount,
             cp.use_range,
             cp.target_id,
+            cp.is_support_group_buy,
             cp.begin_time,
             cp.end_time,
             cp.is_used,
@@ -36,6 +37,55 @@
             and now() > cp.end_time
         </if>
         order by cp.create_time desc
+    </select>
+
+    <!-- 查询商家优惠券领取和使用记录 -->
+    <select id="queryMchCouponRecord" resultType="com.yeshimin.yeahboot.data.domain.vo.MchCouponRecordVo">
+        select
+            cp.id,
+            cp.create_time as createTime,
+            cp.coupon_id as couponId,
+            cp.name as couponName,
+            cp.type as couponType,
+            case when cp.type = 2 then cp.discount * 10 else cp.amount end as couponValue,
+            cp.min_amount as minAmount,
+            coalesce(member.nickname, member.account) as memberName,
+            `order`.order_no as orderNo,
+            `order`.total_amount as orderAmount,
+            ifnull(`order`.discount_amount, 0) as discountAmount,
+            cp.used_time as useTime,
+            case
+                when cp.is_used = 1 then 1
+                when now() &gt; cp.end_time then 2
+                else 0
+            end as status
+        from s_member_coupon cp
+            left join s_member member on member.id = cp.member_id and member.deleted = 0
+            left join s_order_coupon order_coupon on order_coupon.member_coupon_id = cp.id and order_coupon.deleted = 0
+            left join s_order `order` on `order`.id = order_coupon.order_id and `order`.deleted = 0
+        where cp.deleted = 0
+            and cp.mch_id = #{mchId}
+            and cp.shop_id = #{shopId}
+        <if test="query.couponId != null">
+            and cp.coupon_id = #{query.couponId}
+        </if>
+        <if test="query.memberKeyword != null and query.memberKeyword != ''">
+            and (member.nickname like concat('%', #{query.memberKeyword}, '%')
+                or member.account like concat('%', #{query.memberKeyword}, '%')
+                or member.mobile like concat('%', #{query.memberKeyword}, '%'))
+        </if>
+        <if test="query.status != null">
+            <if test="query.status == 0">
+                and cp.is_used = 0 and now() &lt;= cp.end_time
+            </if>
+            <if test="query.status == 1">
+                and cp.is_used = 1
+            </if>
+            <if test="query.status == 2">
+                and cp.is_used = 0 and now() &gt; cp.end_time
+            </if>
+        </if>
+        order by cp.used_time desc, cp.create_time desc
     </select>
 
 </mapper>
