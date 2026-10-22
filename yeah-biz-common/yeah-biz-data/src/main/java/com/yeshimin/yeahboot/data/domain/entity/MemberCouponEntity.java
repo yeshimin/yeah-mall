@@ -67,6 +67,11 @@ public class MemberCouponEntity extends ShopConditionBaseEntity<MemberCouponEnti
     private Long targetId;
 
     /**
+     * 是否支持拼团订单使用
+     */
+    private Boolean isSupportGroupBuy;
+
+    /**
      * 有效期起始时间
      */
     private LocalDateTime beginTime;

@@ -10,7 +10,8 @@ import lombok.Getter;
 public enum OrderTypeEnum implements IValueEnum {
 
     NORMAL("1", "普通订单"),
-    SECKILL("2", "秒杀订单");
+    SECKILL("2", "秒杀订单"),
+    GROUP_BUY("3", "拼团订单");
 
     private final String value;
     private final String desc;

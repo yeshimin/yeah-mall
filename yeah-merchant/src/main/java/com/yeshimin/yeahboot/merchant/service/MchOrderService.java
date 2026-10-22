@@ -6,12 +6,17 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.refund.model.Refund;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.service.IdService;
 import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
+import com.yeshimin.yeahboot.data.common.enums.OrderTypeEnum;
+import com.yeshimin.yeahboot.data.common.enums.GroupBuyGroupStatusEnum;
 import com.yeshimin.yeahboot.data.common.enums.RefundStatusEnum;
+import com.yeshimin.yeahboot.data.domain.entity.GroupBuyGroupEntity;
+import com.yeshimin.yeahboot.data.domain.entity.GroupBuyOrderEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderDeliveryTrackingEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderItemEntity;
@@ -20,8 +25,10 @@ import com.yeshimin.yeahboot.data.domain.vo.OrderShopProductVo;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderDetailVo;
+import com.yeshimin.yeahboot.merchant.domain.vo.OrderGroupBuyInfoVo;
 import com.yeshimin.yeahboot.service.JuheExpService;
 import com.yeshimin.yeahboot.service.OrderService;
+import com.yeshimin.yeahboot.service.GroupBuyTradeService;
 import com.yeshimin.yeahboot.service.WxPayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,11 +55,14 @@ public class MchOrderService {
     private final DeliveryProviderRepo deliveryProviderRepo;
     private final OrderDeliveryTrackingRepo orderDeliveryTrackingRepo;
     private final OrderRefundRepo orderRefundRepo;
+    private final GroupBuyOrderRepo groupBuyOrderRepo;
+    private final GroupBuyGroupRepo groupBuyGroupRepo;
 
     private final IdService idService;
     private final JuheExpService juheExpService;
     private final WxPayService wxPayService;
     private final OrderService orderService;
+    private final GroupBuyTradeService groupBuyTradeService;
 
     /**
      * 订单签收超时时间（天）
@@ -103,7 +113,34 @@ public class MchOrderService {
         result.setOrder(order);
         result.setShopProducts(listOrderShopProductVo);
         result.setDeliveryTracking(deliveryTracking);
+        fillGroupBuyInfo(result, order);
         return result;
+    }
+
+    /**
+     * 为拼团订单补充团状态，帮助商家在普通订单详情中识别营销订单。
+     */
+    private void fillGroupBuyInfo(OrderDetailVo result, OrderEntity order) {
+        if (!OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())) {
+            return;
+        }
+        GroupBuyOrderEntity groupBuyOrder = groupBuyOrderRepo.lambdaQuery()
+                .eq(GroupBuyOrderEntity::getOrderId, order.getId())
+                .one();
+        if (groupBuyOrder == null) {
+            return;
+        }
+        GroupBuyGroupEntity group = groupBuyGroupRepo.findOneById(groupBuyOrder.getGroupId());
+        if (group == null) {
+            return;
+        }
+        OrderGroupBuyInfoVo info = new OrderGroupBuyInfoVo();
+        info.setGroupNo(group.getGroupNo());
+        info.setGroupStatus(group.getStatus());
+        info.setMemberCount(group.getMemberCount());
+        info.setMinPeople(group.getMinPeople());
+        info.setLeader(groupBuyOrder.getIsLeader());
+        result.setGroupBuyInfo(info);
     }
 
     /**
@@ -125,6 +162,9 @@ public class MchOrderService {
         if (!Objects.equals(order.getStatus(), OrderStatusEnum.WAIT_SHIP.getValue())) {
             throw new RuntimeException("仅当前订单状态为【待发货】时，才能发货");
         }
+        if (OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())) {
+            ensureGroupBuySucceeded(order.getId());
+        }
         boolean updateStatusSuccess = orderRepo.updateStatus(
                 order.getId(), OrderStatusEnum.WAIT_SHIP.getValue(), OrderStatusEnum.WAIT_RECEIVE.getValue());
         if (!updateStatusSuccess) {
@@ -144,6 +184,22 @@ public class MchOrderService {
         // 添加订单物流跟踪记录
         boolean r = orderDeliveryTrackingRepo.createOne(order, dto.getTrackingNo(), dto.getDeliveryProviderCode());
         log.info("创建订单物流跟踪记录，结果：{}，订单ID：{}", r, order.getId());
+    }
+
+    /**
+     * 拼团订单仅在关联团已成团后允许发货。
+     */
+    private void ensureGroupBuySucceeded(Long orderId) {
+        GroupBuyOrderEntity groupBuyOrder = groupBuyOrderRepo.lambdaQuery()
+                .eq(GroupBuyOrderEntity::getOrderId, orderId)
+                .one();
+        if (groupBuyOrder == null) {
+            throw new BaseException("拼团订单关联记录不存在");
+        }
+        GroupBuyGroupEntity group = groupBuyGroupRepo.getOneById(groupBuyOrder.getGroupId(), "拼团记录不存在");
+        if (!GroupBuyGroupStatusEnum.SUCCESS.equalsValue(group.getStatus())) {
+            throw new BaseException("拼团尚未成功，暂不能发货");
+        }
     }
 
     /**
@@ -197,10 +253,36 @@ public class MchOrderService {
     public void cancelExpiredOrder(Long orderId, String closeReason) {
         // 检查：订单是否存在
         OrderEntity order = orderRepo.getOneById(orderId);
+        if (!Objects.equals(order.getStatus(), OrderStatusEnum.WAIT_PAY.getValue())) {
+            return;
+        }
+
+        // 先关闭微信订单，防止本地关闭与支付成功并发时错误释放库存、优惠券。
+        boolean paid = wxPayService.closeOrder(order.getOrderNo());
+        if (paid) {
+            syncPaidOrder(order);
+            return;
+        }
 
         orderService.cancelOrder(order, closeReason);
-        // 关闭第三方订单
-        wxPayService.closeOrder(order.getOrderNo());
+        if (OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())) {
+            groupBuyTradeService.handleOrderClosed(order.getId());
+        }
+    }
+
+    /**
+     * 微信关单返回已支付时，查询并同步本地订单状态。
+     */
+    private void syncPaidOrder(OrderEntity order) {
+        Transaction transaction = wxPayService.queryOrderByOutTradeNo(order.getOrderNo());
+        if (transaction == null || !Objects.equals(order.getOrderNo(), transaction.getOutTradeNo())
+                || !orderService.handlePaySuccessByQuery(transaction)) {
+            throw new BaseException("微信支付订单状态同步失败");
+        }
+        if (OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())) {
+            groupBuyTradeService.handleOrderPaid(order.getId());
+        }
+        log.info("超时关单发现订单已支付，已同步支付状态，订单ID：{}", order.getId());
     }
 
     /**

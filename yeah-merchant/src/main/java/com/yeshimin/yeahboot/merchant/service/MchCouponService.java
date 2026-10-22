@@ -90,8 +90,12 @@ public class MchCouponService {
      * 检查权限和参数
      */
     private void checkPermAndParams(Long userId, MchCouponCreateDto dto) {
-        // 权限检查和控制
+        // 创建和更新统一校验当前商户、店铺归属，防止跨店铺配置券规则。
         permissionService.checkMchAndShop(userId, dto);
+        if (dto.getIsSupportGroupBuy() == null) {
+            // 历史请求未传该字段时保持默认不支持拼团，避免普通券被意外用于拼团。
+            dto.setIsSupportGroupBuy(false);
+        }
 
         // 检查：优惠券类型
         CouponTypeEnum couponType = CouponTypeEnum.of(dto.getType());

@@ -1,6 +1,8 @@
 package com.yeshimin.yeahboot.service;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.wechat.pay.java.service.payments.model.Transaction;
+import com.wechat.pay.java.service.payments.model.TransactionAmount;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.common.utils.WxPayUtils;
 import com.yeshimin.yeahboot.data.common.consts.BizConsts;
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,6 +44,8 @@ public class OrderService {
     private final ProductSkuRepo productSkuRepo;
     private final OrderItemRepo orderItemRepo;
     private final SeckillSkuRepo seckillSkuRepo;
+    private final GroupBuySkuRepo groupBuySkuRepo;
+    private final GroupBuyOrderRepo groupBuyOrderRepo;
     private final MemberCouponRepo memberCouponRepo;
 
     private final CacheService cacheService;
@@ -132,17 +138,31 @@ public class OrderService {
             throw new RuntimeException("订单取消失败，请稍后重试");
         }
 
-        // 查询订单明细
+        // 状态成功切为关闭后才释放库存，避免重复取消导致多次回补。
         List<OrderItemEntity> orderItems = orderItemRepo.findListByOrderId(order.getId());
-        // 释放库存
         for (OrderItemEntity item : orderItems) {
             if (OrderTypeEnum.SECKILL.equalsValue(order.getOrderType())) {
+                // 秒杀订单明细保存秒杀SKU ID，直接回补秒杀库存。
                 seckillSkuRepo.increaseStock(item.getSkuId(), item.getQuantity());
+            } else if (OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())) {
+                GroupBuyOrderEntity groupBuyOrder = groupBuyOrderRepo.lambdaQuery()
+                        .eq(GroupBuyOrderEntity::getOrderId, order.getId()).one();
+                if (groupBuyOrder != null) {
+                    GroupBuySkuEntity groupBuySku = groupBuySkuRepo.findOneById(groupBuyOrder.getGroupBuySkuId());
+                    if (groupBuySku != null && Boolean.TRUE.equals(groupBuySku.getIsStockReserved())) {
+                        // 活动未结算时库存仍预留在拼团SKU中。
+                        groupBuySkuRepo.increaseStock(groupBuySku.getId(), item.getQuantity());
+                    } else if (groupBuySku != null) {
+                        // 活动结束后拼团余量已释放，取消订单需直接回补源SKU。
+                        productSkuRepo.increaseStock(groupBuySku.getSkuId(), item.getQuantity());
+                    }
+                }
             } else {
                 productSkuRepo.increaseStock(item.getSkuId(), item.getQuantity());
             }
         }
 
+        // 订单取消后恢复已占用的会员券。
         this.releaseCouponIfNecessary(order.getId());
     }
 
@@ -152,11 +172,47 @@ public class OrderService {
     @Transactional(rollbackFor = Exception.class)
     public boolean handlePaySuccess(WxPayUtils.Notification notification) {
         WxPayUtils.OrderInfo orderInfo = notification.getOrderInfo();
-        if (orderInfo == null || !isExpectedTestPaymentAmount(orderInfo.getAmount())) {
+        if (orderInfo == null || orderInfo.getAmount() == null || orderInfo.getSuccessTime() == null) {
+            log.error("处理支付成功失败，支付回调缺少订单金额或支付时间");
+            return false;
+        }
+        return handlePaySuccess(orderInfo.getOutTradeNo(), orderInfo.getAmount().getTotal(),
+                orderInfo.getAmount().getCurrency(), orderInfo.getSuccessTime().toLocalDateTime());
+    }
+
+    /**
+     * 根据微信订单查询结果同步支付成功状态。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public boolean handlePaySuccessByQuery(Transaction transaction) {
+        if (transaction == null || transaction.getTradeState() != Transaction.TradeStateEnum.SUCCESS) {
+            log.error("同步微信支付结果失败，交易状态不是支付成功");
+            return false;
+        }
+        TransactionAmount amount = transaction.getAmount();
+        if (amount == null || transaction.getSuccessTime() == null) {
+            log.error("同步微信支付结果失败，缺少订单金额或支付时间");
+            return false;
+        }
+        try {
+            // 主动查询与回调共用同一金额校验和状态更新逻辑，确保结果一致。
+            return handlePaySuccess(transaction.getOutTradeNo(), amount.getTotal(), amount.getCurrency(),
+                    OffsetDateTime.parse(transaction.getSuccessTime()).toLocalDateTime());
+        } catch (DateTimeParseException e) {
+            log.error("同步微信支付结果失败，支付时间格式错误", e);
+            return false;
+        }
+    }
+
+    /**
+     * 校验支付金额并更新本地订单状态。
+     */
+    private boolean handlePaySuccess(String outTradeNo, Integer amountTotal, String currency,
+                                     LocalDateTime paySuccessTime) {
+        if (!isExpectedTestPaymentAmount(amountTotal, currency)) {
             log.error("处理支付成功失败，回调支付金额不符合测试金额策略");
             return false;
         }
-        String outTradeNo = orderInfo.getOutTradeNo();
 
         // 查询业务订单
         OrderEntity order = orderRepo.findOneByOrderNo(outTradeNo);
@@ -173,8 +229,11 @@ public class OrderService {
         }
 
         // 更新订单状态
+        // 拼团订单已付款后必须先等待成团，成团成功后再允许商家发货。
+        String targetStatus = OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())
+                ? OrderStatusEnum.WAIT_GROUP.getValue() : OrderStatusEnum.WAIT_SHIP.getValue();
         boolean success = orderRepo.updateStatus(order.getId(),
-                OrderStatusEnum.WAIT_PAY.getValue(), OrderStatusEnum.WAIT_SHIP.getValue());
+                OrderStatusEnum.WAIT_PAY.getValue(), targetStatus);
         // 可能已经处理过了，返回成功
         if (!success) {
             log.info("处理支付成功失败，订单状态更新失败，可能已经处理过了，outTradeNo={}", outTradeNo);
@@ -184,7 +243,7 @@ public class OrderService {
         // 更新支付成功时间
         LambdaUpdateWrapper<OrderEntity> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(OrderEntity::getId, order.getId())
-                .set(OrderEntity::getPaySuccessTime, orderInfo.getSuccessTime().toLocalDateTime());
+                .set(OrderEntity::getPaySuccessTime, paySuccessTime);
         orderRepo.update(updateWrapper);
 
         return true;
@@ -226,6 +285,17 @@ public class OrderService {
         for (OrderItemEntity item : orderItems) {
             if (OrderTypeEnum.SECKILL.equalsValue(order.getOrderType())) {
                 seckillSkuRepo.increaseStock(item.getSkuId(), item.getQuantity());
+            } else if (OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())) {
+                GroupBuyOrderEntity groupBuyOrder = groupBuyOrderRepo.lambdaQuery()
+                        .eq(GroupBuyOrderEntity::getOrderId, order.getId()).one();
+                if (groupBuyOrder != null) {
+                    GroupBuySkuEntity groupBuySku = groupBuySkuRepo.findOneById(groupBuyOrder.getGroupBuySkuId());
+                    if (groupBuySku != null && Boolean.TRUE.equals(groupBuySku.getIsStockReserved())) {
+                        groupBuySkuRepo.increaseStock(groupBuySku.getId(), item.getQuantity());
+                    } else if (groupBuySku != null) {
+                        productSkuRepo.increaseStock(groupBuySku.getSkuId(), item.getQuantity());
+                    }
+                }
             } else {
                 productSkuRepo.increaseStock(item.getSkuId(), item.getQuantity());
             }
@@ -286,11 +356,13 @@ public class OrderService {
             return true;
         }
 
-        // 更新退款记录
+        // 退款通知可能先到处理中状态，先原样同步退款单再按状态更新主订单。
+        LocalDateTime refundSuccessTime = refundInfo.getSuccessTime() == null
+                ? null : refundInfo.getSuccessTime().toLocalDateTime();
         LambdaUpdateWrapper<OrderRefundEntity> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(OrderRefundEntity::getId, orderRefund.getId())
                 .set(OrderRefundEntity::getRefundStatus, refundInfo.getRefundStatus())
-                .set(OrderRefundEntity::getSuccessTime, refundInfo.getSuccessTime().toLocalDateTime())
+                .set(OrderRefundEntity::getSuccessTime, refundSuccessTime)
                 .set(OrderRefundEntity::getUserReceivedAccount, refundInfo.getUserReceivedAccount())
                 .set(OrderRefundEntity::getSummary, notification.getSummary())
                 .set(OrderRefundEntity::getRealTotalAmount, refundInfo.getAmount().getTotal())
@@ -302,17 +374,18 @@ public class OrderService {
             WxRefundStatusEnum wxRefundStatus = WxRefundStatusEnum.of(refundInfo.getRefundStatus());
             switch (Objects.requireNonNull(wxRefundStatus)) {
                 case SUCCESS:
+                    // 退款成功时间允许为空，异常情况下用当前时间保证状态可落库。
                     orderRepo.updateRefundStatus2(order.getId(), RefundStatusEnum.SUCCESS.getValue(),
-                            notification.getSummary(), refundInfo.getSuccessTime().toLocalDateTime());
+                            notification.getSummary(), refundSuccessTime == null ? LocalDateTime.now() : refundSuccessTime);
                     break;
                 case CLOSED:
                 case ABNORMAL:
                     orderRepo.updateRefundStatus2(order.getId(), RefundStatusEnum.FAILED.getValue(),
-                            notification.getSummary(), refundInfo.getSuccessTime().toLocalDateTime());
+                            notification.getSummary(), LocalDateTime.now());
                     break;
                 case PROCESSING:
                     orderRepo.updateRefundStatus2(order.getId(), RefundStatusEnum.PROCESSING.getValue(),
-                            notification.getSummary(), refundInfo.getSuccessTime().toLocalDateTime());
+                            notification.getSummary(), LocalDateTime.now());
                     break;
                 default:
                     break;
@@ -328,16 +401,17 @@ public class OrderService {
             return;
         }
 
+        // 会员券仓储通过未使用条件更新恢复状态，重复触发不会造成券数错误。
         memberCouponRepo.releaseCoupon(orderCoupon.getMemberCouponId());
     }
 
     /**
      * TODO 切换生产支付后，使用订单最终应付金额校验微信回调金额。
      */
-    private boolean isExpectedTestPaymentAmount(WxPayUtils.Amount amount) {
-        return amount != null
-                && amount.getTotal() == WxPayService.TEST_PAYMENT_AMOUNT_FEN
-                && "CNY".equals(amount.getCurrency());
+    private boolean isExpectedTestPaymentAmount(Integer amountTotal, String currency) {
+        return amountTotal != null
+                && amountTotal == WxPayService.TEST_PAYMENT_AMOUNT_FEN
+                && "CNY".equals(currency);
     }
 
     /**

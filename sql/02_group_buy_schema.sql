@@ -1,0 +1,172 @@
+-- 拼团基础数据模型。
+-- 请先在目标数据库中人工执行本文件，再启动包含拼团功能的服务。
+-- 本脚本不包含菜单资源与演示数据。
+
+CREATE TABLE IF NOT EXISTS `s_group_buy_activity` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `delete_time` datetime NOT NULL DEFAULT '9999-12-31 23:59:59' COMMENT '删除时间',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-是 0-否',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_by` varchar(32) NOT NULL DEFAULT '' COMMENT '创建者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` varchar(32) NOT NULL DEFAULT '' COMMENT '更新者',
+  `name` varchar(64) NOT NULL COMMENT '活动名称',
+  `description` varchar(255) NOT NULL DEFAULT '' COMMENT '活动描述',
+  `cover_image` varchar(255) NOT NULL DEFAULT '' COMMENT '活动封面',
+  `apply_begin_time` datetime NOT NULL COMMENT '报名开始时间',
+  `apply_end_time` datetime NOT NULL COMMENT '报名截止时间',
+  `activity_begin_time` datetime NOT NULL COMMENT '活动开始时间',
+  `activity_end_time` datetime NOT NULL COMMENT '活动结束时间',
+  `min_people` int(11) NOT NULL COMMENT '每团成团人数',
+  `group_limit` int(11) NOT NULL DEFAULT '0' COMMENT '最大开团数，-1表示不限，0表示未设置',
+  `status` varchar(2) NOT NULL DEFAULT '1' COMMENT '活动状态：见代码枚举',
+  `sort` int(11) NOT NULL DEFAULT '1' COMMENT '排序',
+  `is_enabled` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否启用',
+  `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '备注',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='拼团活动表';
+
+CREATE TABLE IF NOT EXISTS `s_group_buy_spu` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `delete_time` datetime NOT NULL DEFAULT '9999-12-31 23:59:59' COMMENT '删除时间',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-是 0-否',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_by` varchar(32) NOT NULL DEFAULT '' COMMENT '创建者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` varchar(32) NOT NULL DEFAULT '' COMMENT '更新者',
+  `mch_id` bigint(20) NOT NULL COMMENT '商户ID',
+  `shop_id` bigint(20) NOT NULL COMMENT '店铺ID',
+  `spu_id` bigint(20) NOT NULL COMMENT '原始商品SPU ID',
+  `activity_id` bigint(20) NOT NULL COMMENT '拼团活动ID',
+  `name` varchar(64) NOT NULL COMMENT '商品名称',
+  `sales` bigint(20) NOT NULL DEFAULT '0' COMMENT '销量',
+  `main_image` varchar(255) NOT NULL DEFAULT '' COMMENT '主图',
+  `min_origin_price` decimal(13,2) NOT NULL DEFAULT '0.00' COMMENT 'SKU最低原价',
+  `min_group_price` decimal(13,2) NOT NULL DEFAULT '0.00' COMMENT 'SKU最低拼团价',
+  `max_origin_price` decimal(13,2) NOT NULL DEFAULT '0.00' COMMENT 'SKU最高原价',
+  `max_group_price` decimal(13,2) NOT NULL DEFAULT '0.00' COMMENT 'SKU最高拼团价',
+  `detail_desc` text COMMENT '商品详细描述',
+  `audit_status` int(11) NOT NULL DEFAULT '1' COMMENT '审核状态：见代码枚举',
+  PRIMARY KEY (`id`),
+  KEY `idx_activity_audit` (`activity_id`, `audit_status`),
+  KEY `idx_shop_spu` (`shop_id`, `spu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='拼团商品SPU表';
+
+CREATE TABLE IF NOT EXISTS `s_group_buy_sku` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `delete_time` datetime NOT NULL DEFAULT '9999-12-31 23:59:59' COMMENT '删除时间',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-是 0-否',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_by` varchar(32) NOT NULL DEFAULT '' COMMENT '创建者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` varchar(32) NOT NULL DEFAULT '' COMMENT '更新者',
+  `mch_id` bigint(20) NOT NULL COMMENT '商户ID',
+  `shop_id` bigint(20) NOT NULL COMMENT '店铺ID',
+  `spu_id` bigint(20) NOT NULL COMMENT '原始商品SPU ID',
+  `sku_id` bigint(20) NOT NULL COMMENT '原始商品SKU ID',
+  `group_buy_spu_id` bigint(20) NOT NULL COMMENT '拼团商品SPU ID',
+  `activity_id` bigint(20) NOT NULL COMMENT '拼团活动ID',
+  `name` varchar(255) NOT NULL COMMENT '名称',
+  `spec_code` varchar(255) NOT NULL DEFAULT '' COMMENT '规格编码',
+  `origin_price` decimal(13,2) NOT NULL COMMENT '原始价格',
+  `group_price` decimal(13,2) NOT NULL COMMENT '拼团价格',
+  `stock` int(11) NOT NULL DEFAULT '0' COMMENT '拼团库存',
+  `is_stock_reserved` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已从源SKU预留库存：0否，1是',
+  `main_image` varchar(255) NOT NULL DEFAULT '' COMMENT '主图',
+  PRIMARY KEY (`id`),
+  KEY `idx_group_buy_spu` (`group_buy_spu_id`),
+  KEY `idx_activity_sku` (`activity_id`, `sku_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='拼团商品SKU表';
+
+CREATE TABLE IF NOT EXISTS `s_group_buy_spu_image` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `delete_time` datetime NOT NULL DEFAULT '9999-12-31 23:59:59' COMMENT '删除时间',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-是 0-否',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_by` varchar(32) NOT NULL DEFAULT '' COMMENT '创建者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` varchar(32) NOT NULL DEFAULT '' COMMENT '更新者',
+  `mch_id` bigint(20) NOT NULL COMMENT '商户ID',
+  `shop_id` bigint(20) NOT NULL COMMENT '店铺ID',
+  `spu_id` bigint(20) NOT NULL COMMENT '原始商品SPU ID',
+  `group_buy_spu_id` bigint(20) NOT NULL COMMENT '拼团商品SPU ID',
+  `image_url` varchar(255) NOT NULL COMMENT '图片地址',
+  PRIMARY KEY (`id`),
+  KEY `idx_group_buy_spu` (`group_buy_spu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='拼团商品图片表';
+
+CREATE TABLE IF NOT EXISTS `s_group_buy_apply` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `delete_time` datetime NOT NULL DEFAULT '9999-12-31 23:59:59' COMMENT '删除时间',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-是 0-否',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_by` varchar(32) NOT NULL DEFAULT '' COMMENT '创建者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` varchar(32) NOT NULL DEFAULT '' COMMENT '更新者',
+  `mch_id` bigint(20) NOT NULL COMMENT '商户ID',
+  `shop_id` bigint(20) NOT NULL COMMENT '店铺ID',
+  `activity_id` bigint(20) NOT NULL COMMENT '拼团活动ID',
+  `spu_id` bigint(20) NOT NULL COMMENT '原始商品SPU ID',
+  `group_buy_spu_id` bigint(20) NOT NULL COMMENT '报名的拼团商品SPU ID',
+  `audit_status` int(11) NOT NULL DEFAULT '1' COMMENT '审核状态',
+  `active_spu_id` bigint(20) GENERATED ALWAYS AS
+    (CASE WHEN `deleted` = 0 AND `audit_status` IN (1, 2) THEN `spu_id` ELSE NULL END) STORED
+    COMMENT '有效报名商品ID，用于限制同活动商品重复报名',
+  `apply_remark` varchar(255) NOT NULL DEFAULT '' COMMENT '申请备注',
+  `audit_remark` varchar(255) NOT NULL DEFAULT '' COMMENT '审核备注',
+  PRIMARY KEY (`id`),
+  KEY `idx_activity_spu` (`activity_id`, `spu_id`),
+  KEY `idx_mch_status` (`mch_id`, `audit_status`),
+  UNIQUE KEY `uk_activity_active_spu` (`activity_id`, `active_spu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='拼团活动报名申请表';
+
+CREATE TABLE IF NOT EXISTS `s_group_buy_group` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `delete_time` datetime NOT NULL DEFAULT '9999-12-31 23:59:59' COMMENT '删除时间',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-是 0-否',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_by` varchar(32) NOT NULL DEFAULT '' COMMENT '创建者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` varchar(32) NOT NULL DEFAULT '' COMMENT '更新者',
+  `mch_id` bigint(20) NOT NULL COMMENT '商户ID',
+  `shop_id` bigint(20) NOT NULL COMMENT '店铺ID',
+  `group_no` varchar(32) NOT NULL COMMENT '团编号',
+  `activity_id` bigint(20) NOT NULL COMMENT '拼团活动ID',
+  `group_buy_spu_id` bigint(20) NOT NULL COMMENT '拼团商品SPU ID',
+  `leader_member_id` bigint(20) NOT NULL COMMENT '团长会员ID',
+  `member_count` int(11) NOT NULL DEFAULT '0' COMMENT '已支付成员数',
+  `reserved_member_count` int(11) NOT NULL DEFAULT '0' COMMENT '已占席成员数，包含待支付与已支付成员',
+  `min_people` int(11) NOT NULL COMMENT '每团成团人数快照',
+  `success_time` datetime DEFAULT NULL COMMENT '成团时间',
+  `failed_time` datetime DEFAULT NULL COMMENT '失败时间',
+  `status` varchar(2) NOT NULL DEFAULT '1' COMMENT '团状态：见代码枚举',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_group_no` (`group_no`),
+  KEY `idx_spu_status` (`group_buy_spu_id`, `status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='拼团团表';
+
+CREATE TABLE IF NOT EXISTS `s_group_buy_order` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `delete_time` datetime NOT NULL DEFAULT '9999-12-31 23:59:59' COMMENT '删除时间',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-是 0-否',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `create_by` varchar(32) NOT NULL DEFAULT '' COMMENT '创建者',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` varchar(32) NOT NULL DEFAULT '' COMMENT '更新者',
+  `mch_id` bigint(20) NOT NULL COMMENT '商户ID',
+  `shop_id` bigint(20) NOT NULL COMMENT '店铺ID',
+  `group_id` bigint(20) NOT NULL COMMENT '团ID',
+  `activity_id` bigint(20) NOT NULL COMMENT '拼团活动ID',
+  `group_buy_spu_id` bigint(20) NOT NULL COMMENT '拼团商品SPU ID',
+  `group_buy_sku_id` bigint(20) NOT NULL COMMENT '拼团商品SKU ID',
+  `member_id` bigint(20) NOT NULL COMMENT '会员ID',
+  `order_id` bigint(20) NOT NULL COMMENT '订单ID',
+  `order_no` varchar(32) NOT NULL COMMENT '订单编号',
+  `is_leader` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否团长',
+  `status` varchar(2) NOT NULL DEFAULT '1' COMMENT '参与状态：见代码枚举',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_order_id` (`order_id`),
+  UNIQUE KEY `uk_group_member_active` (`group_id`, `member_id`, `delete_time`),
+  KEY `idx_group_status` (`group_id`, `status`),
+  KEY `idx_member_create` (`member_id`, `create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='拼团订单关联表';

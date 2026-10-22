@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeshimin.yeahboot.data.mapper.GroupBuyGroupMapper">
+
+    <!-- 锁定单个团，确保支付回调和活动结算串行执行。 -->
+    <select id="selectByIdForUpdate" resultType="com.yeshimin.yeahboot.data.domain.entity.GroupBuyGroupEntity">
+        SELECT *
+        FROM s_group_buy_group
+        WHERE id = #{id}
+          AND deleted = 0
+        FOR UPDATE
+    </select>
+
+    <!-- 只有未满员的拼团中团允许支付成员计数加一。 -->
+    <update id="increaseMemberCountIfForming">
+        UPDATE s_group_buy_group
+        SET member_count = member_count + 1
+        WHERE id = #{id}
+          AND deleted = 0
+          AND status = #{status}
+          AND member_count &lt; min_people
+    </update>
+
+    <!-- 只释放未支付成员占用的席位，已支付成员席位不能释放。 -->
+    <update id="decreaseReservedMemberCountIfForming">
+        UPDATE s_group_buy_group
+        SET reserved_member_count = reserved_member_count - 1
+        WHERE id = #{id}
+          AND deleted = 0
+          AND status = #{status}
+          AND reserved_member_count &gt; member_count
+    </update>
+
+    <!-- 以数据库条件保证每团预占人数不超过成团人数。 -->
+    <update id="reserveSeatIfAvailable">
+        UPDATE s_group_buy_group
+        SET reserved_member_count = reserved_member_count + 1
+        WHERE id = #{id}
+          AND deleted = 0
+          AND status = #{status}
+          AND reserved_member_count &lt; min_people
+    </update>
+</mapper>

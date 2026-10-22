@@ -107,7 +107,8 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
     public List<OrderEntity> findIdListForPayExpired() {
         return lambdaQuery().select(OrderEntity::getId)
                 .eq(OrderEntity::getStatus, OrderStatusEnum.WAIT_PAY.getValue())
-                .eq(OrderEntity::getOrderType, OrderTypeEnum.NORMAL.getValue()) // 只处理【普通订单】
+                // 秒杀订单由专用任务处理，普通和拼团订单共用该超时关闭流程。
+                .in(OrderEntity::getOrderType, OrderTypeEnum.NORMAL.getValue(), OrderTypeEnum.GROUP_BUY.getValue())
                 .le(OrderEntity::getPayExpireTime, LocalDateTime.now())
                 .list();
     }

@@ -6,6 +6,8 @@ import com.yeshimin.yeahboot.data.domain.dto.CouponQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.MemberCouponEntity;
 import com.yeshimin.yeahboot.data.domain.vo.MemberCouponVo;
 import com.yeshimin.yeahboot.data.mapper.MemberCouponMapper;
+import com.yeshimin.yeahboot.data.domain.dto.MchCouponRecordQueryDto;
+import com.yeshimin.yeahboot.data.domain.vo.MchCouponRecordVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -34,6 +36,15 @@ public class MemberCouponRepo extends BaseRepo<MemberCouponMapper, MemberCouponE
      */
     public Page<MemberCouponVo> queryReceiveList(Long userId, Page<MemberCouponVo> page, CouponQueryDto query) {
         return memberCouponMapper.queryReceiveList(page, userId, query);
+    }
+
+    /**
+     * 查询商家优惠券领取和使用记录
+     */
+    public Page<MchCouponRecordVo> queryMchCouponRecord(Long mchId, Long shopId,
+                                                         Page<MchCouponRecordVo> page,
+                                                         MchCouponRecordQueryDto query) {
+        return memberCouponMapper.queryMchCouponRecord(page, mchId, shopId, query);
     }
 
     /**

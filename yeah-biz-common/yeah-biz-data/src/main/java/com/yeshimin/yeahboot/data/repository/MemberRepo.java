@@ -12,6 +12,13 @@ import org.springframework.stereotype.Repository;
 public class MemberRepo extends BaseRepo<MemberMapper, MemberEntity> {
 
     /**
+     * 锁定会员记录。
+     */
+    public MemberEntity findOneByIdForUpdate(Long id) {
+        return this.baseMapper.selectByIdForUpdate(id);
+    }
+
+    /**
      * findOneByMobile
      */
     public MemberEntity findOneByMobile(String phone) {

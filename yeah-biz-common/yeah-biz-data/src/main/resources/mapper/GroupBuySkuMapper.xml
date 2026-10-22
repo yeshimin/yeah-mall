@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeshimin.yeahboot.data.mapper.GroupBuySkuMapper">
+
+    <!-- 锁定拼团SKU，避免审核预留与活动结束回补并发。 -->
+    <select id="selectByIdForUpdate" resultType="com.yeshimin.yeahboot.data.domain.entity.GroupBuySkuEntity">
+        SELECT *
+        FROM s_group_buy_sku
+        WHERE id = #{id}
+          AND deleted = 0
+        FOR UPDATE
+    </select>
+
+    <!-- 以条件更新扣减库存，库存不足时返回零行。 -->
+    <update id="occurStock">
+        UPDATE s_group_buy_sku
+        SET stock = stock - #{quantity}
+        WHERE id = #{id}
+          AND deleted = 0
+          AND stock &gt;= #{quantity}
+    </update>
+
+    <!-- 退款、关单后回补拼团库存。 -->
+    <update id="increaseStock">
+        UPDATE s_group_buy_sku
+        SET stock = stock + #{quantity}
+        WHERE id = #{id}
+          AND deleted = 0
+    </update>
+</mapper>

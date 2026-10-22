@@ -11,7 +11,8 @@ public enum OrderSceneEnum implements IValueEnum {
 
     PRODUCT("1", "商品页下单"),
     CART("2", "购物车下单"),
-    SECKILL("3", "秒杀下单");
+    SECKILL("3", "秒杀下单"),
+    GROUP_BUY("4", "拼团下单");
 
     private final String value;
     private final String desc;

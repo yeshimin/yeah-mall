@@ -4,12 +4,14 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAPublicKeyConfig;
+import com.wechat.pay.java.core.exception.ServiceException;
 import com.wechat.pay.java.service.payments.jsapi.JsapiService;
 import com.wechat.pay.java.service.payments.jsapi.model.*;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.refund.RefundService;
 import com.wechat.pay.java.service.refund.model.AmountReq;
 import com.wechat.pay.java.service.refund.model.CreateRequest;
+import com.wechat.pay.java.service.refund.model.QueryByOutRefundNoRequest;
 import com.wechat.pay.java.service.refund.model.Refund;
 import com.yeshimin.yeahboot.common.properties.WxPayProperties;
 import com.yeshimin.yeahboot.common.utils.WxPayUtils;
@@ -172,17 +174,35 @@ public class WxPayService {
     }
 
     /**
+     * 按商户退款单号查询退款状态。
+     */
+    public Refund queryRefundByOutRefundNo(String outRefundNo) {
+        QueryByOutRefundNoRequest request = new QueryByOutRefundNoRequest();
+        request.setOutRefundNo(outRefundNo);
+        return refundService.queryByOutRefundNo(request);
+    }
+
+    /**
      * 关闭订单
      * https://pay.weixin.qq.com/doc/v3/merchant/4012791901
      */
-    public void closeOrder(String outTradeNo) {
+    public boolean closeOrder(String outTradeNo) {
         CloseOrderRequest request = new CloseOrderRequest();
         // 商户订单号
         request.setOutTradeNo(outTradeNo);
         // 商户号
         request.setMchid(wxPayProperties.getMchId());
 
-        jsapiService.closeOrder(request);
+        try {
+            jsapiService.closeOrder(request);
+            return false;
+        } catch (ServiceException e) {
+            // 微信已受理支付时不能再关单，调用方应转为同步本地支付状态。
+            if ("ORDERPAID".equals(e.getErrorCode())) {
+                return true;
+            }
+            throw e;
+        }
     }
 
     // ================================================================================

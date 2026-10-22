@@ -60,4 +60,62 @@
         </if>
     </select>
 
+    <!-- 查询秒杀活动订单和库存统计，仅统计已支付且未关闭、未退款、未售后的秒杀订单。 -->
+    <select id="queryActivityStatistics" resultType="com.yeshimin.yeahboot.data.domain.vo.SeckillStatisticsVo">
+        select
+            count(distinct `order`.id) as paidOrderCount,
+            count(distinct `order`.member_id) as participantCount,
+            ifnull(sum(order_item.total_price), 0) as salesAmount,
+            ifnull((
+                select sum(sku.stock)
+                from s_seckill_sku sku
+                where sku.deleted = 0 and sku.activity_id = #{activityId}
+            ), 0) as remainingStock
+        from s_order `order`
+            inner join s_order_item order_item on order_item.order_id = `order`.id and order_item.deleted = 0
+            inner join s_seckill_spu spu on spu.id = order_item.spu_id and spu.deleted = 0
+        where `order`.deleted = 0
+            and `order`.order_type = '2'
+            and `order`.pay_success_time is not null
+            and `order`.status not in ('5', '6', '7')
+            and spu.activity_id = #{activityId}
+    </select>
+
+    <!-- 查询秒杀活动已审核商品的销量、成交额和当前剩余库存。 -->
+    <select id="queryActivityProductStatistics" resultType="com.yeshimin.yeahboot.data.domain.vo.SeckillProductStatisticsVo">
+        select
+            spu.id as seckillSpuId,
+            spu.name,
+            ifnull((
+                select sum(order_item.quantity)
+                from s_order_item order_item
+                    inner join s_order `order` on `order`.id = order_item.order_id and `order`.deleted = 0
+                where order_item.deleted = 0
+                    and order_item.spu_id = spu.id
+                    and `order`.order_type = '2'
+                    and `order`.pay_success_time is not null
+                    and `order`.status not in ('5', '6', '7')
+            ), 0) as salesCount,
+            ifnull((
+                select sum(order_item.total_price)
+                from s_order_item order_item
+                    inner join s_order `order` on `order`.id = order_item.order_id and `order`.deleted = 0
+                where order_item.deleted = 0
+                    and order_item.spu_id = spu.id
+                    and `order`.order_type = '2'
+                    and `order`.pay_success_time is not null
+                    and `order`.status not in ('5', '6', '7')
+            ), 0) as salesAmount,
+            ifnull((
+                select sum(sku.stock)
+                from s_seckill_sku sku
+                where sku.deleted = 0 and sku.seckill_spu_id = spu.id
+            ), 0) as remainingStock
+        from s_seckill_spu spu
+        where spu.deleted = 0
+            and spu.activity_id = #{activityId}
+            and spu.audit_status = 2
+        order by salesAmount desc, salesCount desc, spu.id desc
+    </select>
+
 </mapper>
