@@ -9,7 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import jakarta.servlet.FilterChain;
+import javax.servlet.FilterChain;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
