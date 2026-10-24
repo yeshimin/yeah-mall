@@ -79,7 +79,7 @@ auth:
           # 签发密钥
           secret: on3hoonguBi7cahdohv4iu0wiaqueiro
           # 过期时间（秒）
-          expire-seconds: 3600
+          expire-seconds: 36000
           # 时间校验偏差（秒）
           default-leeway: 60
         terminals:
@@ -99,7 +99,7 @@ auth:
           # 签发密钥
           secret: ierohgh2ohl8paiXoi8kah0uhohsiewu
           # 过期时间（秒）
-          expire-seconds: 3600
+          expire-seconds: 36000
           # 时间校验偏差（秒）
           default-leeway: 60
         terminals:
@@ -119,7 +119,7 @@ auth:
           # 签发密钥
           secret: uu5aeshaili2aetheeTiuf8zeiVaegub
           # 过期时间（秒）
-          expire-seconds: 3600
+          expire-seconds: 36000
           # 时间校验偏差（秒）
           default-leeway: 60
         terminals:
