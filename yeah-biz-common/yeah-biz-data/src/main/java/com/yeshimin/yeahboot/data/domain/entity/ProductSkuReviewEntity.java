@@ -1,9 +1,12 @@
 package com.yeshimin.yeahboot.data.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.yeshimin.yeahboot.data.domain.base.ShopConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.time.LocalDateTime;
 
 /**
  * 商品SKU评价表
@@ -77,4 +80,26 @@ public class ProductSkuReviewEntity extends ShopConditionBaseEntity<ProductSkuRe
      * 买家头像
      */
     private String avatar;
+
+    /**
+     * 是否对用户公开
+     */
+    private Boolean isVisible;
+
+    /**
+     * 平台隐藏或恢复备注
+     */
+    private String visibilityRemark;
+
+    /**
+     * 是否已有回复，仅用于后台列表展示
+     */
+    @TableField(exist = false)
+    private Boolean isReplied;
+
+    /**
+     * 最新回复方类型：1买家，2商家
+     */
+    @TableField(exist = false)
+    private Integer lastReplySenderType;
 }

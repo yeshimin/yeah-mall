@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * App端收藏商品VO
@@ -42,4 +43,14 @@ public class FavoritesProductVo extends BaseDomain {
      * 主图
      */
     private String mainImage;
+
+    /**
+     * 收藏时间
+     */
+    private LocalDateTime favoriteTime;
+
+    /**
+     * 商品是否仍可用
+     */
+    private Boolean available;
 }

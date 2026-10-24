@@ -1,6 +1,9 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
+import com.yeshimin.yeahboot.common.controller.validation.Query;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSkuMapper;
@@ -8,6 +11,7 @@ import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuMainImageSetDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuQueryDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSkuDetailVo;
 import com.yeshimin.yeahboot.merchant.service.ProductSkuService;
@@ -34,6 +38,15 @@ public class ProductSkuController extends ShopCrudController<ProductSkuMapper, P
     }
 
     // ================================================================================
+
+    /**
+     * 查询当前店铺商品SKU。
+     */
+    @GetMapping("/query")
+    public R<IPage<ProductSkuEntity>> query(Page<ProductSkuEntity> page,
+                                             @Validated(Query.class) ProductSkuQueryDto query) {
+        return R.ok(service.query(page, super.getUserId(), query));
+    }
 
     /**
      * 创建

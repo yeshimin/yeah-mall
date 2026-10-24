@@ -5,6 +5,7 @@ import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.vo.AppProductQueryVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
 import com.yeshimin.yeahboot.app.service.AppProductSpuService;
+import com.yeshimin.yeahboot.app.service.ProductBrowseMqPublisher;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
@@ -25,6 +26,7 @@ import javax.validation.Valid;
 public class AppProductController extends BaseController {
 
     private final AppProductSpuService service;
+    private final ProductBrowseMqPublisher productBrowseMqPublisher;
 
     /**
      * 查询
@@ -38,10 +40,12 @@ public class AppProductController extends BaseController {
     /**
      * 详情
      */
-    @PublicAccess
+    @PublicAccess(authOnDemand = true)
     @GetMapping("/detail")
     public R<ProductDetailVo> detail(@RequestParam Long id) {
-        return R.ok(service.detail(id));
+        ProductDetailVo result = service.detail(id);
+        productBrowseMqPublisher.publishSafely(super.getUserId(), result.getProduct().getId());
+        return R.ok(result);
     }
 
     /**

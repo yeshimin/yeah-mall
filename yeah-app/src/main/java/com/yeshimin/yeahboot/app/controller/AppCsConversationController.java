@@ -8,19 +8,19 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.CsConversationEntity;
 import com.yeshimin.yeahboot.data.domain.entity.CsMessageEntity;
 import com.yeshimin.yeahboot.data.domain.vo.CsConversationInfoVo;
+import com.yeshimin.yeahboot.service.CsChatService;
+import com.yeshimin.yeahboot.ws.mq.command.BaseCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * APP端客服会话表
- */
 @RestController
 @RequestMapping("/app/csConversation")
 @RequiredArgsConstructor
 public class AppCsConversationController extends BaseController {
 
     private final AppCsConversationService service;
+    private final CsChatService csChatService;
 
     // ================================================================================
 
@@ -50,5 +50,15 @@ public class AppCsConversationController extends BaseController {
     public R<Page<CsMessageEntity>> queryMessages(Page<CsMessageEntity> page, @RequestParam Long conversationId) {
         Long userId = super.getUserId();
         return R.ok(service.queryMessages(userId, page, conversationId));
+    }
+
+    /**
+     * 发送买家客服消息
+     */
+    @PostMapping("/sendMessage")
+    public R<Void> sendMessage(@RequestBody BaseCommand command) {
+        // HTTP写入复用现有WebSocket业务处理，保证鉴权、落库和推送行为一致。
+        csChatService.handleMsgMem2Mch(command, String.valueOf(super.getUserId()));
+        return R.ok();
     }
 }

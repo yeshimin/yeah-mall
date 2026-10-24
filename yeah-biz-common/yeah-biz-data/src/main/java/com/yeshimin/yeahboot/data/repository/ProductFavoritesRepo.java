@@ -48,4 +48,14 @@ public class ProductFavoritesRepo extends BaseRepo<ProductFavoritesMapper, Produ
                 .eq(ProductFavoritesEntity::getSpuId, spuId)
                 .one();
     }
+
+    /**
+     * 按会员和商品删除收藏，不依赖商品当前是否存在。
+     */
+    public boolean removeByMemberIdAndSpuId(Long memberId, Long spuId) {
+        return lambdaUpdate()
+                .eq(ProductFavoritesEntity::getMemberId, memberId)
+                .eq(ProductFavoritesEntity::getSpuId, spuId)
+                .remove();
+    }
 }

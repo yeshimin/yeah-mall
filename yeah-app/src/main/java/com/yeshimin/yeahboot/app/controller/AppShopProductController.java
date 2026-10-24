@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.vo.ShopProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.ShopProductVo;
 import com.yeshimin.yeahboot.app.service.AppShopProductSpuService;
+import com.yeshimin.yeahboot.app.service.ProductBrowseMqPublisher;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppShopProductController extends BaseController {
 
     private final AppShopProductSpuService service;
+    private final ProductBrowseMqPublisher productBrowseMqPublisher;
 
     /**
      * 查询
@@ -37,6 +39,8 @@ public class AppShopProductController extends BaseController {
      */
     @GetMapping("/detail")
     public R<ShopProductDetailVo> detail(@RequestParam Long id) {
-        return R.ok(service.detail(id));
+        ShopProductDetailVo result = service.detail(id);
+        productBrowseMqPublisher.publishSafely(super.getUserId(), result.getId());
+        return R.ok(result);
     }
 }

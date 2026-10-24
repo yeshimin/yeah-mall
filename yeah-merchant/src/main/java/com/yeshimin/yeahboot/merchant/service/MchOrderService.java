@@ -78,6 +78,12 @@ public class MchOrderService {
         permissionService.checkMchAndShop(userId, query);
 
         LambdaQueryWrapper<OrderEntity> wrapper = QueryHelper.getQueryWrapper(query);
+        if (Boolean.TRUE.equals(query.getRefundPending())) {
+            // 与经营首页“退款待处理”指标保持相同口径。
+            wrapper.eq(OrderEntity::getStatus, OrderStatusEnum.REFUND.getValue())
+                    .in(OrderEntity::getRefundStatus, RefundStatusEnum.APPLYING.getValue(),
+                            RefundStatusEnum.PROCESSING.getValue());
+        }
         return orderRepo.page(page, wrapper);
     }
 
@@ -380,7 +386,7 @@ public class MchOrderService {
             throw new RuntimeException("仅当订单状态为【退款】，且退款状态为【申请中】或【退款失败】时，才能操作");
         }
 
-        // 更新退款状态
+        // 保持订单处于退款状态，用户可在“退款/售后”中查看拒绝原因并重新发起申请。
         boolean updateSuccess = orderRepo.updateRefundStatus(order.getId(),
                 order.getRefundStatus(), RefundStatusEnum.REJECTED.getValue());
         if (!updateSuccess) {

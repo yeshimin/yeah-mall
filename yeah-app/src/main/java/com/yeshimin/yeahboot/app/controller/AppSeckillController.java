@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.SeckillActivityVo;
 import com.yeshimin.yeahboot.app.service.AppSeckillService;
+import com.yeshimin.yeahboot.app.service.ProductBrowseMqPublisher;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppSeckillController extends BaseController {
 
     private final AppSeckillService service;
+    private final ProductBrowseMqPublisher productBrowseMqPublisher;
 
     /**
      * 查询活动列表
@@ -49,9 +51,13 @@ public class AppSeckillController extends BaseController {
     /**
      * 查询商品详情
      */
-    @PublicAccess
+    @PublicAccess(authOnDemand = true)
     @GetMapping("/queryProductDetail")
     public R<ProductDetailVo> queryProductDetail(@RequestParam Long id) {
-        return R.ok(service.queryProductDetail(id));
+        ProductDetailVo result = service.queryProductDetail(id);
+        Long sourceSpuId = result.getProduct().getSourceSpuId();
+        productBrowseMqPublisher.publishSafely(super.getUserId(),
+                sourceSpuId == null ? result.getProduct().getId() : sourceSpuId);
+        return R.ok(result);
     }
 }

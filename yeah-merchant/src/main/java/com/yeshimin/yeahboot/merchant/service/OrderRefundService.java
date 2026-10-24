@@ -1,8 +1,6 @@
 package com.yeshimin.yeahboot.merchant.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
-import com.yeshimin.yeahboot.common.domain.base.BaseQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderRefundEntity;
 import com.yeshimin.yeahboot.data.repository.OrderRefundRepo;
@@ -26,14 +24,15 @@ public class OrderRefundService {
     /**
      * 查询订单退款记录
      */
-    public List<OrderRefundEntity> query(Long userId, Long orderId, BaseQueryDto query) {
+    public List<OrderRefundEntity> query(Long userId, Long orderId) {
         // 检查：订单是否存在
         OrderEntity order = orderRepo.getOneById(orderId);
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, order);
 
-        LambdaQueryWrapper<OrderRefundEntity> wrapper = QueryHelper.getQueryWrapper(query, OrderRefundEntity.class);
-        wrapper.eq(OrderRefundEntity::getOrderId, orderId);
+        LambdaQueryWrapper<OrderRefundEntity> wrapper = new LambdaQueryWrapper<OrderRefundEntity>()
+                .eq(OrderRefundEntity::getOrderId, orderId)
+                .orderByDesc(OrderRefundEntity::getCreateTime);
         return orderRefundRepo.list(wrapper);
     }
 }

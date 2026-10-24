@@ -26,6 +26,7 @@
         from s_product_sku_review r
         where r.deleted = 0
         and r.spu_id = #{spuId}
+        and r.is_visible = 1
         <!-- 仅保留存在评价图片记录的评价 -->
         <if test="hasImage != null and hasImage">
             and exists (
@@ -35,6 +36,100 @@
                 and i.review_id = r.id
             )
         </if>
+        <if test="goodOnly != null and goodOnly">
+            and r.overall_rating &gt;= 4
+        </if>
         order by r.create_time desc
+    </select>
+
+    <!-- 分页查询平台或商家后台评价列表 -->
+    <select id="queryBackstagePage" resultType="com.yeshimin.yeahboot.data.domain.entity.ProductSkuReviewEntity">
+        select r.*,
+               exists (
+                   select 1
+                   from s_product_sku_review_reply rr
+                   where rr.deleted = 0
+                   and rr.review_id = r.id
+               ) as is_replied,
+               (
+                   select rr.sender_type
+                   from s_product_sku_review_reply rr
+                   where rr.deleted = 0
+                   and rr.review_id = r.id
+                   order by rr.create_time desc, rr.id desc
+                   limit 1
+               ) as last_reply_sender_type
+        from s_product_sku_review r
+        where r.deleted = 0
+        <if test="mchId != null">
+            and r.mch_id = #{mchId}
+        </if>
+        <if test="shopId != null">
+            and r.shop_id = #{shopId}
+        </if>
+        <if test="query.spuId != null">
+            and r.spu_id = #{query.spuId}
+        </if>
+        <if test="query.shopId != null">
+            and r.shop_id = #{query.shopId}
+        </if>
+        <if test="query.isVisible != null">
+            and r.is_visible = #{query.isVisible}
+        </if>
+        <if test="query.hasImage != null and query.hasImage">
+            and exists (
+                select 1
+                from s_product_sku_review_image i
+                where i.deleted = 0
+                and i.review_id = r.id
+            )
+        </if>
+        <if test="query.isReplied != null">
+            <choose>
+                <when test="query.isReplied">
+                    and exists (
+                        select 1
+                        from s_product_sku_review_reply rr
+                        where rr.deleted = 0
+                        and rr.review_id = r.id
+                    )
+                </when>
+                <otherwise>
+                    and not exists (
+                        select 1
+                        from s_product_sku_review_reply rr
+                        where rr.deleted = 0
+                        and rr.review_id = r.id
+                    )
+                </otherwise>
+            </choose>
+        </if>
+        <if test="query.beginTime != null">
+            and r.create_time &gt;= #{query.beginTime}
+        </if>
+        <if test="query.endTime != null">
+            and r.create_time &lt;= #{query.endTime}
+        </if>
+        <choose>
+            <when test="query.ratingType == 'good'">
+                and r.overall_rating &gt;= 4
+            </when>
+            <when test="query.ratingType == 'middle'">
+                and r.overall_rating = 3
+            </when>
+            <when test="query.ratingType == 'bad'">
+                and r.overall_rating &lt;= 2
+            </when>
+        </choose>
+        order by r.create_time desc
+    </select>
+
+    <!-- 锁定评价主记录，避免同一方并发连续回复 -->
+    <select id="findByIdForUpdate" resultType="com.yeshimin.yeahboot.data.domain.entity.ProductSkuReviewEntity">
+        select *
+        from s_product_sku_review
+        where id = #{id}
+        and deleted = 0
+        for update
     </select>
 </mapper>

@@ -49,4 +49,15 @@ public class OrderRefundRepo extends BaseRepo<OrderRefundMapper, OrderRefundEnti
     public List<OrderRefundEntity> findListByOrderId(Long orderId) {
         return lambdaQuery().eq(OrderRefundEntity::getOrderId, orderId).list();
     }
+
+    /**
+     * 查询订单最新退款记录。
+     */
+    public OrderRefundEntity findLatestByOrderId(Long orderId) {
+        List<OrderRefundEntity> refunds = lambdaQuery()
+                .eq(OrderRefundEntity::getOrderId, orderId)
+                .orderByDesc(OrderRefundEntity::getCreateTime)
+                .list();
+        return refunds.isEmpty() ? null : refunds.get(0);
+    }
 }

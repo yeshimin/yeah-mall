@@ -13,6 +13,12 @@
         where c.deleted = 0
         and c.mch_id = #{mchId}
         and c.shop_id = #{query.shopId}
+        <if test="query.keyword != null and query.keyword != ''">
+            and (
+                m.nickname like concat('%', #{query.keyword}, '%')
+                or c.last_message like concat('%', #{query.keyword}, '%')
+            )
+        </if>
         <if test="query.lastMessage != null and query.lastMessage != ''">
             and c.last_message like concat('%', #{query.lastMessage}, '%')
         </if>

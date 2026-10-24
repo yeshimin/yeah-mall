@@ -960,21 +960,40 @@ public class AppOrderService {
             throw new RuntimeException("无该订单权限");
         }
 
-        // 检查：订单状态是否为待发货或已发货
-        if (!Objects.equals(order.getStatus(), OrderStatusEnum.WAIT_SHIP.getValue()) &&
-                !Objects.equals(order.getStatus(), OrderStatusEnum.WAIT_RECEIVE.getValue())) {
-            throw new RuntimeException("仅当前订单状态为【待发货】或【已发货】时，才能申请退款");
+        boolean canApply = Objects.equals(order.getStatus(), OrderStatusEnum.WAIT_SHIP.getValue())
+                || Objects.equals(order.getStatus(), OrderStatusEnum.WAIT_RECEIVE.getValue())
+                || (Objects.equals(order.getStatus(), OrderStatusEnum.COMPLETED.getValue())
+                && !Boolean.TRUE.equals(order.getIsReviewed()));
+        boolean canReapply = Objects.equals(order.getStatus(), OrderStatusEnum.REFUND.getValue())
+                && Objects.equals(order.getRefundStatus(), RefundStatusEnum.REJECTED.getValue());
+        if (!canApply && !canReapply) {
+            throw new RuntimeException("仅待发货、待收货、待评价订单可申请退款");
         }
 
-        boolean updateStatusSuccess = orderRepo.updateStatus(
-                order.getId(), order.getStatus(), OrderStatusEnum.REFUND.getValue());
-        if (!updateStatusSuccess) {
-            throw new RuntimeException("订单状态更新失败");
+        if (canReapply) {
+            // 仅允许被拒绝的退款申请重新发起，处理中、成功和失败状态不能重复申请。
+            if (!orderRepo.updateRefundStatus(order.getId(), RefundStatusEnum.REJECTED.getValue(),
+                    RefundStatusEnum.APPLYING.getValue())) {
+                throw new RuntimeException("退款申请状态已变更，请刷新后重试");
+            }
+        } else {
+            boolean updateStatusSuccess = orderRepo.updateStatus(
+                    order.getId(), order.getStatus(), OrderStatusEnum.REFUND.getValue());
+            if (!updateStatusSuccess) {
+                throw new RuntimeException("订单状态更新失败");
+            }
+            order.setStatus(OrderStatusEnum.REFUND.getValue());
         }
-        order.setStatus(OrderStatusEnum.REFUND.getValue());
+
         order.setRefundStatus(RefundStatusEnum.APPLYING.getValue());
         order.setRefundApplyTime(LocalDateTime.now());
         order.setRefundApplyReason(dto.getReason());
+        order.setRefundConfirmTime(null);
+        order.setRefundConfirmRemark(null);
+        order.setRefundRejectTime(null);
+        order.setRefundRejectReason(null);
+        order.setRefundSuccessTime(null);
+        order.setRefundSummary(null);
         orderRepo.updateById(order);
     }
 

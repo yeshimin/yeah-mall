@@ -167,6 +167,12 @@ public class GroupBuyTradeService {
             return;
         }
 
+        OrderEntity order = orderRepo.findOneById(groupBuyOrder.getOrderId());
+        // 已发货或已签收的仅退款不回补库存，避免用户保留商品时产生虚增库存。
+        if (order == null || order.getShipTime() != null) {
+            return;
+        }
+
         // 退款回调可能重复投递，只有首次从退款中切为已退款时才回补库存。
         GroupBuySkuEntity groupBuySku = groupBuySkuRepo.findOneById(groupBuyOrder.getGroupBuySkuId());
         if (groupBuySku == null) {

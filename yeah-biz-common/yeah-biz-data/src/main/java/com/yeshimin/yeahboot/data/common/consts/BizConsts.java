@@ -4,6 +4,8 @@ public class BizConsts {
 
     // 登录短信验证码队列名称
     public static final String LOGIN_SMS_CODE_TOPIC = "LOGIN_SMS_CODE";
+    // 商品浏览足迹队列名称
+    public static final String PRODUCT_BROWSE_TOPIC = "PRODUCT_BROWSE";
 
     // --------------------------------------------------------------------------------
     // 秒杀相关

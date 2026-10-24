@@ -33,6 +33,11 @@ public class MchOrderQueryDto extends ShopDataBaseDomain {
     private String refundStatus;
 
     /**
+     * 是否仅查询退款申请中或退款处理中的订单
+     */
+    private Boolean refundPending;
+
+    /**
      * 售后状态
      */
     @QueryField(type = QueryField.Type.EQ)

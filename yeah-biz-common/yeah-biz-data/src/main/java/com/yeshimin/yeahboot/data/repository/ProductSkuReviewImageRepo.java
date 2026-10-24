@@ -30,7 +30,7 @@ public class ProductSkuReviewImageRepo extends BaseRepo<ProductReviewImageMapper
             entity.setMchId(review.getMchId());
             entity.setShopId(review.getShopId());
             entity.setMemberId(review.getMemberId());
-            entity.setOrderId(review.getId());
+            entity.setOrderId(review.getOrderId());
             entity.setOrderNo(review.getOrderNo());
             // 商品信息
             entity.setSkuId(review.getSkuId());

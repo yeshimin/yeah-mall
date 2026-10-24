@@ -15,6 +15,7 @@ import com.yeshimin.yeahboot.mq.MqMessage;
 import com.yeshimin.yeahboot.mq.MqPublisher;
 import com.yeshimin.yeahboot.service.GroupBuyStockService;
 import com.yeshimin.yeahboot.service.GroupBuyTradeService;
+import com.yeshimin.yeahboot.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class AdminDefaultJob {
     private static final String STORAGE_CLEAN_LOCK = "yeah:job:storage:clean";
     private static final String SECKILL_QUOTA_CHECK_LOCK = "yeah:job:seckill:quota-check";
     private static final String GROUP_BUY_SETTLEMENT_LOCK = "yeah:job:group-buy:settlement";
-    private static final String GROUP_BUY_REFUND_RECONCILE_LOCK = "yeah:job:group-buy:refund-reconcile";
+    private static final String ORDER_REFUND_RECONCILE_LOCK = "yeah:job:order:refund-reconcile";
     private static final long JOB_LOCK_LEASE_MILLIS = 10 * 60 * 1000L;
     private static final String TRY_LOCK_LUA =
             "if redis.call('set', KEYS[1], ARGV[1], 'NX', 'PX', ARGV[2]) then return 1 else return 0 end";
@@ -51,6 +52,7 @@ public class AdminDefaultJob {
     private final SeckillProperties seckillProperties;
     private final GroupBuyTradeService groupBuyTradeService;
     private final GroupBuyStockService groupBuyStockService;
+    private final OrderService orderService;
 
     /**
      * 清理过期未使用的存储记录
@@ -197,20 +199,20 @@ public class AdminDefaultJob {
     }
 
     /**
-     * 查询拼团退款中的微信退款单，补偿可能丢失的退款回调。
+     * 查询退款中的微信退款单，补偿可能丢失的退款回调。
      */
     @Scheduled(fixedDelay = 60_000)
-    public void reconcileGroupBuyRefunds() {
-        // 与活动结算使用独立锁，避免多节点同时查询并重复提交同一退款单。
-        String lockToken = tryAcquireJobLock(GROUP_BUY_REFUND_RECONCILE_LOCK);
+    public void reconcileRefunds() {
+        // 同一任务下统一调度普通、秒杀和拼团退款；各订单类型仍由专属服务处理补偿。
+        String lockToken = tryAcquireJobLock(ORDER_REFUND_RECONCILE_LOCK);
         if (lockToken == null) {
             return;
         }
         try {
-            // 微信退款回调丢失时，交易服务会主动查询并同步退款中的订单。
+            orderService.reconcileRefundingOrders();
             groupBuyTradeService.reconcileRefundingOrders();
         } finally {
-            releaseJobLock(GROUP_BUY_REFUND_RECONCILE_LOCK, lockToken);
+            releaseJobLock(ORDER_REFUND_RECONCILE_LOCK, lockToken);
         }
     }
 

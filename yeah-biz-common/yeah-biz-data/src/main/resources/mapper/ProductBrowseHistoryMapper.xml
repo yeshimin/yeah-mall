@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeshimin.yeahboot.data.mapper.ProductBrowseHistoryMapper">
+
+    <!-- 同一会员浏览同一商品时保留一条足迹，并累计浏览次数。 -->
+    <insert id="upsert">
+        INSERT INTO s_product_browse_history (
+            member_id, spu_id, mch_id, shop_id, last_browse_time, browse_count
+        ) VALUES (
+            #{memberId}, #{spuId}, #{mchId}, #{shopId}, #{browseTime}, 1
+        )
+        ON DUPLICATE KEY UPDATE
+            last_browse_time = VALUES(last_browse_time),
+            browse_count = browse_count + 1,
+            update_time = NOW()
+    </insert>
+</mapper>

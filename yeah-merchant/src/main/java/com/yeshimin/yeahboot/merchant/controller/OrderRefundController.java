@@ -1,6 +1,5 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
-import com.yeshimin.yeahboot.common.domain.base.BaseQueryDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.OrderRefundEntity;
 import com.yeshimin.yeahboot.data.mapper.OrderRefundMapper;
@@ -37,9 +36,9 @@ public class OrderRefundController extends ShopCrudController<OrderRefundMapper,
      * 查询订单退款记录
      */
     @GetMapping("/query")
-    public R<List<OrderRefundEntity>> query(@RequestParam Long orderId, BaseQueryDto query) {
+    public R<List<OrderRefundEntity>> query(@RequestParam Long orderId) {
         Long userId = super.getUserId();
-        List<OrderRefundEntity> listResult = service.query(userId, orderId, query);
+        List<OrderRefundEntity> listResult = service.query(userId, orderId);
         return R.ok(listResult);
     }
 }

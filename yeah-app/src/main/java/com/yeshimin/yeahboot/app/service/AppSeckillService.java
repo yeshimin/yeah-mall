@@ -81,6 +81,7 @@ public class AppSeckillService {
         SeckillSpuEntity seckillSpu = seckillSpuRepo.getOneById(id);
         ProductVo productVo = new ProductVo();
         productVo.setId(seckillSpu.getId());
+        productVo.setSourceSpuId(seckillSpu.getSpuId());
         productVo.setName(seckillSpu.getName());
         productVo.setSales(seckillSpu.getSales());
         productVo.setMinPrice(seckillSpu.getMinSeckillPrice());

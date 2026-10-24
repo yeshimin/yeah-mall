@@ -2,6 +2,8 @@ package com.yeshimin.yeahboot.data.repository;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
+import com.yeshimin.yeahboot.data.domain.dto.ReviewQueryDto;
+import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderItemEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuReviewEntity;
 import com.yeshimin.yeahboot.data.mapper.ProductSkuReviewMapper;
@@ -19,7 +21,7 @@ public class ProductSkuReviewRepo extends BaseRepo<ProductSkuReviewMapper, Produ
     /**
      * createOne
      */
-    public ProductSkuReviewEntity createOne(OrderItemEntity orderItem,
+    public ProductSkuReviewEntity createOne(OrderEntity order, OrderItemEntity orderItem,
                                             Integer overallRating, String content, Boolean isAnonymous,
                                             String nickname, String avatar) {
         ProductSkuReviewEntity review = new ProductSkuReviewEntity();
@@ -27,7 +29,7 @@ public class ProductSkuReviewRepo extends BaseRepo<ProductSkuReviewMapper, Produ
         review.setMchId(orderItem.getMchId());
         review.setShopId(orderItem.getShopId());
         review.setMemberId(orderItem.getMemberId());
-        review.setOrderId(orderItem.getId());
+        review.setOrderId(order.getId());
         review.setOrderNo(orderItem.getOrderNo());
         // 商品信息
         review.setSkuId(orderItem.getSkuId());
@@ -47,6 +49,7 @@ public class ProductSkuReviewRepo extends BaseRepo<ProductSkuReviewMapper, Produ
             review.setNickname("匿名买家");
             review.setAvatar("");
         }
+        review.setIsVisible(true);
         review.insert();
         return review;
     }
@@ -54,7 +57,23 @@ public class ProductSkuReviewRepo extends BaseRepo<ProductSkuReviewMapper, Produ
     /**
      * 分页查询商品评价列表
      */
-    public Page<ProductSkuReviewEntity> queryPage(Page<ProductSkuReviewEntity> page, Long spuId, Boolean hasImage) {
-        return productSkuReviewMapper.queryPage(page, spuId, hasImage);
+    public Page<ProductSkuReviewEntity> queryPage(Page<ProductSkuReviewEntity> page, Long spuId,
+                                                   Boolean hasImage, Boolean goodOnly) {
+        return productSkuReviewMapper.queryPage(page, spuId, hasImage, goodOnly);
+    }
+
+    /**
+     * 分页查询后台评价列表。
+     */
+    public Page<ProductSkuReviewEntity> queryBackstagePage(Page<ProductSkuReviewEntity> page, Long mchId,
+                                                            Long shopId, ReviewQueryDto query) {
+        return productSkuReviewMapper.queryBackstagePage(page, mchId, shopId, query);
+    }
+
+    /**
+     * 锁定评价主记录
+     */
+    public ProductSkuReviewEntity findByIdForUpdate(Long id) {
+        return productSkuReviewMapper.findByIdForUpdate(id);
     }
 }

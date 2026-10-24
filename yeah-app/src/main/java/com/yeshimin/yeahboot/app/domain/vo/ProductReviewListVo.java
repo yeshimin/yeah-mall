@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.domain.vo;
 
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
+import com.yeshimin.yeahboot.data.domain.vo.ReviewReplyVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -73,4 +74,24 @@ public class ProductReviewListVo extends BaseDomain {
      * 评价图片
      */
     private List<String> images;
+
+    /**
+     * 公开回复列表
+     */
+    private List<ReviewReplyVo> replies;
+
+    /**
+     * 当前用户是否可以回复
+     */
+    private Boolean canReply;
+
+    /**
+     * 当前用户是否可以编辑最新回复
+     */
+    private Boolean canEditReply;
+
+    /**
+     * 当前回复状态说明
+     */
+    private String replyStatusText;
 }

@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.service;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.payments.model.TransactionAmount;
+import com.wechat.pay.java.service.refund.model.Refund;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.common.utils.WxPayUtils;
 import com.yeshimin.yeahboot.data.common.consts.BizConsts;
@@ -49,6 +50,7 @@ public class OrderService {
     private final MemberCouponRepo memberCouponRepo;
 
     private final CacheService cacheService;
+    private final WxPayService wxPayService;
 
     /**
      * 订单详情场景
@@ -375,16 +377,18 @@ public class OrderService {
             switch (Objects.requireNonNull(wxRefundStatus)) {
                 case SUCCESS:
                     // 退款成功时间允许为空，异常情况下用当前时间保证状态可落库。
-                    orderRepo.updateRefundStatus2(order.getId(), RefundStatusEnum.SUCCESS.getValue(),
-                            notification.getSummary(), refundSuccessTime == null ? LocalDateTime.now() : refundSuccessTime);
+                    if (orderRepo.completeRefund(order.getId(), notification.getSummary(),
+                            refundSuccessTime == null ? LocalDateTime.now() : refundSuccessTime)) {
+                        restoreRefundResources(order);
+                    }
                     break;
                 case CLOSED:
                 case ABNORMAL:
-                    orderRepo.updateRefundStatus2(order.getId(), RefundStatusEnum.FAILED.getValue(),
+                    orderRepo.updateProcessingRefundStatus(order.getId(), RefundStatusEnum.FAILED.getValue(),
                             notification.getSummary(), LocalDateTime.now());
                     break;
                 case PROCESSING:
-                    orderRepo.updateRefundStatus2(order.getId(), RefundStatusEnum.PROCESSING.getValue(),
+                    orderRepo.updateProcessingRefundStatus(order.getId(), RefundStatusEnum.PROCESSING.getValue(),
                             notification.getSummary(), LocalDateTime.now());
                     break;
                 default:
@@ -393,6 +397,95 @@ public class OrderService {
         }
 
         return true;
+    }
+
+    /**
+     * 主动查询普通和秒杀订单的退款状态，避免微信退款回调丢失后长期停留在处理中。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void reconcileRefundingOrders() {
+        List<OrderEntity> refundingOrders = orderRepo.lambdaQuery()
+                .eq(OrderEntity::getStatus, OrderStatusEnum.REFUND.getValue())
+                .eq(OrderEntity::getRefundStatus, RefundStatusEnum.PROCESSING.getValue())
+                .ne(OrderEntity::getOrderType, OrderTypeEnum.GROUP_BUY.getValue())
+                .list();
+        for (OrderEntity order : refundingOrders) {
+            OrderRefundEntity orderRefund = orderRefundRepo.findLatestByOrderId(order.getId());
+            if (orderRefund == null) {
+                log.warn("退款处理中订单缺少退款记录，orderNo={}", order.getOrderNo());
+                continue;
+            }
+            try {
+                syncRefundQueryResult(order, orderRefund,
+                        wxPayService.queryRefundByOutRefundNo(orderRefund.getRefundNo()));
+            } catch (Exception e) {
+                log.warn("主动查询退款状态失败，orderNo={}, refundNo={}", order.getOrderNo(),
+                        orderRefund.getRefundNo(), e);
+            }
+        }
+    }
+
+    /**
+     * 同步微信退款查询结果。
+     */
+    private void syncRefundQueryResult(OrderEntity order, OrderRefundEntity orderRefund, Refund refund) {
+        if (refund == null || refund.getStatus() == null) {
+            return;
+        }
+        String refundStatus = refund.getStatus().name();
+        LocalDateTime successTime = parseRefundSuccessTime(refund.getSuccessTime());
+        orderRefundRepo.lambdaUpdate()
+                .eq(OrderRefundEntity::getId, orderRefund.getId())
+                .set(OrderRefundEntity::getRefundStatus, refundStatus)
+                .set(OrderRefundEntity::getSuccessTime, successTime)
+                .set(OrderRefundEntity::getUserReceivedAccount, refund.getUserReceivedAccount())
+                .set(refund.getAmount() != null, OrderRefundEntity::getRealTotalAmount, refund.getAmount().getTotal())
+                .set(refund.getAmount() != null, OrderRefundEntity::getRealRefundAmount, refund.getAmount().getRefund())
+                .update();
+
+        if ("SUCCESS".equals(refundStatus)) {
+            if (orderRepo.completeRefund(order.getId(), "微信退款查询同步成功",
+                    successTime == null ? LocalDateTime.now() : successTime)) {
+                restoreRefundResources(order);
+            }
+        } else if ("CLOSED".equals(refundStatus) || "ABNORMAL".equals(refundStatus)) {
+            orderRepo.updateProcessingRefundStatus(order.getId(), RefundStatusEnum.FAILED.getValue(),
+                    "微信退款查询同步：" + refundStatus, LocalDateTime.now());
+        }
+    }
+
+    /**
+     * 退款成功后一次性回补未发货订单占用的库存和优惠券。
+     */
+    private void restoreRefundResources(OrderEntity order) {
+        // 已发货或已签收的仅退款不回补库存，避免用户保留商品时产生虚增库存。
+        if (order.getShipTime() == null) {
+            List<OrderItemEntity> orderItems = orderItemRepo.findListByOrderId(order.getId());
+            for (OrderItemEntity item : orderItems) {
+                if (OrderTypeEnum.SECKILL.equalsValue(order.getOrderType())) {
+                    seckillSkuRepo.increaseStock(item.getSkuId(), item.getQuantity());
+                } else if (!OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())) {
+                    productSkuRepo.increaseStock(item.getSkuId(), item.getQuantity());
+                }
+            }
+        }
+        // 优惠券仅恢复使用状态，保留原有效期；已过期优惠券仍按原时间自然过期。
+        releaseCouponIfNecessary(order.getId());
+    }
+
+    /**
+     * 解析微信退款成功时间。
+     */
+    private LocalDateTime parseRefundSuccessTime(String successTime) {
+        if (successTime == null) {
+            return null;
+        }
+        try {
+            return OffsetDateTime.parse(successTime).toLocalDateTime();
+        } catch (DateTimeParseException e) {
+            log.warn("微信退款成功时间格式错误：{}", successTime);
+            return null;
+        }
     }
 
     private void releaseCouponIfNecessary(Long orderId) {

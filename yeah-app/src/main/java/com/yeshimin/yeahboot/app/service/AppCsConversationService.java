@@ -3,18 +3,24 @@ package com.yeshimin.yeahboot.app.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.data.domain.entity.*;
+import com.yeshimin.yeahboot.data.domain.entity.CsConversationEntity;
+import com.yeshimin.yeahboot.data.domain.entity.CsMessageEntity;
+import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
+import com.yeshimin.yeahboot.data.domain.entity.MerchantEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
 import com.yeshimin.yeahboot.data.domain.vo.CsConversationInfoVo;
-import com.yeshimin.yeahboot.data.repository.*;
+import com.yeshimin.yeahboot.data.repository.CsConversationRepo;
+import com.yeshimin.yeahboot.data.repository.CsMessageRepo;
+import com.yeshimin.yeahboot.data.repository.MemberRepo;
+import com.yeshimin.yeahboot.data.repository.MerchantRepo;
+import com.yeshimin.yeahboot.data.repository.ShopRepo;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AppCsConversationService {
@@ -29,7 +35,7 @@ public class AppCsConversationService {
      * 买家初始化会话
      */
     @Transactional(rollbackFor = Exception.class)
-    public CsConversationInfoVo initConversation(Long userId, @Nullable Long conversationId, Long shopId) {
+    public CsConversationInfoVo initConversation(Long userId, @Nullable Long conversationId, @Nullable Long shopId) {
         CsConversationEntity conversation;
         if (conversationId != null) {
             conversation = csConversationRepo.findOneById(conversationId);
@@ -39,15 +45,21 @@ public class AppCsConversationService {
             if (!Objects.equals(conversation.getMemberId(), userId)) {
                 throw new BaseException("会话不属于当前用户");
             }
+            // 恢复历史会话时以会话自身店铺为准，避免前端传错店铺后串店。
+            shopId = conversation.getShopId();
+        } else {
+            if (shopId == null) {
+                throw new BaseException("shopId不能为空");
+            }
+
+            // 新会话按当前店铺和买家维度创建，同一买家与同一店铺复用会话。
+            ShopEntity currentShop = shopRepo.getOneById(shopId, "店铺不存在");
+            conversation = csConversationRepo.getOrCreateOne(currentShop.getMchId(), shopId, userId);
         }
 
-        // 查询店铺
+        // 补齐会话双方和店铺信息，供聊天页面一次性初始化展示。
         ShopEntity shop = shopRepo.getOneById(shopId, "店铺不存在");
-        // 查询或创建会话
-        conversation = csConversationRepo.getOrCreateOne(shop.getMchId(), shopId, userId);
-        // 查询买家
         MemberEntity member = memberRepo.getOneById(conversation.getMemberId(), "买家不存在");
-        // 查询商家
         MerchantEntity merchant = merchantRepo.getOneById(conversation.getMchId(), "商家不存在");
 
         CsConversationInfoVo vo = new CsConversationInfoVo();
@@ -78,9 +90,8 @@ public class AppCsConversationService {
      * 查询会话消息
      */
     public Page<CsMessageEntity> queryMessages(Long userId, Page<CsMessageEntity> page, Long conversationId) {
-        // 检查：会话是否存在
+        // 检查会话是否存在且属于当前买家。
         CsConversationEntity conversation = csConversationRepo.getOneById(conversationId, "会话不存在");
-        // 检查：会话是否属于当前用户
         if (!Objects.equals(userId, conversation.getMemberId())) {
             throw new BaseException("会话不属于当前用户");
         }

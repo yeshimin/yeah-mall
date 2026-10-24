@@ -3,6 +3,10 @@ package com.yeshimin.yeahboot.merchant.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.enums.StorageTypeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
@@ -11,6 +15,7 @@ import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuMainImageSetDto;
+import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuQueryDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductSkuUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSkuDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSkuSpecVo;
@@ -53,6 +58,21 @@ public class ProductSkuService {
     public void init() {
         this.bucket = storageProperties.getBiz().getProduct().getBucket();
         this.path = storageProperties.getBiz().getProduct().getPath();
+    }
+
+    /**
+     * 查询当前店铺商品SKU。
+     */
+    public IPage<ProductSkuEntity> query(Page<ProductSkuEntity> page, Long userId, ProductSkuQueryDto query) {
+        permissionService.checkMchAndShop(userId, query);
+
+        LambdaQueryWrapper<ProductSkuEntity> wrapper = QueryHelper.getQueryWrapper(query);
+        if (query.getStockMax() != null) {
+            // 库存预警优先展示库存最低的 SKU。
+            wrapper.le(ProductSkuEntity::getStock, query.getStockMax())
+                    .orderByAsc(ProductSkuEntity::getStock);
+        }
+        return productSkuRepo.page(page, wrapper);
     }
 
     /**

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
 import com.yeshimin.yeahboot.data.common.enums.OrderTypeEnum;
+import com.yeshimin.yeahboot.data.common.enums.RefundStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
@@ -94,8 +95,37 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
                 .eq(OrderEntity::getStatus, OrderStatusEnum.REFUND.getValue())
                 .set(OrderEntity::getRefundStatus, refundStatus)
                 .set(OrderEntity::getRefundSummary, summary)
-                .set(successTime != null, OrderEntity::getPaySuccessTime, successTime);
+                .set(successTime != null, OrderEntity::getRefundSuccessTime, successTime);
         return super.update(updateWrapper);
+    }
+
+    /**
+     * 原子确认退款成功。
+     */
+    public boolean completeRefund(Long orderId, String summary, LocalDateTime successTime) {
+        return lambdaUpdate()
+                .eq(OrderEntity::getId, orderId)
+                .eq(OrderEntity::getStatus, OrderStatusEnum.REFUND.getValue())
+                .eq(OrderEntity::getRefundStatus, RefundStatusEnum.PROCESSING.getValue())
+                .set(OrderEntity::getRefundStatus, RefundStatusEnum.SUCCESS.getValue())
+                .set(OrderEntity::getRefundSummary, summary)
+                .set(OrderEntity::getRefundSuccessTime, successTime)
+                .update();
+    }
+
+    /**
+     * 更新退款处理中的订单退款状态。
+     */
+    public boolean updateProcessingRefundStatus(Long orderId, String refundStatus, String summary,
+                                                LocalDateTime successTime) {
+        return lambdaUpdate()
+                .eq(OrderEntity::getId, orderId)
+                .eq(OrderEntity::getStatus, OrderStatusEnum.REFUND.getValue())
+                .eq(OrderEntity::getRefundStatus, RefundStatusEnum.PROCESSING.getValue())
+                .set(OrderEntity::getRefundStatus, refundStatus)
+                .set(OrderEntity::getRefundSummary, summary)
+                .set(successTime != null, OrderEntity::getRefundSuccessTime, successTime)
+                .update();
     }
 
     /**
@@ -132,5 +162,16 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
      */
     public boolean updateIsReviewed(Long orderId) {
         return lambdaUpdate().eq(OrderEntity::getId, orderId).set(OrderEntity::getIsReviewed, true).update();
+    }
+
+    /**
+     * 将未评价订单原子更新为已评价。
+     */
+    public boolean updateIsReviewedIfNotReviewed(Long orderId) {
+        return lambdaUpdate()
+                .eq(OrderEntity::getId, orderId)
+                .eq(OrderEntity::getIsReviewed, false)
+                .set(OrderEntity::getIsReviewed, true)
+                .update();
     }
 }

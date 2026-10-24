@@ -15,6 +15,11 @@ import java.time.LocalDateTime;
 public class CsConversationQueryDto extends BaseDomain {
 
     /**
+     * 买家昵称或最后消息关键词
+     */
+    private String keyword;
+
+    /**
      * 店铺ID
      */
     @NotNull(message = "店铺ID不能为空")

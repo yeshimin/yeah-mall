@@ -39,7 +39,7 @@ public class ReviewPublishItemDto extends BaseDomain {
     /**
      * 评价内容
      */
-    @Length(max = 255, message = "评价内容不能超过255字")
+    @Length(max = 500, message = "评价内容不能超过500字")
     @Schema(description = "评价内容")
     private String content;
 

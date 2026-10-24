@@ -6,6 +6,7 @@ import com.yeshimin.yeahboot.app.domain.vo.GroupBuyGroupVo;
 import com.yeshimin.yeahboot.app.domain.vo.GroupBuyGroupOptionVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
 import com.yeshimin.yeahboot.app.service.AppGroupBuyService;
+import com.yeshimin.yeahboot.app.service.ProductBrowseMqPublisher;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.GroupBuyActivityEntity;
@@ -28,6 +29,7 @@ import java.util.List;
 public class AppGroupBuyController extends BaseController {
 
     private final AppGroupBuyService service;
+    private final ProductBrowseMqPublisher productBrowseMqPublisher;
 
     /**
      * 查询活动列表
@@ -50,7 +52,11 @@ public class AppGroupBuyController extends BaseController {
      */
     @GetMapping("/queryProductDetail")
     public R<ProductDetailVo> queryProductDetail(@RequestParam Long id) {
-        return R.ok(service.queryProductDetail(id));
+        ProductDetailVo result = service.queryProductDetail(id);
+        Long sourceSpuId = result.getProduct().getSourceSpuId();
+        productBrowseMqPublisher.publishSafely(super.getUserId(),
+                sourceSpuId == null ? result.getProduct().getId() : sourceSpuId);
+        return R.ok(result);
     }
 
     /**

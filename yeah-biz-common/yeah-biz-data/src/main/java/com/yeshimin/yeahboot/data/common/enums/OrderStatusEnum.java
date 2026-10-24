@@ -4,6 +4,7 @@ import com.yeshimin.yeahboot.common.common.enums.base.IValueEnum;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,10 +26,8 @@ public enum OrderStatusEnum implements IValueEnum {
     private final String desc;
 
     // 待评价状态集合
-    public static final List<String> WAIT_REVIEW_STATUS = Arrays.asList(
-            OrderStatusEnum.COMPLETED.getValue(),
-            OrderStatusEnum.REFUND.getValue(),
-            OrderStatusEnum.AFTER_SALE.getValue());
+    public static final List<String> WAIT_REVIEW_STATUS = Collections.singletonList(
+            OrderStatusEnum.COMPLETED.getValue());
 
     // 退款和售后状态集合
     public static final List<String> REFUND_AND_AFTER_SALE_STATUS = Arrays.asList(

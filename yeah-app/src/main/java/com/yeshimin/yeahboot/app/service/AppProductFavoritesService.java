@@ -55,18 +55,8 @@ public class AppProductFavoritesService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Boolean removeFromFavorites(Long userId, IdDto dto) {
-        // 检查：商品SPU是否存在
-        long count = productSpuRepo.countById(dto.getId());
-        if (count == 0) {
-            throw new IllegalArgumentException("商品SPU未找到");
-        }
-
-        ProductFavoritesEntity pc = productFavoritesRepo.findOneByMemberIdAndSpuId(userId, dto.getId());
-        if (pc == null) {
-            return false;
-        }
-
-        return pc.deleteById();
+        // 即使商品已删除，用户仍应能清理自己的历史收藏。
+        return productFavoritesRepo.removeByMemberIdAndSpuId(userId, dto.getId());
     }
 
     /**
@@ -94,9 +84,16 @@ public class AppProductFavoritesService {
         Map<Long, ProductSpuEntity> mapSpu =
                 listSpu.stream().collect(Collectors.toMap(ProductSpuEntity::getId, spu -> spu));
 
-        return pageResult.convert(e -> {
-            ProductSpuEntity spu = mapSpu.get(e.getSpuId());
-            return BeanUtil.copyProperties(spu, FavoritesProductVo.class);
+        return pageResult.convert(favorite -> {
+            ProductSpuEntity spu = mapSpu.get(favorite.getSpuId());
+            FavoritesProductVo vo = new FavoritesProductVo();
+            vo.setId(favorite.getSpuId());
+            vo.setFavoriteTime(favorite.getCreateTime());
+            vo.setAvailable(spu != null);
+            if (spu != null) {
+                BeanUtil.copyProperties(spu, vo);
+            }
+            return vo;
         });
     }
 }
