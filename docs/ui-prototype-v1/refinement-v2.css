@@ -1,0 +1,182 @@
+/* Production-scale refinement: keep the 390px device canvas, not miniature text. */
+.mobile-stage { min-height: calc(100vh - 64px); padding-block: 12px; }
+.mobile-frame { height: min(844px, calc(100vh - 96px)); min-height: 560px; }
+.mobile-screen { font-size: 14px; }
+.mobile-screen :where(button, input, select, textarea, label, p, span, b, strong) { font-size: 13px !important; }
+.mobile-screen small { font-size: 11px !important; }
+.mobile-screen h1 { font-size: 20px !important; }
+.mobile-screen h2 { font-size: 18px !important; }
+.mobile-screen h3 { font-size: 16px !important; }
+.mobile-status { font-size: 12px; }
+.app-topbar { gap: 8px; padding: 7px 14px 11px; }
+.wordmark { width: 44px; }
+.mobile-search { height: 34px; min-width: 0; padding-inline: 10px; }
+.wechat-capsule { display: grid; width: 78px; height: 34px; flex: 0 0 78px; grid-template-columns: 1fr 1fr; place-items: center; border: 1px solid rgba(23,37,31,.2); border-radius: 18px; background: rgba(255,255,255,.9); box-shadow: 0 1px 4px rgba(23,37,31,.06); }
+.wechat-capsule > span { display: grid; height: 18px; place-items: center; color: var(--ink); font-size: 12px !important; line-height: 1; }
+.wechat-capsule > span:first-child { width: 100%; border-right: 1px solid rgba(23,37,31,.16); letter-spacing: 1px; }
+.wechat-capsule .capsule-ring { width: 8px; height: 8px; border: 2px solid var(--ink); border-radius: 50%; }
+.detail-side-actions { position: absolute; z-index: 6; top: 84px; right: 14px; display: flex; flex-direction: column; gap: 8px; }
+.detail-side-actions button { display: grid; width: 34px; height: 34px; place-items: center; border: 0; border-radius: 50%; color: var(--ink); background: rgba(255,255,255,.88); box-shadow: 0 3px 12px rgba(20,40,30,.12); }
+.detail-side-actions button.is-favorite { color: var(--price); }
+.mobile-page-title h1 { font-size: 17px !important; }
+.mobile-page-title { height: 48px; grid-template-columns: 56px 1fr 56px; }
+.mobile-page-title > button { width: auto; min-width: 40px; white-space: nowrap; }
+.mobile-header-spacer { display: block; width: 40px; height: 40px; }
+.mobile-screen .auth-mark { font-size: 28px !important; }
+.mobile-screen .shop-logo-mark { font-size: 26px !important; }
+.mobile-screen .about-mark { font-size: 34px !important; }
+.profile-header .avatar { font-size: 18px !important; }
+.mobile-sheet { max-height: calc(100% - 24px); overflow-y: auto; padding-bottom: 28px; overscroll-behavior: contain; scrollbar-width: none; }
+.mobile-sheet::-webkit-scrollbar { display: none; }
+.product-detail > .sheet-mask { top: 31px; bottom: -31px; }
+.mobile-scroll:has(+ .mobile-bottom-nav) { padding-bottom: 78px; }
+.quick-grid button, .mobile-bottom-nav button { font-size: 12px !important; }
+.quick-icon { width: 46px; height: 46px; }
+.banner-kicker, .banner-index { font-size: 11px !important; }
+.banner-copy h1 { font-size: 25px !important; }
+.section-heading h2, .section-heading.compact h2 { font-size: 17px !important; }
+.section-heading > span, .section-heading.compact button { font-size: 12px !important; }
+.category-strip button, .review-filter button, .coupon-tabs button, .order-tabs button { min-height: 32px; font-size: 12px !important; }
+.product-card-name { font-size: 14px !important; }
+.product-card-sub { font-size: 12px !important; }
+.product-card-meta b, .price-line > b, .confirm-product strong, .summary-total strong, .confirm-submit-bar b, .points-product-page section > b, .campaign-copy strong { font-size: 21px !important; }
+.product-card-meta small, .detail-metrics, .review-item span, .review-full-item header span, .review-full-item > small { font-size: 11px !important; }
+.stars { font-size: 12px !important; }
+.detail-main-info h1 { font-size: 20px !important; }
+.detail-main-info > p, .story-panel span, .review-item p, .review-full-item p { font-size: 13px !important; }
+.detail-choice-row, .address-panel, .confirm-options button, .confirm-options > div, .price-summary > div, .order-info-list > div { font-size: 13px !important; }
+.detail-choice-row { min-height: 54px; }
+.shop-line, .confirm-product b, .address-panel b, .order-address b, .mobile-order-card b { font-size: 14px !important; }
+.address-panel p, .order-address p, .confirm-product span, .mobile-order-card span { font-size: 12px !important; }
+.option-group label, .quantity-row label { font-size: 14px !important; }
+.option-group button { min-width: 74px; height: 38px; }
+.quantity-control { grid-template-columns: 36px 42px 36px; }
+.quantity-control { width: 116px; height: 36px; flex: 0 0 116px; border-radius: 8px; }
+.quantity-control button { width: 36px; height: 36px; min-width: 36px; padding: 0; }
+.quantity-control b { display: grid; width: 42px; height: 36px; place-items: center; margin: 0; padding: 0; font-size: 13px !important; line-height: 1; }
+.cart-item .quantity-control { transform: none; }
+.cart-item .quantity-control b { grid-column: auto; }
+.mobile-action-bar button, .sheet-confirm, .form-submit, .feedback-submit, .single-bottom-action button, .auth-submit { font-size: 14px !important; }
+.mobile-action-bar button { min-height: 46px; }
+.status-ticket { font-size: 12px !important; }
+.status-ticket.is-small { font-size: 11px !important; }
+.points-balance > b { font-size: 34px !important; }
+.points-records > div b, .points-product-list article b, .coupon-copy b, .activity-card h3 { font-size: 14px !important; }
+.points-records > div small, .points-product-list article span, .coupon-copy span, .coupon-copy small, .activity-card span, .activity-card small { font-size: 11px !important; }
+.points-mall-page { height: calc(100% - 31px - 48px); padding: 12px 12px 24px; }
+.points-mall-tabs { display: flex; gap: 7px; margin-bottom: 12px; overflow-x: auto; }
+.points-mall-tabs button { flex: 0 0 auto; min-height: 34px; padding: 0 13px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); background: white; }
+.points-mall-tabs button.active { color: var(--brand); border-color: var(--brand); background: var(--brand-soft); font-weight: 700; }
+.coupon-center-page { height: calc(100% - 31px - 48px); padding-top: 12px; }
+.coupon-center-note { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 13px; color: white; border-radius: 10px 3px 10px 3px; background: var(--ink); }
+.coupon-center-note span { color: rgba(255,255,255,.68); font-size: 11px !important; }
+.coupon-card { grid-template-columns: 78px minmax(0, 1fr) 68px; gap: 9px; padding: 12px; }
+.coupon-value b { font-size: 22px !important; }
+.coupon-value span { font-size: 11px !important; line-height: 1.35; }
+.coupon-copy b { font-size: 14px !important; }
+.coupon-card > button { width: 68px; height: 32px; white-space: nowrap; font-size: 12px !important; }
+.points-record-title { display: flex !important; align-items: center; justify-content: space-between; }
+.points-record-title button { min-height: 32px; padding: 0 9px; border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: white; }
+.service-page { height: calc(100% - 31px - 48px); grid-template-rows: 76px 1fr 64px; }
+.conversation-strip { padding: 8px 11px 10px; }
+.conversation-strip button { min-width: 82px; gap: 4px; line-height: 1.25; }
+.chat-bubble { padding: 10px 12px; font-size: 13px !important; line-height: 1.55; }
+.conversation-strip i { width: 16px; height: 16px; font-size: 10px !important; }
+.chat-stream { scrollbar-width: none; }
+.chat-stream::-webkit-scrollbar { display: none; }
+.chat-input { grid-template-columns: 40px minmax(0, 1fr) 56px; gap: 8px; padding: 7px 12px 12px 10px; }
+.chat-input button, .chat-input input { height: 40px; }
+.chat-input button.send { min-width: 56px; white-space: nowrap; border-radius: 8px; }
+
+/* App cards use one symmetric radius system. Chat bubbles retain a directional tail. */
+.mobile-screen :where(.commerce-banner, .product-card, .story-panel, .address-panel, .confirm-shop-card, .confirm-options, .price-summary, .order-goods, .order-timeline, .order-info-list, .category-feature, .cart-item, .mobile-order-card, .profile-order-panel, .profile-menu, .coupon-card, .coupon-center-note, .points-balance, .activity-card, .shop-list-card, .shop-feature, .logistics-page > section, .group-summary, .refund-detail-page > section, .address-list-page article, .feedback-page-proto > section) { border-radius: 12px !important; }
+.mobile-screen :where(.quick-icon, .address-icon, .category-product-grid button, .points-product-list article, .shop-logo-mark, .state-icon, .avatar, .refund-product, .review-product-head, .review-conversation, .avatar-edit, .activity-products-page article, .coupon-select-card, .group-choice, .campaign-quantity, .random-group, .group-option, .refund-amount, .refund-detail-page > article, .preference-page section) { border-radius: 10px !important; }
+.mobile-screen :where(.result-icon, .about-mark, .auth-mark) { border-radius: 16px !important; }
+
+.profile-edit-fields { margin-top: 10px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: white; }
+.profile-field-row { display: grid; width: 100%; min-height: 50px; grid-template-columns: 72px minmax(0, 1fr); align-items: center; padding: 0 16px; text-align: left; border: 0; border-bottom: 1px solid #edf0ed; background: white; }
+.profile-field-row:last-child { border-bottom: 0; }
+.profile-field-row > span { color: var(--ink-2); }
+.profile-field-row > b { display: flex; min-width: 0; align-items: center; justify-content: flex-end; gap: 8px; color: var(--ink); font-weight: 500; white-space: nowrap; }
+.profile-field-row > b .icon { color: var(--muted); }
+.profile-field-row.editable input { width: 100%; height: 49px; padding: 0 0 0 12px; text-align: right; border: 0; outline: 0; background: transparent; color: var(--ink); }
+.profile-picker-sheet header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.profile-picker-sheet header h2 { margin: 0; font-size: 18px !important; }
+.profile-picker-sheet header > button { width: 30px; height: 30px; border: 0; border-radius: 50%; color: var(--muted); background: var(--paper); }
+.profile-option-list { display: flex; flex-direction: column; padding-top: 8px; }
+.profile-option-list > button { display: flex; min-height: 48px; align-items: center; justify-content: space-between; padding: 0 4px; border: 0; border-bottom: 1px solid #edf0ed; background: white; }
+.profile-option-list > button.active { color: var(--brand); font-weight: 700; }
+.profile-date-field, .profile-mobile-form label { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
+.profile-date-field input, .profile-mobile-form input { width: 100%; height: 44px; padding: 0 11px; border: 1px solid var(--line-strong); border-radius: 8px; background: white; }
+.profile-date-field small { color: var(--muted); font-size: 11px !important; }
+.profile-mobile-form label > div { display: grid; grid-template-columns: 1fr 96px; gap: 8px; }
+.profile-mobile-form label > div button { border: 1px solid var(--line-strong); border-radius: 8px; color: var(--brand); background: white; white-space: nowrap; }
+
+/* Every native-title page subtracts the same 48px title bar. */
+.category-page { height: calc(100% - 31px - 48px - 66px); }
+.cart-page { height: calc(100% - 31px - 48px - 66px - 62px); }
+.profile-screen > .mobile-scroll { height: calc(100% - 31px - 48px); }
+.mobile-order-list, .coupon-page { height: calc(100% - 31px - 48px - 40px); }
+.mobile-screen :where(.product-list-page, .collection-page, .points-page, .activity-page, .address-list-page, .reviews-page, .feedback-page-proto, .settings-page, .secondary-page, .shop-detail-page, .result-page, .logistics-page, .form-page, .review-detail-page, .profile-edit-page, .activity-products-page, .points-product-page, .campaign-detail-page .mobile-scroll, .group-select-page, .refund-detail-page, .preference-page, .confirm-scroll, .order-detail-scroll) { height: calc(100% - 31px - 48px); }
+
+/* Admin pages use production-like table and form density. */
+.admin-shell { font-size: 14px; grid-template-columns: 244px 1fr; }
+.admin-shell :where(button, input, select, textarea, label, p, span, b, strong, td, th) { font-size: 13px !important; }
+.admin-shell small { font-size: 11px !important; }
+.admin-topbar { height: 60px; }
+.admin-topbar b { font-size: 14px !important; }
+.admin-sidebar nav button { font-size: 14px !important; }
+.admin-page { height: calc(100vh - 124px); padding: 18px 22px 28px; }
+.admin-page-heading h1 { font-size: 24px !important; }
+.admin-page-heading p { font-size: 13px !important; }
+.module-tabs { height: 44px; margin: 0 0 14px; }
+.module-tabs button { height: 44px; font-size: 13px !important; }
+.admin-filter-bar { padding: 16px; }
+.filter-query-group { display: flex; min-width: 0; flex: 1; align-items: end; gap: 14px; }
+.filter-query-group .filter-fields { flex: 0 1 auto; }
+.filter-query-group .filter-actions, .filter-business-actions { flex: 0 0 auto; }
+.filter-fields label > span, .dialog-field > span, .edit-form-grid label > span { font-size: 13px !important; }
+.filter-fields input, .filter-fields select, .dialog-field input, .dialog-field select, .edit-form-grid input, .edit-form-grid select { height: 38px; font-size: 13px !important; }
+.filter-actions button { height: 38px; min-width: 58px; white-space: nowrap; font-size: 13px !important; }
+.filter-business-actions { display: flex; align-items: center; gap: 8px; }
+.filter-business-actions button { display: flex; height: 38px; align-items: center; gap: 6px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 6px; background: white; white-space: nowrap; font-size: 13px !important; }
+.filter-action-divider { width: 1px; height: 26px; margin: 0 2px; background: var(--line-strong); }
+.filter-business-actions .business-primary { color: white; border-color: var(--brand); background: var(--brand); font-weight: 700; }
+.table-toolbar { height: 50px; }
+.table-toolbar b { font-size: 14px !important; }
+.table-toolbar button { height: 32px; font-size: 12px !important; }
+.admin-table th { height: 46px; font-size: 13px !important; }
+.admin-table td { height: 62px; font-size: 13px !important; }
+.member-table-cell b, .admin-table td > b { font-size: 13px !important; }
+.member-table-cell small, .cell-sub { font-size: 11px !important; }
+.admin-pagination { min-height: 52px; }
+.admin-pagination button, .admin-pagination select { min-height: 32px; font-size: 12px !important; }
+.overview-metrics span, .overview-metrics small, .overview-tasks b, .overview-tasks small, .service-console b, .service-console small, .service-console time { font-size: 12px !important; }
+.overview-metrics b { font-size: 26px !important; }
+.fake-chart i { font-size: 11px !important; }
+.service-console { height: 100%; }
+.service-console > main > header { grid-template-columns: 38px 1fr auto auto; }
+.service-chat div, .service-console input, .service-console button { font-size: 13px !important; }
+.admin-dialog h2, .admin-drawer h2 { font-size: 20px !important; }
+.description-grid b, .description-grid span { font-size: 13px !important; }
+
+/* Real menu hierarchy, with framework-owned sections clearly marked. */
+.admin-menu-tree { gap: 4px !important; }
+.sidebar-menu-group { display: block; }
+.admin-sidebar nav .sidebar-group-toggle { height: 34px; padding: 0 9px; color: #7f9b8f; background: transparent !important; font-size: 12px !important; font-weight: 700; letter-spacing: .04em; }
+.sidebar-group-toggle > span { flex: 1; }
+.sidebar-group-toggle > small { padding: 2px 5px; border: 1px solid rgba(255,255,255,.12); border-radius: 3px; color: #9db1a8; font-size: 10px !important; font-weight: 500; letter-spacing: 0; }
+.sidebar-group-toggle .icon { transition: transform .18s ease; }
+.sidebar-group-toggle .icon.is-open { transform: rotate(180deg); }
+.sidebar-group-items { display: flex; flex-direction: column; gap: 2px; }
+.admin-sidebar nav .sidebar-group-items > button { height: 38px; padding-left: 20px; font-size: 13px !important; }
+.admin-sidebar nav .sidebar-overview { margin-bottom: 5px; }
+.framework-preserved-note { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding: 13px 15px; border: 1px solid #cddbd3; border-radius: 7px; color: var(--brand); background: var(--brand-soft); }
+.framework-preserved-note > .framework-note-copy { display: flex; flex: 1; flex-direction: column; gap: 3px; }
+.framework-preserved-note b { font-size: 14px !important; }
+.framework-preserved-note small { color: var(--muted); }
+
+@media (max-width: 1050px) {
+  .admin-shell { grid-template-columns: 210px 1fr; }
+  .admin-sidebar nav .sidebar-group-items > button { padding-left: 13px; }
+}
