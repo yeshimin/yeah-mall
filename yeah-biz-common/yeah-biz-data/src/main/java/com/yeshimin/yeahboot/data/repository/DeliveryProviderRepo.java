@@ -2,13 +2,23 @@ package com.yeshimin.yeahboot.data.repository;
 
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.domain.entity.DeliveryProviderEntity;
+import com.yeshimin.yeahboot.data.domain.vo.DeliveryProviderOptionVo;
 import com.yeshimin.yeahboot.data.mapper.DeliveryProviderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Slf4j
 @Repository
 public class DeliveryProviderRepo extends BaseRepo<DeliveryProviderMapper, DeliveryProviderEntity> {
+
+    /**
+     * 查询去重后的物流服务商选项。
+     */
+    public List<DeliveryProviderOptionVo> queryDistinctOptions(String keyword) {
+        return baseMapper.queryDistinctOptions(keyword);
+    }
 
     /**
      * countByShopIdAndName

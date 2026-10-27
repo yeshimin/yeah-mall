@@ -96,6 +96,10 @@ public class MchCouponService {
             // 历史请求未传该字段时保持默认不支持拼团，避免普通券被意外用于拼团。
             dto.setIsSupportGroupBuy(false);
         }
+        if (dto.getIsPointsExchangeEnabled() == null) {
+            // 历史请求默认不允许积分兑换，防止已有优惠券被意外投放到积分商城。
+            dto.setIsPointsExchangeEnabled(false);
+        }
 
         // 检查：优惠券类型
         CouponTypeEnum couponType = CouponTypeEnum.of(dto.getType());

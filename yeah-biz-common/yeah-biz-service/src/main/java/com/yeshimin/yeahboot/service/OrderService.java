@@ -51,6 +51,7 @@ public class OrderService {
 
     private final CacheService cacheService;
     private final WxPayService wxPayService;
+    private final MemberPointsService memberPointsService;
 
     /**
      * 订单详情场景
@@ -379,7 +380,10 @@ public class OrderService {
                     // 退款成功时间允许为空，异常情况下用当前时间保证状态可落库。
                     if (orderRepo.completeRefund(order.getId(), notification.getSummary(),
                             refundSuccessTime == null ? LocalDateTime.now() : refundSuccessTime)) {
+                        // 订单退款状态落库成功后再统一回补库存、优惠券等资源，避免回调重试重复补偿。
                         restoreRefundResources(order);
+                        // 已发放的订单完成积分需要随退款回退，记账服务内部按订单幂等处理。
+                        memberPointsService.reverseForOrderRefund(order);
                     }
                     break;
                 case CLOSED:

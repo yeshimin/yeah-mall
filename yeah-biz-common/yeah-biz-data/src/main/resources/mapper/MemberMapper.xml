@@ -10,4 +10,38 @@
           AND deleted = 0
         FOR UPDATE
     </select>
+
+    <!-- 平台会员管理联表查询：未开户会员通过左连接展示为零积分。 -->
+    <select id="queryAdminMembers" resultType="com.yeshimin.yeahboot.data.domain.vo.AdminMemberVo">
+        <!-- 左连接积分账户，保证从未获得积分的会员也能在平台会员管理中展示为零余额。 -->
+        SELECT
+            member.id,
+            member.account,
+            member.mobile,
+            member.nickname,
+            member.avatar,
+            member.gender,
+            member.birthday,
+            COALESCE(points.balance, 0) AS pointsBalance,
+            COALESCE(points.total_earned, 0) AS totalPointsEarned,
+            COALESCE(points.total_used, 0) AS totalPointsUsed,
+            member.create_time AS createTime,
+            member.update_time AS updateTime
+        FROM s_member member
+        LEFT JOIN s_member_points_account points
+            ON points.member_id = member.id
+            AND points.deleted = 0
+        WHERE member.deleted = 0
+        <if test="memberId != null">
+            AND member.id = #{memberId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                member.nickname LIKE CONCAT('%', #{keyword}, '%')
+                OR member.account LIKE CONCAT('%', #{keyword}, '%')
+                OR member.mobile LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY member.create_time DESC
+    </select>
 </mapper>

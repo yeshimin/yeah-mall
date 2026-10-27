@@ -1,8 +1,11 @@
 package com.yeshimin.yeahboot.data.repository;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
+import com.yeshimin.yeahboot.data.domain.vo.AdminMemberVo;
 import com.yeshimin.yeahboot.data.mapper.MemberMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -16,6 +19,13 @@ public class MemberRepo extends BaseRepo<MemberMapper, MemberEntity> {
      */
     public MemberEntity findOneByIdForUpdate(Long id) {
         return this.baseMapper.selectByIdForUpdate(id);
+    }
+
+    /**
+     * 查询平台会员管理列表。
+     */
+    public IPage<AdminMemberVo> queryAdminMembers(Page<AdminMemberVo> page, Long memberId, String keyword) {
+        return this.baseMapper.queryAdminMembers(page, memberId, keyword);
     }
 
     /**

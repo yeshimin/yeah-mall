@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeshimin.yeahboot.data.mapper.PointsOrderMapper">
+
+    <!-- 仅待履约订单可取消，避免取消与发货、人工履约并发时重复补偿。 -->
+    <update id="cancelPending">
+        UPDATE s_points_order
+        SET status = #{canceledStatus},
+            cancel_time = #{cancelTime},
+            cancel_reason = #{cancelReason}
+        WHERE id = #{id}
+          AND deleted = 0
+          AND status = #{pendingStatus}
+    </update>
+
+    <!-- 仅物流履约的待履约订单可写入物流信息并变更为已发货。 -->
+    <update id="shipPending">
+        UPDATE s_points_order
+        SET status = #{shippedStatus},
+            delivery_provider_code = #{providerCode},
+            tracking_no = #{trackingNo},
+            ship_time = #{shipTime}
+        WHERE id = #{id}
+          AND deleted = 0
+          AND status = #{pendingStatus}
+          AND fulfillment_type = #{logisticsFulfillmentType}
+    </update>
+
+    <!-- 自动发券或人工履约完成时，从待履约状态一次性迁移为已完成。 -->
+    <update id="completePending">
+        UPDATE s_points_order
+        SET status = #{completedStatus},
+            complete_time = #{completeTime},
+            fulfillment_remark = #{fulfillmentRemark}
+        WHERE id = #{id}
+          AND deleted = 0
+          AND status = #{pendingStatus}
+    </update>
+
+    <!-- 会员确认收货或超时自动确认时，只允许已发货订单完成。 -->
+    <update id="completeShipped">
+        UPDATE s_points_order
+        SET status = #{completedStatus},
+            complete_time = #{completeTime}
+        WHERE id = #{id}
+          AND deleted = 0
+          AND status = #{shippedStatus}
+    </update>
+
+    <!-- 取消订单不占用会员限兑额度，因此统计时显式排除取消状态。 -->
+    <select id="sumExchangedQuantity" resultType="java.lang.Long">
+        SELECT COALESCE(SUM(quantity), 0)
+        FROM s_points_order
+        WHERE deleted = 0
+          AND member_id = #{memberId}
+          AND spu_id = #{spuId}
+          AND status != #{canceledStatus}
+    </select>
+
+</mapper>

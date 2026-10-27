@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.admin.job;
 
 import com.yeshimin.yeahboot.app.domain.mq.payload.SeckillOrderCancelMqPayload;
 import com.yeshimin.yeahboot.app.domain.vo.SeckillEventCacheVo;
+import com.yeshimin.yeahboot.admin.service.AdminPointsMallService;
 import com.yeshimin.yeahboot.basic.service.storage.StorageService;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.data.common.consts.BizConsts;
@@ -16,6 +17,7 @@ import com.yeshimin.yeahboot.mq.MqPublisher;
 import com.yeshimin.yeahboot.service.GroupBuyStockService;
 import com.yeshimin.yeahboot.service.GroupBuyTradeService;
 import com.yeshimin.yeahboot.service.OrderService;
+import com.yeshimin.yeahboot.service.PointsMallConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,7 @@ public class AdminDefaultJob {
     private static final String SECKILL_QUOTA_CHECK_LOCK = "yeah:job:seckill:quota-check";
     private static final String GROUP_BUY_SETTLEMENT_LOCK = "yeah:job:group-buy:settlement";
     private static final String ORDER_REFUND_RECONCILE_LOCK = "yeah:job:order:refund-reconcile";
+    private static final String POINTS_ORDER_COMPLETE_LOCK = "yeah:job:points-order:auto-complete";
     private static final long JOB_LOCK_LEASE_MILLIS = 10 * 60 * 1000L;
     private static final String TRY_LOCK_LUA =
             "if redis.call('set', KEYS[1], ARGV[1], 'NX', 'PX', ARGV[2]) then return 1 else return 0 end";
@@ -53,6 +56,8 @@ public class AdminDefaultJob {
     private final GroupBuyTradeService groupBuyTradeService;
     private final GroupBuyStockService groupBuyStockService;
     private final OrderService orderService;
+    private final AdminPointsMallService adminPointsMallService;
+    private final PointsMallConfigService pointsMallConfigService;
 
     /**
      * 清理过期未使用的存储记录
@@ -214,6 +219,22 @@ public class AdminDefaultJob {
         } finally {
             releaseJobLock(ORDER_REFUND_RECONCILE_LOCK, lockToken);
         }
+    }
+
+    /**
+     * 自动完成超过确认期限的已发货积分订单。
+     */
+    @Scheduled(fixedDelay = 60 * 60 * 1000L)
+    public void autoCompletePointsOrders() {
+        executeWithJobLock(POINTS_ORDER_COMPLETE_LOCK, () -> {
+            // 发货后自动完成天数由系统参数控制，平台可按运营策略动态调整。
+            int days = pointsMallConfigService.getAutoCompleteDays();
+            // 服务层使用条件更新，任务重入或多实例竞争时不会重复完成同一订单。
+            int completed = adminPointsMallService.completeShippedOrdersBefore(LocalDateTime.now().minusDays(days));
+            if (completed > 0) {
+                log.info("自动完成积分订单数量：{}", completed);
+            }
+        });
     }
 
     /**

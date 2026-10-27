@@ -54,6 +54,8 @@
             `order`.total_amount as orderAmount,
             ifnull(`order`.discount_amount, 0) as discountAmount,
             cp.used_time as useTime,
+            cp.receive_channel as receiveChannel,
+            points_order.order_no as sourcePointsOrderNo,
             case
                 when cp.is_used = 1 then 1
                 when now() &gt; cp.end_time then 2
@@ -63,6 +65,9 @@
             left join s_member member on member.id = cp.member_id and member.deleted = 0
             left join s_order_coupon order_coupon on order_coupon.member_coupon_id = cp.id and order_coupon.deleted = 0
             left join s_order `order` on `order`.id = order_coupon.order_id and `order`.deleted = 0
+            <!-- 积分兑换券没有普通订单关联，通过来源积分订单补齐渠道追溯信息。 -->
+            left join s_points_order points_order on points_order.id = cp.source_points_order_id
+                and points_order.deleted = 0
         where cp.deleted = 0
             and cp.mch_id = #{mchId}
             and cp.shop_id = #{shopId}

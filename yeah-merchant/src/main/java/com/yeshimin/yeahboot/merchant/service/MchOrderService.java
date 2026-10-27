@@ -27,6 +27,7 @@ import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.OrderGroupBuyInfoVo;
 import com.yeshimin.yeahboot.service.JuheExpService;
+import com.yeshimin.yeahboot.service.MemberPointsService;
 import com.yeshimin.yeahboot.service.OrderService;
 import com.yeshimin.yeahboot.service.GroupBuyTradeService;
 import com.yeshimin.yeahboot.service.WxPayService;
@@ -63,6 +64,7 @@ public class MchOrderService {
     private final WxPayService wxPayService;
     private final OrderService orderService;
     private final GroupBuyTradeService groupBuyTradeService;
+    private final MemberPointsService memberPointsService;
 
     /**
      * 订单签收超时时间（天）
@@ -313,6 +315,8 @@ public class MchOrderService {
         order.setReceiveTime(LocalDateTime.now());
         order.setReceiveRemark(receiveRemark);
         order.updateById();
+        // 商家代确认收货与会员确认收货共享订单完成奖励，按订单ID确保只发放一次。
+        memberPointsService.grantForOrderComplete(order);
     }
 
     /**

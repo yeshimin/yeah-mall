@@ -73,4 +73,19 @@ public class MchCouponRecordVo extends BaseDomain {
      * 优惠券状态
      */
     private Integer status;
+
+    /**
+     * 领取渠道：1普通领取，2积分兑换
+     */
+    private Integer receiveChannel;
+
+    /**
+     * 领取渠道名称
+     */
+    private String receiveChannelName;
+
+    /**
+     * 来源积分订单编号
+     */
+    private String sourcePointsOrderNo;
 }

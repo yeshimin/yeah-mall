@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.common.enums.CouponTypeEnum;
 import com.yeshimin.yeahboot.data.common.enums.CouponUseRangeEnum;
 import com.yeshimin.yeahboot.data.common.enums.MemberCouponQueryConditionEnum;
+import com.yeshimin.yeahboot.data.common.enums.MemberCouponReceiveChannelEnum;
 import com.yeshimin.yeahboot.data.domain.dto.CouponCenterQueryDto;
 import com.yeshimin.yeahboot.data.domain.dto.CouponQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.MchCouponEntity;
@@ -91,6 +92,8 @@ public class AppCouponService {
         // 会员券保存领取时快照，后续商家改券不影响已领取优惠券规则。
         memberCoupon.setMemberId(userId);
         memberCoupon.setCouponId(coupon.getId());
+        // 普通领券与积分兑换使用同一会员券资产，但必须记录来源渠道便于商家核对。
+        memberCoupon.setReceiveChannel(MemberCouponReceiveChannelEnum.NORMAL_RECEIVE.getIntValue());
         memberCouponRepo.save(memberCoupon);
     }
 

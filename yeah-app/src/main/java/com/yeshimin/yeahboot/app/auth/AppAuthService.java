@@ -19,6 +19,7 @@ import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
 import com.yeshimin.yeahboot.data.repository.MemberRepo;
 import com.yeshimin.yeahboot.mq.MqMessage;
 import com.yeshimin.yeahboot.mq.MqPublisher;
+import com.yeshimin.yeahboot.service.MemberPointsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,7 @@ public class AppAuthService {
     private final IdService idService;
 
     private final MqPublisher mqPublisher;
+    private final MemberPointsService memberPointsService;
 
     /**
      * 登录
@@ -152,6 +154,8 @@ public class AppAuthService {
         user.setAccount(idService.nextEncodedId());
         boolean r = user.insert();
         log.debug("createMobileUser.result: {}, user: {}", r, user);
+        // 注册成功后立即按当前启用的注册规则发放积分，记账服务以会员ID幂等。
+        memberPointsService.grantForRegister(user.getId());
         return user;
     }
 }

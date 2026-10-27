@@ -72,6 +72,16 @@ public class MemberCouponEntity extends ShopConditionBaseEntity<MemberCouponEnti
     private Boolean isSupportGroupBuy;
 
     /**
+     * 领取渠道：1普通领取，2积分兑换
+     */
+    private Integer receiveChannel;
+
+    /**
+     * 来源积分订单ID
+     */
+    private Long sourcePointsOrderId;
+
+    /**
      * 有效期起始时间
      */
     private LocalDateTime beginTime;

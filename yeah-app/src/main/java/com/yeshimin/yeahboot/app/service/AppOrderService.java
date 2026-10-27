@@ -25,6 +25,7 @@ import com.yeshimin.yeahboot.data.domain.vo.OrderShopProductVo;
 import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.service.JuheExpService;
+import com.yeshimin.yeahboot.service.MemberPointsService;
 import com.yeshimin.yeahboot.service.GroupBuyImageService;
 import com.yeshimin.yeahboot.service.GroupBuyTradeService;
 import com.yeshimin.yeahboot.service.OrderService;
@@ -80,6 +81,7 @@ public class AppOrderService {
     private final GroupBuyImageService groupBuyImageService;
     private final GroupBuyTradeService groupBuyTradeService;
     private final CacheService cacheService;
+    private final MemberPointsService memberPointsService;
 
     /**
      * 订单支付超时时间（分钟）
@@ -1026,6 +1028,8 @@ public class AppOrderService {
         order.setReceiveTime(LocalDateTime.now());
         order.setReceiveRemark(receiveRemark);
         order.updateById();
+        // 订单完成是“订单完成奖励”唯一触发点，记账服务按订单ID保证重复签收不重复赠送。
+        memberPointsService.grantForOrderComplete(order);
     }
 
     // ================================================================================

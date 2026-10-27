@@ -21,6 +21,7 @@ import com.yeshimin.yeahboot.data.domain.dto.ReviewReplyDto;
 import com.yeshimin.yeahboot.data.domain.vo.ReviewReplyVo;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.service.ReviewReplyService;
+import com.yeshimin.yeahboot.service.MemberPointsService;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,7 @@ public class AppReviewService {
     private final ProductSkuReviewImageRepo productSkuReviewImageRepo;
     private final ProductSkuReviewReplyRepo productSkuReviewReplyRepo;
     private final ReviewReplyService reviewReplyService;
+    private final MemberPointsService memberPointsService;
 
     private final StorageManager storageManager;
 
@@ -97,6 +99,8 @@ public class AppReviewService {
             // 创建评价图片记录
             productSkuReviewImageRepo.saveImage(skuReview, item.getImages());
         }
+        // 评价奖励按订单ID幂等发放，多SKU评价仍只产生一笔会员积分流水。
+        memberPointsService.grantForReview(order);
     }
 
     /**

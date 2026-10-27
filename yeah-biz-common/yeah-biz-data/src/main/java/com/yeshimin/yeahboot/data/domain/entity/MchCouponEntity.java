@@ -82,6 +82,11 @@ public class MchCouponEntity extends ShopConditionBaseEntity<MchCouponEntity> {
     private Boolean isSupportGroupBuy;
 
     /**
+     * 是否允许作为积分商品兑换
+     */
+    private Boolean isPointsExchangeEnabled;
+
+    /**
      * 有效期起始时间
      */
     private LocalDateTime beginTime;

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeshimin.yeahboot.data.mapper.MemberPointsAccountMapper">
+
+    <!-- 行锁用于串行化同一会员的积分发放、扣减、退回和人工调整。 -->
+    <select id="findByMemberIdForUpdate" resultType="com.yeshimin.yeahboot.data.domain.entity.MemberPointsAccountEntity">
+        select * from s_member_points_account
+        where member_id = #{memberId} and deleted = 0
+        for update
+    </select>
+</mapper>

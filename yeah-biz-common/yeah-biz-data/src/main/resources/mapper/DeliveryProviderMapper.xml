@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeshimin.yeahboot.data.mapper.DeliveryProviderMapper">
+
+    <select id="queryDistinctOptions" resultType="com.yeshimin.yeahboot.data.domain.vo.DeliveryProviderOptionVo">
+        <!-- 积分订单由平台履约，跨店铺按物流编码去重后提供统一下拉选项。 -->
+        SELECT
+            code,
+            MAX(name) AS name
+        FROM s_delivery_provider
+        WHERE deleted = 0
+          AND code IS NOT NULL
+          AND code != ''
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE CONCAT('%', #{keyword}, '%') OR code LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        GROUP BY code
+        ORDER BY MAX(is_popular) DESC, MAX(name) ASC
+        LIMIT 100
+    </select>
 </mapper>

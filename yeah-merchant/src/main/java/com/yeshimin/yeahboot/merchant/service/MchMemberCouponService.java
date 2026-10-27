@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.merchant.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.data.common.enums.MemberCouponReceiveChannelEnum;
 import com.yeshimin.yeahboot.data.domain.dto.MchCouponRecordQueryDto;
 import com.yeshimin.yeahboot.data.domain.vo.MchCouponRecordVo;
 import com.yeshimin.yeahboot.data.repository.MemberCouponRepo;
@@ -22,6 +23,14 @@ public class MchMemberCouponService {
                                                MchCouponRecordQueryDto query) {
         // 使用记录包含会员信息，必须先校验当前商家对所选店铺的操作权限。
         permissionService.checkShop(mchId, shopId);
-        return memberCouponRepo.queryMchCouponRecord(mchId, shopId, page, query);
+        Page<MchCouponRecordVo> result = memberCouponRepo.queryMchCouponRecord(mchId, shopId, page, query);
+        // 渠道名称由后端枚举统一转换，页面无需判断渠道数值。
+        result.getRecords().forEach(record -> {
+            MemberCouponReceiveChannelEnum channel = MemberCouponReceiveChannelEnum.of(record.getReceiveChannel());
+            record.setReceiveChannelName((channel == null
+                    ? MemberCouponReceiveChannelEnum.NORMAL_RECEIVE
+                    : channel).getDesc());
+        });
+        return result;
     }
 }
