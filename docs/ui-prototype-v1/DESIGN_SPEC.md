@@ -102,4 +102,4 @@ Small body and secondary text must maintain WCAG-readable contrast. Muted, warni
 
 ## Upstream merge policy
 
-The prototype is a reference artifact. Production implementation must remain opt-in and mall-scoped. No visual change should require editing a yeahboot framework file unless the user explicitly approves that exact upstream-facing change.
+The prototype is a reference artifact. UI rollout must not require backend Controller, DTO, Service, Mapper or API-contract changes. Yeahboot-owned pages and layout components may receive UI-only changes such as design tokens, spacing, color, typography and visual composition, while their routes, permissions, APIs, state management and business behavior remain unchanged. Prefer a small shared theme layer over repeated page-level edits so future yeahboot merges stay reviewable. Mall-owned pages may be adapted more deeply when required by the prototype, provided existing business behavior is preserved or intentionally improved.

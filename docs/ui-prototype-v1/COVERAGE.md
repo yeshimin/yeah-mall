@@ -8,6 +8,19 @@ Coverage boundary:
 - This does not mean every CRUD field, validation branch, permission combination, loading/empty/error state or platform-specific interaction has an independent mockup.
 - Unique and high-risk flows receive dedicated interactive screens. Repetitive CRUD pages map to reviewed shared templates and are refined again when production implementation reaches that module.
 
+## Production rollout status
+
+Prototype coverage and production rollout are tracked separately. The prototype covers the registered page inventory, while the production UI is being applied in reviewable batches so existing API, permission and transaction behavior can be preserved.
+
+Current production batch:
+
+- App shared shell: global tokens and capsule-aware custom navigation.
+- App pages: home, category, cart, profile, product list, product detail, order confirmation, order list and order detail.
+- Admin shared shell: yeahboot-compatible visual theme for login, sidebar, header, Element Plus controls and system-management pages.
+- Admin mall pages: merchant, shop, member, SPU, order, review and member-points management.
+
+Pages not named above remain prototype-covered but are not yet considered production-restyled. A page is only marked complete after its business bindings are preserved, both target builds pass and the rendered page is visually reviewed.
+
 ## App: 41 registered pages
 
 | Actual page | Prototype target | Coverage |
@@ -82,7 +95,7 @@ Supplementary App references: `app/seckill-detail`, `app/groupbuy-detail`, `app/
 | `mall/member-points/index.vue` | `platform/points` tabs | Dedicated module template |
 | `mall/member/index.vue` | `platform/members` | Dedicated page |
 | `mall/merchant/index.vue` | `platform/merchants` | Shared management template |
-| `mall/order/index.vue` | `platform/order`, `merchant/orders` | Dedicated order template |
+| `mall/order/index.vue` | `merchant/orders` | Dedicated order template |
 | `mall/platBanner/index.vue` | `platform/content?tab=Banner` | Dedicated module tab |
 | `mall/points-mall/index.vue` | `platform/points-mall` tabs | Dedicated module template |
 | `mall/quickEntry/index.vue` | `platform/content?tab=快捷入口` | Dedicated module tab |

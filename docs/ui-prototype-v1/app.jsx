@@ -584,13 +584,13 @@ function AppPrototype({ route, navigate, notify }) {
 function AdminSidebar({ surface, route, navigate }) {
   const [expanded,setExpanded] = useState(surface==='platform'?{'商城管理':true,'秒杀管理':false,'拼团管理':false,'系统管理':false}:{'商品管理':true,'交易服务':true,'优惠券管理':false,'秒杀管理':false,'拼团管理':false,'店铺管理':false});
   const platformSections = [
-    { title:'商城管理', items:[['users','platform/merchants','商家管理'],['store','platform/shops','店铺管理'],['members','platform/members','会员管理'],['order','platform/order','订单管理'],['message','platform/reviews','评价管理'],['points','platform/points','积分管理'],['box','platform/points-mall','积分商城'],['spark','platform/content','首页运营'],['message','platform/feedback','意见反馈']] },
+    { title:'商城管理', items:[['users','platform/merchants','商家管理'],['store','platform/shops','店铺管理'],['members','platform/members','会员管理'],['message','platform/reviews','评价管理'],['points','platform/points','积分管理'],['box','platform/points-mall','积分商城'],['spark','platform/content','首页运营'],['message','platform/feedback','意见反馈']] },
     { title:'秒杀管理', items:[['bolt','platform/seckill?tab=活动管理','活动管理'],['clock','platform/seckill?tab=场次管理','场次管理'],['check','platform/seckill?tab=报名审核','报名审核'],['box','platform/seckill?tab=商品管理','商品管理'],['eye','platform/seckill?tab=实时监控','实时监控'],['grid','platform/seckill?tab=成交分析','成交分析']] },
     { title:'拼团管理', items:[['users','platform/groupbuy?tab=活动管理','活动管理'],['check','platform/groupbuy?tab=申请审核','申请审核'],['box','platform/groupbuy?tab=商品管理','商品管理'],['order','platform/groupbuy?tab=订单管理','订单管理']] },
-    { title:'系统管理', framework:true, items:[['user','platform/system?view=user','用户管理'],['members','platform/system?view=org','组织管理'],['user','platform/system?view=position','岗位管理'],['users','platform/system?view=role','角色管理'],['grid','platform/system?view=resource','资源管理'],['order','platform/system?view=dict','字典管理'],['settings','platform/system?view=config','参数设置'],['box','platform/system?view=file','文件管理'],['store','platform/system?view=storage','存储管理'],['message','platform/system?view=log','日志管理'],['store','platform/system?view=area','地区管理']] }
+    { title:'系统管理', framework:true, items:[['user','platform/system?view=user','用户管理'],['users','platform/system?view=role','角色管理'],['grid','platform/system?view=resource','资源管理'],['members','platform/system?view=org','组织管理'],['user','platform/system?view=position','岗位管理'],['order','platform/system?view=dict','字典管理'],['settings','platform/system?view=config','参数设置'],['message','platform/system?view=log','日志管理'],['store','platform/system?view=area','地区管理'],['box','platform/system?view=file','文件管理'],['store','platform/system?view=storage','存储管理']] }
   ];
   const merchantSections = [
-    { title:'商品管理', items:[['box','merchant/products','SPU 管理'],['order','merchant/sku','SKU 管理'],['grid','merchant/categories','商品分类'],['settings','merchant/specs','规格管理']] },
+    { title:'商品管理', items:[['box','merchant/products','SPU 管理'],['grid','merchant/categories','商品分类'],['settings','merchant/specs','规格管理']] },
     { title:'交易服务', items:[['order','merchant/orders','订单管理'],['message','merchant/reviews','评价管理'],['message','merchant/service','客服消息']] },
     { title:'优惠券管理', items:[['coupon','merchant/coupons?tab=优惠券','优惠券'],['members','merchant/coupons?tab=领取记录','领取记录'],['order','merchant/coupons?tab=使用记录','使用记录']] },
     { title:'秒杀管理', items:[['bolt','merchant/seckill?tab=活动列表','活动列表'],['check','merchant/seckill?tab=报名记录','报名记录'],['box','merchant/seckill?tab=秒杀商品','秒杀商品']] },
@@ -737,7 +737,7 @@ function AdminOverview({ surface, navigate }) {
     : [['今日支付订单','126','全平台'],['今日交易额','¥58,240.00','较昨日 +9.7%'],['活跃店铺','18','共 24 家'],['退款待处理','7','跨 5 家店铺']];
   const tasks = merchant
     ? [['待发货订单','12','merchant/orders'],['低库存商品','4','merchant/products'],['待回复评价','6','merchant/reviews'],['拼团报名结果','2','merchant/groupbuy']]
-    : [['商家入驻待审','3','platform/merchants'],['退款异常订单','2','platform/order'],['待审核评价','8','platform/reviews'],['意见反馈待处理','5','platform/feedback']];
+    : [['商家入驻待审','3','platform/merchants'],['秒杀报名待审','2','platform/seckill?tab=报名审核'],['待审核评价','8','platform/reviews'],['意见反馈待处理','5','platform/feedback']];
   return <section className="admin-page overview-page" data-screen-label={`${merchant?'商家':'平台'}经营概览`}><div className="overview-metrics">{metrics.map((item,index)=><article key={item[0]}><span>{item[0]}</span><b>{item[1]}</b><small className={index>1?'attention':''}>{item[2]}</small></article>)}</div><div className="overview-grid"><section className="overview-tasks"><div className="table-toolbar"><div><span className="shelf-mark"></span><b>待办事项</b></div><StatusTicket tone="warning">今日</StatusTicket></div>{tasks.map((task)=><button key={task[0]} onClick={()=>navigate(task[2])}><span><b>{task[0]}</b><small>点击进入对应业务列表</small></span><strong>{task[1]}</strong><Icon name="chevron" size={16}/></button>)}</section><section className="trend-panel"><div className="table-toolbar"><div><span className="shelf-mark"></span><b>近 7 日交易趋势</b></div><span className="mini-legend"><i></i>支付金额</span></div><div className="fake-chart">{[42,55,48,68,61,78,72].map((value,index)=><span key={index} style={{height:`${value}%`}}><i>{['21','22','23','24','25','26','27'][index]}</i></span>)}</div></section></div></section>;
 }
 
@@ -886,7 +886,7 @@ function AdminPrototype({ surface, route, navigate, notify }) {
   let content;
   if (page === 'overview') content = <AdminOverview surface={surface} navigate={navigate}/>;
   else if (surface === 'platform' && page === 'members') content = <AdminMembers members={members} setMembers={setMembers} notify={notify}/>;
-  else if ((surface === 'platform' && page === 'order') || (surface === 'merchant' && page === 'orders')) content = <AdminOrders orders={orders} setOrders={setOrders} notify={notify}/>;
+  else if (surface === 'merchant' && page === 'orders') content = <AdminOrders orders={orders} setOrders={setOrders} notify={notify}/>;
   else if (surface === 'merchant' && page === 'products') content = <MerchantProducts notify={notify}/>;
   else if (surface === 'merchant' && page === 'service') content = <AdminServicePage notify={notify}/>;
   else if (surface === 'merchant' && page === 'settings') content = <MerchantSettingsPage notify={notify}/>;
