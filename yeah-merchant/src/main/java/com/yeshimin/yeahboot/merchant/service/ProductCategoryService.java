@@ -171,6 +171,9 @@ public class ProductCategoryService {
         if (StrUtil.isNotBlank(dto.getName())) {
             entity.setName(dto.getName());
         }
+        if (dto.getImage() != null) {
+            entity.setImage(dto.getImage());
+        }
         if (dto.getSort() != null) {
             entity.setSort(dto.getSort());
         }

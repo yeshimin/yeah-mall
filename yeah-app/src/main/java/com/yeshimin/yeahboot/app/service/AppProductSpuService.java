@@ -36,6 +36,7 @@ public class AppProductSpuService {
     private final ProductSkuRepo productSkuRepo;
     private final ProductSkuSpecRepo productSkuSpecRepo;
     private final ShopRepo shopRepo;
+    private final ProductCategoryRepo productCategoryRepo;
 
     private final AppFullTextSearchService fullTextSearchService;
 
@@ -80,6 +81,7 @@ public class AppProductSpuService {
         // list to map
         Map<Long, ProductSpuEntity> mapSpu =
                 listSpu.stream().collect(Collectors.toMap(ProductSpuEntity::getId, spu -> spu));
+        Map<Long, String> categoryNameMap = queryCategoryNameMap(listSpu);
 
         List<ProductVo> listVo = listData.stream().filter(source -> {
             Long id = (Long) source.get("id");
@@ -90,6 +92,8 @@ public class AppProductSpuService {
 
             ProductVo vo = new ProductVo();
             vo.setId(spu.getId());
+            vo.setCategoryId(spu.getCategoryId());
+            vo.setCategoryName(categoryNameMap.get(spu.getCategoryId()));
             vo.setName(spu.getName());
             vo.setSales(spu.getSales());
             vo.setMinPrice(spu.getMinPrice());
@@ -194,8 +198,13 @@ public class AppProductSpuService {
      * 将商品分页结果转换为App查询结果
      */
     private AppProductQueryVo toProductQueryVo(IPage<ProductSpuEntity> pageResult) {
+        Map<Long, String> categoryNameMap = queryCategoryNameMap(pageResult.getRecords());
         List<ProductVo> products = pageResult.getRecords().stream()
-                .map(entity -> BeanUtil.copyProperties(entity, ProductVo.class))
+                .map(entity -> {
+                    ProductVo product = BeanUtil.copyProperties(entity, ProductVo.class);
+                    product.setCategoryName(categoryNameMap.get(entity.getCategoryId()));
+                    return product;
+                })
                 .collect(Collectors.toList());
         boolean hasMore = pageResult.getCurrent() < pageResult.getPages();
 
@@ -205,6 +214,21 @@ public class AppProductSpuService {
         result.setHasMore(hasMore);
         result.setScrollToken(hasMore ? String.valueOf(pageResult.getCurrent() + 1) : null);
         return result;
+    }
+
+    /**
+     * 批量查询商品分类名称
+     */
+    private Map<Long, String> queryCategoryNameMap(Collection<ProductSpuEntity> products) {
+        Set<Long> categoryIds = products.stream()
+                .map(ProductSpuEntity::getCategoryId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (categoryIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return productCategoryRepo.findListByIds(categoryIds).stream()
+                .collect(Collectors.toMap(ProductCategoryEntity::getId, ProductCategoryEntity::getName));
     }
 
     /**

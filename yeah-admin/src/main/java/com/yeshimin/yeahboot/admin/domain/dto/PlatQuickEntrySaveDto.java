@@ -31,7 +31,6 @@ public class PlatQuickEntrySaveDto extends BaseDomain {
     /**
      * 图标
      */
-    @NotBlank(message = "图标不能为空", groups = {Create.class})
     private String icon;
 
     /**

@@ -43,7 +43,7 @@ function Icon({ name, size = 20, strokeWidth = 1.8, className = '' }) {
   );
 }
 
-function ProductArt({ type, className = '' }) {
+function ProductArt({ type, className = '', bare = false }) {
   const defs = (
     <defs>
       <linearGradient id={`${type}-bg`} x1="0" y1="0" x2="1" y2="1">
@@ -97,9 +97,7 @@ function ProductArt({ type, className = '' }) {
   return (
     <svg className={`product-art ${className}`} viewBox="0 0 400 320" role="img" aria-label="商品示意图">
       {defs}
-      <rect width="400" height="320" rx="28" fill={`url(#${type}-bg)`}/>
-      <circle cx="326" cy="62" r="54" fill="#fff" opacity=".4"/>
-      <path d="M26 264c76-46 153-54 231-23 49 20 88 18 117 0v79H26v-56Z" fill="#fff" opacity=".35"/>
+      {!bare && <><rect width="400" height="320" rx="28" fill={`url(#${type}-bg)`}/><circle cx="326" cy="62" r="54" fill="#fff" opacity=".4"/><path d="M26 264c76-46 153-54 231-23 49 20 88 18 117 0v79H26v-56Z" fill="#fff" opacity=".35"/></>}
       {subject}
     </svg>
   );

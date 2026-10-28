@@ -78,7 +78,7 @@ function MobileStatusBar() {
 }
 
 function WechatCapsule() {
-  return <div className="wechat-capsule" aria-label="微信小程序胶囊按钮"><span>•••</span><span className="capsule-ring"></span></div>;
+  return <div className="wechat-capsule" aria-label="微信小程序胶囊按钮"><span className="capsule-more" aria-hidden="true"><i></i><i></i><i></i></span><span className="capsule-target" aria-hidden="true"><i></i></span></div>;
 }
 
 function MobileBottomNav({ active, navigate }) {
@@ -98,9 +98,8 @@ function MobileBottomNav({ active, navigate }) {
 
 function AppHome({ navigate }) {
   const [category, setCategory] = useState('all');
-  const [keyword, setKeyword] = useState('');
   const products = MOCKS.products.filter((item) =>
-    (category === 'all' || item.category === category) && item.name.includes(keyword.trim())
+    category === 'all' || item.category === category
   );
   const quickRoutes = { seckill: 'app/seckill', group: 'app/groupbuy', coupon: 'app/coupon-center', points: 'app/points-mall', new: 'app/products' };
   return (
@@ -108,7 +107,7 @@ function AppHome({ navigate }) {
       <MobileStatusBar/>
       <header className="app-topbar">
         <div className="wordmark"><span>YEAH</span><b>MALL</b></div>
-        <label className="mobile-search"><Icon name="search" size={18}/><input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="搜索商品"/></label>
+        <button className="mobile-search" type="button" onClick={() => navigate('app/products')}><span className="mobile-search-content"><Icon name="search" size={18}/><span>搜索商品</span></span></button>
         <WechatCapsule/>
       </header>
       <main className="mobile-scroll with-bottom-nav">
@@ -132,7 +131,6 @@ function AppHome({ navigate }) {
         <section className="product-section">
           <div className="section-heading">
             <div><span className="shelf-mark"></span><h2>精选好物</h2></div>
-            <span>按销量与口碑推荐</span>
           </div>
           <div className="category-strip">
             {MOCKS.categories.map((item) => <button key={item.id} className={category === item.id ? 'active' : ''} onClick={() => setCategory(item.id)}>{item.name}</button>)}
@@ -296,9 +294,75 @@ function SimpleMobileHeader({ title, navigate, back = 'app/home', action, showBa
 }
 
 function AppCategory({ navigate }) {
-  const [active, setActive] = useState('digital');
-  const visible = active === 'digital' ? MOCKS.products.slice(0,2) : active === 'home' ? MOCKS.products.slice(1,3) : MOCKS.products.slice(2);
-  return <div className="mobile-screen" data-screen-label="App 分类"><SimpleMobileHeader title="商品分类" navigate={navigate} showBack={false}/><main className="category-page"><aside>{MOCKS.categories.slice(1).map((item) => <button key={item.id} className={active === item.id ? 'active' : ''} onClick={() => setActive(item.id)}>{item.name}</button>)}</aside><section><div className="category-feature"><b>{MOCKS.categories.find((item) => item.id === active)?.name}精选</b><span>本周上新与热卖合集</span></div><div className="category-product-grid">{visible.map((product) => <button key={product.id} onClick={() => navigate('app/product')}><ProductArt type={product.art}/><b>{product.name}</b><span>¥{product.price}</span></button>)}</div><button className="view-category-all" onClick={() => navigate('app/products')}>查看全部商品 <Icon name="chevron" size={15}/></button></section></main><MobileBottomNav active="分类" navigate={navigate}/></div>;
+  const categoryTree = [
+    { id:'digital', name:'数码', groups:[
+      { id:'audio', name:'耳机音响', children:[['headphone','蓝牙耳机'],['headphone','头戴耳机'],['headphone','音响'],['headphone','耳机配件'],['headphone','智能穿戴'],['headphone','影音设备']] },
+      { id:'phone', name:'手机通讯', children:[['headphone','手机'],['headphone','平板电脑'],['headphone','充电设备'],['headphone','手机配件'],['headphone','运营商'],['headphone','智能设备']] },
+      { id:'computer', name:'电脑办公', children:[['headphone','笔记本'],['headphone','显示器'],['headphone','键鼠'],['headphone','办公文具'],['headphone','打印设备'],['headphone','数码配件']] }
+    ]},
+    { id:'home', name:'居家', groups:[
+      { id:'furniture', name:'家具家居', children:[['chair','休闲椅'],['chair','桌椅'],['chair','收纳用品'],['chair','床品'],['chair','家居饰品'],['chair','灯具']] },
+      { id:'kitchen', name:'厨房餐饮', children:[['coffee','咖啡器具'],['coffee','烹饪锅具'],['coffee','餐具'],['coffee','厨房收纳'],['coffee','水杯水壶'],['coffee','烘焙工具']] },
+      { id:'clean', name:'生活日用', children:[['chair','清洁用品'],['chair','纸品湿巾'],['chair','洗护用品'],['chair','香薰'],['chair','雨具'],['chair','家纺']] }
+    ]},
+    { id:'beauty', name:'美护', groups:[
+      { id:'skincare', name:'护肤美妆', children:[['serum','精华'],['serum','面霜'],['serum','洁面'],['serum','防晒'],['serum','面膜'],['serum','彩妆']] },
+      { id:'personal', name:'个护健康', children:[['serum','洗发护发'],['serum','身体护理'],['serum','口腔护理'],['serum','美容仪'],['serum','健康监测'],['serum','香水香氛']] }
+    ]},
+    { id:'food', name:'食品', groups:[
+      { id:'coffee', name:'咖啡冲饮', children:[['coffee','挂耳咖啡'],['coffee','咖啡豆'],['coffee','茶饮'],['coffee','冲泡粉'],['coffee','保温杯'],['coffee','礼盒']] },
+      { id:'snack', name:'休闲零食', children:[['coffee','坚果炒货'],['coffee','糕点'],['coffee','果干'],['coffee','肉脯'],['coffee','糖巧'],['coffee','地方特产']] },
+      { id:'gift', name:'礼盒定制', children:[] }
+    ]},
+    { id:'other', name:'其它', groups:[] }
+  ];
+  const [activePrimary, setActivePrimary] = useState('digital');
+  const [activeGroup, setActiveGroup] = useState('audio');
+  const categoryScrollRef = React.useRef(null);
+  const currentPrimary = categoryTree.find((item) => item.id === activePrimary) || categoryTree[0];
+  const switchPrimary = (id) => {
+    const primary = categoryTree.find((item) => item.id === id) || categoryTree[0];
+    setActivePrimary(id);
+    setActiveGroup(primary.groups[0]?.id || '');
+    requestAnimationFrame(() => categoryScrollRef.current?.scrollTo({ top:0, behavior:'smooth' }));
+  };
+  const scrollToGroup = (group) => {
+    setActiveGroup(group.id);
+    document.getElementById(`category-group-${currentPrimary.id}-${group.id}`)?.scrollIntoView({ behavior:'smooth', block:'start' });
+  };
+  const syncGroupOnScroll = (event) => {
+    if (!currentPrimary.groups.length) return;
+    const top = event.currentTarget.getBoundingClientRect().top;
+    const passed = currentPrimary.groups.filter((group) => {
+      const section = document.getElementById(`category-group-${currentPrimary.id}-${group.id}`);
+      return section && section.getBoundingClientRect().top <= top + 20;
+    });
+    setActiveGroup((passed[passed.length - 1] || currentPrimary.groups[0]).id);
+  };
+  return (
+    <div className="mobile-screen" data-screen-label="App 分类">
+      <SimpleMobileHeader title="商品分类" navigate={navigate} showBack={false}/>
+      <main className="category-page">
+        <aside aria-label="一级分类">
+          {categoryTree.map((item) => <button key={item.id} className={activePrimary === item.id ? 'active' : ''} onClick={() => switchPrimary(item.id)}>{item.name}</button>)}
+        </aside>
+        <section>
+          {currentPrimary.groups.length ? <><div className="category-small-tabs" aria-label="二级分类快速定位">
+            {currentPrimary.groups.map((group) => <button key={group.id} className={activeGroup === group.id ? 'active' : ''} onClick={() => scrollToGroup(group)}>{group.name}</button>)}
+          </div>
+          <div ref={categoryScrollRef} className="category-all-scroll" onScroll={syncGroupOnScroll}>
+            {currentPrimary.groups.map((group) => <div key={group.id} id={`category-group-${currentPrimary.id}-${group.id}`} className="category-group-section">
+              <div className="category-leaf-head"><b>{group.name}</b></div>
+              {group.children.length ? <div className="category-leaf-grid">
+                {group.children.map(([art, name]) => <button key={name} className="category-leaf-card" onClick={() => navigate('app/products')}><ProductArt type={art} bare/><span>{name}</span></button>)}
+              </div> : <div className="category-sub-empty"><b>暂未配置子分类</b><span>该分类下暂时没有可浏览内容</span></div>}
+            </div>)}
+          </div></> : <div className="category-empty-state"><b>暂未配置二级分类</b><span>该分类下暂无可浏览内容</span></div>}
+        </section>
+      </main>
+      <MobileBottomNav active="分类" navigate={navigate}/>
+    </div>
+  );
 }
 
 function AppProductList({ navigate }) {

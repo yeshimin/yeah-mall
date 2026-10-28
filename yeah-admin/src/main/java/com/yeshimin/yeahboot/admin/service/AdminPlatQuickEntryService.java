@@ -28,8 +28,10 @@ public class AdminPlatQuickEntryService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void create(PlatQuickEntrySaveDto dto) {
-        // 标记使用图片
-        storageManager.markUse(dto.getIcon());
+        // 未配置图标时由App使用对应业务的内置默认图标。
+        if (StrUtil.isNotBlank(dto.getIcon())) {
+            storageManager.markUse(dto.getIcon());
+        }
 
         platQuickEntryRepo.createOne(dto.getName(), dto.getIcon(), dto.getType(), dto.getTarget(),
                 dto.getSort(), dto.getIsEnabled(), dto.getRemark());
@@ -43,11 +45,13 @@ public class AdminPlatQuickEntryService {
         // 检查：是否存在
         PlatQuickEntryEntity entity = platQuickEntryRepo.getOneById(dto.getId());
 
-        if (StrUtil.isNotBlank(dto.getIcon()) && !Objects.equals(entity.getIcon(), dto.getIcon())) {
-            // 标记使用新图片
-            storageManager.markUse(dto.getIcon());
-            // 标记废弃旧图片
-            storageManager.unmarkUse(entity.getIcon());
+        if (!Objects.equals(entity.getIcon(), dto.getIcon())) {
+            if (StrUtil.isNotBlank(dto.getIcon())) {
+                storageManager.markUse(dto.getIcon());
+            }
+            if (StrUtil.isNotBlank(entity.getIcon())) {
+                storageManager.unmarkUse(entity.getIcon());
+            }
         }
 
         BeanUtil.copyProperties(dto, entity);
@@ -64,7 +68,9 @@ public class AdminPlatQuickEntryService {
             PlatQuickEntryEntity entity = platQuickEntryRepo.getOneById(id);
 
             // 表示解除使用图片
-            storageManager.unmarkUse(entity.getIcon());
+            if (StrUtil.isNotBlank(entity.getIcon())) {
+                storageManager.unmarkUse(entity.getIcon());
+            }
             // 删除记录
             entity.deleteById();
         }

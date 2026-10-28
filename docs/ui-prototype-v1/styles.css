@@ -69,8 +69,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .app-topbar { display: flex; align-items: center; gap: 16px; padding: 9px 15px 13px; background: rgba(244, 246, 243, .96); }
 .wordmark { display: flex; flex-direction: column; width: 48px; font: 700 13px/.82 var(--font-display); letter-spacing: .08em; }
 .wordmark b { color: var(--brand); }
-.mobile-search { display: flex; flex: 1; height: 38px; align-items: center; gap: 8px; padding: 0 13px; border: 1px solid var(--line); border-radius: 11px; background: white; color: var(--muted); }
-.mobile-search input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 13px; }
+.mobile-search { display: flex; flex: 1; height: 38px; align-items: center; justify-content: center; gap: 8px; padding: 0 13px; text-align: center; border: 1px solid var(--line); border-radius: 11px; background: white; color: var(--muted); font-size: 13px; }
 .commerce-banner { position: relative; height: 208px; margin: 0 14px 16px; overflow: hidden; border-radius: 18px 4px 18px 4px; color: white; background: #1c4b3b; }
 .commerce-banner::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 78% 26%, rgba(204, 224, 213, .32), transparent 32%), linear-gradient(115deg, rgba(255,255,255,.03), transparent 55%); }
 .commerce-banner .product-art { position: absolute; right: -27px; bottom: -14px; width: 235px; height: 190px; }

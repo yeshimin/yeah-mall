@@ -94,6 +94,46 @@ public class OrderVo extends BaseDomain {
      */
     private String closeReason;
 
+    /**
+     * 退款申请时间
+     */
+    private LocalDateTime refundApplyTime;
+
+    /**
+     * 退款申请原因
+     */
+    private String refundApplyReason;
+
+    /**
+     * 退款确认时间
+     */
+    private LocalDateTime refundConfirmTime;
+
+    /**
+     * 退款确认备注
+     */
+    private String refundConfirmRemark;
+
+    /**
+     * 退款拒绝时间
+     */
+    private LocalDateTime refundRejectTime;
+
+    /**
+     * 退款拒绝原因
+     */
+    private String refundRejectReason;
+
+    /**
+     * 第三方退款成功时间
+     */
+    private LocalDateTime refundSuccessTime;
+
+    /**
+     * 第三方退款摘要
+     */
+    private String refundSummary;
+
     // 收货方地址相关 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     /**

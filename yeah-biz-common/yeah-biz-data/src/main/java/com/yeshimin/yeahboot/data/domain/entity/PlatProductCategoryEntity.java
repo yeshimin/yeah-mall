@@ -29,6 +29,11 @@ public class PlatProductCategoryEntity extends ConditionBaseEntity<PlatProductCa
     private String name;
 
     /**
+     * 分类图片文件Key
+     */
+    private String image;
+
+    /**
      * 层级
      */
     private Integer level;

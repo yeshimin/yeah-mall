@@ -1,10 +1,13 @@
 package com.yeshimin.yeahboot.app.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.vo.ShopDetailVo;
 import com.yeshimin.yeahboot.app.service.AppShopService;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
+import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +23,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppShopController extends BaseController {
 
     private final AppShopService service;
+
+    /**
+     * 分页查询店铺
+     */
+    @PublicAccess
+    @GetMapping("/query")
+    public R<IPage<ShopDetailVo>> query(Page<ShopEntity> page,
+                                        @RequestParam(required = false) String keyword) {
+        return R.ok(service.query(page, keyword));
+    }
 
     /**
      * 查询店铺详情

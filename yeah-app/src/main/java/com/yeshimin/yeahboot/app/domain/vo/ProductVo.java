@@ -24,6 +24,16 @@ public class ProductVo extends BaseDomain {
     private Long sourceSpuId;
 
     /**
+     * 商品分类ID
+     */
+    private Long categoryId;
+
+    /**
+     * 商品分类名称
+     */
+    private String categoryName;
+
+    /**
      * 商品名称
      */
     private String name;

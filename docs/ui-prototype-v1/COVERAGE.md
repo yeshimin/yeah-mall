@@ -4,7 +4,7 @@ This matrix separates actual registered pages from supplementary interaction ref
 
 Coverage boundary:
 
-- Current page-inventory coverage is 100% for the 41 registered App pages and 40 mall-owned admin business pages listed below.
+- Current page-inventory coverage is 100% for the 44 registered App pages and 40 mall-owned admin business pages listed below.
 - This does not mean every CRUD field, validation branch, permission combination, loading/empty/error state or platform-specific interaction has an independent mockup.
 - Unique and high-risk flows receive dedicated interactive screens. Repetitive CRUD pages map to reviewed shared templates and are refined again when production implementation reaches that module.
 
@@ -21,13 +21,13 @@ Current production batch:
 
 Pages not named above remain prototype-covered but are not yet considered production-restyled. A page is only marked complete after its business bindings are preserved, both target builds pass and the rendered page is visually reviewed.
 
-## App: 41 registered pages
+## App: 44 registered pages
 
 | Actual page | Prototype target | Coverage |
 | --- | --- | --- |
 | `pages/index/index` | `app/home` | Dedicated |
 | `pages/category/category` | `app/category` | Dedicated |
-| `pages/shop/shop` | `app/shops` | Dedicated |
+| `pages/shop/list` | `app/shops` | Dedicated |
 | `pages/shop/detail` | `app/shop` | Dedicated |
 | `pages/cart/cart` | `app/cart` | Dedicated |
 | `pages/profile/profile` | `app/profile` | Dedicated |
@@ -48,6 +48,7 @@ Pages not named above remain prototype-covered but are not yet considered produc
 | `pages/order/detail` | `app/order` | Dedicated |
 | `pages/order/logistics` | `app/logistics` | Dedicated |
 | `pages/order/refund-apply` | `app/refund` | Dedicated |
+| `pages/order/refund-detail` | `app/refund-detail` | Dedicated |
 | `pages/customer-service/index` | `app/service` | Dedicated |
 | `pages/address/list` | `app/addresses` | Dedicated |
 | `pages/address/edit` | `app/address-edit` | Dedicated |
@@ -55,6 +56,8 @@ Pages not named above remain prototype-covered but are not yet considered produc
 | `pages/order/review-detail` | `app/review-detail` | Dedicated |
 | `pages/profile/edit` | `app/profile-edit` | Dedicated |
 | `pages/profile/settings` | `app/settings` | Dedicated |
+| `pages/profile/notifications` | `app/notifications` | Dedicated |
+| `pages/profile/privacy` | `app/privacy` | Dedicated |
 | `pages/profile/favorites` | `app/favorites` | Shared collection template |
 | `pages/profile/browse-history` | `app/history` | Shared collection template |
 | `pages/profile/feedback` | `app/feedback` | Dedicated |
@@ -67,7 +70,7 @@ Pages not named above remain prototype-covered but are not yet considered produc
 | `pages/coupons/center` | `app/coupon-center` | Dedicated |
 | `pages/coupons/select` | `app/coupon-select` | Dedicated |
 
-Supplementary App references: `app/seckill-detail`, `app/groupbuy-detail`, `app/group-select`, `app/refund-detail`, `app/notifications`, and `app/privacy`. These refine flows or future states without pretending to be additional registered pages.
+Supplementary App references: `app/seckill-detail`, `app/groupbuy-detail`, and `app/group-select`. These refine campaign flows without pretending to be additional registered pages.
 
 ## Admin: 40 mall business pages
 

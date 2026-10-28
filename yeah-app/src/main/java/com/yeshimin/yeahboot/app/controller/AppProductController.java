@@ -42,9 +42,12 @@ public class AppProductController extends BaseController {
      */
     @PublicAccess(authOnDemand = true)
     @GetMapping("/detail")
-    public R<ProductDetailVo> detail(@RequestParam Long id) {
+    public R<ProductDetailVo> detail(@RequestParam Long id,
+                                     @RequestParam(defaultValue = "true") boolean recordBrowse) {
         ProductDetailVo result = service.detail(id);
-        productBrowseMqPublisher.publishSafely(super.getUserId(), result.getProduct().getId());
+        if (recordBrowse) {
+            productBrowseMqPublisher.publishSafely(super.getUserId(), result.getProduct().getId());
+        }
         return R.ok(result);
     }
 

@@ -8,13 +8,18 @@
 .mobile-screen h2 { font-size: 18px !important; }
 .mobile-screen h3 { font-size: 16px !important; }
 .mobile-status { font-size: 12px; }
-.app-topbar { gap: 8px; padding: 7px 14px 11px; }
-.wordmark { width: 44px; }
-.mobile-search { height: 34px; min-width: 0; padding-inline: 10px; }
-.wechat-capsule { display: grid; width: 78px; height: 34px; flex: 0 0 78px; grid-template-columns: 1fr 1fr; place-items: center; border: 1px solid rgba(23,37,31,.2); border-radius: 18px; background: rgba(255,255,255,.9); box-shadow: 0 1px 4px rgba(23,37,31,.06); }
+.app-topbar { gap: 14px; padding: 7px 14px 11px; }
+.wordmark { width: auto; flex: 0 0 auto; }
+.app-home .app-topbar > .mobile-search { display: flex !important; height: 34px; min-width: 0; align-items: center !important; justify-content: center !important; padding-inline: 10px; }
+.mobile-search-content { display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin: 0 auto; white-space: nowrap; }
+.wechat-capsule { display: grid; width: 88px; height: 34px; flex: 0 0 88px; grid-template-columns: 1fr 1fr; place-items: center; border: 1px solid rgba(0,0,0,.15); border-radius: 18px; background: rgba(255,255,255,.94); box-shadow: 0 1px 4px rgba(23,37,31,.06); }
 .wechat-capsule > span { display: grid; height: 18px; place-items: center; color: var(--ink); font-size: 12px !important; line-height: 1; }
-.wechat-capsule > span:first-child { width: 100%; border-right: 1px solid rgba(23,37,31,.16); letter-spacing: 1px; }
-.wechat-capsule .capsule-ring { width: 8px; height: 8px; border: 2px solid var(--ink); border-radius: 50%; }
+.wechat-capsule > span:first-child { width: 100%; border-right: 1px solid rgba(23,37,31,.16); }
+.wechat-capsule .capsule-more { display: grid; grid-template-columns: 5px 6px 5px; align-items: center; justify-content: center; column-gap: 3px; }
+.wechat-capsule .capsule-more i { display: block; align-self: center; justify-self: center; width: 5px; height: 5px; margin: 0; border-radius: 50%; background: #050505; }
+.wechat-capsule .capsule-more i:nth-child(2) { width: 6px; height: 6px; }
+.wechat-capsule .capsule-target { position: relative; display: block; width: 18px; height: 18px; box-sizing: border-box; border: 2px solid #050505; border-radius: 50%; }
+.wechat-capsule .capsule-target i { position: absolute; top: 50%; left: 50%; display: block; width: 7px; height: 7px; margin: 0; border-radius: 50%; background: #050505; transform: translate(-50%, -50%); }
 .detail-side-actions { position: absolute; z-index: 6; top: 84px; right: 14px; display: flex; flex-direction: column; gap: 8px; }
 .detail-side-actions button { display: grid; width: 34px; height: 34px; place-items: center; border: 0; border-radius: 50%; color: var(--ink); background: rgba(255,255,255,.88); box-shadow: 0 3px 12px rgba(20,40,30,.12); }
 .detail-side-actions button.is-favorite { color: var(--price); }
@@ -118,6 +123,26 @@
 .profile-screen > .mobile-scroll { height: calc(100% - 31px - 48px); }
 .mobile-order-list, .coupon-page { height: calc(100% - 31px - 48px - 40px); }
 .mobile-screen :where(.product-list-page, .collection-page, .points-page, .activity-page, .address-list-page, .reviews-page, .feedback-page-proto, .settings-page, .secondary-page, .shop-detail-page, .result-page, .logistics-page, .form-page, .review-detail-page, .profile-edit-page, .activity-products-page, .points-product-page, .campaign-detail-page .mobile-scroll, .group-select-page, .refund-detail-page, .preference-page, .confirm-scroll, .order-detail-scroll) { height: calc(100% - 31px - 48px); }
+
+/* Category prototype uses the production three-level layout and deliberately isolates legacy category rules. */
+.mobile-screen .category-page { display: grid; height: calc(100% - 31px - 48px - 66px); grid-template-columns: 88px minmax(0, 1fr); overflow: hidden; background: #fff; }
+.mobile-screen .category-page > aside { overflow-y: auto; background: #eef2ef; }
+.mobile-screen .category-page > aside > button { display: block; width: 100%; height: 50px; padding: 0 8px; border: 0 !important; border-left: 3px solid transparent !important; color: var(--muted); background: transparent !important; font-size: 11px !important; text-align: center; }
+.mobile-screen .category-page > aside > button.active { color: var(--brand) !important; border-left-color: var(--brand) !important; background: #fff !important; font-weight: 700; }
+.mobile-screen .category-page > section { display: flex; min-width: 0; overflow: hidden; flex-direction: column; padding: 0 !important; background: #fff; }
+.mobile-screen .category-page .category-small-tabs { display: flex; min-height: 44px; gap: 18px; box-sizing: border-box; padding: 0 15px; overflow-x: auto; background: #fff; scrollbar-width: none; }
+.mobile-screen .category-page .category-small-tabs::-webkit-scrollbar { display: none; }
+.mobile-screen .category-page .category-small-tabs > button { position: relative; flex: 0 0 auto; height: 44px; padding: 0 !important; border: 0 !important; border-bottom: 2px solid transparent !important; border-radius: 0 !important; color: var(--muted) !important; background: transparent !important; font-size: 10px !important; }
+.mobile-screen .category-page .category-small-tabs > button.active { color: var(--brand) !important; border-bottom-color: var(--brand) !important; font-weight: 700; }
+.mobile-screen .category-page .category-all-scroll { flex: 1; overflow-y: auto; background: #fff; scroll-behavior: smooth; }
+.mobile-screen .category-page .category-group-section { scroll-margin-top: 0; padding: 10px 13px 24px; }.mobile-screen .category-page .category-group-section + .category-group-section { padding-top: 18px; }
+.mobile-screen .category-page .category-leaf-head { display: flex; align-items: center; min-height: 36px; box-sizing: border-box; padding: 0 3px 8px; background: #fff; }
+.mobile-screen .category-page .category-leaf-head b { color: var(--ink); font-size: 13px !important; }.mobile-screen .category-page .category-leaf-head span { color: var(--muted); font-size: 9px !important; }
+.mobile-screen .category-page .category-leaf-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 8px; box-sizing: border-box; padding: 0; background: #fff; }
+.mobile-screen .category-page .category-leaf-card { display: flex; min-width: 0; min-height: 98px; align-items: center; justify-content: center; flex-direction: column; gap: 8px; padding: 4px !important; border: 0 !important; border-radius: 0 !important; color: var(--ink-2); background: transparent !important; font-size: 9px !important; }
+.mobile-screen .category-page .category-leaf-card:hover { color: var(--brand); background: transparent !important; }.mobile-screen .category-page .category-leaf-card .product-art { width: 72px; height: 72px; border-radius: 0; background: transparent; box-shadow: none; }.mobile-screen .category-page .category-leaf-card span { display: block; overflow: hidden; width: 100%; white-space: nowrap; text-align: center; text-overflow: ellipsis; }
+.mobile-screen .category-page .category-sub-empty { display: flex; min-height: 168px; align-items: center; justify-content: center; flex-direction: column; gap: 7px; color: var(--muted); text-align: center; }.mobile-screen .category-page .category-sub-empty b { color: var(--ink); font-size: 12px !important; }.mobile-screen .category-page .category-sub-empty > span:last-child { font-size: 9px !important; }
+.mobile-screen .category-page .category-empty-state { display: flex; flex: 1; align-items: center; justify-content: center; flex-direction: column; gap: 9px; color: var(--muted); text-align: center; }.mobile-screen .category-page .category-empty-state b { color: var(--ink); font-size: 13px !important; }.mobile-screen .category-page .category-empty-state span { font-size: 10px !important; }
 
 /* Admin pages use production-like table and form density. */
 .admin-shell { font-size: 14px; grid-template-columns: 244px 1fr; }

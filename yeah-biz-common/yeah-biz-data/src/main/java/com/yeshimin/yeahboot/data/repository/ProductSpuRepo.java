@@ -3,17 +3,32 @@ package com.yeshimin.yeahboot.data.repository;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.data.domain.vo.ShopProductCountVo;
 import com.yeshimin.yeahboot.data.mapper.ProductSpuMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
 public class ProductSpuRepo extends BaseRepo<ProductSpuMapper, ProductSpuEntity> {
+
+    /**
+     * 按店铺统计商品数量
+     */
+    public Map<Long, Long> countByShopIds(Collection<Long> shopIds) {
+        if (shopIds == null || shopIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return baseMapper.selectCountByShopIds(shopIds).stream()
+                .collect(Collectors.toMap(ShopProductCountVo::getShopId, ShopProductCountVo::getProductCount));
+    }
 
     /**
      * countByShopIdAndName

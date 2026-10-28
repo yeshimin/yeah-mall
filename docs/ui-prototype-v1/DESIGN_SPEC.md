@@ -77,6 +77,7 @@ Small body and secondary text must maintain WCAG-readable contrast. Muted, warni
 ## Interaction requirements
 
 - Every visible control in the prototype must respond.
+- The home search field is a navigation entry rather than an inline input; clicking it opens the dedicated product search page.
 - Forms validate before state changes.
 - Status changes update mock data and produce feedback.
 - Mobile flows preserve selected SKU, quantity and coupon state.

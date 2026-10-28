@@ -29,6 +29,11 @@ public class PlatProductCategoryCreateDto extends BaseDomain {
     private String name;
 
     /**
+     * 分类图片文件Key
+     */
+    private String image;
+
+    /**
      * 排序：大于等于1
      */
     @Min(value = 1, message = "排序必须大于等于1")
