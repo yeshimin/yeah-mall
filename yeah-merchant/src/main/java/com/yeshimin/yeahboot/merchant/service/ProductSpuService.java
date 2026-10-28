@@ -290,7 +290,7 @@ public class ProductSpuService {
 
         for (Long id : ids) {
             // 删除全文索引
-            fullTextSearchService.deleteIndex(FulltextTableConsts.PRODUCT, id);
+            fullTextSearchService.deleteIndexAfterCommit(FulltextTableConsts.PRODUCT, id);
         }
     }
 
