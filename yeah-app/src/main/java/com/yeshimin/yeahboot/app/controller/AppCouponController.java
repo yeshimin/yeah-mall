@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.app.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.dto.AvailableCouponQueryDto;
 import com.yeshimin.yeahboot.app.service.AppCouponService;
+import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.IdDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
@@ -29,6 +30,7 @@ public class AppCouponController extends BaseController {
     /**
      * 查询领券中心优惠券列表
      */
+    @PublicAccess(authOnDemand = true)
     @GetMapping("/centerList")
     public R<Page<CouponVo>> queryCenterList(Page<CouponVo> page, CouponCenterQueryDto query) {
         Long userId = super.getUserId();

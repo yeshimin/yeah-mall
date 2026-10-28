@@ -17,7 +17,7 @@ public class AppPlatBannerService {
     private final PlatBannerRepo platBannerRepo;
 
     /**
-     * 查询
+     * 查询平台Banner
      */
     public List<PlatBannerVo> query() {
         return platBannerRepo.list().stream().map(e -> {

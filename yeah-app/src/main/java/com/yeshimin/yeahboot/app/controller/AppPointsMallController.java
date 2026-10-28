@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.dto.PointsExchangeDto;
 import com.yeshimin.yeahboot.app.domain.vo.PointsProductVo;
 import com.yeshimin.yeahboot.app.service.AppPointsMallService;
+import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.PointsCategoryEntity;
@@ -35,6 +36,7 @@ public class AppPointsMallController extends BaseController {
     /**
      * 查询商品分类
      */
+    @PublicAccess
     @GetMapping("/categories")
     public R<List<PointsCategoryEntity>> categories() {
         return R.ok(service.categories());
@@ -43,6 +45,7 @@ public class AppPointsMallController extends BaseController {
     /**
      * 分页查询积分商品
      */
+    @PublicAccess
     @GetMapping("/products")
     public R<IPage<PointsProductVo>> products(Page<PointsSpuEntity> page,
                                               @RequestParam(required = false) Long categoryId,
@@ -53,6 +56,7 @@ public class AppPointsMallController extends BaseController {
     /**
      * 查询积分商品详情
      */
+    @PublicAccess
     @GetMapping("/detail")
     public R<PointsSpuEntity> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));
@@ -61,6 +65,7 @@ public class AppPointsMallController extends BaseController {
     /**
      * 查询积分商品规格
      */
+    @PublicAccess
     @GetMapping("/skus")
     public R<List<PointsSkuEntity>> skus(@RequestParam Long spuId) {
         return R.ok(service.skus(spuId));

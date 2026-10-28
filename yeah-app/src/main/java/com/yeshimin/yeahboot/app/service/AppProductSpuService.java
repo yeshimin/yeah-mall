@@ -1,6 +1,11 @@
 package com.yeshimin.yeahboot.app.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.manticoresearch.client.model.SearchResponse;
 import com.yeshimin.yeahboot.app.common.enums.ProductSortEnum;
 import com.yeshimin.yeahboot.app.domain.dto.HotProductSpuQueryDto;
@@ -38,6 +43,19 @@ public class AppProductSpuService {
      * 查询
      */
     public AppProductQueryVo query(ProductSpuQueryDto query) {
+        try {
+            return queryByFullText(query);
+        } catch (RuntimeException exception) {
+            // 全文检索不可用时降级查询业务库，保证商城基础浏览能力可用。
+            log.warn("商品全文检索不可用，降级查询业务库", exception);
+            return queryByDatabase(query);
+        }
+    }
+
+    /**
+     * 使用全文检索查询商品
+     */
+    private AppProductQueryVo queryByFullText(ProductSpuQueryDto query) {
         // 从全文检索引擎搜索
         SearchResponse searchResponse = fullTextSearchService.searchProduct(query.getKeyword(),
                 ProductSortEnum.of(query.getSortBy()), query.getScrollToken(), query.getPageSize());
@@ -89,6 +107,33 @@ public class AppProductSpuService {
     }
 
     /**
+     * 使用业务库分页查询商品
+     */
+    private AppProductQueryVo queryByDatabase(ProductSpuQueryDto query) {
+        int pageSize = normalizePageSize(query.getPageSize(), 20);
+        long current = parsePageToken(query.getScrollToken());
+        ProductSortEnum sort = ProductSortEnum.of(query.getSortBy());
+
+        LambdaQueryWrapper<ProductSpuEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.like(StrUtil.isNotBlank(query.getKeyword()), ProductSpuEntity::getName, query.getKeyword());
+        if (sort == ProductSortEnum.SALES_ASC) {
+            wrapper.orderByAsc(ProductSpuEntity::getSales);
+        } else if (sort == ProductSortEnum.SALES_DESC) {
+            wrapper.orderByDesc(ProductSpuEntity::getSales);
+        } else if (sort == ProductSortEnum.PRICE_ASC) {
+            wrapper.orderByAsc(ProductSpuEntity::getMinPrice);
+        } else if (sort == ProductSortEnum.PRICE_DESC) {
+            wrapper.orderByDesc(ProductSpuEntity::getMaxPrice);
+        } else {
+            wrapper.orderByDesc(ProductSpuEntity::getCreateTime);
+        }
+        wrapper.orderByAsc(ProductSpuEntity::getId);
+
+        IPage<ProductSpuEntity> pageResult = productSpuRepo.page(new Page<>(current, pageSize), wrapper);
+        return toProductQueryVo(pageResult);
+    }
+
+    /**
      * 详情
      */
     public ProductDetailVo detail(Long id) {
@@ -134,13 +179,54 @@ public class AppProductSpuService {
      * 按照销量排序
      */
     public AppProductQueryVo queryHot(HotProductSpuQueryDto query) {
-        ProductSpuQueryDto queryDto = new ProductSpuQueryDto();
-        queryDto.setKeyword(null);
-        queryDto.setSortBy(ProductSortEnum.SALES_DESC.getValue());
-        queryDto.setScrollToken(query.getScrollToken());
-        queryDto.setPageSize(query.getPageSize());
+        int pageSize = normalizePageSize(query.getPageSize(), 10);
+        long current = parsePageToken(query.getScrollToken());
 
-        return this.query(queryDto);
+        LambdaQueryWrapper<ProductSpuEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.orderByDesc(ProductSpuEntity::getSales)
+                .orderByAsc(ProductSpuEntity::getId);
+        IPage<ProductSpuEntity> pageResult = productSpuRepo.page(new Page<>(current, pageSize), wrapper);
+
+        return toProductQueryVo(pageResult);
+    }
+
+    /**
+     * 将商品分页结果转换为App查询结果
+     */
+    private AppProductQueryVo toProductQueryVo(IPage<ProductSpuEntity> pageResult) {
+        List<ProductVo> products = pageResult.getRecords().stream()
+                .map(entity -> BeanUtil.copyProperties(entity, ProductVo.class))
+                .collect(Collectors.toList());
+        boolean hasMore = pageResult.getCurrent() < pageResult.getPages();
+
+        AppProductQueryVo result = new AppProductQueryVo();
+        result.setData(products);
+        result.setTotal((int) Math.min(pageResult.getTotal(), Integer.MAX_VALUE));
+        result.setHasMore(hasMore);
+        result.setScrollToken(hasMore ? String.valueOf(pageResult.getCurrent() + 1) : null);
+        return result;
+    }
+
+    /**
+     * 解析数据库查询分页标识
+     */
+    private long parsePageToken(String scrollToken) {
+        if (StrUtil.isBlank(scrollToken)) {
+            return 1L;
+        }
+        try {
+            return Math.max(Long.parseLong(scrollToken), 1L);
+        } catch (NumberFormatException ignored) {
+            log.warn("商品分页标识无效，使用第一页");
+            return 1L;
+        }
+    }
+
+    /**
+     * 规范分页大小
+     */
+    private int normalizePageSize(Integer pageSize, int defaultSize) {
+        return pageSize == null ? defaultSize : Math.min(Math.max(pageSize, 1), 50);
     }
 
     // ================================================================================

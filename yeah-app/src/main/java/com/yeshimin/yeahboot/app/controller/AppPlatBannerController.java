@@ -23,7 +23,7 @@ public class AppPlatBannerController extends BaseController {
     private final AppPlatBannerService service;
 
     /**
-     * 查询省份
+     * 查询平台Banner
      */
     @PublicAccess
     @GetMapping("/query")

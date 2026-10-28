@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.app.controller;
 
 import com.yeshimin.yeahboot.app.domain.vo.ProductCategoryVo;
 import com.yeshimin.yeahboot.app.service.AppProductCategoryService;
+import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class AppProductCategoryController extends BaseController {
     /**
      * 查询
      */
+    @PublicAccess
     @GetMapping("/query")
     public R<List<ProductCategoryVo>> query(@RequestParam Long shopId) {
         return R.ok(service.query(shopId));

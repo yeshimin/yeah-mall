@@ -20,6 +20,9 @@ public class AppShopProductSpuService {
 
     private final ProductSpuRepo productSpuRepo;
 
+    /**
+     * 分页查询店铺商品
+     */
     public IPage<ShopProductVo> query(Page<ProductSpuEntity> page, Long shopId) {
         LambdaQueryWrapper<ProductSpuEntity> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(ProductSpuEntity::getShopId, shopId)
@@ -28,7 +31,7 @@ public class AppShopProductSpuService {
     }
 
     /**
-     * detail
+     * 查询店铺商品详情
      */
     public ShopProductDetailVo detail(Long id) {
         ProductSpuEntity entity = productSpuRepo.getOneById(id);

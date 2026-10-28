@@ -6,6 +6,7 @@ import com.yeshimin.yeahboot.app.domain.vo.ShopProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.ShopProductVo;
 import com.yeshimin.yeahboot.app.service.AppShopProductSpuService;
 import com.yeshimin.yeahboot.app.service.ProductBrowseMqPublisher;
+import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
@@ -29,6 +30,7 @@ public class AppShopProductController extends BaseController {
     /**
      * 查询
      */
+    @PublicAccess
     @GetMapping("/query")
     public R<IPage<ShopProductVo>> query(Page<ProductSpuEntity> page, @RequestParam Long shopId) {
         return R.ok(service.query(page, shopId));
@@ -37,6 +39,7 @@ public class AppShopProductController extends BaseController {
     /**
      * 详情
      */
+    @PublicAccess(authOnDemand = true)
     @GetMapping("/detail")
     public R<ShopProductDetailVo> detail(@RequestParam Long id) {
         ShopProductDetailVo result = service.detail(id);

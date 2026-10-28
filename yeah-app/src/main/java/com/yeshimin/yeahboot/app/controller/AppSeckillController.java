@@ -34,6 +34,7 @@ public class AppSeckillController extends BaseController {
     /**
      * 查询活动列表
      */
+    @PublicAccess
     @GetMapping("/queryActivity")
     public R<IPage<SeckillActivityVo>> queryActivity(Page<SeckillActivityEntity> page, SeckillActivityEntity query) {
         return R.ok(service.queryActivity(page, query));
@@ -42,6 +43,7 @@ public class AppSeckillController extends BaseController {
     /**
      * 查询商品列表
      */
+    @PublicAccess
     @GetMapping("/queryProduct")
     public R<IPage<SeckillSpuVo>> queryProduct(Page<SeckillSpuEntity> page,
                                                @RequestParam("activityId") Long activityId) {

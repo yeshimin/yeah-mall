@@ -7,6 +7,7 @@ import com.yeshimin.yeahboot.app.domain.vo.ProductReviewListVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductReviewSummaryVo;
 import com.yeshimin.yeahboot.app.domain.vo.OrderReviewDetailVo;
 import com.yeshimin.yeahboot.app.service.AppReviewService;
+import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.common.utils.WebContextUtils;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
@@ -38,6 +39,7 @@ public class AppReviewController extends BaseController {
     /**
      * 查询商品评价列表
      */
+    @PublicAccess(authOnDemand = true)
     @GetMapping("/list")
     public R<IPage<ProductReviewListVo>> list(Page page,
                                               @RequestParam("spuId") Long spuId,
@@ -49,6 +51,7 @@ public class AppReviewController extends BaseController {
     /**
      * 查询商品评价摘要
      */
+    @PublicAccess(authOnDemand = true)
     @GetMapping("/summary")
     public R<ProductReviewSummaryVo> summary(@RequestParam("spuId") Long spuId) {
         return R.ok(service.summary(WebContextUtils.getUserId(), spuId));

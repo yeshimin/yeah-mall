@@ -162,16 +162,19 @@ public class AppGroupBuyService {
                 .eq(GroupBuyGroupEntity::getActivityId, activity.getId())
                 .ne(GroupBuyGroupEntity::getStatus, GroupBuyGroupStatusEnum.CLOSED.getValue())
                 .count();
-        GroupBuyOrderEntity joinedOrder = groupBuyOrderRepo.lambdaQuery()
-                .eq(GroupBuyOrderEntity::getActivityId, activity.getId())
-                .eq(GroupBuyOrderEntity::getMemberId, userId)
-                .in(GroupBuyOrderEntity::getStatus, GroupBuyOrderStatusEnum.WAIT_PAY.getValue(),
-                        GroupBuyOrderStatusEnum.PAID.getValue(), GroupBuyOrderStatusEnum.REFUNDING.getValue(),
-                        GroupBuyOrderStatusEnum.REFUNDED.getValue(), GroupBuyOrderStatusEnum.REFUND_FAILED.getValue())
-                .orderByDesc(GroupBuyOrderEntity::getCreateTime)
-                .list().stream()
-                .findFirst()
-                .orElse(null);
+        GroupBuyOrderEntity joinedOrder = null;
+        if (userId != null) {
+            joinedOrder = groupBuyOrderRepo.lambdaQuery()
+                    .eq(GroupBuyOrderEntity::getActivityId, activity.getId())
+                    .eq(GroupBuyOrderEntity::getMemberId, userId)
+                    .in(GroupBuyOrderEntity::getStatus, GroupBuyOrderStatusEnum.WAIT_PAY.getValue(),
+                            GroupBuyOrderStatusEnum.PAID.getValue(), GroupBuyOrderStatusEnum.REFUNDING.getValue(),
+                            GroupBuyOrderStatusEnum.REFUNDED.getValue(), GroupBuyOrderStatusEnum.REFUND_FAILED.getValue())
+                    .orderByDesc(GroupBuyOrderEntity::getCreateTime)
+                    .list().stream()
+                    .findFirst()
+                    .orElse(null);
+        }
 
         GroupBuyGroupOptionVo result = new GroupBuyGroupOptionVo();
         result.setGroupLimit(activity.getGroupLimit());

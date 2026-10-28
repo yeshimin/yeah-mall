@@ -4,6 +4,8 @@ import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
  * 店铺商品
  */
@@ -20,4 +22,24 @@ public class ShopProductVo extends BaseDomain {
      * 商品名称
      */
     private String name;
+
+    /**
+     * 销量
+     */
+    private Long sales;
+
+    /**
+     * SKU最低价
+     */
+    private BigDecimal minPrice;
+
+    /**
+     * SKU最高价
+     */
+    private BigDecimal maxPrice;
+
+    /**
+     * 商品主图
+     */
+    private String mainImage;
 }
