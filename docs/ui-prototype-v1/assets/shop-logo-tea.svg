@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="28" y1="22" x2="224" y2="238" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4EFE3"/>
+      <stop offset="1" stop-color="#D8E3DA"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="72" y1="66" x2="194" y2="205" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#315D50"/>
+      <stop offset="1" stop-color="#173B32"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="url(#bg)"/>
+  <circle cx="56" cy="54" r="34" fill="#FFFFFF" opacity=".42"/>
+  <path d="M126 201c1-47 17-86 49-119" fill="none" stroke="#2D584B" stroke-width="8" stroke-linecap="round"/>
+  <path d="M128 156c-27-6-46-24-56-54 29-2 51 16 56 54Z" fill="url(#leaf)"/>
+  <path d="M145 130c2-31 18-53 48-66 7 31-9 53-48 66Z" fill="#4D7768"/>
+  <g transform="translate(112 88)">
+    <ellipse cx="0" cy="-23" rx="15" ry="28" fill="#FFFFFF"/>
+    <ellipse cx="22" cy="-7" rx="15" ry="28" fill="#F8FBF8" transform="rotate(72 22 -7)"/>
+    <ellipse cx="14" cy="20" rx="15" ry="28" fill="#FFFFFF" transform="rotate(144 14 20)"/>
+    <ellipse cx="-14" cy="20" rx="15" ry="28" fill="#F8FBF8" transform="rotate(216 -14 20)"/>
+    <ellipse cx="-22" cy="-7" rx="15" ry="28" fill="#FFFFFF" transform="rotate(288 -22 -7)"/>
+    <circle r="13" fill="#C79A4B"/>
+    <circle r="5" fill="#F2DDA8"/>
+  </g>
+</svg>

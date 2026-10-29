@@ -516,8 +516,16 @@ function AppSettings({ navigate, notify }) {
 }
 
 function AppShops({ navigate }) {
-  const shops = [['Yeah 数码生活馆','数码影音 · 126 件商品','headphone'],['山野生活店','居家生活 · 38 件商品','chair'],['白茶美护精选','美容护肤 · 45 件商品','serum']];
-  return <div className="mobile-screen" data-screen-label="App 店铺列表"><SimpleMobileHeader title="店铺" navigate={navigate}/><main className="mobile-scroll secondary-page"><label className="list-search"><Icon name="search" size={17}/><input placeholder="搜索店铺"/></label>{shops.map((shop)=><button className="shop-list-card" key={shop[0]} onClick={()=>navigate('app/shop')}><ProductArt type={shop[2]}/><div><b>{shop[0]}</b><span>{shop[1]}</span><small>评分 4.9 · 支持次日达</small></div><Icon name="chevron" size={17}/></button>)}</main></div>;
+  const [keyword,setKeyword] = useState('');
+  const [searchKeyword,setSearchKeyword] = useState('');
+  const shops = [
+    { name:'Yeah 数码生活馆', productCount:126, logo:'assets/shop-logo-digital.png' },
+    { name:'山野生活店', productCount:38, logo:'assets/shop-logo-mountain.png' },
+    { name:'白茶美护精选', productCount:45, logo:'assets/shop-logo-tea.png' }
+  ];
+  const visible = shops.filter((shop)=>!searchKeyword||shop.name.includes(searchKeyword));
+  const search = () => setSearchKeyword(keyword.trim());
+  return <div className="mobile-screen" data-screen-label="App 店铺列表"><SimpleMobileHeader title="店铺" navigate={navigate}/><main className="mobile-scroll secondary-page"><div className="shop-list-search"><label className="list-search"><Icon name="search" size={17}/><input value={keyword} onChange={(event)=>setKeyword(event.target.value)} onKeyDown={(event)=>event.key==='Enter'&&search()} placeholder="搜索店铺"/></label><button onClick={search}>搜索</button></div>{visible.map((shop)=><button className="shop-list-card" key={shop.name} onClick={()=>navigate('app/shop')}><img className="shop-list-logo" src={shop.logo} alt=""/><div><b>{shop.name}</b><span>商品 {shop.productCount} 件</span></div><Icon name="chevron" size={17}/></button>)}{!visible.length&&<div className="mobile-empty"><Icon name="search" size={26}/><b>没有找到相关店铺</b><span>换个关键词试试</span></div>}</main></div>;
 }
 
 function AppShop({ navigate }) {

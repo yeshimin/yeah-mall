@@ -241,8 +241,14 @@
 
 .mobile-screen .secondary-page { padding: 0 0 20px; background: var(--surface); }
 .mobile-screen .secondary-page > .list-search { margin: 12px; }
-.mobile-screen .shop-list-card { margin: 0; padding: 14px 16px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0 !important; }
-.mobile-screen .shop-list-card .product-art { border-radius: 8px !important; }
+.mobile-screen .shop-list-search { display: grid; grid-template-columns: minmax(0, 1fr) 64px; gap: 8px; margin: 12px; }
+.mobile-screen .shop-list-search .list-search { margin: 0; }
+.mobile-screen .shop-list-search > button { border: 0; border-radius: 8px; color: #fff; background: var(--brand); font-size: 10px; font-weight: 700; }
+.mobile-screen .shop-list-card { min-height: 90px; grid-template-columns: 62px minmax(0, 1fr) 20px; margin: 0; padding: 14px 16px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0 !important; }
+.mobile-screen .shop-list-logo { display: block; width: 62px; height: 62px; border-radius: 10px; background: var(--surface-2); object-fit: cover; }
+.mobile-screen .shop-list-card > div { gap: 8px; }
+.mobile-screen .shop-list-card b { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.mobile-screen .shop-list-card > div > span { font-size: 9px; }
 .mobile-screen .shop-product-grid .product-card,
 .mobile-screen .collection-page .product-card,
 .mobile-screen .product-list-page .product-card { border: 0; border-radius: 0 !important; background: transparent; }
