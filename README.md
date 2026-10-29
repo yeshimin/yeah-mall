@@ -98,11 +98,14 @@ yeah-boot
 
 - `sql/00_yeah_mall_main.sql.zip`：主库初始化脚本，包含核心表结构与基础数据
 - `sql/01.street_and_village_data.sql.zip`：街道与村庄数据，因数据量较大，按需导入
+- `sql/99.append.sql`：初始化包发布后的累计结构补丁，最后执行
 
 建议顺序：
 
 1. 先导入 `00_yeah_mall_main`
 2. 如业务需要更完整的地区数据，再导入 `01.street_and_village_data`
+
+`99.append.sql` 用于已部署数据库的升级。后续变更按时间顺序追加版本段落；升级时仅执行尚未应用的段落一次，并自行记录当前已升级版本。不要用它替代完整初始化脚本。
 
 ### MySQL 5.7 兼容导入
 
@@ -244,6 +247,26 @@ yeah-boot.storage.impl.qiniu.secret-key=your-qiniu-secret-key
 - 阿里云短信与七牛云存储相关配置按需启用，不使用时可不配置
 - 仓库中的 JWT 相关 key/secret 仅用于测试或开发环境，正式部署前务必替换为你自己的安全配置
 - 除上述自定义配置外，仍需补充 `spring.datasource.*`、`spring.redis.*` 等标准 Spring Boot 配置
+
+### 跨域访问
+
+管理后台与 API 部署在同一来源时，推荐使用反向代理转发 `/api/**`，无需开启 CORS。仅当前端与 API 必须跨来源部署时，才在服务端启用 `yeah-boot.cors`：
+
+```yaml
+yeah-boot:
+  cors:
+    enabled: true
+    allowed-origin-patterns:
+      - https://admin.example.com
+    allowed-headers:
+      - Authorization
+      - Content-Type
+      - Idempotency-Key
+```
+
+- CORS 默认关闭；启用时 `allowed-origin-patterns` 必填，应填写可信的前端来源或受控子域通配规则
+- 默认允许 `GET`、`POST`、`PUT`、`PATCH`、`DELETE`、`OPTIONS` 方法，并暴露文件下载所需的 `Content-Disposition`、`Content-Length` 响应头
+- 管理后台通过 `Authorization: Bearer <token>` 认证，通常不需要开启 `allow-credentials`；只有依赖浏览器 Cookie 等凭证时才按需启用
 
 ### 登录页公告与自注册
 
