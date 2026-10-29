@@ -23,6 +23,7 @@ public class AppPlatBannerService {
         return platBannerRepo.list().stream().map(e -> {
             PlatBannerVo vo = new PlatBannerVo();
             vo.setImageUrl(e.getImageUrl());
+            vo.setTarget(e.getTarget());
             return vo;
         }).collect(Collectors.toList());
     }

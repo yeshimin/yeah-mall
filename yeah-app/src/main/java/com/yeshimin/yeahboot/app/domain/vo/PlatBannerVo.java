@@ -12,4 +12,9 @@ public class PlatBannerVo extends BaseDomain {
      * 图片URL
      */
     private String imageUrl;
+
+    /**
+     * 跳转目标，为空时不跳转
+     */
+    private String target;
 }

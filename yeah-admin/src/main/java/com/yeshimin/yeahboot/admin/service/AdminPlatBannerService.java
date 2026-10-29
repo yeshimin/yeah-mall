@@ -64,6 +64,7 @@ public class AdminPlatBannerService extends BaseService {
         // 添加Banner记录
         PlatBannerEntity banner = new PlatBannerEntity();
         banner.setImageUrl(result.getFileKey());
+        banner.setTarget(dto.getTarget());
         boolean r = banner.insert();
         log.info("banner.create.result: {}", r);
 
@@ -99,6 +100,7 @@ public class AdminPlatBannerService extends BaseService {
             // 设置新的值
             banner.setImageUrl(result.getFileKey());
         }
+        banner.setTarget(dto.getTarget());
 
         // 更新Banner记录
         boolean r = banner.updateById();

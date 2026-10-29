@@ -17,4 +17,9 @@ public class PlatBannerEntity extends ConditionBaseEntity<PlatBannerEntity> {
      * 图片URL
      */
     private String imageUrl;
+
+    /**
+     * 跳转目标，为空时不跳转
+     */
+    private String target;
 }

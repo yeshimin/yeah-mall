@@ -189,13 +189,14 @@
 
 .home-waterfall { display: flex; align-items: flex-start; gap: 12px; }
 .home-waterfall-column { display: flex; width: calc(50% - 6px); flex-direction: column; }
-.home-waterfall-item { display: block; width: 100%; margin: 0 0 12px; padding: 0; overflow: hidden; text-align: left; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.home-waterfall-item { display: block; width: 100%; margin: 0 0 9px; padding: 0; overflow: hidden; text-align: left; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 .home-waterfall-art { display: block; width: 100%; overflow: hidden; border-bottom: 1px solid var(--line); background: #e6ebe8; }
 .home-waterfall-art .product-art { display: block; width: 100%; height: 100%; border-radius: 0; }
-.home-waterfall-copy { display: flex; min-width: 0; flex-direction: column; padding: 11px; }
-.home-waterfall-name { display: -webkit-box; overflow: hidden; color: var(--ink); font-size: 14px !important; font-weight: 700; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.home-waterfall-copy { display: flex; min-width: 0; flex-direction: column; padding: 10px; }
+.home-waterfall-name { display: block; overflow: hidden; color: var(--ink); font-size: 14px !important; font-weight: 700; line-height: 1.45; white-space: nowrap; text-overflow: ellipsis; }
 .home-waterfall-promotion { align-self: flex-start; max-width: 100%; margin-top: 8px; padding: 3px 6px; overflow: hidden; color: var(--price); border-radius: 4px; background: var(--price-soft); font-size: 10px !important; line-height: 1.35; white-space: nowrap; text-overflow: ellipsis; }
 .home-waterfall-subtitle { display: -webkit-box; margin-top: 7px; overflow: hidden; color: var(--muted); font-size: 11px !important; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.home-waterfall-promotion + .home-waterfall-subtitle { -webkit-line-clamp: 1; }
 .home-waterfall-meta { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; margin-top: 11px; }
 .home-waterfall-meta b { color: var(--price); font: 700 20px var(--font-display); }
 .home-waterfall-meta small { color: var(--muted); font-size: 10px !important; white-space: nowrap; }

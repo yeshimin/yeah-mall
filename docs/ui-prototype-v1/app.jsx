@@ -106,12 +106,12 @@ function AppHome({ navigate }) {
   const [bannerIndex, setBannerIndex] = useState(0);
   const activeBanner = homeBanners[bannerIndex];
   useEffect(() => {
-    const timer = window.setInterval(() => setBannerIndex((index) => (index + 1) % homeBanners.length), 3500);
+    const timer = window.setInterval(() => setBannerIndex((index) => (index + 1) % homeBanners.length), 3000);
     return () => window.clearInterval(timer);
   }, []);
   const products = MOCKS.products.filter((item) =>
     category === 'all' || item.category === category
-  );
+  ).slice(0, 10);
   const waterfallColumns = products.reduce((columns, item) => {
     const estimatedHeight = (item.imageHeight || 176) + (item.promotionText ? 30 : 0) + (item.subtitle ? 34 : 0) + 92;
     const target = columns[0].height <= columns[1].height ? columns[0] : columns[1];
@@ -141,7 +141,6 @@ function AppHome({ navigate }) {
           <div className="banner-dots" onClick={(event) => event.stopPropagation()}>
             {homeBanners.map((banner, index) => <button key={banner.id} className={bannerIndex === index ? 'active' : ''} aria-label={`切换到第 ${index + 1} 张 Banner`} onClick={() => setBannerIndex(index)}></button>)}
           </div>
-          <span className="banner-index">{String(bannerIndex + 1).padStart(2,'0')} / {String(homeBanners.length).padStart(2,'0')}</span>
         </section>
         <section className="quick-grid" aria-label="快捷入口">
           {MOCKS.quickLinks.map((item) => (
