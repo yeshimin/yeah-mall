@@ -291,3 +291,11 @@ yeah-boot:
     order-timeout-minutes: 1
     # 下单后，支付超时时间（分钟）
     pay-timeout-minutes: 5
+  # 跨域默认关闭；业务项目按环境配置启用并指定来源白名单。详细配置见CorsProperties类
+  cors:
+    enabled: true
+    path-pattern: /app/**
+    allowed-origin-patterns:
+      - http://localhost:[*]
+      - http://127.0.0.1:[\*]
+      - http://192.168.31.59:[\*]
