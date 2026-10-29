@@ -9,9 +9,12 @@ window.YEAH_MALL_MOCKS = {
   quickLinks: [
     { id: 'seckill', name: '秒杀', icon: 'bolt' },
     { id: 'group', name: '拼团', icon: 'users' },
+    { id: 'new', name: '新品', icon: 'spark' },
     { id: 'coupon', name: '领券', icon: 'ticket' },
+    { id: 'shops', name: '店铺', icon: 'store' },
     { id: 'points', name: '积分商城', icon: 'diamond' },
-    { id: 'new', name: '新品', icon: 'spark' }
+    { id: 'service', name: '客服', icon: 'message' },
+    { id: 'products', name: '全部商品', icon: 'grid' }
   ],
   products: [
     {

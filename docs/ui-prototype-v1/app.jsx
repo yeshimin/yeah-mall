@@ -119,7 +119,18 @@ function AppHome({ navigate }) {
     target.height += estimatedHeight;
     return columns;
   }, [{ items:[], height:0 }, { items:[], height:0 }]);
-  const quickRoutes = { seckill: 'app/seckill', group: 'app/groupbuy', coupon: 'app/coupon-center', points: 'app/points-mall', new: 'app/products' };
+  const visibleQuickLinks = MOCKS.quickLinks.slice(0, 10);
+  const firstQuickRowCount = visibleQuickLinks.length <= 4 ? visibleQuickLinks.length : Math.ceil(visibleQuickLinks.length / 2);
+  const quickLinkRows = visibleQuickLinks.length <= 4
+    ? [{ items: visibleQuickLinks, maxCount: visibleQuickLinks.length }]
+    : [
+        { items: visibleQuickLinks.slice(0, firstQuickRowCount), maxCount: firstQuickRowCount },
+        { items: visibleQuickLinks.slice(firstQuickRowCount), maxCount: firstQuickRowCount }
+      ];
+  const quickRoutes = {
+    seckill: 'app/seckill', group: 'app/groupbuy', new: 'app/products', coupon: 'app/coupon-center',
+    shops: 'app/shops', points: 'app/points-mall', service: 'app/service', products: 'app/products'
+  };
   return (
     <div className="mobile-screen app-home" data-screen-label="App 首页">
       <MobileStatusBar tone="paper"/>
@@ -143,11 +154,15 @@ function AppHome({ navigate }) {
           </div>
         </section>
         <section className="quick-grid" aria-label="快捷入口">
-          {MOCKS.quickLinks.map((item) => (
-            <button key={item.id} onClick={() => navigate(quickRoutes[item.id])}>
-              <span className={`quick-icon quick-${item.id}`}><Icon name={item.icon} size={21}/></span>
-              <span>{item.name}</span>
-            </button>
+          {quickLinkRows.map((row, rowIndex) => (
+            <div className="quick-grid-row" style={{ gridTemplateColumns:`repeat(${row.maxCount}, minmax(0, 1fr))` }} key={rowIndex}>
+              {row.items.map((item) => (
+                <button key={item.id} onClick={() => navigate(quickRoutes[item.id])}>
+                  <span className={`quick-icon quick-${item.id}`}><Icon name={item.icon} size={21}/></span>
+                  <span>{item.name}</span>
+                </button>
+              ))}
+            </div>
           ))}
         </section>
         <section className="product-section">
@@ -368,7 +383,7 @@ function AppCategory({ navigate }) {
   };
   return (
     <div className="mobile-screen" data-screen-label="App 分类">
-      <SimpleMobileHeader title="商品分类" navigate={navigate} showBack={false} tone="paper"/>
+      <SimpleMobileHeader title="分类" navigate={navigate} showBack={false} tone="paper"/>
       <main className="category-page">
         <aside aria-label="一级分类">
           {categoryTree.map((item) => <button key={item.id} className={activePrimary === item.id ? 'active' : ''} onClick={() => switchPrimary(item.id)}>{item.name}</button>)}
@@ -411,7 +426,7 @@ function AppCart({ navigate, notify }) {
   const updateShop = (shop, checked) => setItems(items.map((item) => shop.itemIds.includes(item.id) ? {...item, checked} : item));
   const checked = items.filter((item) => item.checked);
   const total = checked.reduce((sum,item) => sum + item.price*item.quantity,0);
-  return <div className="mobile-screen" data-screen-label="App 购物车"><SimpleMobileHeader title="购物车" navigate={navigate} showBack={false} tone="paper"/><main className="mobile-scroll cart-page">{shops.map((shop) => { const shopItems = items.filter((item) => shop.itemIds.includes(item.id)); const shopSelected = shopItems.every((item) => item.checked); return <section className="cart-shop-group" key={shop.id}><header><button className={`check-dot ${shopSelected ? 'active' : ''}`} onClick={() => updateShop(shop,!shopSelected)}>{shopSelected && <Icon name="check" size={13}/>}</button><Icon name="store" size={16}/><b>{shop.name}</b><small>共 {shopItems.length} 件商品</small></header>{shopItems.map((item) => <article className="cart-item" key={item.id}><button className={`check-dot ${item.checked ? 'active' : ''}`} onClick={() => update(item.id,{checked:!item.checked})}>{item.checked && <Icon name="check" size={13}/>}</button><ProductArt type={item.art}/><div><b>{item.name}</b><span>{item.colors[0]} · {item.specs[0]}</span><strong>¥{item.price}</strong><QuantityControl value={item.quantity} setValue={(value) => update(item.id,{quantity:value})} max={5}/></div></article>)}</section>})}</main><div className="cart-submit"><button className={`check-dot ${checked.length === items.length ? 'active' : ''}`} onClick={() => setItems(items.map((item) => ({...item,checked:checked.length !== items.length})))}>{checked.length === items.length && <Icon name="check" size={13}/>}</button><span>全选</span><div><small>合计</small><b>¥{total.toFixed(2)}</b></div><button disabled={!checked.length} onClick={() => checked.length ? navigate('app/confirm') : notify('请先选择商品')}>结算（{checked.length}）</button></div><MobileBottomNav active="购物车" navigate={navigate}/></div>;
+  return <div className="mobile-screen" data-screen-label="App 购物车"><SimpleMobileHeader title="购物车" navigate={navigate} showBack={false} tone="paper"/><main className="mobile-scroll cart-page">{shops.map((shop) => { const shopItems = items.filter((item) => shop.itemIds.includes(item.id)); const shopSelected = shopItems.every((item) => item.checked); return <section className="cart-shop-group" key={shop.id}><header><button className={`check-dot ${shopSelected ? 'active' : ''}`} onClick={() => updateShop(shop,!shopSelected)}>{shopSelected && <Icon name="check" size={13}/>}</button><Icon name="storefront" size={18} strokeWidth={1.8} className="cart-shop-icon"/><b>{shop.name}</b><small>共 {shopItems.length} 件商品</small></header>{shopItems.map((item) => <article className="cart-item" key={item.id}><button className={`check-dot ${item.checked ? 'active' : ''}`} onClick={() => update(item.id,{checked:!item.checked})}>{item.checked && <Icon name="check" size={13}/>}</button><ProductArt type={item.art}/><div><b>{item.name}</b><span>{item.colors[0]} · {item.specs[0]}</span><strong>¥{item.price}</strong><QuantityControl value={item.quantity} setValue={(value) => update(item.id,{quantity:value})} max={5}/></div></article>)}</section>})}</main><div className="cart-submit"><button className={`check-dot ${checked.length === items.length ? 'active' : ''}`} onClick={() => setItems(items.map((item) => ({...item,checked:checked.length !== items.length})))}>{checked.length === items.length && <Icon name="check" size={13}/>}</button><span>全选</span><div><small>合计</small><b>¥{total.toFixed(2)}</b></div><button disabled={!checked.length} onClick={() => checked.length ? navigate('app/confirm') : notify('请先选择商品')}>结算（{checked.length}）</button></div><MobileBottomNav active="购物车" navigate={navigate}/></div>;
 }
 
 function AppOrders({ navigate, route, notify }) {
@@ -423,9 +438,12 @@ function AppOrders({ navigate, route, notify }) {
 }
 
 function AppProfile({ navigate }) {
-  const orderLinks = [['order','待付款','待付款'],['box','待发货','待发货'],['truck','待收货','待收货'],['message','待评价','待评价'],['coupon','退款/售后','退款/售后']];
-  const menus = [['heart','我的收藏','app/favorites'],['clock','浏览足迹','app/history'],['ticket','优惠券','app/coupons'],['points','我的积分','app/points'],['store','地址管理','app/addresses'],['message','客服中心','app/service'],['spark','意见反馈','app/feedback'],['settings','设置','app/settings']];
-  return <div className="mobile-screen profile-screen" data-screen-label="App 个人中心"><SimpleMobileHeader title="我的" navigate={navigate} showBack={false} tone="dark"/><main className="mobile-scroll with-bottom-nav"><section className="profile-header" onClick={() => navigate('app/profile-edit')}><Avatar name="林可" size={54}/><div><h1>林可</h1><span>普通会员 · ID 211386217001</span></div><button onClick={(event)=>{event.stopPropagation();navigate('app/profile-edit');}}><Icon name="chevron"/></button></section><section className="profile-order-panel"><header><b>我的订单</b><button onClick={() => navigate('app/orders')}>全部订单 <Icon name="chevron" size={14}/></button></header><div>{orderLinks.map(([icon,label,targetTab]) => <button key={label} onClick={() => navigate(`app/orders?tab=${encodeURIComponent(targetTab)}`)}><span><Icon name={icon} size={19}/>{label === '待发货' && <i>1</i>}</span><small>{label}</small></button>)}</div></section><section className="profile-menu">{menus.map(([icon,label,target]) => <button key={label} onClick={() => navigate(target)}><span><Icon name={icon} size={18}/>{label}</span><Icon name="chevron" size={15}/></button>)}</section></main><MobileBottomNav active="我的" navigate={navigate}/></div>;
+  const orderLinks = [['order','待付款','待付款'],['box','待发货','待发货'],['truck','待收货','待收货'],['message','待评价','待评价'],['refund','退款/售后','退款/售后']];
+  const menuGroups = [
+    [['heart','我的收藏','app/favorites'],['clock','浏览足迹','app/history'],['ticket','我的优惠券','app/coupons'],['diamond','我的积分','app/points'],['location','地址管理','app/addresses']],
+    [['message','客服中心','app/service'],['spark','意见反馈','app/feedback'],['settings','设置','app/settings']]
+  ];
+  return <div className="mobile-screen profile-screen" data-screen-label="App 个人中心"><SimpleMobileHeader title="我的" navigate={navigate} showBack={false} tone="dark"/><main className="mobile-scroll with-bottom-nav"><section className="profile-header" onClick={() => navigate('app/profile-edit')}><Avatar name="林可" size={54}/><div><h1>林可</h1><span>会员 · 7Qm2K9xL</span></div><button onClick={(event)=>{event.stopPropagation();navigate('app/profile-edit');}}><Icon name="chevron"/></button></section><section className="profile-order-panel"><header><b>我的订单</b><button onClick={() => navigate('app/orders')}>全部订单 <Icon name="chevron" size={14}/></button></header><div>{orderLinks.map(([icon,label,targetTab]) => <button key={label} onClick={() => navigate(`app/orders?tab=${encodeURIComponent(targetTab)}`)}><span><Icon name={icon} size={19}/>{label === '待发货' && <i>1</i>}</span><small>{label}</small></button>)}</div></section>{menuGroups.map((menus,index)=><section className="profile-menu" key={index}>{menus.map(([icon,label,target]) => <button key={label} onClick={() => navigate(target)}><span><Icon name={icon} size={18}/>{label}</span><Icon name="chevron" size={15}/></button>)}</section>)}</main><MobileBottomNav active="我的" navigate={navigate}/></div>;
 }
 
 function AppCollection({ navigate, mode }) {

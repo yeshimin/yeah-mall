@@ -17,6 +17,7 @@ function Icon({ name, size = 20, strokeWidth = 1.8, className = '' }) {
     bag: <><path d="M5 8h14l-1 13H6L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></>,
     truck: <><path d="M3 5h11v11H3zM14 9h4l3 4v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></>,
     order: <><path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></>,
+    refund: <><path d="M8 3h10v18H8"/><path d="M8 8H4L2 11l2 3h4M12 8h3M12 12h3M12 16h3"/></>,
     members: <><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c.5-4 2.5-6 6-6s5.5 2 6 6M14 15c3.7-.5 5.9 1.2 6.6 5"/></>,
     box: <><path d="m4 7 8-4 8 4-8 4-8-4Z"/><path d="M4 7v10l8 4 8-4V7M12 11v10"/></>,
     coupon: <path d="M3 7a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v10a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2V7Zm9-1v12"/>,
@@ -32,6 +33,8 @@ function Icon({ name, size = 20, strokeWidth = 1.8, className = '' }) {
     more: <><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="19" cy="12" r="1" fill="currentColor"/></>,
     filter: <path d="M4 5h16M7 12h10M10 19h4"/>,
     store: <><path d="M4 9h16l-1-5H5L4 9Z"/><path d="M5 9v11h14V9M9 20v-6h6v6"/></>,
+    storefront: <><path d="M4 9.5h16L18.6 5H5.4L4 9.5Z"/><path d="M5 12v7h14v-7M8.5 19v-4.5h7V19"/><path d="M4 9.5c0 1.4.9 2.4 2.2 2.4s2.2-1 2.2-2.4c0 1.4.9 2.4 2.2 2.4s2.2-1 2.2-2.4c0 1.4.9 2.4 2.2 2.4s2.2-1 2.2-2.4c0 1.4.9 2.4 2.2 2.4s2.2-1 2.2-2.4"/></>,
+    location: <><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></>,
     clock: <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>
   };
   return (

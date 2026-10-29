@@ -1,7 +1,15 @@
 /* Production-scale refinement: keep the 390px device canvas, not miniature text. */
 .mobile-stage { min-height: calc(100vh - 64px); padding-block: 12px; }
 .mobile-frame { height: min(844px, calc(100vh - 96px)); min-height: 560px; }
-.mobile-screen { font-size: 14px; }
+.mobile-screen {
+  --paper: #f7f8f7;
+  --surface: #ffffff;
+  --surface-2: #fafbfa;
+  --line: #e8ece9;
+  --line-strong: #dfe5e1;
+  font-size: 14px;
+  background: #fff;
+}
 .mobile-screen :where(button, input, select, textarea, label, p, span, b, strong) { font-size: 13px !important; }
 .mobile-screen small { font-size: 11px !important; }
 .mobile-screen h1 { font-size: 20px !important; }
@@ -12,19 +20,23 @@
 .mobile-status-transparent { background: transparent; }
 .auth-page .mobile-status-surface { background: var(--ink); }
 .mobile-status-paper, .mobile-page-title-paper, .tab-paper-topbar { color: var(--ink); background: var(--surface) !important; }
-.mobile-page-title-paper, .tab-paper-topbar { border-bottom: 1px solid rgba(220,228,222,.72); }
+.mobile-page-title-paper, .tab-paper-topbar { border-bottom: 0; }
 .mobile-status-dark, .mobile-page-title-dark { color: #fff; background: var(--ink) !important; }
-.mobile-page-title-dark { border-bottom-color: rgba(255,255,255,.08); }
+.mobile-page-title-dark { border-bottom: 0; }
 .mobile-page-title-dark > button { color: #fff; }
 .profile-screen .mobile-status-dark,
 .profile-screen .mobile-page-title-dark { color: var(--ink); background: var(--surface) !important; }
-.profile-screen .mobile-page-title-dark { border-bottom-color: var(--line); }
+.profile-screen .mobile-page-title-dark { border-bottom: 0; }
 .profile-screen .mobile-page-title-dark > button { color: var(--ink); }
 .profile-screen .profile-header { padding-top: 25px; background: linear-gradient(135deg, var(--brand-2), var(--brand)) !important; }
 .app-topbar { gap: 14px; padding: 7px 14px 11px; }
 .app-home .app-topbar { border-bottom: 0; box-shadow: none; }
 .app-home > .mobile-scroll { height: calc(100% - 31px - 52px); padding-bottom: 0 !important; }
 .app-home .product-section { padding-bottom: 84px; }
+.app-home,
+.app-home > .mobile-scroll,
+.app-home .quick-grid,
+.app-home .product-section { background: #fff; }
 .wordmark { width: auto; flex: 0 0 auto; }
 .app-home .app-topbar > .mobile-search { display: flex !important; height: 34px; min-width: 0; align-items: center !important; justify-content: center !important; padding-inline: 10px; }
 .app-home .app-topbar > .mobile-search { background: var(--surface-2); }
@@ -90,10 +102,9 @@
 .address-panel p, .order-address p, .confirm-product span, .mobile-order-card span { font-size: 12px !important; }
 .option-group label, .quantity-row label { font-size: 14px !important; }
 .option-group button { min-width: 74px; height: 38px; }
-.quantity-control { grid-template-columns: 36px 42px 36px; }
-.quantity-control { width: 116px; height: 36px; flex: 0 0 116px; border-radius: 8px; }
-.quantity-control button { width: 36px; height: 36px; min-width: 36px; padding: 0; }
-.quantity-control b { display: grid; width: 42px; height: 36px; place-items: center; margin: 0; padding: 0; font-size: 13px !important; line-height: 1; }
+.quantity-control { display: flex; width: 116px; height: 36px; align-items: stretch; flex: 0 0 116px; box-sizing: border-box; border-radius: 8px; }
+.quantity-control button { width: 36px; height: 100%; min-width: 36px; flex: 0 0 36px; box-sizing: border-box; padding: 0; }
+.quantity-control b { display: grid; width: auto; height: 100%; min-width: 0; place-items: center; flex: 1; box-sizing: border-box; margin: 0; padding: 0; font-size: 13px !important; line-height: 1; }
 .cart-item .quantity-control { transform: none; }
 .cart-item .quantity-control b { grid-column: auto; }
 .mobile-action-bar button, .sheet-confirm, .form-submit, .feedback-submit, .single-bottom-action button, .auth-submit { font-size: 14px !important; }
@@ -161,7 +172,7 @@
 
 /* Category prototype uses the production three-level layout and deliberately isolates legacy category rules. */
 .mobile-screen .category-page { display: grid; height: calc(100% - 31px - 48px - 66px); grid-template-columns: 88px minmax(0, 1fr); overflow: hidden; background: #fff; }
-.mobile-screen .category-page > aside { overflow-y: auto; background: #eef2ef; }
+.mobile-screen .category-page > aside { overflow-y: auto; background: #f7f8f7; }
 .mobile-screen .category-page > aside > button { display: block; width: 100%; height: 50px; padding: 0 8px; border: 0 !important; border-left: 3px solid transparent !important; color: var(--muted); background: transparent !important; font-size: 11px !important; text-align: center; }
 .mobile-screen .category-page > aside > button.active { color: var(--brand) !important; border-left-color: var(--brand) !important; background: #fff !important; font-weight: 700; }
 .mobile-screen .category-page > section { display: flex; min-width: 0; overflow: hidden; flex-direction: column; padding: 0 !important; background: #fff; }
@@ -213,7 +224,7 @@
 .profile-screen .profile-menu button { height: 46px; padding-inline: 0; }
 
 .mobile-screen .cart-page { padding: 0 0 20px; background: var(--surface); }
-.mobile-screen .cart-item { margin: 0; padding: 14px 16px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0 !important; }
+.mobile-screen .cart-item { margin: 0; padding: 14px 16px; border: 0; border-radius: 0 !important; }
 .mobile-screen .cart-item .product-art { border-radius: 8px !important; }
 
 .mobile-screen .mobile-order-list { padding: 0 0 24px; }
@@ -286,6 +297,56 @@
 
 .mobile-screen .result-page > div { padding-inline: 0; border: 0; border-block: 1px solid var(--line); border-radius: 0; }
 
+/* White-first canvas: near-white gaps separate sections while content stays on clean white surfaces. */
+.profile-screen,
+.profile-screen > .mobile-scroll,
+.mobile-screen :where(.mobile-order-list, .confirm-scroll, .order-detail-scroll, .points-page, .activity-page, .coupon-page, .logistics-page, .form-page, .review-detail-page, .profile-edit-page, .activity-products-page, .group-select-page, .refund-detail-page, .feedback-page-proto, .settings-page, .preference-page) {
+  background: var(--paper);
+}
+
+.mobile-screen :where(.profile-header, .profile-order-panel, .profile-menu, .cart-item, .mobile-order-card, .address-panel, .confirm-shop-card, .confirm-options, .price-summary, .order-goods, .order-timeline, .order-info-list, .points-records, .activity-card, .shop-list-card, .logistics-product, .logistics-page article, .refund-product, .review-product-head, .review-conversation, .profile-edit-fields, .refund-amount, .refund-detail-page > article, .feedback-page-proto > section, .feedback-record, .settings-page > button) {
+  background: #fff;
+}
+
+.service-page { background: #f7f8f7; }
+.chat-input button:not(.send),
+.quantity-control button,
+.profile-picker-sheet header > button { background: #f7f8f7; }
+
+/* Stronger whitespace segmentation: remove structural outlines and expose clear white section blocks. */
+.mobile-screen { --paper: #f4f5f4; }
+.mobile-screen .cart-page { background: var(--paper); }
+.mobile-screen .cart-shop-group { margin: 0 0 10px; border: 0; border-radius: 0; background: #fff; }
+.mobile-screen .cart-shop-group > header { padding-inline: 16px; border-bottom: 0; }
+.mobile-screen .cart-shop-group > header .cart-shop-icon { color: #245743; background: transparent; }
+.mobile-screen .cart-shop-group .cart-item { position: relative; background: #fff; }
+.mobile-screen .cart-shop-group .cart-item + .cart-item { border-top: 0; }
+.mobile-screen .cart-shop-group .cart-item + .cart-item::before {
+  position: absolute;
+  top: 0;
+  right: 16px;
+  left: 144px;
+  height: 1px;
+  background: var(--line);
+  content: '';
+}
+
+.mobile-screen :where(.profile-header, .profile-order-panel, .profile-menu, .mobile-order-card, .address-panel, .confirm-shop-card, .confirm-options, .price-summary, .order-goods, .order-timeline, .order-info-list, .points-records, .activity-card, .shop-list-card, .logistics-product, .logistics-page article, .refund-product, .review-product-head, .review-conversation, .profile-edit-fields, .refund-amount, .refund-detail-page > article, .feedback-page-proto > section, .feedback-record) {
+  border: 0 !important;
+}
+
+.profile-screen .profile-header,
+.profile-screen .profile-order-panel,
+.profile-screen .profile-menu { margin-bottom: 0; }
+.profile-screen .profile-menu + .profile-menu { margin-top: 10px; }
+.mobile-screen .mobile-order-card { margin-top: 10px; }
+.mobile-screen :where(.confirm-shop-card, .confirm-options, .price-summary, .order-goods, .order-timeline, .order-info-list, .points-records, .logistics-product, .review-conversation, .refund-amount, .refund-detail-page > article) { margin-top: 10px; }
+
+.service-page,
+.chat-input button:not(.send),
+.quantity-control button,
+.profile-picker-sheet header > button { background: var(--paper); }
+
 /* Admin pages use production-like table and form density. */
 .admin-shell { font-size: 14px; grid-template-columns: 244px 1fr; }
 .admin-shell :where(button, input, select, textarea, label, p, span, b, strong, td, th) { font-size: 13px !important; }
@@ -347,3 +408,79 @@
   .admin-shell { grid-template-columns: 210px 1fr; }
   .admin-sidebar nav .sidebar-group-items > button { padding-left: 13px; }
 }
+
+/* Final system pass: shared flat surfaces, deliberate borders, and consistent overlays. */
+.mobile-screen :where(.product-list-page, .collection-page, .shop-product-grid) .product-card {
+  border: 1px solid var(--line);
+  border-radius: 10px !important;
+  background: #fff;
+}
+.mobile-screen .list-grid.single-column .product-card {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0 !important;
+}
+.mobile-screen :where(.coupon-card, .coupon-select-card, .group-choice, .random-group, .group-option, .campaign-quantity) {
+  border-color: var(--line);
+  box-shadow: none;
+}
+.mobile-screen :where(.coupon-card, .coupon-select-card, .random-group, .group-option) { border-radius: 10px !important; }
+.mobile-screen :where(.preference-page > label, .settings-page > button, .profile-field-row) { border-color: var(--line); }
+.mobile-screen :where(.form-page input, .form-page select, .form-page textarea, .review-reply-box textarea, .profile-date-field input, .profile-mobile-form input) {
+  border-color: var(--line-strong);
+  background: #fff;
+}
+.mobile-screen .single-bottom-action,
+.mobile-screen :where(.cart-submit, .confirm-submit-bar, .mobile-action-bar, .chat-input) {
+  border-top: 1px solid var(--line);
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 -8px 24px rgba(18,38,29,.035);
+}
+.mobile-screen .mobile-bottom-nav { border-top-color: var(--line); box-shadow: 0 -4px 18px rgba(18,38,29,.03); }
+.mobile-screen .sheet-mask { background: rgba(16,29,23,.34); backdrop-filter: blur(2px); }
+.mobile-screen .mobile-sheet {
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -18px 48px rgba(18,38,29,.16);
+}
+.mobile-screen .mobile-sheet :where(input, select, textarea) { background: #fff; }
+.mobile-screen .image-preview-mask { backdrop-filter: blur(4px); }
+
+.admin-page { background: #f7f8f7; }
+.admin-filter-bar {
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+.admin-table-frame {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+.admin-table th { background: #fafbfa; }
+.admin-table td { border-bottom-color: #edf0ee; }
+.table-toolbar { border-bottom-color: #edf0ee; }
+.overview-metrics article,
+.overview-tasks article,
+.settings-form-card {
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+.module-tabs { border-bottom-color: var(--line); background: #fff; }
+.admin-dialog {
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 24px 70px rgba(18,36,27,.22);
+}
+.admin-drawer { border-left: 0; box-shadow: -18px 0 48px rgba(18,36,27,.14); }
+.dialog-mask,
+.drawer-mask { backdrop-filter: blur(2px); }
+.row-menu { border-color: var(--line); box-shadow: 0 12px 32px rgba(18,36,27,.14); }
+.filter-fields :where(input, select),
+.dialog-field :where(input, select, textarea),
+.edit-form-grid :where(input, select, textarea),
+.settings-form-grid :where(input, select, textarea) { border-color: var(--line-strong); background: #fff; }
