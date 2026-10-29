@@ -16,23 +16,63 @@ window.YEAH_MALL_MOCKS = {
   products: [
     {
       id: 'p-1001', category: 'digital', name: '云感降噪头戴耳机', subtitle: '40mm 动圈单元 · 45 小时续航',
-      price: 399, originPrice: 499, sales: 1862, stock: 36, rating: 98, art: 'headphone',
+      price: 399, originPrice: 499, sales: 1862, stock: 36, rating: 98, art: 'headphone', imageHeight: 176, promotionText: '限时直降',
       tags: ['次日达', '七天无理由'], colors: ['雾银', '曜石黑'], specs: ['标准版', '长续航版']
     },
     {
       id: 'p-1002', category: 'home', name: '弧光人体工学休闲椅', subtitle: '榉木扶手 · 高密度回弹坐垫',
-      price: 629, originPrice: 799, sales: 642, stock: 12, rating: 96, art: 'chair',
+      price: 629, originPrice: 799, sales: 642, stock: 12, rating: 96, art: 'chair', imageHeight: 214,
       tags: ['送装一体'], colors: ['燕麦白', '松石绿'], specs: ['单椅', '单椅+脚踏']
     },
     {
       id: 'p-1003', category: 'beauty', name: '白茶屏障修护精华', subtitle: '敏感肌适用 · 30ml',
-      price: 168, originPrice: 218, sales: 4268, stock: 85, rating: 99, art: 'serum',
+      price: 168, originPrice: 218, sales: 4268, stock: 85, rating: 99, art: 'serum', imageHeight: 164, promotionText: '满 199 减 20',
       tags: ['满199减20'], colors: ['30ml'], specs: ['单瓶', '双瓶装']
     },
     {
       id: 'p-1004', category: 'food', name: '山野拼配挂耳咖啡', subtitle: '中深烘焙 · 10g × 12 包',
-      price: 69, originPrice: 89, sales: 7502, stock: 108, rating: 97, art: 'coffee',
+      price: 69, originPrice: 89, sales: 7502, stock: 108, rating: 97, art: 'coffee', imageHeight: 198, promotionText: '新人专享',
       tags: ['产地直发'], colors: ['坚果调', '花果调'], specs: ['12包', '24包']
+    },
+    {
+      id: 'p-1005', category: 'digital', name: '随行便携蓝牙音箱', subtitle: 'IP67 防水 · 立体声串联',
+      price: 239, originPrice: 299, sales: 983, stock: 46, rating: 97, art: 'headphone', imageHeight: 148,
+      tags: ['户外便携'], colors: ['森林绿', '曜石黑'], specs: ['标准版']
+    },
+    {
+      id: 'p-1006', category: 'home', name: '云朵绒布休闲脚踏', subtitle: '小户型友好 · 可拆洗外套',
+      price: 259, originPrice: 329, sales: 531, stock: 24, rating: 96, art: 'chair', imageHeight: 188, promotionText: '第二件 8 折',
+      tags: ['送装一体'], colors: ['奶油白', '岩灰'], specs: ['标准款']
+    },
+    {
+      id: 'p-1007', category: 'beauty', name: '氨基酸净澈洁面乳', subtitle: '温和清洁 · 120g',
+      price: 89, originPrice: 119, sales: 3208, stock: 96, rating: 98, art: 'serum', imageHeight: 222,
+      tags: ['敏感肌适用'], colors: ['120g'], specs: ['单支', '双支装']
+    },
+    {
+      id: 'p-1008', category: 'food', name: '耶加雪菲单品咖啡豆', subtitle: '浅烘花果调 · 250g',
+      price: 98, originPrice: 128, sales: 1842, stock: 57, rating: 99, art: 'coffee', imageHeight: 158,
+      tags: ['新鲜烘焙'], colors: ['水洗'], specs: ['250g', '500g']
+    },
+    {
+      id: 'p-1009', category: 'digital', name: '轻量健康运动手表', subtitle: '全天心率 · 14 天续航',
+      price: 529, originPrice: 599, sales: 1266, stock: 31, rating: 96, art: 'headphone', imageHeight: 206, promotionText: '以旧换新补贴',
+      tags: ['新品'], colors: ['雾银', '深空灰'], specs: ['标准版']
+    },
+    {
+      id: 'p-1010', category: 'home', name: '柔光阅读落地灯', subtitle: '无频闪调光 · 极简金属灯身',
+      price: 319, originPrice: 399, sales: 428, stock: 19, rating: 97, art: 'chair', imageHeight: 152,
+      tags: ['三档调光'], colors: ['暖白', '黑色'], specs: ['落地款']
+    },
+    {
+      id: 'p-1011', category: 'beauty', name: '积雪草舒缓修护面膜', subtitle: '密集补水 · 10 片装',
+      price: 109, originPrice: 149, sales: 5918, stock: 132, rating: 98, art: 'serum', imageHeight: 184, promotionText: '两盒立减 30',
+      tags: ['补水舒缓'], colors: ['10片装'], specs: ['单盒', '双盒']
+    },
+    {
+      id: 'p-1012', category: 'food', name: '山岚乌龙茶礼盒', subtitle: '清香型原叶茶 · 12 泡',
+      price: 128, originPrice: 168, sales: 768, stock: 42, rating: 97, art: 'coffee', imageHeight: 228,
+      tags: ['节日礼赠'], colors: ['礼盒装'], specs: ['12泡', '24泡']
     }
   ],
   reviews: [

@@ -73,8 +73,8 @@ function MobileFrame({ children }) {
   );
 }
 
-function MobileStatusBar() {
-  return <div className="mobile-status"><b>10:26</b><span><i></i><i></i><i></i></span></div>;
+function MobileStatusBar({ tone = 'surface' }) {
+  return <div className={`mobile-status mobile-status-${tone}`}><b>10:26</b><span><i></i><i></i><i></i></span></div>;
 }
 
 function WechatCapsule() {
@@ -98,27 +98,50 @@ function MobileBottomNav({ active, navigate }) {
 
 function AppHome({ navigate }) {
   const [category, setCategory] = useState('all');
+  const homeBanners = [
+    { id:'audio', kicker:'本周精选', title:['安静，','留给喜欢','的声音'], action:'查看新品', art:'headphone', tone:'forest' },
+    { id:'living', kicker:'居家焕新', title:['把松弛感，','搬进日常','每个角落'], action:'逛逛家居', art:'chair', tone:'clay' },
+    { id:'beauty', kicker:'秋日修护', title:['温和补水，','让肌肤回到','稳定状态'], action:'查看美护', art:'serum', tone:'ocean' }
+  ];
+  const [bannerIndex, setBannerIndex] = useState(0);
+  const activeBanner = homeBanners[bannerIndex];
+  useEffect(() => {
+    const timer = window.setInterval(() => setBannerIndex((index) => (index + 1) % homeBanners.length), 3500);
+    return () => window.clearInterval(timer);
+  }, []);
   const products = MOCKS.products.filter((item) =>
     category === 'all' || item.category === category
   );
+  const waterfallColumns = products.reduce((columns, item) => {
+    const estimatedHeight = (item.imageHeight || 176) + (item.promotionText ? 30 : 0) + (item.subtitle ? 34 : 0) + 92;
+    const target = columns[0].height <= columns[1].height ? columns[0] : columns[1];
+    target.items.push(item);
+    target.height += estimatedHeight;
+    return columns;
+  }, [{ items:[], height:0 }, { items:[], height:0 }]);
   const quickRoutes = { seckill: 'app/seckill', group: 'app/groupbuy', coupon: 'app/coupon-center', points: 'app/points-mall', new: 'app/products' };
   return (
     <div className="mobile-screen app-home" data-screen-label="App 首页">
-      <MobileStatusBar/>
-      <header className="app-topbar">
+      <MobileStatusBar tone="paper"/>
+      <header className="app-topbar tab-paper-topbar">
         <div className="wordmark"><span>YEAH</span><b>MALL</b></div>
         <button className="mobile-search" type="button" onClick={() => navigate('app/products')}><span className="mobile-search-content"><Icon name="search" size={18}/><span>搜索商品</span></span></button>
         <WechatCapsule/>
       </header>
       <main className="mobile-scroll with-bottom-nav">
-        <section className="commerce-banner" onClick={() => navigate('app/product')}>
+        <section className={`commerce-banner banner-tone-${activeBanner.tone}`} onClick={() => navigate('app/product')}>
+          <div className="banner-slide-content" key={activeBanner.id}>
           <div className="banner-copy">
-            <span className="banner-kicker">本周精选</span>
-            <h1>安静，<br/>留给喜欢<br/>的声音</h1>
-            <button onClick={(event)=>{event.stopPropagation();navigate('app/product');}}>查看新品 <Icon name="chevron" size={15}/></button>
+            <span className="banner-kicker">{activeBanner.kicker}</span>
+            <h1>{activeBanner.title.map((line) => <React.Fragment key={line}>{line}<br/></React.Fragment>)}</h1>
+            <button onClick={(event)=>{event.stopPropagation();navigate('app/product');}}>{activeBanner.action} <Icon name="chevron" size={15}/></button>
           </div>
-          <ProductArt type="headphone"/>
-          <span className="banner-index">01 / 03</span>
+          <ProductArt type={activeBanner.art}/>
+          </div>
+          <div className="banner-dots" onClick={(event) => event.stopPropagation()}>
+            {homeBanners.map((banner, index) => <button key={banner.id} className={bannerIndex === index ? 'active' : ''} aria-label={`切换到第 ${index + 1} 张 Banner`} onClick={() => setBannerIndex(index)}></button>)}
+          </div>
+          <span className="banner-index">{String(bannerIndex + 1).padStart(2,'0')} / {String(homeBanners.length).padStart(2,'0')}</span>
         </section>
         <section className="quick-grid" aria-label="快捷入口">
           {MOCKS.quickLinks.map((item) => (
@@ -135,15 +158,20 @@ function AppHome({ navigate }) {
           <div className="category-strip">
             {MOCKS.categories.map((item) => <button key={item.id} className={category === item.id ? 'active' : ''} onClick={() => setCategory(item.id)}>{item.name}</button>)}
           </div>
-          <div className="product-grid">
-            {products.map((item) => (
-              <button className="product-card" key={item.id} onClick={() => navigate('app/product')}>
-                <ProductArt type={item.art}/>
-                <span className="product-card-name">{item.name}</span>
-                <span className="product-card-sub">{item.subtitle}</span>
-                <span className="product-card-meta"><b>¥{item.price}</b><small>已售 {item.sales}</small></span>
-              </button>
-            ))}
+          <div className="home-waterfall">
+            {waterfallColumns.map((column, columnIndex) => <div className="home-waterfall-column" key={columnIndex}>
+              {column.items.map((item) => (
+                <button className="home-waterfall-item" key={item.id} onClick={() => navigate('app/product')}>
+                  <span className="home-waterfall-art" style={{ height: `${item.imageHeight || 176}px` }}><ProductArt type={item.art}/></span>
+                  <span className="home-waterfall-copy">
+                    <span className="home-waterfall-name">{item.name}</span>
+                    {item.promotionText && <span className="home-waterfall-promotion">{item.promotionText}</span>}
+                    <span className="home-waterfall-subtitle">{item.subtitle}</span>
+                    <span className="home-waterfall-meta"><b>¥{item.price}</b><small>已售 {item.sales}</small></span>
+                  </span>
+                </button>
+              ))}
+            </div>)}
           </div>
           {!products.length && <div className="mobile-empty"><Icon name="search" size={26}/><b>没有找到相关商品</b><span>换个关键词或分类试试</span></div>}
         </section>
@@ -173,7 +201,7 @@ function AppProduct({ navigate, notify }) {
   const [gallery, setGallery] = useState(0);
   return (
     <div className="mobile-screen product-detail" data-screen-label="App 商品详情">
-      <MobileStatusBar/>
+      <MobileStatusBar tone="transparent"/>
       <div className="detail-gallery">
         <div className="detail-floatbar">
           <button onClick={() => navigate('app/home')}><Icon name="back"/></button>
@@ -238,8 +266,8 @@ function AppConfirm({ navigate, notify }) {
   const discount = coupon ? 20 : 0;
   return (
     <div className="mobile-screen order-confirm-screen" data-screen-label="App 确认订单">
-      <MobileStatusBar/>
-      <header className="mobile-page-title"><button onClick={() => navigate('app/product')}><Icon name="back"/></button><h1>确认订单</h1><span></span></header>
+      <MobileStatusBar tone="surface"/>
+      <header className="mobile-page-title"><button onClick={() => navigate('app/product')}><Icon name="back"/></button><h1>确认订单</h1><div className="mobile-header-tools"><WechatCapsule/></div></header>
       <main className="mobile-scroll confirm-scroll">
         <button className="address-panel" onClick={() => navigate('app/addresses')}>
           <span className="address-icon"><Icon name="store"/></span>
@@ -271,8 +299,8 @@ function AppOrder({ navigate, notify }) {
   const order = MOCKS.orders[1];
   return (
     <div className="mobile-screen order-detail-screen" data-screen-label="App 订单详情">
-      <MobileStatusBar/>
-      <header className="mobile-page-title dark-title"><button onClick={() => navigate('app/orders')}><Icon name="back"/></button><h1>订单详情</h1><button onClick={()=>notify('订单操作：复制编号、联系客服')}><Icon name="more"/></button></header>
+      <MobileStatusBar tone="surface"/>
+      <header className="mobile-page-title"><button onClick={() => navigate('app/orders')}><Icon name="back"/></button><h1>订单详情</h1><div className="mobile-header-tools"><button onClick={()=>notify('订单操作：复制编号、联系客服')}><Icon name="more"/></button><WechatCapsule/></div></header>
       <main className="mobile-scroll order-detail-scroll">
         <section className="order-state-panel"><span className="state-icon"><Icon name="truck" size={28}/></span><div><h2>商家已发货</h2><p>包裹正在前往杭州转运中心</p></div></section>
         <button className="logistics-preview" onClick={() => navigate('app/logistics')}><div><span>今天 09:12</span><b>快件已从上海集散中心发出</b><small>顺丰速运 · SF1462903821</small></div><Icon name="chevron"/></button>
@@ -289,8 +317,8 @@ function AppOrder({ navigate, notify }) {
   );
 }
 
-function SimpleMobileHeader({ title, navigate, back = 'app/home', action, showBack = true }) {
-  return <><MobileStatusBar/><header className="mobile-page-title">{showBack?<button onClick={() => navigate(back)}><Icon name="back"/></button>:<span className="mobile-header-spacer"></span>}<h1>{title}</h1>{action || <span className="mobile-header-spacer"></span>}</header></>;
+function SimpleMobileHeader({ title, navigate, back = 'app/home', action, showBack = true, tone = 'surface' }) {
+  return <><MobileStatusBar tone={tone}/><header className={`mobile-page-title mobile-page-title-${tone}`}>{showBack?<button onClick={() => navigate(back)}><Icon name="back"/></button>:<span className="mobile-header-spacer"></span>}<h1>{title}</h1><div className="mobile-header-tools">{action}<WechatCapsule/></div></header></>;
 }
 
 function AppCategory({ navigate }) {
@@ -341,7 +369,7 @@ function AppCategory({ navigate }) {
   };
   return (
     <div className="mobile-screen" data-screen-label="App 分类">
-      <SimpleMobileHeader title="商品分类" navigate={navigate} showBack={false}/>
+      <SimpleMobileHeader title="商品分类" navigate={navigate} showBack={false} tone="paper"/>
       <main className="category-page">
         <aside aria-label="一级分类">
           {categoryTree.map((item) => <button key={item.id} className={activePrimary === item.id ? 'active' : ''} onClick={() => switchPrimary(item.id)}>{item.name}</button>)}
@@ -379,7 +407,7 @@ function AppCart({ navigate, notify }) {
   const update = (id, edits) => setItems(items.map((item) => item.id === id ? {...item,...edits} : item));
   const checked = items.filter((item) => item.checked);
   const total = checked.reduce((sum,item) => sum + item.price*item.quantity,0);
-  return <div className="mobile-screen" data-screen-label="App 购物车"><SimpleMobileHeader title="购物车" navigate={navigate} showBack={false}/><main className="mobile-scroll cart-page">{items.map((item) => <article className="cart-item" key={item.id}><button className={`check-dot ${item.checked ? 'active' : ''}`} onClick={() => update(item.id,{checked:!item.checked})}>{item.checked && <Icon name="check" size={13}/>}</button><ProductArt type={item.art}/><div><b>{item.name}</b><span>{item.colors[0]} · {item.specs[0]}</span><strong>¥{item.price}</strong><QuantityControl value={item.quantity} setValue={(value) => update(item.id,{quantity:value})} max={5}/></div></article>)}</main><div className="cart-submit"><button className={`check-dot ${checked.length === items.length ? 'active' : ''}`} onClick={() => setItems(items.map((item) => ({...item,checked:checked.length !== items.length})))}>{checked.length === items.length && <Icon name="check" size={13}/>}</button><span>全选</span><div><small>合计</small><b>¥{total.toFixed(2)}</b></div><button disabled={!checked.length} onClick={() => checked.length ? navigate('app/confirm') : notify('请先选择商品')}>结算（{checked.length}）</button></div><MobileBottomNav active="购物车" navigate={navigate}/></div>;
+  return <div className="mobile-screen" data-screen-label="App 购物车"><SimpleMobileHeader title="购物车" navigate={navigate} showBack={false} tone="paper"/><main className="mobile-scroll cart-page">{items.map((item) => <article className="cart-item" key={item.id}><button className={`check-dot ${item.checked ? 'active' : ''}`} onClick={() => update(item.id,{checked:!item.checked})}>{item.checked && <Icon name="check" size={13}/>}</button><ProductArt type={item.art}/><div><b>{item.name}</b><span>{item.colors[0]} · {item.specs[0]}</span><strong>¥{item.price}</strong><QuantityControl value={item.quantity} setValue={(value) => update(item.id,{quantity:value})} max={5}/></div></article>)}</main><div className="cart-submit"><button className={`check-dot ${checked.length === items.length ? 'active' : ''}`} onClick={() => setItems(items.map((item) => ({...item,checked:checked.length !== items.length})))}>{checked.length === items.length && <Icon name="check" size={13}/>}</button><span>全选</span><div><small>合计</small><b>¥{total.toFixed(2)}</b></div><button disabled={!checked.length} onClick={() => checked.length ? navigate('app/confirm') : notify('请先选择商品')}>结算（{checked.length}）</button></div><MobileBottomNav active="购物车" navigate={navigate}/></div>;
 }
 
 function AppOrders({ navigate, route, notify }) {
@@ -393,7 +421,7 @@ function AppOrders({ navigate, route, notify }) {
 function AppProfile({ navigate }) {
   const orderLinks = [['order','待付款','待付款'],['box','待发货','待发货'],['truck','待收货','待收货'],['message','待评价','待评价'],['coupon','退款/售后','退款/售后']];
   const menus = [['heart','我的收藏','app/favorites'],['clock','浏览足迹','app/history'],['ticket','优惠券','app/coupons'],['points','我的积分','app/points'],['store','地址管理','app/addresses'],['message','客服中心','app/service'],['spark','意见反馈','app/feedback'],['settings','设置','app/settings']];
-  return <div className="mobile-screen profile-screen" data-screen-label="App 个人中心"><SimpleMobileHeader title="我的" navigate={navigate} showBack={false}/><main className="mobile-scroll with-bottom-nav"><section className="profile-header" onClick={() => navigate('app/profile-edit')}><Avatar name="林可" size={54}/><div><h1>林可</h1><span>普通会员 · ID 211386217001</span></div><button onClick={(event)=>{event.stopPropagation();navigate('app/profile-edit');}}><Icon name="chevron"/></button></section><section className="profile-order-panel"><header><b>我的订单</b><button onClick={() => navigate('app/orders')}>全部订单 <Icon name="chevron" size={14}/></button></header><div>{orderLinks.map(([icon,label,targetTab]) => <button key={label} onClick={() => navigate(`app/orders?tab=${encodeURIComponent(targetTab)}`)}><span><Icon name={icon} size={19}/>{label === '待发货' && <i>1</i>}</span><small>{label}</small></button>)}</div></section><section className="profile-menu">{menus.map(([icon,label,target]) => <button key={label} onClick={() => navigate(target)}><span><Icon name={icon} size={18}/>{label}</span><Icon name="chevron" size={15}/></button>)}</section></main><MobileBottomNav active="我的" navigate={navigate}/></div>;
+  return <div className="mobile-screen profile-screen" data-screen-label="App 个人中心"><SimpleMobileHeader title="我的" navigate={navigate} showBack={false} tone="dark"/><main className="mobile-scroll with-bottom-nav"><section className="profile-header" onClick={() => navigate('app/profile-edit')}><Avatar name="林可" size={54}/><div><h1>林可</h1><span>普通会员 · ID 211386217001</span></div><button onClick={(event)=>{event.stopPropagation();navigate('app/profile-edit');}}><Icon name="chevron"/></button></section><section className="profile-order-panel"><header><b>我的订单</b><button onClick={() => navigate('app/orders')}>全部订单 <Icon name="chevron" size={14}/></button></header><div>{orderLinks.map(([icon,label,targetTab]) => <button key={label} onClick={() => navigate(`app/orders?tab=${encodeURIComponent(targetTab)}`)}><span><Icon name={icon} size={19}/>{label === '待发货' && <i>1</i>}</span><small>{label}</small></button>)}</div></section><section className="profile-menu">{menus.map(([icon,label,target]) => <button key={label} onClick={() => navigate(target)}><span><Icon name={icon} size={18}/>{label}</span><Icon name="chevron" size={15}/></button>)}</section></main><MobileBottomNav active="我的" navigate={navigate}/></div>;
 }
 
 function AppCollection({ navigate, mode }) {
@@ -587,7 +615,7 @@ function AppPreferencePage({ navigate, type }) {
 
 function AppAuth({ navigate, mode, notify }) {
   const register = mode==='register'; const [mobile,setMobile]=useState(''); const [code,setCode]=useState('');
-  return <div className="mobile-screen auth-page" data-screen-label={`App ${register?'注册':'登录'}`}><MobileStatusBar/><main><span className="auth-mark">Y</span><h1>{register?'创建会员账号':'欢迎回来'}</h1><p>{register?'注册后即可使用购物车、优惠券和积分商城':'登录后继续浏览与管理订单'}</p><label><span>手机号</span><input value={mobile} onChange={(e)=>setMobile(e.target.value)} placeholder="请输入手机号"/></label><label><span>验证码</span><div><input value={code} onChange={(e)=>setCode(e.target.value)} placeholder="请输入验证码"/><button onClick={()=>notify('验证码已发送')}>获取验证码</button></div></label><button className="auth-submit" onClick={()=>mobile&&code?navigate('app/home'):notify('请填写手机号和验证码')}>{register?'注册并登录':'登录'}</button><button className="auth-switch" onClick={()=>navigate(register?'app/login':'app/register')}>{register?'已有账号，去登录':'没有账号，立即注册'}</button></main></div>;
+  return <div className="mobile-screen auth-page" data-screen-label={`App ${register?'注册':'登录'}`}><MobileStatusBar/><div className="auth-capsule"><WechatCapsule/></div><main><span className="auth-mark">Y</span><h1>{register?'创建会员账号':'欢迎回来'}</h1><p>{register?'注册后即可使用购物车、优惠券和积分商城':'登录后继续浏览与管理订单'}</p><label><span>手机号</span><input value={mobile} onChange={(e)=>setMobile(e.target.value)} placeholder="请输入手机号"/></label><label><span>验证码</span><div><input value={code} onChange={(e)=>setCode(e.target.value)} placeholder="请输入验证码"/><button onClick={()=>notify('验证码已发送')}>获取验证码</button></div></label><button className="auth-submit" onClick={()=>mobile&&code?navigate('app/home'):notify('请填写手机号和验证码')}>{register?'注册并登录':'登录'}</button><button className="auth-switch" onClick={()=>navigate(register?'app/login':'app/register')}>{register?'已有账号，去登录':'没有账号，立即注册'}</button></main></div>;
 }
 
 function AppPrototype({ route, navigate, notify }) {
