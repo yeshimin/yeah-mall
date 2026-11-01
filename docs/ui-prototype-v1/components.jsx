@@ -1,10 +1,11 @@
-const { useState, useEffect, useMemo } = React;
+const { useState, useEffect, useMemo, useRef } = React;
 
 function Icon({ name, size = 20, strokeWidth = 1.8, className = '' }) {
   const paths = {
     search: <><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></>,
     home: <><path d="m3 10 9-7 9 7"/><path d="M5.5 9v11h13V9M9 20v-6h6v6"/></>,
     grid: <><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>,
+    list: <><rect x="3" y="4" width="5" height="5" rx="1"/><path d="M11 6.5h10"/><rect x="3" y="15" width="5" height="5" rx="1"/><path d="M11 17.5h10"/></>,
     cart: <><path d="M3 4h2l2.2 10.2h9.9L20 7H6"/><circle cx="9" cy="19" r="1.3"/><circle cx="17" cy="19" r="1.3"/></>,
     user: <><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.7-4.2 3.2-6.3 7.5-6.3s6.8 2.1 7.5 6.3"/></>,
     heart: <path d="M20.6 5.8c-2-2-5.2-2-7.2 0L12 7.2l-1.4-1.4a5.1 5.1 0 0 0-7.2 7.2L12 21l8.6-8a5.1 5.1 0 0 0 0-7.2Z"/>,
@@ -13,6 +14,7 @@ function Icon({ name, size = 20, strokeWidth = 1.8, className = '' }) {
     down: <path d="m6 9 6 6 6-6"/>,
     plus: <><path d="M12 5v14M5 12h14"/></>,
     minus: <path d="M5 12h14"/>,
+    close: <><path d="m7 7 10 10"/><path d="m17 7-10 10"/></>,
     check: <path d="m5 12 4 4L19 6"/>,
     bag: <><path d="M5 8h14l-1 13H6L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></>,
     truck: <><path d="M3 5h11v11H3zM14 9h4l3 4v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></>,
@@ -23,6 +25,7 @@ function Icon({ name, size = 20, strokeWidth = 1.8, className = '' }) {
     coupon: <path d="M3 7a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v10a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2V7Zm9-1v12"/>,
     points: <><path d="m12 3 8 6-3 10H7L4 9l8-6Z"/><path d="m4 9 8 4 8-4M12 13v6"/></>,
     message: <><path d="M4 5h16v12H9l-5 4V5Z"/><path d="M8 10h8M8 13h5"/></>,
+    headphone: <><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h3v7H5a1 1 0 0 1-1-1v-6ZM20 13h-3v7h2a1 1 0 0 0 1-1v-6Z"/></>,
     settings: <><circle cx="12" cy="12" r="3"/><path d="M19 13.5v-3l-2.2-.6a7 7 0 0 0-.6-1.4l1.1-2L15.2 4l-2 1.1a7 7 0 0 0-1.5-.6L11 2H8l-.6 2.3a7 7 0 0 0-1.4.6L4 3.8 1.8 6l1.1 2a7 7 0 0 0-.6 1.5L0 10v3l2.3.6a7 7 0 0 0 .6 1.4l-1.1 2L4 19.2l2-1.1a7 7 0 0 0 1.5.6L8 21h3l.6-2.3a7 7 0 0 0 1.4-.6l2 1.1 2.2-2.2-1.1-2a7 7 0 0 0 .6-1.5l2.3-.5Z" transform="translate(2) scale(.92)"/></>,
     bolt: <path d="m13 2-8 12h6l-1 8 9-13h-6V2Z"/>,
     spark: <><path d="m12 2 1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5L12 2Z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></>,
@@ -30,6 +33,10 @@ function Icon({ name, size = 20, strokeWidth = 1.8, className = '' }) {
     ticket: <><path d="M3 7a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v10a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2V7Z"/><path d="M12 8v1M12 12v1M12 16v1"/></>,
     users: <><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2 20c.5-4 2.5-6 6-6 1.7 0 3 .5 4 1.4 1-.9 2.3-1.4 4-1.4 3.5 0 5.5 2 6 6"/></>,
     eye: <><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></>,
+    share: <><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.5M8.2 13.2l7.6 4.5"/></>,
+    image: <><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m5 18 5-5 3 3 2-2 4 4"/></>,
+    video: <><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3V9Z"/></>,
+    file: <><path d="M6 3h8l4 4v14H6V3Z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></>,
     more: <><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="19" cy="12" r="1" fill="currentColor"/></>,
     filter: <path d="M4 5h16M7 12h10M10 19h4"/>,
     store: <><path d="M4 9h16l-1-5H5L4 9Z"/><path d="M5 9v11h14V9M9 20v-6h6v6"/></>,
@@ -108,6 +115,15 @@ function ProductArt({ type, className = '', bare = false }) {
 
 function StatusTicket({ children, tone = 'neutral', small = false }) {
   return <span className={`status-ticket tone-${tone}${small ? ' is-small' : ''}`}>{children}</span>;
+}
+
+function EmptyState({ icon = 'box', title, description, actionLabel = '', onAction, fill = false, compact = false }) {
+  return <div className={`empty-state-v2${fill?' is-fill':''}${compact?' is-compact':''}`}>
+    <span className="empty-state-icon"><Icon name={icon} size={compact?22:30}/></span>
+    <b>{title}</b>
+    {description&&<p>{description}</p>}
+    {actionLabel&&<button onClick={onAction}>{actionLabel}</button>}
+  </div>;
 }
 
 function Avatar({ name, tone = 'sage', size = 38 }) {

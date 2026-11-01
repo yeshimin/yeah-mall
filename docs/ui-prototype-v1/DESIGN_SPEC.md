@@ -61,6 +61,18 @@ Small body and secondary text must maintain WCAG-readable contrast. Muted, warni
 3. Reviews, coupons, seckill and group-buy.
 4. Shipping, customer service and shop settings.
 
+## App visual language
+
+- Use a white-first, flat canvas. Secondary pages use a near-white page background with white content sections separated by `10px` whitespace bands.
+- Every secondary-page title bar is `48px` high with a white background. TabBar root pages and immersive product detail pages follow their dedicated shell rules.
+- Primary form, confirmation and fixed-bottom actions use one `44px` control height and `10px` radius. Product-detail action bars and authentication hero actions may keep their role-specific height.
+- Brand green is reserved for primary actions, active states and positive values. Price red is reserved for prices, discounts and destructive commerce emphasis.
+- Ordinary content sections do not use shadows. Shadows are limited to device chrome, modal sheets and temporary overlays.
+- Borders are not used to wrap every section. Prefer whitespace and background changes; retain subtle borders only where a coupon, selectable option or product card needs a clear boundary.
+- Lists use inset separators and one shared end-of-list boundary. Empty states, loading states and list boundaries are visually distinct.
+- Form controls use the shared subtle surface, consistent labels and full-width alignment. Native checkboxes are replaced by the shared switch or selection treatment in the prototype.
+- Authentication, privacy, notification, order, marketing, points, address, review and after-sales pages share these rules. Business-specific hero colors are allowed only when they communicate state or account value.
+
 ## Production mapping
 
 | Prototype concept | Target implementation |
