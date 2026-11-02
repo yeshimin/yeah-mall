@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yeah Mall 后台设计规范探索</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      color-scheme: light;
+      font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      background: #eef1ee;
+      color: #17251f;
+    }
+    body { margin: 0; min-width: 1180px; background: #eef1ee; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    svg { display: block; }
+    .lab-header {
+      position: sticky;
+      z-index: 100;
+      top: 0;
+      display: flex;
+      min-height: 72px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+      padding: 12px 28px;
+      border-bottom: 1px solid #dbe2dd;
+      background: rgba(248, 250, 248, .96);
+      backdrop-filter: blur(18px);
+    }
+    .lab-brand { display: flex; align-items: center; gap: 13px; }
+    .lab-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 12px;
+      color: #fff;
+      background: #24634f;
+      font-size: 21px;
+      font-weight: 800;
+    }
+    .lab-brand-copy { display: flex; flex-direction: column; gap: 3px; }
+    .lab-brand-copy b { font-size: 15px; }
+    .lab-brand-copy span { color: #69766f; font-size: 11px; }
+    .lab-controls { display: flex; align-items: center; gap: 12px; }
+    .segmented {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 4px;
+      border: 1px solid #d6ded8;
+      border-radius: 10px;
+      background: #fff;
+    }
+    .segmented button {
+      height: 32px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 7px;
+      color: #66736b;
+      background: transparent;
+      font-size: 12px;
+    }
+    .segmented button.active { color: #fff; background: #24634f; font-weight: 700; }
+    .lab-main { padding: 24px 28px 48px; }
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(360px, .7fr);
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    .intro-copy, .merge-card {
+      padding: 24px 26px;
+      border: 1px solid #dbe2dd;
+      border-radius: 14px;
+      background: #fff;
+    }
+    .eyebrow { color: #24634f; font-size: 11px; font-weight: 800; letter-spacing: .14em; }
+    .intro h1 { margin: 10px 0 8px; font-size: 27px; letter-spacing: -.04em; }
+    .intro p { max-width: 820px; margin: 0; color: #65726a; font-size: 13px; line-height: 1.75; }
+    .merge-card { display: grid; grid-template-columns: 52px 1fr; align-items: center; gap: 16px; }
+    .merge-score {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      place-items: center;
+      border-radius: 15px;
+      color: #24634f;
+      background: #e8f2ed;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .merge-card b { display: block; font-size: 14px; }
+    .merge-card span { display: block; margin-top: 5px; color: #65726a; font-size: 12px; line-height: 1.55; }
+    .configuration-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+    .configuration-card {
+      min-height: 120px;
+      padding: 17px 18px;
+      border: 1px solid #dbe2dd;
+      border-radius: 12px;
+      background: #fff;
+    }
+    .configuration-card header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .configuration-card header b { font-size: 14px; }
+    .configuration-card header small { color: #65726a; font-size: 10px; }
+    .configuration-card p { min-height: 34px; margin: 9px 0 13px; color: #65726a; font-size: 11px; line-height: 1.55; }
+    .configuration-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 4px; border-radius: 9px; background: #f1f4f2; }
+    .configuration-options button { height: 32px; border: 0; border-radius: 6px; color: #65726a; background: transparent; font-size: 11px; }
+    .configuration-options button.active { color: #fff; background: #24634f; font-weight: 700; box-shadow: 0 4px 10px rgba(36, 99, 79, .15); }
+    .configuration-options button:disabled { cursor: not-allowed; opacity: .38; }
+    .preview-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px 14px;
+      border: 1px solid #dbe2dd;
+      border-bottom: 0;
+      border-radius: 14px 14px 0 0;
+      background: #fff;
+    }
+    .preview-toolbar > div:first-child { display: flex; align-items: center; gap: 10px; }
+    .preview-toolbar b { font-size: 13px; }
+    .preview-toolbar span { color: #65726a; font-size: 11px; }
+    .viewport-note { display: flex; align-items: center; gap: 7px; color: #65726a; font-size: 11px; }
+    .viewport-note i { width: 7px; height: 7px; border-radius: 50%; background: #4c8c71; }
+    .preview-frame {
+      min-height: 760px;
+      overflow: hidden;
+      border: 1px solid #cfd8d1;
+      border-radius: 0 0 14px 14px;
+      background: #fff;
+      box-shadow: 0 28px 70px rgba(18, 38, 29, .13);
+    }
+
+    /* Shared admin shell. Each direction changes variables and composition only. */
+    .admin-preview {
+      --a-brand: #24634f;
+      --a-brand-strong: #174b3b;
+      --a-brand-soft: #e8f2ed;
+      --a-ink: #17251f;
+      --a-text: #30423a;
+      --a-muted: #65726a;
+      --a-paper: #f4f6f3;
+      --a-surface: #fff;
+      --a-line: #dce4de;
+      --a-line-strong: #c7d2ca;
+      --a-price: #be412b;
+      --a-warning: #986019;
+      --a-danger: #b6403a;
+      --a-radius: 8px;
+      --a-sidebar: #18352a;
+      --a-sidebar-text: #b5c8bf;
+      --a-sidebar-active: rgba(255, 255, 255, .1);
+      --a-row-height: 56px;
+      width: 100%;
+      height: 760px;
+      color: var(--a-ink);
+      background: var(--a-paper);
+      font-size: 13px;
+    }
+    .admin-shell { display: grid; width: 100%; height: 100%; grid-template-columns: 224px minmax(0, 1fr); }
+    .admin-sidebar {
+      display: flex;
+      min-height: 0;
+      flex-direction: column;
+      padding: 16px 12px;
+      color: var(--a-sidebar-text);
+      background: var(--a-sidebar);
+    }
+    .admin-logo { display: flex; height: 54px; align-items: center; gap: 11px; padding: 0 10px 14px; }
+    .admin-logo-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      place-items: center;
+      border-radius: 9px;
+      color: var(--a-brand);
+      background: #fff;
+      font-weight: 800;
+    }
+    .admin-logo-copy { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+    .admin-logo-copy b { color: #fff; font-size: 13px; }
+    .admin-logo-copy small { color: var(--a-sidebar-text); font-size: 10px; }
+    .admin-nav { min-height: 0; flex: 1; overflow-y: auto; scrollbar-width: none; }
+    .admin-nav::-webkit-scrollbar { display: none; }
+    .nav-group { margin-top: 13px; }
+    .nav-group-title { display: block; padding: 0 12px 6px; color: var(--a-sidebar-text); font-size: 9px; letter-spacing: .12em; opacity: .7; }
+    .nav-item {
+      display: flex;
+      width: 100%;
+      height: 38px;
+      align-items: center;
+      gap: 10px;
+      padding: 0 11px;
+      text-align: left;
+      border: 0;
+      border-radius: 7px;
+      color: var(--a-sidebar-text);
+      background: transparent;
+      font-size: 12px;
+    }
+    .nav-item svg { width: 16px; height: 16px; flex: 0 0 16px; stroke: currentColor; }
+    .nav-item.active { color: #fff; background: var(--a-sidebar-active); font-weight: 700; }
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,.06); }
+    .sidebar-account { display: flex; align-items: center; gap: 9px; margin-top: 12px; padding: 10px; border-radius: 8px; background: rgba(255,255,255,.06); }
+    .avatar { display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; border-radius: 9px; color: var(--a-brand); background: #e8f2ed; font-weight: 800; }
+    .account-copy { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+    .account-copy b { overflow: hidden; color: #fff; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .account-copy span { color: var(--a-sidebar-text); font-size: 9px; }
+    .admin-main { display: flex; min-width: 0; min-height: 0; flex-direction: column; }
+    .admin-topbar {
+      display: flex;
+      height: 56px;
+      flex: 0 0 56px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--a-line);
+      background: var(--a-surface);
+    }
+    .breadcrumbs { display: flex; align-items: center; gap: 7px; color: var(--a-muted); font-size: 11px; }
+    .breadcrumbs b { color: var(--a-ink); font-weight: 700; }
+    .topbar-tools { display: flex; align-items: center; gap: 7px; }
+    .icon-button { display: grid; width: 32px; height: 32px; place-items: center; border: 0; border-radius: 8px; color: var(--a-muted); background: transparent; }
+    .icon-button:hover { color: var(--a-brand); background: var(--a-brand-soft); }
+    .icon-button svg { width: 17px; height: 17px; stroke: currentColor; }
+    .top-avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; color: #fff; background: var(--a-brand); font-size: 11px; font-weight: 800; }
+    .admin-content { min-height: 0; flex: 1; overflow: auto; padding: 18px 20px 24px; }
+    .page-context { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .page-context-copy { display: flex; align-items: center; gap: 9px; }
+    .context-mark { width: 4px; height: 18px; border-radius: 3px; background: var(--a-brand); }
+    .page-context b { font-size: 14px; }
+    .page-context span { color: var(--a-muted); font-size: 11px; }
+    .filter-panel {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 15px;
+      border: 1px solid var(--a-line);
+      border-radius: var(--a-radius);
+      background: var(--a-surface);
+    }
+    .filter-query, .filter-fields, .filter-buttons, .business-actions { display: flex; align-items: end; gap: 9px; }
+    .filter-query { min-width: 0; flex: 1; }
+    .filter-fields { min-width: 0; flex: 1; }
+    .field { display: flex; min-width: 156px; flex-direction: column; gap: 6px; color: var(--a-text); font-size: 10px; font-weight: 600; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      height: 34px;
+      padding: 0 10px;
+      outline: 0;
+      border: 1px solid var(--a-line-strong);
+      border-radius: 6px;
+      color: var(--a-ink);
+      background: #fff;
+      font-size: 11px;
+      font-weight: 400;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--a-brand); box-shadow: 0 0 0 2px color-mix(in srgb, var(--a-brand) 12%, transparent); }
+    .button {
+      display: inline-flex;
+      height: 34px;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 13px;
+      border: 1px solid var(--a-line-strong);
+      border-radius: 6px;
+      color: var(--a-text);
+      background: #fff;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .button svg { width: 14px; height: 14px; stroke: currentColor; }
+    .button.primary { color: #fff; border-color: var(--a-brand); background: var(--a-brand); font-weight: 700; }
+    .button.danger { color: var(--a-danger); border-color: color-mix(in srgb, var(--a-danger) 28%, white); }
+    .business-actions { padding-left: 14px; border-left: 1px solid var(--a-line); }
+    .table-frame { margin-top: 12px; overflow: hidden; border: 1px solid var(--a-line); border-radius: var(--a-radius); background: #fff; }
+    table { width: 100%; border-collapse: collapse; table-layout: auto; }
+    th { height: 40px; padding: 0 12px; text-align: left; color: var(--a-muted); background: color-mix(in srgb, var(--a-paper) 78%, white); border-bottom: 1px solid var(--a-line); font-size: 10px; font-weight: 700; white-space: nowrap; }
+    td { height: var(--a-row-height); padding: 8px 12px; color: var(--a-text); border-bottom: 1px solid var(--a-line); font-size: 11px; vertical-align: middle; }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: color-mix(in srgb, var(--a-brand-soft) 32%, white); }
+    .product-cell { display: flex; align-items: center; gap: 10px; }
+    .product-thumb { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; border-radius: 8px; color: var(--a-brand); background: var(--a-brand-soft); font-weight: 800; }
+    .cell-copy { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+    .cell-copy b { overflow: hidden; max-width: 240px; color: var(--a-ink); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .cell-copy small { color: var(--a-muted); font-size: 9px; }
+    .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+    .amount { color: var(--a-price); font-weight: 800; }
+    .actions { text-align: right; white-space: nowrap; }
+    .table-link { padding: 4px 6px; border: 0; color: var(--a-brand); background: transparent; font-size: 11px; font-weight: 700; }
+    .status { display: inline-flex; height: 24px; align-items: center; padding: 0 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+    .status.success { color: var(--a-brand); background: var(--a-brand-soft); }
+    .status.warning { color: var(--a-warning); background: #fbf0df; }
+    .status.danger { color: var(--a-danger); background: #f9ebe7; }
+    .status.neutral { color: var(--a-muted); background: #eff2f0; }
+    .pagination { display: flex; min-height: 52px; align-items: center; justify-content: flex-end; gap: 5px; padding: 8px 12px; border-top: 1px solid var(--a-line); }
+    .pagination button { min-width: 28px; height: 28px; border: 1px solid var(--a-line); border-radius: 5px; color: var(--a-muted); background: #fff; font-size: 10px; }
+    .pagination button.active { color: #fff; border-color: var(--a-brand); background: var(--a-brand); }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .metric-card { padding: 18px; border: 1px solid var(--a-line); border-radius: var(--a-radius); background: #fff; }
+    .metric-card span { color: var(--a-muted); font-size: 10px; }
+    .metric-card b { display: block; margin-top: 11px; font-size: 25px; letter-spacing: -.04em; }
+    .metric-card small { display: block; margin-top: 7px; color: var(--a-brand); font-size: 10px; }
+    .dashboard-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 12px; margin-top: 12px; }
+    .panel { overflow: hidden; border: 1px solid var(--a-line); border-radius: var(--a-radius); background: #fff; }
+    .panel-head { display: flex; height: 46px; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid var(--a-line); }
+    .panel-head b { font-size: 12px; }
+    .task-row { display: grid; min-height: 58px; grid-template-columns: 1fr auto 18px; align-items: center; gap: 12px; padding: 0 15px; border-bottom: 1px solid var(--a-line); }
+    .task-row:last-child { border-bottom: 0; }
+    .task-row span { display: flex; flex-direction: column; gap: 4px; }
+    .task-row b { font-size: 11px; }.task-row small { color: var(--a-muted); font-size: 9px; }.task-row strong { color: var(--a-brand); font-size: 16px; }
+    .chart { display: flex; height: 224px; align-items: flex-end; gap: 16px; padding: 28px 24px 26px; }
+    .bar { position: relative; flex: 1; min-width: 20px; border-radius: 5px 5px 0 0; background: var(--a-brand-soft); }
+    .bar::after { position: absolute; right: 0; bottom: -19px; left: 0; color: var(--a-muted); font-size: 9px; text-align: center; content: attr(data-day); }
+    .bar.active { background: var(--a-brand); }
+    .detail-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 12px; }
+    .detail-card { padding: 17px 18px; border: 1px solid var(--a-line); border-radius: var(--a-radius); background: #fff; }
+    .detail-card.wide { grid-column: 1 / -1; }
+    .detail-card h3 { margin: 0 0 14px; font-size: 13px; }
+    .description-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px 20px; }
+    .description-grid div { display: flex; flex-direction: column; gap: 4px; }
+    .description-grid span { color: var(--a-muted); font-size: 9px; }
+    .description-grid b { color: var(--a-text); font-size: 11px; }
+    .order-product { display: grid; grid-template-columns: 58px 1fr auto; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--a-line); }
+    .order-product:first-of-type { border-top: 0; }
+    .order-product .product-thumb { width: 58px; height: 58px; }
+    .order-product strong { color: var(--a-price); font-size: 13px; }
+    .timeline { display: flex; flex-direction: column; gap: 14px; }
+    .timeline-item { display: grid; grid-template-columns: 16px 1fr auto; gap: 9px; color: var(--a-muted); font-size: 10px; }
+    .timeline-item i { width: 8px; height: 8px; margin-top: 3px; border: 2px solid var(--a-line-strong); border-radius: 50%; }
+    .timeline-item.active { color: var(--a-text); }.timeline-item.active i { border-color: var(--a-brand); background: var(--a-brand); }
+    .drawer-mask, .dialog-mask { position: absolute; z-index: 30; inset: 0; display: flex; background: rgba(16, 31, 24, .38); }
+    .drawer-mask { justify-content: flex-end; }
+    .drawer { width: 440px; height: 100%; padding: 20px; background: #fff; box-shadow: -20px 0 60px rgba(18, 38, 29, .16); }
+    .drawer-head, .dialog-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
+    .drawer-head span, .dialog-head span { color: var(--a-brand); font-size: 9px; font-weight: 800; letter-spacing: .14em; }
+    .drawer-head h2, .dialog-head h2 { margin: 6px 0 0; font-size: 19px; }
+    .close-button { display: grid; width: 32px; height: 32px; place-items: center; border: 0; border-radius: 8px; color: var(--a-muted); background: var(--a-paper); font-size: 18px; }
+    .drawer-section { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--a-line); }
+    .drawer-section h3 { margin: 0 0 12px; font-size: 12px; }
+    .review-box { padding: 14px; border-radius: 8px; color: var(--a-text); background: var(--a-paper); font-size: 11px; line-height: 1.65; }
+    .drawer-actions, .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+    .dialog-mask { align-items: center; justify-content: center; }
+    .dialog { width: 560px; padding: 22px; border-radius: 12px; background: #fff; box-shadow: 0 30px 90px rgba(18, 38, 29, .24); }
+    .dialog-body { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .dialog-body .wide { grid-column: 1 / -1; }
+    .dialog-body textarea { height: 86px; padding-top: 9px; resize: none; }
+
+    /* Composable shell options. Business content remains one shared system. */
+    .nav-light {
+      --a-sidebar: #fff;
+      --a-sidebar-text: #5f6e66;
+      --a-sidebar-active: var(--a-brand-soft);
+    }
+    .nav-light .admin-sidebar { border-right: 1px solid var(--a-line); }
+    .nav-light .admin-logo-mark { color: #fff; background: var(--a-brand); }
+    .nav-light .admin-logo-copy b,
+    .nav-light .account-copy b { color: var(--a-ink); }
+    .nav-light .admin-logo-copy small,
+    .nav-light .account-copy span { color: var(--a-muted); }
+    .nav-light .nav-item { color: var(--a-muted); }
+    .nav-light .nav-item.active { color: var(--a-brand); background: var(--a-brand-soft); }
+    .nav-light .nav-item:hover { color: var(--a-brand); background: var(--a-paper); }
+    .nav-light .sidebar-account { background: var(--a-paper); }
+
+    .density-compact { --a-radius: 6px; --a-row-height: 48px; }
+    .density-compact .admin-content { padding: 14px 16px 20px; }
+    .density-compact .filter-panel { padding: 10px 12px; }
+    .density-compact .field { min-width: 142px; }
+    .density-compact .metric-card { padding: 14px; }
+    .density-compact th,
+    .density-compact td { font-size: 10px; }
+    .density-comfortable { --a-radius: 10px; --a-row-height: 62px; }
+    .density-comfortable .admin-content { padding: 22px 26px 32px; }
+    .density-comfortable .filter-panel { padding: 16px 17px; }
+    .density-comfortable td { padding-inline: 16px; }
+
+    .layout-side.sidebar-collapsed .admin-shell { grid-template-columns: 72px minmax(0, 1fr); }
+    .layout-side.sidebar-collapsed .admin-sidebar { padding-inline: 8px; }
+    .layout-side.sidebar-collapsed .admin-logo { justify-content: center; padding-inline: 0; }
+    .layout-side.sidebar-collapsed .admin-logo-copy,
+    .layout-side.sidebar-collapsed .nav-group-title,
+    .layout-side.sidebar-collapsed .account-copy { display: none; }
+    .layout-side.sidebar-collapsed .nav-group { margin-top: 7px; }
+    .layout-side.sidebar-collapsed .nav-item { height: 46px; justify-content: center; padding: 0; }
+    .layout-side.sidebar-collapsed .nav-text { display: none; }
+    .layout-side.sidebar-collapsed .sidebar-account { justify-content: center; padding: 7px; }
+    .collapse-trigger { margin-right: 3px; }
+
+    .layout-top .admin-shell { grid-template-columns: 1fr; grid-template-rows: 86px minmax(0, 1fr); }
+    .layout-top .admin-sidebar { display: grid; grid-template-columns: 210px minmax(0, 1fr) auto; align-items: center; padding: 9px 20px; border-right: 0; border-bottom: 1px solid var(--a-line); }
+    .layout-top .admin-logo { padding: 0; }
+    .layout-top .admin-nav { display: flex; min-width: 0; align-items: center; justify-content: center; gap: 4px; overflow: visible; }
+    .layout-top .nav-group { display: contents; }
+    .layout-top .nav-group-title { display: none; }
+    .layout-top .nav-item { width: auto; height: 36px; flex: 0 0 auto; padding: 0 10px; }
+    .layout-top .nav-item:nth-of-type(n+3) { display: none; }
+    .layout-top .sidebar-account { margin: 0; padding: 6px 8px; }
+    .layout-top .admin-topbar { height: 48px; flex-basis: 48px; }
+    .layout-top.nav-dark .admin-logo-mark { color: var(--a-brand); background: #fff; }
+    .layout-top.nav-dark .admin-logo-copy b,
+    .layout-top.nav-dark .account-copy b { color: #fff; }
+    .layout-top.nav-dark .nav-item.active { color: var(--a-sidebar); background: #fff; }
+    .layout-top.nav-dark .sidebar-account { background: rgba(255,255,255,.08); }
+    .layout-top .collapse-trigger { display: none; }
+
+    .spec-section { margin-top: 26px; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 12px; }
+    .section-heading h2 { margin: 0; font-size: 19px; }
+    .section-heading p { margin: 0; color: #65726a; font-size: 12px; }
+    .spec-grid { display: grid; grid-template-columns: 1.05fr .95fr .9fr; gap: 14px; }
+    .spec-card { padding: 20px; border: 1px solid #dbe2dd; border-radius: 12px; background: #fff; }
+    .spec-card h3 { margin: 0 0 16px; font-size: 14px; }
+    .swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+    .swatch { overflow: hidden; border: 1px solid #dce4de; border-radius: 8px; }
+    .swatch i { display: block; height: 42px; background: var(--swatch); }
+    .swatch span { display: flex; align-items: center; justify-content: space-between; padding: 8px; color: #65726a; font-size: 10px; }
+    .type-scale { display: flex; flex-direction: column; gap: 13px; }
+    .type-row { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 12px; }
+    .type-row span { color: #65726a; font-size: 10px; }.type-row b { font-size: var(--type-size); }.type-row code { color: #65726a; font-size: 10px; }
+    .component-stack { display: flex; flex-direction: column; gap: 14px; }
+    .demo-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .demo-input { width: 180px; height: 34px; padding: 0 10px; border: 1px solid #c7d2ca; border-radius: 6px; color: #30423a; background: #fff; font-size: 11px; }
+    .implementation-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .implementation-card { padding: 14px; border: 1px solid #dbe2dd; border-radius: 9px; background: #fff; }
+    .implementation-card b { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
+    .implementation-card b span { padding: 3px 6px; border-radius: 5px; color: #24634f; background: #e8f2ed; font-size: 9px; }
+    .implementation-card p { margin: 9px 0 0; color: #65726a; font-size: 10px; line-height: 1.6; }
+    .toast { position: fixed; z-index: 200; right: 24px; bottom: 24px; padding: 12px 16px; border-radius: 9px; color: #fff; background: #17251f; box-shadow: 0 12px 36px rgba(18,38,29,.24); font-size: 12px; opacity: 0; transform: translateY(12px); pointer-events: none; transition: .18s ease; }
+    .toast.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <header class="lab-header">
+    <div class="lab-brand">
+      <span class="lab-mark">Y</span>
+      <span class="lab-brand-copy"><b>Yeah Mall 后台设计实验室</b><span>视觉规范、页面骨架与上游合并成本对照</span></span>
+    </div>
+    <div class="lab-controls">
+      <div class="segmented" id="surfaceSwitch">
+        <button class="active" data-surface="platform">平台后台</button>
+        <button data-surface="merchant">商家后台</button>
+      </div>
+      <div class="segmented" id="scenarioSwitch">
+        <button class="active" data-scenario="list">列表管理</button>
+        <button data-scenario="dashboard">经营首页</button>
+        <button data-scenario="detail">订单详情</button>
+        <button data-scenario="audit">审核弹窗</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="lab-main">
+    <section class="intro">
+      <div class="intro-copy">
+        <span class="eyebrow">ADMIN DESIGN SYSTEM EXPLORATION</span>
+        <h1>一套内容规范，组合不同后台外壳</h1>
+        <p>运营账本与轻白工作台不再被拆成两套页面。筛选、表格、详情、弹窗和状态表达保持唯一实现，只把导航位置、导航主题、信息密度和折叠状态作为独立配置。这样既能满足不同使用偏好，也能把 YeahBoot 上游合并冲突集中在布局组件内。</p>
+      </div>
+      <div class="merge-card">
+        <span class="merge-score" id="mergeScore">低</span>
+        <span><b id="mergeTitle">推荐作为基线</b><span id="mergeDescription">保留 YeahBoot 侧栏与页面 DOM，主要通过设计令牌和商城页面包装类完成。</span></span>
+      </div>
+    </section>
+
+    <section class="configuration-grid" id="configurationGrid"></section>
+
+    <section>
+      <div class="preview-toolbar">
+        <div><b id="previewName">左侧深色 · 舒展</b><span id="previewCaption">同一套业务内容，当前仅改变后台外壳配置</span></div>
+        <div class="viewport-note"><i></i><span>交互原型：筛选、重置、新增、查看、菜单切换均可操作</span></div>
+      </div>
+      <div class="preview-frame"><div id="adminPreview" class="admin-preview layout-side nav-dark density-comfortable"></div></div>
+    </section>
+
+    <section class="spec-section">
+      <div class="section-heading"><h2>设计规范样板</h2><p>最终令牌会放在商城独立主题层，不直接散落覆盖 YeahBoot 源文件。</p></div>
+      <div class="spec-grid">
+        <article class="spec-card">
+          <h3>色彩角色</h3>
+          <div class="swatches">
+            <div class="swatch"><i style="--swatch:#17251f"></i><span>主文字 <code>#17251F</code></span></div>
+            <div class="swatch"><i style="--swatch:#24634f"></i><span>品牌色 <code>#24634F</code></span></div>
+            <div class="swatch"><i style="--swatch:#e8f2ed"></i><span>品牌浅色 <code>#E8F2ED</code></span></div>
+            <div class="swatch"><i style="--swatch:#f4f6f3"></i><span>页面底色 <code>#F4F6F3</code></span></div>
+            <div class="swatch"><i style="--swatch:#dce4de"></i><span>分割线 <code>#DCE4DE</code></span></div>
+            <div class="swatch"><i style="--swatch:#be412b"></i><span>价格危险 <code>#BE412B</code></span></div>
+          </div>
+        </article>
+        <article class="spec-card">
+          <h3>文字层级</h3>
+          <div class="type-scale">
+            <div class="type-row"><span>页面标题</span><b style="--type-size:20px">订单管理</b><code>20 / 700</code></div>
+            <div class="type-row"><span>区块标题</span><b style="--type-size:16px">订单信息</b><code>16 / 600</code></div>
+            <div class="type-row"><span>正文</span><b style="--type-size:14px;font-weight:500">山野生活店</b><code>14 / 500</code></div>
+            <div class="type-row"><span>辅助信息</span><b style="--type-size:12px;color:#65726a;font-weight:400">2026-11-02 10:28</b><code>12 / 400</code></div>
+          </div>
+        </article>
+        <article class="spec-card">
+          <h3>基础部件</h3>
+          <div class="component-stack">
+            <div class="demo-row"><button class="button primary">主要操作</button><button class="button">次要操作</button><button class="button danger">危险操作</button></div>
+            <div class="demo-row"><span class="status success">已启用</span><span class="status warning">待审核</span><span class="status danger">退款中</span><span class="status neutral">已关闭</span></div>
+            <div class="demo-row"><input class="demo-input" placeholder="统一输入框"><select class="demo-input"><option>统一选择器</option></select></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="spec-section">
+      <div class="section-heading"><h2>与 YeahBoot 的实现边界</h2><p>越靠左越适合直接在本项目实施，越靠右越需要谨慎评估上游合并成本。</p></div>
+      <div class="implementation-grid">
+        <article class="implementation-card"><b>设计令牌<span>直接实施</span></b><p>颜色、字号、间距、圆角、状态色集中到商城主题变量。上游合并后重新挂载主题即可。</p></article>
+        <article class="implementation-card"><b>商城业务组件<span>深度优化</span></b><p>筛选栏、商城表格、详情抽屉、审核弹窗由 YeahMall 自己维护，不侵入 YeahBoot 通用组件。</p></article>
+        <article class="implementation-card"><b>YeahBoot 通用页面<span>轻量覆盖</span></b><p>系统管理等页面优先只调整主题变量和外层间距，避免重写 DOM、事件与权限结构。</p></article>
+        <article class="implementation-card"><b>后台整体导航<span>谨慎选择</span></b><p>侧栏宽度和颜色可低成本调整；双栏导航或顶部主导航会提高以后合并上游的成本。</p></article>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const configurationMeta = [
+      { key: 'layout', title: '导航位置', description: '业务页面保持不变，只切换后台整体导航骨架。', options: [['side','左侧'],['top','顶部']] },
+      { key: 'navigationTheme', title: '导航主题', description: '运营账本与轻白工作台收敛为深色、浅色导航皮肤。', options: [['dark','深色'],['light','浅色']] },
+      { key: 'density', title: '内容密度', description: '表格、筛选区和卡片使用紧凑或舒展的统一节奏。', options: [['compact','紧凑'],['comfortable','舒展']] },
+      { key: 'collapsed', title: '菜单状态', description: '左侧菜单支持展开与折叠，顶部导航不需要折叠。', options: [[false,'展开'],[true,'折叠']] }
+    ];
+
+    const icons = {
+      home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M9.5 20v-6h5v6"/>',
+      store: '<path d="M4 10h16l-1.2-5H5.2z"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>',
+      box: '<path d="m4 7 8-4 8 4-8 4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/>',
+      order: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+      users: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-4 2-7 6-7s6 3 6 7"/><path d="M16 6a3 3 0 0 1 0 6M17 14c2.5.6 4 2.6 4 6"/>',
+      campaign: '<path d="M4 13V7l11-3v12L4 13Z"/><path d="M7 14v5h4v-4"/><path d="M18 7c1 1 1 5 0 6"/>',
+      message: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',
+      settings: '<circle cx="12" cy="12" r="3"/><path d="M19 13.5v-3l-2-.7-.8-1.8.9-1.9L15 4l-1.8.9L11.5 4h-3l-.7 2-1.8.8-1.9-.9L2 8l.9 1.8L2 11.5v3l2 .7.8 1.8-.9 1.9L6 21l1.8-.9 1.7.9h3l.7-2 1.8-.8 1.9.9L19 17l-.9-1.8z"/>',
+      search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
+      plus: '<path d="M12 5v14M5 12h14"/>',
+      bell: '<path d="M6 17h12l-1.5-2V10a4.5 4.5 0 0 0-9 0v5z"/><path d="M10 20h4"/>',
+      more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+      chevron: '<path d="m9 6 6 6-6 6"/>',
+      filter: '<path d="M4 6h16M7 12h10M10 18h4"/>'
+    };
+    const I = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icons[name] || icons.box}</svg>`;
+
+    const state = {
+      layout: 'side',
+      navigationTheme: 'dark',
+      density: 'comfortable',
+      collapsed: false,
+      surface: 'platform',
+      scenario: 'list',
+      keyword: '',
+      dialog: false,
+      drawer: false
+    };
+    const platformNav = [
+      ['经营概览','home'], ['商家管理','users'], ['店铺管理','store'], ['会员管理','users'], ['订单管理','order'],
+      ['秒杀管理','campaign'], ['拼团管理','users'], ['积分商城','box'], ['系统管理','settings']
+    ];
+    const merchantNav = [
+      ['经营概览','home'], ['商品管理','box'], ['商品分类','filter'], ['订单管理','order'], ['评价管理','message'],
+      ['客服消息','message'], ['优惠券','campaign'], ['秒杀管理','campaign'], ['拼团管理','users'], ['店铺设置','settings']
+    ];
+    const platformRows = [
+      ['山野生活店','山野拼配挂耳咖啡','咖啡冲调','59.00','328','在售'],
+      ['Yeah 数码生活馆','云感降噪头戴耳机','数码影音','299.00','126','在售'],
+      ['白茶研究所','白茶屏障修护精华','美容护肤','139.00','89','待审核'],
+      ['木作生活馆','弧光人体工学休闲椅','居家生活','499.00','74','已下架'],
+      ['轻行户外','城市轻量通勤背包','箱包户外','189.00','205','在售']
+    ];
+    const merchantRows = [
+      ['SPU-211094','山野拼配挂耳咖啡','咖啡冲调','59.00','186','在售'],
+      ['SPU-211087','弧光人体工学休闲椅','居家生活','499.00','42','在售'],
+      ['SPU-211064','便携蓝牙音箱','数码影音','229.00','18','低库存'],
+      ['SPU-211032','城市轻量通勤背包','箱包户外','189.00','96','已下架'],
+      ['SPU-210998','云感降噪头戴耳机','数码影音','299.00','61','在售']
+    ];
+
+    function renderConfiguration() {
+      document.getElementById('configurationGrid').innerHTML = configurationMeta.map(item => `
+        <article class="configuration-card">
+          <header><b>${item.title}</b><small>${item.key === 'layout' ? '框架能力' : '视觉配置'}</small></header>
+          <p>${item.description}</p>
+          <div class="configuration-options">
+            ${item.options.map(([value,label]) => {
+              const normalized = item.key === 'collapsed' ? value : String(value);
+              const active = state[item.key] === normalized;
+              const disabled = item.key === 'collapsed' && state.layout === 'top';
+              return `<button class="${active ? 'active' : ''}" data-config-key="${item.key}" data-config-value="${normalized}" ${disabled ? 'disabled' : ''}>${label}</button>`;
+            }).join('')}
+          </div>
+        </article>`).join('');
+      document.querySelectorAll('[data-config-key]').forEach(button => button.onclick = () => {
+        const key = button.dataset.configKey;
+        const rawValue = button.dataset.configValue;
+        state[key] = key === 'collapsed' ? rawValue === 'true' : rawValue;
+        if (key === 'layout' && rawValue === 'top') state.collapsed = false;
+        render();
+      });
+    }
+
+    function navMarkup() {
+      const nav = state.surface === 'platform' ? platformNav : merchantNav;
+      const title = state.surface === 'platform' ? '平台运营端' : '商家工作台';
+      const groups = state.surface === 'platform'
+        ? [['商城运营', nav.slice(0,5)], ['营销管理', nav.slice(5,8)], ['系统能力', nav.slice(8)]]
+        : [['经营管理', nav.slice(0,6)], ['营销工具', nav.slice(6,9)], ['店铺配置', nav.slice(9)]];
+      return `
+        <aside class="admin-sidebar">
+          <div class="admin-logo"><span class="admin-logo-mark">Y</span><span class="admin-logo-copy"><b>Yeah Mall</b><small>${title}</small></span></div>
+          <nav class="admin-nav">${groups.map(group => `<div class="nav-group"><span class="nav-group-title">${group[0]}</span>${group[1].map((item,index) => `<button class="nav-item ${(item[0] === '商品管理' || item[0] === '商家管理') ? 'active' : ''}" data-menu="${item[0]}">${I(item[1])}<span class="nav-text">${item[0]}</span></button>`).join('')}</div>`).join('')}</nav>
+          <div class="sidebar-account"><span class="avatar">${state.surface === 'platform' ? '管' : '野'}</span><span class="account-copy"><b>${state.surface === 'platform' ? '平台管理员' : '山野生活店'}</b><span>${state.surface === 'platform' ? 'admin' : 'mch001'}</span></span></div>
+        </aside>`;
+    }
+
+    function topbarMarkup(pageName) {
+      return `<header class="admin-topbar"><div class="breadcrumbs">${state.layout === 'side' ? `<button class="icon-button collapse-trigger" id="collapseButton" title="${state.collapsed ? '展开菜单' : '折叠菜单'}">${I('filter')}</button>` : ''}<span>${state.surface === 'platform' ? '平台后台' : '商家后台'}</span><span>/</span><b>${pageName}</b></div><div class="topbar-tools"><button class="icon-button" data-toast="全局搜索已聚焦">${I('search')}</button><button class="icon-button" data-toast="你有 3 条业务待办">${I('bell')}</button><span class="top-avatar">${state.surface === 'platform' ? '管' : '野'}</span></div></header>`;
+    }
+
+    function filterMarkup() {
+      const noun = state.surface === 'platform' ? '商家或商品名称' : '商品名称或编码';
+      return `<div class="filter-panel"><div class="filter-query"><div class="filter-fields"><label class="field"><span>关键词</span><input id="keywordInput" value="${state.keyword}" placeholder="请输入${noun}"></label><label class="field"><span>商品状态</span><select><option>全部状态</option><option>在售</option><option>待审核</option><option>已下架</option></select></label></div><div class="filter-buttons"><button class="button" id="resetButton">重置</button><button class="button primary" id="queryButton">${I('search')}查询</button></div></div><div class="business-actions"><button class="button" data-toast="导出任务已创建">导出</button><button class="button primary" id="createButton">${I('plus')}${state.surface === 'platform' ? '新增商家' : '新增商品'}</button></div></div>`;
+    }
+
+    function listMarkup() {
+      const source = state.surface === 'platform' ? platformRows : merchantRows;
+      const rows = source.filter(row => row.join('').includes(state.keyword));
+      const firstHead = state.surface === 'platform' ? '店铺' : '商品编码';
+      return `<section class="admin-content"><div class="page-context"><span class="page-context-copy"><i class="context-mark"></i><b>${state.surface === 'platform' ? '商城商品' : '商品管理'}</b><span>统一管理商品资料、库存与销售状态</span></span><span>数据更新于 10:28</span></div>${filterMarkup()}<div class="table-frame"><table><thead><tr><th>${firstHead}</th><th>商品</th><th>分类</th><th class="numeric">售价</th><th class="numeric">库存</th><th>状态</th><th class="actions">操作</th></tr></thead><tbody>${rows.map((row,index) => `<tr><td>${row[0]}</td><td><div class="product-cell"><span class="product-thumb">${row[1].slice(0,1)}</span><span class="cell-copy"><b>${row[1]}</b><small>${state.surface === 'platform' ? `商品 ID ${211094 + index}` : `${2 + index} 个 SKU`}</small></span></div></td><td>${row[2]}</td><td class="numeric amount">¥${row[3]}</td><td class="numeric">${row[4]}</td><td><span class="status ${row[5] === '在售' ? 'success' : row[5] === '待审核' || row[5] === '低库存' ? 'warning' : 'neutral'}">${row[5]}</span></td><td class="actions"><button class="table-link view-button">查看</button><button class="table-link" data-toast="操作菜单已展开">更多</button></td></tr>`).join('') || `<tr><td colspan="7" style="height:180px;text-align:center;color:var(--a-muted)">没有匹配的数据</td></tr>`}</tbody></table><div class="pagination"><button>‹</button><button class="active">1</button><button>2</button><button>3</button><button>›</button></div></div></section>`;
+    }
+
+    function dashboardMarkup() {
+      const merchant = state.surface === 'merchant';
+      const metrics = merchant ? [['今日支付金额','¥18,620','较昨日 +12.4%'],['今日订单','86','待发货 12'],['在售商品','128','低库存 4'],['售后待处理','3','请及时处理']] : [['今日平台交易额','¥286,420','较昨日 +8.6%'],['今日支付订单','1,268','退款订单 18'],['正常营业店铺','42','暂停营业 2'],['待审核事项','13','今日新增 5']];
+      const tasks = merchant ? [['待发货订单','12'],['低库存商品','4'],['待回复评价','6'],['退款待处理','3']] : [['商家入驻审核','3'],['秒杀报名审核','2'],['评价内容审核','8'],['意见反馈处理','5']];
+      return `<section class="admin-content"><div class="page-context"><span class="page-context-copy"><i class="context-mark"></i><b>经营概览</b><span>${merchant ? '当前店铺的经营待办与趋势' : '平台全局经营状态与待办'}</span></span><button class="button" data-toast="数据已刷新">刷新数据</button></div><div class="metric-grid">${metrics.map(item => `<article class="metric-card"><span>${item[0]}</span><b>${item[1]}</b><small>${item[2]}</small></article>`).join('')}</div><div class="dashboard-grid"><section class="panel"><header class="panel-head"><b>待办事项</b><span class="status warning">今日</span></header>${tasks.map(item => `<div class="task-row"><span><b>${item[0]}</b><small>点击进入对应业务列表</small></span><strong>${item[1]}</strong>${I('chevron')}</div>`).join('')}</section><section class="panel"><header class="panel-head"><b>近 7 日支付趋势</b><span style="color:var(--a-muted);font-size:10px">支付金额</span></header><div class="chart">${[42,58,49,72,64,88,76].map((value,index) => `<i class="bar ${index === 5 ? 'active' : ''}" style="height:${value}%" data-day="${index + 21}"></i>`).join('')}</div></section></div></section>`;
+    }
+
+    function detailMarkup() {
+      return `<section class="admin-content"><div class="page-context"><span class="page-context-copy"><i class="context-mark"></i><b>订单详情</b><span>订单 YM202611020018</span></span><span class="status success">待发货</span></div><div class="detail-grid"><article class="detail-card"><h3>订单信息</h3><div class="description-grid"><div><span>订单编号</span><b>YM202611020018</b></div><div><span>订单类型</span><b>${state.surface === 'platform' ? '拼团订单' : '普通订单'}</b></div><div><span>会员</span><b>周予安</b></div><div><span>下单时间</span><b>2026-11-02 09:48</b></div></div></article><article class="detail-card"><h3>金额信息</h3><div class="description-grid"><div><span>商品总额</span><b>¥299.00</b></div><div><span>优惠金额</span><b>-¥20.00</b></div><div><span>优惠后应付</span><b>¥279.00</b></div><div><span>实际支付</span><b class="amount">¥0.01</b></div></div></article><article class="detail-card wide"><h3>商品信息</h3><div class="order-product"><span class="product-thumb">耳</span><span class="cell-copy"><b>云感降噪头戴耳机</b><small>雾银 · 标准版 × 1</small></span><strong>¥299.00</strong></div></article><article class="detail-card"><h3>收货信息</h3><div class="description-grid"><div><span>收货人</span><b>周予安 138****1622</b></div><div><span>收货地址</span><b>杭州市余杭区仓前街道 18 号</b></div></div></article><article class="detail-card"><h3>订单进度</h3><div class="timeline"><div class="timeline-item active"><i></i><span>支付成功</span><time>09:49</time></div><div class="timeline-item"><i></i><span>等待商家发货</span><time>当前</time></div><div class="timeline-item"><i></i><span>确认收货</span><time>-</time></div></div></article></div></section>`;
+    }
+
+    function drawerMarkup() {
+      return `<div class="drawer-mask"><aside class="drawer"><header class="drawer-head"><div><span>PRODUCT DETAIL</span><h2>商品详情</h2></div><button class="close-button close-overlay">×</button></header><div class="description-grid"><div><span>商品名称</span><b>云感降噪头戴耳机</b></div><div><span>所属店铺</span><b>Yeah 数码生活馆</b></div><div><span>商品分类</span><b>数码影音</b></div><div><span>销售状态</span><b>在售</b></div></div><section class="drawer-section"><h3>审核与运营信息</h3><div class="review-box">商品资料完整，当前包含 3 个 SKU。主图、详情图和库存均已同步。</div></section><div class="drawer-actions"><button class="button close-overlay">关闭</button><button class="button primary" data-toast="商品状态已更新">保存</button></div></aside></div>`;
+    }
+
+    function dialogMarkup() {
+      return `<div class="dialog-mask"><section class="dialog"><header class="dialog-head"><div><span>${state.surface === 'platform' ? 'AUDIT APPLICATION' : 'CREATE PRODUCT'}</span><h2>${state.surface === 'platform' ? '审核商家申请' : '新增商品'}</h2></div><button class="close-button close-overlay">×</button></header><div class="dialog-body">${state.surface === 'platform' ? `<label class="field"><span>申请商家</span><input value="白茶研究所" readonly></label><label class="field"><span>申请店铺</span><input value="白茶生活馆" readonly></label><label class="field wide"><span>申请说明</span><textarea readonly>申请参加秋日护肤主题活动，计划报名 3 个 SKU。</textarea></label><label class="field wide"><span>审核备注</span><textarea placeholder="选填本次审核说明"></textarea></label>` : `<label class="field"><span>商品名称</span><input placeholder="请输入商品名称"></label><label class="field"><span>商品分类</span><select><option>请选择分类</option><option>数码影音</option></select></label><label class="field wide"><span>商品卖点</span><textarea placeholder="请输入商品卖点"></textarea></label>`}</div><div class="dialog-actions"><button class="button close-overlay">取消</button>${state.surface === 'platform' ? '<button class="button danger" data-toast="申请已驳回">驳回</button><button class="button primary" data-toast="审核已通过">通过</button>' : '<button class="button primary" data-toast="商品草稿已创建">确认创建</button>'}</div></section></div>`;
+    }
+
+    function renderPreview() {
+      const preview = document.getElementById('adminPreview');
+      const pageName = state.scenario === 'dashboard' ? '经营概览' : state.scenario === 'detail' ? '订单详情' : state.surface === 'platform' ? '商城商品' : '商品管理';
+      const content = state.scenario === 'dashboard' ? dashboardMarkup() : state.scenario === 'detail' ? detailMarkup() : listMarkup();
+      preview.className = `admin-preview layout-${state.layout} nav-${state.navigationTheme} density-${state.density} ${state.collapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`;
+      preview.innerHTML = `<div class="admin-shell">${navMarkup()}<main class="admin-main">${topbarMarkup(pageName)}${content}</main>${state.drawer ? drawerMarkup() : ''}${state.dialog || state.scenario === 'audit' ? dialogMarkup() : ''}</div>`;
+      wirePreview();
+    }
+
+    function wirePreview() {
+      document.querySelectorAll('[data-toast]').forEach(node => node.onclick = () => showToast(node.dataset.toast));
+      document.querySelectorAll('[data-menu]').forEach(node => node.onclick = () => showToast(`已切换到${node.dataset.menu}示例`));
+      document.querySelectorAll('.view-button').forEach(node => node.onclick = () => { state.drawer = true; renderPreview(); });
+      document.querySelectorAll('.close-overlay').forEach(node => node.onclick = () => { state.drawer = false; state.dialog = false; if (state.scenario === 'audit') state.scenario = 'list'; render(); });
+      const createButton = document.getElementById('createButton');
+      if (createButton) createButton.onclick = () => { state.dialog = true; renderPreview(); };
+      const queryButton = document.getElementById('queryButton');
+      if (queryButton) queryButton.onclick = () => { state.keyword = document.getElementById('keywordInput').value.trim(); renderPreview(); showToast(`找到 ${state.keyword ? 1 : 5} 条记录`); };
+      const resetButton = document.getElementById('resetButton');
+      if (resetButton) resetButton.onclick = () => { state.keyword = ''; renderPreview(); };
+      const collapseButton = document.getElementById('collapseButton');
+      if (collapseButton) collapseButton.onclick = () => { state.collapsed = !state.collapsed; render(); };
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('visible');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('visible'), 1800);
+    }
+
+    function render() {
+      const topLayout = state.layout === 'top';
+      const navigationName = topLayout ? '顶部导航' : `左侧${state.navigationTheme === 'dark' ? '深色' : '浅色'}`;
+      const densityName = state.density === 'compact' ? '紧凑' : '舒展';
+      renderConfiguration();
+      document.getElementById('mergeScore').textContent = topLayout ? '中' : '低';
+      document.getElementById('mergeTitle').textContent = topLayout ? '建议先在 YeahBoot 实现' : '可低成本接入';
+      document.getElementById('mergeDescription').textContent = topLayout
+        ? '顶部菜单属于框架外壳能力，应在 YeahBoot 集中实现后再合并到 YeahMall，业务页面无需改造。'
+        : '沿用现有 YeahBoot 左侧布局和折叠能力，仅增加主题变量、密度配置与状态持久化。';
+      document.getElementById('previewName').textContent = `${navigationName} · ${densityName}${!topLayout && state.collapsed ? ' · 已折叠' : ''}`;
+      document.getElementById('previewCaption').textContent = '同一套业务内容，当前仅改变后台外壳配置';
+      document.querySelectorAll('[data-surface]').forEach(button => button.classList.toggle('active', button.dataset.surface === state.surface));
+      document.querySelectorAll('[data-scenario]').forEach(button => button.classList.toggle('active', button.dataset.scenario === state.scenario));
+      renderPreview();
+    }
+
+    document.querySelectorAll('[data-surface]').forEach(button => button.onclick = () => { state.surface = button.dataset.surface; state.drawer = false; state.dialog = false; render(); });
+    document.querySelectorAll('[data-scenario]').forEach(button => button.onclick = () => { state.scenario = button.dataset.scenario; state.drawer = false; state.dialog = false; render(); });
+    render();
+  </script>
+</body>
+</html>

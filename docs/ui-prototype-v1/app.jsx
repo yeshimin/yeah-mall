@@ -1606,21 +1606,23 @@ function AppPrototype({ route, navigate, notify, appMode = 'platform' }) {
   );
 }
 
-function AdminSidebar({ surface, route, navigate }) {
+function AdminSidebar({ surface, route, navigate, collapsed = false }) {
   const [expanded,setExpanded] = useState(surface==='platform'?{'商城管理':true,'秒杀管理':false,'拼团管理':false,'系统管理':false}:{'商品管理':true,'交易服务':true,'优惠券管理':false,'秒杀管理':false,'拼团管理':false,'店铺管理':false});
   const platformSections = [
-    { title:'商城管理', items:[['users','platform/merchants','商家管理'],['store','platform/shops','店铺管理'],['members','platform/members','会员管理'],['message','platform/reviews','评价管理'],['points','platform/points','积分管理'],['box','platform/points-mall','积分商城'],['spark','platform/content','首页运营'],['message','platform/feedback','意见反馈']] },
+    { title:'商城管理', items:[['users','platform/merchants','商家管理'],['store','platform/shops','店铺管理'],['grid','platform/categories','平台分类'],['members','platform/members','会员管理'],['message','platform/reviews','评价管理'],['points','platform/points','积分管理'],['box','platform/points-mall','积分商城'],['spark','platform/content','首页运营'],['message','platform/feedback','意见反馈']] },
     { title:'秒杀管理', items:[['bolt','platform/seckill?tab=活动管理','活动管理'],['clock','platform/seckill?tab=场次管理','场次管理'],['check','platform/seckill?tab=报名审核','报名审核'],['box','platform/seckill?tab=商品管理','商品管理'],['eye','platform/seckill?tab=实时监控','实时监控'],['grid','platform/seckill?tab=成交分析','成交分析']] },
     { title:'拼团管理', items:[['users','platform/groupbuy?tab=活动管理','活动管理'],['check','platform/groupbuy?tab=申请审核','申请审核'],['box','platform/groupbuy?tab=商品管理','商品管理'],['order','platform/groupbuy?tab=订单管理','订单管理']] },
+    { title:'资金结算', items:[['order','platform/settlement?tab=结算台账','结算管理']] },
     { title:'系统管理', framework:true, items:[['user','platform/system?view=user','用户管理'],['users','platform/system?view=role','角色管理'],['grid','platform/system?view=resource','资源管理'],['members','platform/system?view=org','组织管理'],['user','platform/system?view=position','岗位管理'],['order','platform/system?view=dict','字典管理'],['settings','platform/system?view=config','参数设置'],['message','platform/system?view=log','日志管理'],['store','platform/system?view=area','地区管理'],['box','platform/system?view=file','文件管理'],['store','platform/system?view=storage','存储管理']] }
   ];
   const merchantSections = [
-    { title:'商品管理', items:[['box','merchant/products','SPU 管理'],['grid','merchant/categories','商品分类'],['settings','merchant/specs','规格管理']] },
+    { title:'商品管理', items:[['box','merchant/products','SPU 管理'],['list','merchant/sku','SKU 管理'],['grid','merchant/categories','商品分类'],['settings','merchant/specs','规格管理']] },
     { title:'交易服务', items:[['order','merchant/orders','订单管理'],['message','merchant/reviews','评价管理'],['message','merchant/service','客服消息']] },
     { title:'优惠券管理', items:[['coupon','merchant/coupons?tab=优惠券','优惠券'],['members','merchant/coupons?tab=领取记录','领取记录'],['order','merchant/coupons?tab=使用记录','使用记录']] },
     { title:'秒杀管理', items:[['bolt','merchant/seckill?tab=活动列表','活动列表'],['check','merchant/seckill?tab=报名记录','报名记录'],['box','merchant/seckill?tab=秒杀商品','秒杀商品']] },
     { title:'拼团管理', items:[['users','merchant/groupbuy?tab=活动列表','活动列表'],['check','merchant/groupbuy?tab=申请记录','申请记录'],['box','merchant/groupbuy?tab=拼团商品','拼团商品'],['order','merchant/groupbuy?tab=拼团订单','拼团订单']] },
-    { title:'店铺管理', items:[['spark','merchant/banner','轮播图'],['truck','merchant/shipping','物流设置'],['settings','merchant/settings','店铺设置']] }
+    { title:'店铺管理', items:[['spark','merchant/banner','轮播图'],['truck','merchant/shipping','物流设置'],['settings','merchant/settings','店铺设置']] },
+    { title:'资金结算', items:[['order','merchant/settlement?tab=结算记录','结算管理']] }
   ];
   const sections = surface==='platform'?platformSections:merchantSections;
   const current = routePath(route);
@@ -1631,24 +1633,30 @@ function AdminSidebar({ surface, route, navigate }) {
     if(section) setExpanded(Object.fromEntries(sections.map((item)=>[item.title,item.title===section.title])));
   },[route,surface]);
   return (
-    <aside className="admin-sidebar">
+    <aside className={`admin-sidebar${collapsed?' is-collapsed':''}`}>
       <div className="admin-logo"><span className="brand-stamp">Y</span><div><b>Yeah Mall</b><small>{surface === 'platform' ? '平台运营端' : '商家工作台'}</small></div></div>
       <nav className="admin-menu-tree">
         <button className={current===`${surface}/overview`?'active sidebar-overview':'sidebar-overview'} onClick={()=>navigate(`${surface}/overview`)}><Icon name="grid" size={19}/><span>经营概览</span>{current===`${surface}/overview`&&<i></i>}</button>
-        {sections.map((section)=><section className="sidebar-menu-group" key={section.title}><button className="sidebar-group-toggle" onClick={()=>setExpanded({...expanded,[section.title]:!expanded[section.title]})}><span>{section.title}</span>{section.framework&&<small>沿用</small>}<Icon name="down" size={15} className={expanded[section.title]?'is-open':''}/></button>{expanded[section.title]&&<div className="sidebar-group-items">{section.items.map(([icon,target,label])=><button key={target} className={active(target)?'active':''} onClick={()=>navigate(target)}><Icon name={icon} size={17}/><span>{label}</span>{active(target)&&<i></i>}</button>)}</div>}</section>)}
+        {collapsed
+          ? sections.map((section)=><button title={section.title} className={section.items.some((menu)=>active(menu[1]))?'active sidebar-collapsed-item':'sidebar-collapsed-item'} key={section.title} onClick={()=>navigate(section.items[0][1])}><Icon name={section.items[0][0]} size={18}/><span>{section.title}</span></button>)
+          : sections.map((section)=><section className="sidebar-menu-group" key={section.title}><button className="sidebar-group-toggle" onClick={()=>setExpanded({...expanded,[section.title]:!expanded[section.title]})}><span>{section.title}</span>{section.framework&&<small>沿用</small>}<Icon name="down" size={15} className={expanded[section.title]?'is-open':''}/></button>{expanded[section.title]&&<div className="sidebar-group-items">{section.items.map(([icon,target,label])=><button key={target} className={active(target)?'active':''} onClick={()=>navigate(target)}><Icon name={icon} size={17}/><span>{label}</span>{active(target)&&<i></i>}</button>)}</div>}</section>)}
       </nav>
       <div className="sidebar-shop"><Avatar name={surface === 'platform' ? '管' : '野'} size={34}/><div><b>{surface === 'platform' ? '平台管理员' : '山野生活店'}</b><small>{surface === 'platform' ? 'admin' : 'mch001'}</small></div><Icon name="more" size={18}/></div>
     </aside>
   );
 }
 
-function AdminTopbar({ surface, page, route, notify }) {
-  const names = { overview:'经营概览', merchants:'商家管理', shops:'店铺管理', members:'会员管理', order:'订单管理', reviews:'评价管理', points:'积分管理', 'points-mall':'积分商城', seckill:'秒杀管理', groupbuy:'拼团管理', content:'首页运营', feedback:'意见反馈', products:'SPU 管理', sku:'SKU 管理', categories:'商品分类', specs:'规格管理', banner:'轮播图', orders:'订单管理', coupons:'优惠券管理', shipping:'物流设置', service:'客服消息', settings:'店铺设置', system:'系统管理' };
+function AdminTopbar({ surface, page, route, notify, collapsed, onToggleSidebar }) {
+  const names = { overview:'经营概览', merchants:'商家管理', shops:'店铺管理', members:'会员管理', order:'订单管理', reviews:'评价管理', points:'积分管理', 'points-mall':'积分商城', seckill:'秒杀管理', groupbuy:'拼团管理', content:'首页运营', feedback:'意见反馈', products:'SPU 管理', sku:'SKU 管理', categories:surface==='platform'?'平台分类':'商品分类', specs:'规格管理', banner:'轮播图', orders:'订单管理', coupons:'优惠券管理', shipping:'物流设置', service:'客服消息', settings:'店铺设置', settlement:'结算管理', system:'系统管理' };
   const systemNames = {user:'用户管理',org:'组织管理',position:'岗位管理',role:'角色管理',resource:'资源管理',dict:'字典管理',config:'参数设置',file:'文件管理',storage:'存储管理',log:'日志管理',area:'地区管理'};
   const subName = routeParam(route,'tab') || systemNames[routeParam(route,'view')];
   return (
-    <header className="admin-topbar"><div><span>{surface === 'platform' ? '平台后台' : '商家后台'}</span><Icon name="chevron" size={14}/><b>{names[page] || '商城管理'}</b>{subName&&<><Icon name="chevron" size={14}/><b>{subName}</b></>}</div><div><button onClick={()=>notify('全局搜索已聚焦当前业务模块')}><Icon name="search"/></button><button className="notification-button" onClick={()=>notify('有 3 条新的业务待办')}><Icon name="message"/><i></i></button><button className="topbar-avatar" onClick={()=>notify('账号菜单已展开')}><Avatar name={surface === 'platform' ? '管' : '野'} size={32}/></button></div></header>
+    <header className="admin-topbar"><div><button className="sidebar-collapse-button" title={collapsed?'展开菜单':'折叠菜单'} onClick={onToggleSidebar}><Icon name="filter" size={18}/></button><span>{surface === 'platform' ? '平台后台' : '商家后台'}</span><Icon name="chevron" size={14}/><b>{names[page] || '商城管理'}</b>{subName&&<><Icon name="chevron" size={14}/><b>{subName}</b></>}</div><div>{surface==='merchant'&&<span className="current-shop-chip"><Icon name="store" size={15}/>山野生活店</span>}<button onClick={()=>notify('全局搜索已聚焦当前业务模块')}><Icon name="search"/></button><button className="notification-button" onClick={()=>notify('有 3 条新的业务待办')}><Icon name="message"/><i></i></button><button className="topbar-avatar" onClick={()=>notify('账号菜单已展开')}><Avatar name={surface === 'platform' ? '管' : '野'} size={32}/></button></div></header>
   );
+}
+
+function AdminTabs({ tabs, route, navigate, onClose }) {
+  return <div className="admin-tabs"><div className="admin-tabs-track">{tabs.map((tab)=><button key={tab.route} className={route===tab.route?'active':''} onClick={()=>navigate(tab.route)}><span>{tab.title}</span>{tabs.length>1&&<i onClick={(event)=>{event.stopPropagation();onClose(tab.route);}}>×</i>}</button>)}</div><button className="admin-tabs-more" title="页签操作"><Icon name="more" size={17}/></button></div>;
 }
 
 function AdminPagination({ count = 46 }) {
@@ -1750,7 +1758,7 @@ function MerchantProducts({ notify }) {
     <section className="admin-page" data-screen-label="商家后台商品管理">
       <FilterBar onReset={() => setKeyword('')} onSearch={() => notify(`找到 ${filtered.length} 个商品`)} actions={<><button onClick={()=>notify('请选择商品后执行批量操作')}><Icon name="filter" size={17}/>批量操作</button><button className="business-primary" onClick={() => setEdit({id:null,name:'',category:'数码影音',skuCount:1,price:'',stock:0,art:'headphone'})}><Icon name="plus" size={17}/>新增商品</button></>}><label><span>商品名称</span><input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="输入商品名称"/></label><label><span>商品分类</span><select defaultValue="全部分类"><option>全部分类</option><option>数码影音</option><option>家具家居</option><option>美容护肤</option></select></label><label><span>销售状态</span><select defaultValue="全部状态"><option>全部状态</option><option>销售中</option><option>已下架</option><option>已售罄</option></select></label></FilterBar>
       <div className="admin-table-frame"><table className="admin-table product-admin-table"><thead><tr><th>商品</th><th>分类</th><th className="numeric">售价</th><th className="numeric">库存</th><th className="numeric">销量</th><th>状态</th><th className="actions">操作</th></tr></thead><tbody>{filtered.map((product) => <tr key={product.id}><td><div className="admin-product-cell"><ProductArt type={product.art}/><div><b>{product.name}</b><small>{product.skuCount} 个 SKU · ID {product.id}</small></div></div></td><td>{product.category}</td><td className="numeric amount-strong">¥{product.price}</td><td className={`numeric ${product.stock <= 12 ? 'low-stock' : ''}`}>{product.stock}</td><td className="numeric">{product.sales.toLocaleString()}</td><td><StatusTicket tone={product.status === '销售中' ? 'success' : product.status === '已售罄' ? 'danger' : 'neutral'}>{product.status}</StatusTicket></td><td className="actions"><button className="table-link" onClick={() => setEdit(product)}>编辑</button><button className="table-link" onClick={() => toggle(product)}>{product.status === '销售中' ? '下架' : '上架'}</button><button className="table-more" onClick={()=>notify('商品操作菜单已展开')}><Icon name="more" size={18}/></button></td></tr>)}</tbody></table><AdminPagination count={filtered.length}/></div>
-      {edit && <div className="drawer-mask" onClick={() => setEdit(null)}><aside className="admin-drawer product-edit-drawer" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">PRODUCT EDITOR</span><h2>{edit.id?'编辑商品':'新增商品'}</h2></div><button onClick={() => setEdit(null)}>×</button></div><div className="edit-product-preview"><ProductArt type={edit.art}/><div><b>{edit.name||'待填写商品名称'}</b><span>{edit.category} · {edit.skuCount} 个 SKU</span></div></div><div className="edit-form-grid"><label><span>商品名称</span><input defaultValue={edit.name} placeholder="请输入商品名称"/></label><label><span>商品分类</span><select defaultValue={edit.category}><option>数码影音</option><option>家具家居</option><option>美容护肤</option></select></label><label><span>默认售价</span><input defaultValue={edit.price} placeholder="0.00"/></label><label><span>当前库存</span><input defaultValue={edit.stock}/></label><label className="wide"><span>商品卖点</span><textarea defaultValue={edit.id?'轻量设计，稳定连接，适合通勤与居家使用。':''} placeholder="概括商品核心卖点"></textarea></label></div><div className="drawer-actions"><button onClick={() => setEdit(null)}>取消</button><button className="primary" onClick={() => {setEdit(null);notify(edit.id?'商品信息已保存':'商品已创建');}}>{edit.id?'保存修改':'创建商品'}</button></div></aside></div>}
+      {edit && <div className="drawer-mask" onClick={() => setEdit(null)}><aside className="admin-drawer product-edit-drawer" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">PRODUCT EDITOR</span><h2>{edit.id?'编辑商品':'新增商品'}</h2></div><button onClick={() => setEdit(null)}>×</button></div><div className="edit-product-preview"><ProductArt type={edit.art}/><div><b>{edit.name||'待填写商品名称'}</b><span>{edit.category} · {edit.skuCount} 个 SKU</span></div><StatusTicket tone={edit.id?'success':'neutral'}>{edit.id?'已保存':'新建中'}</StatusTicket></div><section className="product-editor-section"><h3>基础资料</h3><div className="edit-form-grid"><label><span>商品名称</span><input defaultValue={edit.name} placeholder="请输入商品名称"/></label><label><span>店铺分类</span><select defaultValue={edit.category}><option>数码影音</option><option>家具家居</option><option>美容护肤</option></select></label><label className="wide"><span>商品卖点</span><textarea defaultValue={edit.id?'轻量设计，稳定连接，适合通勤与居家使用。':''} placeholder="概括商品核心卖点"></textarea></label></div></section><section className="product-editor-section"><h3>商品图片</h3><div className="product-media-row"><button className="product-main-image"><ProductArt type={edit.art}/><span>更换主图</span></button><button className="product-media-add" onClick={()=>notify('请选择轮播图片')}><Icon name="plus" size={20}/><span>添加轮播图</span></button><small>已配置 3 张轮播图，支持拖动排序</small></div></section><section className="product-editor-section"><h3>规格与 SKU</h3><div className="spec-chip-row"><button className="active">颜色</button><button className="active">版本</button><button onClick={()=>notify('规格选择器已打开')}><Icon name="plus" size={14}/>选择规格</button></div><table className="sku-editor-table"><thead><tr><th>规格组合</th><th>销售价</th><th>库存</th><th>SKU 编码</th></tr></thead><tbody><tr><td>雾银 / 标准版</td><td><input defaultValue="299.00"/></td><td><input defaultValue="18"/></td><td><input defaultValue="HEAD-S-01"/></td></tr><tr><td>曜石黑 / 长续航</td><td><input defaultValue="369.00"/></td><td><input defaultValue="12"/></td><td><input defaultValue="HEAD-B-02"/></td></tr></tbody></table></section><section className="product-editor-section"><h3>商品详情</h3><div className="richtext-placeholder"><div><b>B</b><span>标题</span><span>图片</span><span>链接</span></div><p>输入商品详情说明，可插入图片并进行基础排版。</p></div></section><div className="drawer-actions sticky-actions"><button onClick={() => setEdit(null)}>取消</button><button className="primary" onClick={() => {setEdit(null);notify(edit.id?'商品信息已保存':'商品已创建');}}>{edit.id?'保存修改':'创建商品'}</button></div></aside></div>}
     </section>
   );
 }
@@ -1769,8 +1777,9 @@ function AdminOverview({ surface, navigate }) {
 function moduleDefinition(surface, page) {
   const modules = {
     platform: {
-      merchants: { title:'商家管理', desc:'查看商家资料、店铺关系与经营状态', action:'新增商家', columns:['商家','账号','店铺数','联系人','状态'], rows:[['山野生活','mch001','2','周予安','正常'],['Yeah 数码','mch002','1','林可','正常'],['白茶研究所','mch003','1','陈一禾','待审核']] },
-      shops: { title:'店铺管理', desc:'管理平台店铺资料与营业状态', action:'新增店铺', columns:['店铺','所属商家','主营分类','商品数','状态'], rows:[['山野生活店','山野生活','居家生活','38','营业中'],['Yeah 数码生活馆','Yeah 数码','数码影音','126','营业中'],['白茶美护精选','白茶研究所','美容护肤','45','已停业']] },
+      merchants: { title:'商家管理', desc:'维护商家登录账号和基础关系', action:'新增商家', columns:['商家账号','商家 ID','创建时间','更新时间'], rows:[['mch001','1','2026-10-18 09:20','2026-10-27 10:16'],['mch002','2','2026-10-20 14:32','2026-10-26 16:08'],['mch003','3','2026-10-24 11:05','2026-10-24 11:05']] },
+      shops: { title:'店铺管理', desc:'管理平台店铺、佣金、结算周期和平台状态', action:'新增店铺', columns:['店铺编号','店铺名称','所属商家','平台佣金','结算周期','平台状态','创建时间'], rows:[['SHAN-YE','山野生活店','mch001','5%','T+7','正常营业','2026-10-18'],['YEAH-DIGITAL','Yeah 数码生活馆','mch002','4%','T+7','正常营业','2026-10-20'],['WHITE-TEA','白茶生活馆','mch003','6%','T+15','暂停营业','2026-10-24']] },
+      categories: { title:'平台分类', desc:'维护 App 分类页使用的平台三级分类树', action:'新增平台分类', columns:['分类图片','平台分类名称','分类编码','层级','排序','备注','更新时间'], rows:[['数','数码家电','digital','1','1','平台一级分类','2026-10-28 09:12'],['耳','耳机音响','audio','2','2','数码家电子分类','2026-10-28 09:16'],['机','头戴耳机','headphone','3','1','三级分类','2026-10-28 09:20']] },
       reviews: { title:'评价管理', desc:'审核、屏蔽和查看商品评价及回复', tabs:['全部评价','待审核','已屏蔽'], columns:['商品','评价用户','评分','评价内容','状态'], rows:[['云感降噪头戴耳机','林可','5 星','佩戴舒适，降噪效果很好','已展示'],['白茶屏障修护精华','陈一禾','5 星','敏感肌使用没有刺激','已展示'],['山野拼配挂耳咖啡','周予安','3 星','包装有轻微压痕','待审核']] },
       points: { title:'积分管理', desc:'查询积分流水并维护积分获取规则', tabs:['积分流水','积分规则'], columns:['会员','业务类型','变动积分','变动前','变动后'], rows:[['林可','订单完成','+399','881','1,280'],['林可','完成评价','+10','871','881'],['陈一禾','平台调整','+500','3,000','3,500']] },
       'points-mall': { title:'积分商城', desc:'管理积分商品、分类和兑换订单', action:'新增积分商品', tabs:['商品分类','积分商品','兑换订单'], columns:['积分商品','类型','积分价格','库存','状态'], rows:[['品牌帆布袋','实物商品','600','36','已上架'],['全店 20 元券','优惠券','300','88','已上架'],['专属客服权益','虚拟权益','1,200','12','已下架']] },
@@ -1830,7 +1839,15 @@ function moduleTabView(surface, page, tab, fallback) {
 }
 
 function isStatusCell(value) {
-  return ['启用','停用','正常','待审核','审核通过','已展示','待发货','已完成','活动中','待开始','销售中','待成团','处理中','待处理','已解决','默认','统计中','未使用','已使用','已下架','已领完','待回复','已回复'].some((status)=>String(value).includes(status));
+  return ['启用','禁用','停用','正常','营业','待审核','审核通过','已通过','已拒绝','已展示','公开','已隐藏','待发货','待履约','已完成','已取消','活动中','待开始','进行中','已结束','销售中','监控中','待成团','已成团','拼团失败','处理中','待处理','已解决','默认','统计中','未使用','已使用','已过期','已下架','已上架','上架','已领完','待回复','已回复','低库存','已售罄','待结算','已结算'].some((status)=>String(value).includes(status));
+}
+
+function semanticStatusTone(value) {
+  const text=String(value);
+  if(['驳回','拒绝','退款','失败','低库存','已售罄'].some((item)=>text.includes(item))) return 'danger';
+  if(['待','处理中','进行中','活动中','监控中','统计中','待结算'].some((item)=>text.includes(item))) return 'warning';
+  if(['停用','禁用','下架','关闭','取消','过期','已使用'].some((item)=>text.includes(item))) return 'neutral';
+  return 'success';
 }
 
 function moduleAction(surface,page,tab,defaultAction) {
@@ -1853,27 +1870,114 @@ function moduleAction(surface,page,tab,defaultAction) {
   return tab ? '' : defaultAction;
 }
 
+function moduleFilterDefinition(surface,page,tab) {
+  const key=`${surface}:${page}:${tab}`;
+  const definitions={
+    'platform:merchants:':[{key:'keyword',label:'商家账号',placeholder:'请输入商家账号'}],
+    'platform:shops:':[{key:'merchant',label:'所属商家',placeholder:'商家账号或 ID'},{key:'keyword',label:'店铺名称',placeholder:'请输入店铺名称'},{key:'status',label:'平台状态',options:['全部状态','正常营业','暂停营业']}],
+    'platform:categories:':[{key:'keyword',label:'分类名称',placeholder:'请输入分类名称'}],
+    'platform:reviews:全部评价':[{key:'keyword',label:'商品或订单',placeholder:'SPU ID、商品名称或订单号'},{key:'rating',label:'评价等级',options:['全部等级','好评','中评','差评']},{key:'reply',label:'回复状态',options:['全部状态','已回复','未回复']},{key:'visible',label:'公开状态',options:['全部状态','公开','已隐藏']}],
+    'platform:points:积分流水':[{key:'keyword',label:'会员 ID',placeholder:'请输入会员 ID'},{key:'biz',label:'业务类型',options:['全部类型','订单完成','完成评价','平台调整']}],
+    'platform:points-mall:积分商品':[{key:'keyword',label:'商品名称',placeholder:'请输入积分商品名称'},{key:'type',label:'商品类型',options:['全部类型','实物商品','优惠券','虚拟权益']},{key:'status',label:'状态',options:['全部状态','已上架','已下架']}],
+    'platform:points-mall:兑换订单':[{key:'keyword',label:'订单或会员',placeholder:'兑换单号、会员 ID'},{key:'status',label:'订单状态',options:['全部状态','待履约','待发货','已完成','已取消']}],
+    'platform:feedback:全部':[{key:'status',label:'处理状态',options:['全部状态','待处理','处理中','已解决']}],
+    'merchant:categories:':[{key:'keyword',label:'分类名称',placeholder:'请输入分类名称'}],
+    'merchant:sku:':[{key:'keyword',label:'SKU 或商品',placeholder:'SKU ID、商品名称'},{key:'status',label:'库存状态',options:['全部状态','库存正常','低库存','已售罄']}],
+    'merchant:specs:规格定义':[{key:'keyword',label:'规格名称',placeholder:'请输入规格名称'}],
+    'merchant:reviews:全部评价':[{key:'keyword',label:'商品或用户',placeholder:'商品名称、用户昵称'},{key:'rating',label:'评价等级',options:['全部等级','好评','中评','差评']},{key:'reply',label:'回复状态',options:['全部状态','已回复','待回复']}],
+    'merchant:coupons:优惠券':[{key:'keyword',label:'优惠券名称',placeholder:'请输入优惠券名称'},{key:'type',label:'优惠券类型',options:['全部类型','满减券','折扣券','无门槛券']},{key:'status',label:'状态',options:['全部状态','启用','禁用']}],
+    'merchant:coupons:领取记录':[{key:'keyword',label:'优惠券',placeholder:'优惠券名称'},{key:'type',label:'优惠券类型',options:['全部类型','满减券','折扣券','无门槛券']},{key:'range',label:'使用范围',options:['全部范围','店铺通用','指定商品','指定分类']}],
+    'merchant:coupons:使用记录':[{key:'keyword',label:'优惠券或用户',placeholder:'优惠券、用户或订单号'},{key:'status',label:'使用状态',options:['全部状态','未使用','已使用','已过期']}],
+    'merchant:shipping:物流公司':[{key:'keyword',label:'物流公司',placeholder:'公司名称或编码'},{key:'status',label:'状态',options:['全部状态','启用','停用']}],
+    'merchant:shipping:发货地址':[{key:'keyword',label:'地址或联系人',placeholder:'地址名称、联系人'}]
+  };
+  if(definitions[key]) return definitions[key];
+  if(page==='seckill') return [{key:'keyword',label:tab.includes('审核')||tab.includes('报名')?'活动或商品':'活动名称',placeholder:`搜索${tab}`},{key:'status',label:'状态',options:['全部状态','待开始','进行中','待审核','审核通过','已结束']}];
+  if(page==='groupbuy') return [{key:'keyword',label:tab.includes('订单')?'订单或活动':'活动或商品',placeholder:`搜索${tab}`},{key:'status',label:'状态',options:['全部状态','待审核','审核通过','活动中','待成团','已成团']}];
+  if(page==='content'||page==='banner') return [{key:'keyword',label:'名称或标题',placeholder:`搜索${tab||'轮播图'}`},{key:'status',label:'状态',options:['全部状态','启用','停用']}];
+  return [{key:'keyword',label:'关键词',placeholder:`搜索${tab||page}`},{key:'status',label:'状态',options:['全部状态','启用','停用']}];
+}
+
+function moduleFormDefinition(surface,page,tab) {
+  const key=`${surface}:${page}:${tab}`;
+  const definitions={
+    'platform:merchants:':[{label:'商家账号',placeholder:'请输入商家登录账号'},{label:'登录密码',type:'password',placeholder:'请输入初始登录密码'}],
+    'platform:shops:':[{label:'所属商家',type:'select',options:['mch001','mch002','mch003']},{label:'店铺名称',placeholder:'请输入店铺名称'},{label:'店铺编号',placeholder:'字母、数字与短横线'},{label:'平台佣金比例',placeholder:'例如 5%'},{label:'结算周期',type:'select',options:['T+7','T+15','T+30']},{label:'平台状态',type:'select',options:['正常营业','暂停营业']}],
+    'platform:categories:':[{label:'上级分类',type:'select',options:['顶级分类','数码家电','耳机音响']},{label:'分类名称',placeholder:'请输入分类名称'},{label:'分类编码',placeholder:'请输入分类编码'},{label:'分类图片',type:'upload'},{label:'排序',type:'number',placeholder:'请输入排序值'},{label:'备注',type:'textarea',wide:true,placeholder:'选填分类说明'}],
+    'platform:points-mall:商品分类':[{label:'分类名称',placeholder:'请输入分类名称'},{label:'父分类',type:'select',options:['顶级分类','实物好礼','优惠券']},{label:'排序',type:'number'},{label:'状态',type:'select',options:['启用','停用']}],
+    'platform:points-mall:积分商品':[{label:'商品名称',placeholder:'请输入积分商品名称'},{label:'商品分类',type:'select',options:['实物好礼','优惠券','会员权益']},{label:'商品类型',type:'select',options:['实物商品','优惠券','虚拟权益']},{label:'积分价格',type:'number'},{label:'兑换库存',type:'number'},{label:'状态',type:'select',options:['上架','下架']},{label:'商品说明',type:'textarea',wide:true}],
+    'platform:seckill:活动管理':[{label:'活动名称'},{label:'报名时间',type:'date'},{label:'活动时间',type:'date'},{label:'活动说明',type:'textarea',wide:true},{label:'启用活动',type:'select',options:['启用','停用']}],
+    'platform:seckill:场次管理':[{label:'所属活动',type:'select',options:['秋日数码秒杀','晚八点居家场']},{label:'场次名称'},{label:'开始时间',type:'date'},{label:'结束时间',type:'date'}],
+    'platform:groupbuy:活动管理':[{label:'活动名称'},{label:'报名时间',type:'date'},{label:'活动时间',type:'date'},{label:'成团人数',type:'number'},{label:'最大开团数',type:'number',placeholder:'-1 表示不限'},{label:'活动说明',type:'textarea',wide:true}],
+    'platform:content:Banner':[{label:'Banner 标题'},{label:'Banner 图片',type:'upload'},{label:'跳转类型',type:'select',options:['不跳转','商品详情','活动页面','自定义路径']},{label:'跳转目标'},{label:'排序',type:'number'},{label:'状态',type:'select',options:['启用','停用']}],
+    'platform:content:快捷入口':[{label:'入口名称'},{label:'入口图标',type:'upload'},{label:'跳转目标',type:'select',options:['秒杀活动','拼团活动','积分商城','店铺列表']},{label:'排序',type:'number'},{label:'状态',type:'select',options:['启用','停用']}],
+    'merchant:categories:':[{label:'上级分类',type:'select',options:['顶级分类','数码影音','耳机音响']},{label:'分类名称'},{label:'分类编码'},{label:'排序',type:'number'},{label:'备注',type:'textarea',wide:true}],
+    'merchant:specs:规格定义':[{label:'规格名称'},{label:'规格编码'},{label:'排序',type:'number'},{label:'状态',type:'select',options:['启用','停用']}],
+    'merchant:specs:规格选项':[{label:'所属规格',type:'select',options:['颜色','容量','重量']},{label:'选项名称'},{label:'选项编码'},{label:'排序',type:'number'}],
+    'merchant:banner:':[{label:'轮播标题'},{label:'轮播图片',type:'upload'},{label:'跳转类型',type:'select',options:['商品详情','商品列表','不跳转']},{label:'跳转目标'},{label:'排序',type:'number'},{label:'状态',type:'select',options:['启用','停用']}],
+    'merchant:coupons:优惠券':[{label:'优惠券名称'},{label:'优惠券类型',type:'select',options:['满减券','折扣券','无门槛券']},{label:'优惠金额或折扣',type:'number'},{label:'使用门槛',type:'number'},{label:'总数量',type:'number'},{label:'每人限领',type:'number'},{label:'使用范围',type:'select',options:['店铺通用','指定商品','指定分类']},{label:'有效时间',type:'date'},{label:'支持拼团',type:'select',options:['是','否']},{label:'积分兑换',type:'select',options:['不支持','支持']}],
+    'merchant:shipping:物流公司':[{label:'物流公司名称'},{label:'物流公司编码'},{label:'是否常用',type:'select',options:['是','否']},{label:'状态',type:'select',options:['启用','停用']}],
+    'merchant:shipping:发货地址':[{label:'地址名称'},{label:'联系人'},{label:'联系电话'},{label:'详细地址',type:'textarea',wide:true},{label:'设为默认',type:'select',options:['是','否']}]
+  };
+  return definitions[key] || [{label:'名称',placeholder:`请输入${tab||page}名称`},{label:'状态',type:'select',options:['启用','停用']},{label:'备注',type:'textarea',wide:true,placeholder:'选填业务说明'}];
+}
+
+function moduleDetailMode(surface,page,tab) {
+  if(surface==='platform'&&(tab.includes('审核')||page==='reviews')) return 'audit';
+  if(surface==='platform'&&page==='feedback') return 'feedback';
+  if(surface==='merchant'&&page==='reviews') return 'reply';
+  if(['merchants','shops','categories','points','points-mall','content','specs','banner','shipping','coupons'].includes(page)) return 'edit';
+  return 'readonly';
+}
+
+function moduleRowAction(surface,page,tab) {
+  const mode=moduleDetailMode(surface,page,tab);
+  return mode==='audit'?'审核':mode==='feedback'?'处理':mode==='reply'?'回复':mode==='edit'?'编辑':'查看';
+}
+
+function ModuleField({ field }) {
+  if(field.type==='select') return <label className={field.wide?'wide':''}><span>{field.label}</span><select defaultValue={field.options?.[0]}>{field.options?.map((option)=><option key={option}>{option}</option>)}</select></label>;
+  if(field.type==='textarea') return <label className={field.wide?'wide':''}><span>{field.label}</span><textarea placeholder={field.placeholder||`请输入${field.label}`}></textarea></label>;
+  if(field.type==='upload') return <label className={field.wide?'wide':''}><span>{field.label}</span><button className="upload-placeholder"><Icon name="image" size={17}/>上传文件</button></label>;
+  return <label className={field.wide?'wide':''}><span>{field.label}</span><input type={field.type||'text'} placeholder={field.placeholder||`请输入${field.label}`}/></label>;
+}
+
 function AdminModulePage({ surface, page, route, navigate, notify }) {
   const config = moduleDefinition(surface,page);
   const requestedTab = routeParam(route,'tab');
   const [tab,setTab] = useState(requestedTab || config?.tabs?.[0] || '');
-  const [keyword,setKeyword] = useState('');
+  const [filters,setFilters] = useState({});
   const [selected,setSelected] = useState(null);
   const [creating,setCreating] = useState(false);
-  useEffect(()=>{ setTab(requestedTab || config?.tabs?.[0] || ''); setKeyword(''); setSelected(null); setCreating(false); },[surface,page,requestedTab]);
+  useEffect(()=>{ setTab(requestedTab || config?.tabs?.[0] || ''); setFilters({}); setSelected(null); setCreating(false); },[surface,page,requestedTab]);
   if (!config) return null;
   const view = moduleTabView(surface,page,tab,{columns:config.columns,rows:config.rows});
-  const rows = view.rows.filter((row) => row.join('').includes(keyword));
+  const filterDefinitions=moduleFilterDefinition(surface,page,tab);
+  const keyword=String(filters.keyword||'').trim();
+  const status=String(filters.status||'');
+  const rows = view.rows.filter((row) => (!keyword||row.join('').includes(keyword))&&(!status||status.startsWith('全部')||row.join('').includes(status)));
   const action = moduleAction(surface,page,tab,config.action);
-  return <section className="admin-page" data-screen-label={`${surface}-${config.title}-${tab||'列表'}`}>{config.tabs&&<div className="module-tabs">{config.tabs.map((item)=><button key={item} className={tab===item?'active':''} onClick={()=>{setKeyword('');navigate(`${surface}/${page}?tab=${encodeURIComponent(item)}`);}}>{item}</button>)}</div>}<FilterBar onReset={()=>setKeyword('')} onSearch={()=>notify(`找到 ${rows.length} 条记录`)} actions={action&&<button className="business-primary" onClick={()=>setCreating(true)}><Icon name="plus" size={17}/>{action}</button>}><label><span>关键词</span><input value={keyword} onChange={(e)=>setKeyword(e.target.value)} placeholder={`搜索${tab||config.title}`}/></label><label><span>状态</span><select defaultValue="全部状态"><option>全部状态</option><option>启用</option><option>停用</option></select></label></FilterBar><div className="admin-table-frame"><table className="admin-table"><thead><tr>{view.columns.map((col)=><th key={col}>{col}</th>)}<th className="actions">操作</th></tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((cell,cellIndex)=><td key={cellIndex}>{isStatusCell(cell)&&cellIndex===row.length-1?<StatusTicket tone={String(cell).includes('待')?'warning':String(cell).includes('停')||String(cell).includes('完成')?'neutral':'success'}>{cell}</StatusTicket>:cell}</td>)}<td className="actions"><button className="table-link" onClick={()=>setSelected(row)}>查看</button><button className="table-more" onClick={()=>notify('该记录的状态操作已展开')}><Icon name="more" size={18}/></button></td></tr>)}</tbody></table><AdminPagination count={rows.length}/></div>{selected&&<div className="drawer-mask" onClick={()=>setSelected(null)}><aside className="admin-drawer" onClick={(e)=>e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">DETAIL</span><h2>{tab||config.title}详情</h2></div><button onClick={()=>setSelected(null)}>×</button></div><div className="description-grid">{view.columns.map((col,index)=><div className={index===0?'wide':''} key={col}><span>{col}</span><b>{selected[index]}</b></div>)}</div>{page==='reviews'&&<label className="dialog-field"><span>{surface==='platform'?'审核备注':'回复内容'}</span><textarea placeholder={surface==='platform'?'选填本次审核说明':'输入对会员的回复'}></textarea></label>}<div className="drawer-actions"><button onClick={()=>setSelected(null)}>关闭</button><button className="primary" onClick={()=>{setSelected(null);notify(page==='reviews'?'处理结果已保存':'操作已保存');}}>{page==='reviews'?(surface==='platform'?'确认审核':'发表回复'):'保存'}</button></div></aside></div>}{creating&&<div className="dialog-mask" onClick={()=>setCreating(false)}><section className="admin-dialog" onClick={(e)=>e.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">CREATE</span><h2>{action}</h2></div><button onClick={()=>setCreating(false)}>×</button></div><label className="dialog-field"><span>名称</span><input placeholder={`请输入${config.title}名称`}/></label><label className="dialog-field"><span>状态</span><select defaultValue="启用"><option>启用</option><option>停用</option></select></label><label className="dialog-field"><span>备注 <small>选填</small></span><textarea placeholder="补充业务说明"></textarea></label><div className="dialog-actions"><button onClick={()=>setCreating(false)}>取消</button><button className="primary" onClick={()=>{setCreating(false);notify(`${action}已保存`);}}>确认</button></div></section></div>}</section>;
+  const formFields=moduleFormDefinition(surface,page,tab);
+  const detailMode=moduleDetailMode(surface,page,tab);
+  const rowAction=moduleRowAction(surface,page,tab);
+  const updateFilter=(key,value)=>setFilters({...filters,[key]:value});
+  const finishDetail=(message)=>{setSelected(null);notify(message);};
+  return <section className="admin-page" data-screen-label={`${surface}-${config.title}-${tab||'列表'}`}>
+    {config.tabs&&<div className="module-tabs">{config.tabs.map((item)=><button key={item} className={tab===item?'active':''} onClick={()=>{setFilters({});navigate(`${surface}/${page}?tab=${encodeURIComponent(item)}`);}}>{item}</button>)}</div>}
+    <FilterBar onReset={()=>setFilters({})} onSearch={()=>notify(`找到 ${rows.length} 条记录`)} actions={action&&<button className="business-primary" onClick={()=>setCreating(true)}><Icon name="plus" size={17}/>{action}</button>}>
+      {filterDefinitions.map((field)=><label key={field.key}><span>{field.label}</span>{field.options?<select value={filters[field.key]||field.options[0]} onChange={(event)=>updateFilter(field.key,event.target.value)}>{field.options.map((option)=><option key={option}>{option}</option>)}</select>:<input value={filters[field.key]||''} onChange={(event)=>updateFilter(field.key,event.target.value)} placeholder={field.placeholder}/>}</label>)}
+    </FilterBar>
+    <div className="admin-table-frame"><table className="admin-table"><thead><tr>{view.columns.map((col)=><th key={col}>{col}</th>)}<th className="actions">操作</th></tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((cell,cellIndex)=>{const value=String(cell);const amount=value.includes('¥')||value.startsWith('+')||value.startsWith('-');return <td className={amount?'amount-cell':''} key={cellIndex}>{isStatusCell(cell)?<StatusTicket tone={semanticStatusTone(value)}>{cell}</StatusTicket>:cell}</td>;})}<td className="actions"><button className="table-link" onClick={()=>setSelected(row)}>{rowAction}</button><button className="table-more" onClick={()=>notify('该记录的更多操作已展开')}><Icon name="more" size={18}/></button></td></tr>)}</tbody></table>{!rows.length&&<div className="admin-empty"><Icon name="filter" size={28}/><b>没有匹配的数据</b><span>调整筛选条件后重试</span></div>}<AdminPagination count={rows.length}/></div>
+    {selected&&<div className="drawer-mask" onClick={()=>setSelected(null)}><aside className="admin-drawer module-detail-drawer" onClick={(e)=>e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">{detailMode==='audit'?'AUDIT':'DETAIL'}</span><h2>{tab||config.title}{rowAction}</h2></div><button onClick={()=>setSelected(null)}>×</button></div><div className="description-grid">{view.columns.map((col,index)=><div className={index===0?'wide':''} key={col}><span>{col}</span><b>{selected[index]}</b></div>)}</div>{detailMode==='edit'&&<div className="module-edit-grid">{formFields.map((field)=><ModuleField key={field.label} field={field}/>)}</div>}{detailMode==='audit'&&<label className="dialog-field"><span>审核备注 <small>驳回时必填</small></span><textarea placeholder="填写本次审核说明"></textarea></label>}{detailMode==='feedback'&&<><label className="dialog-field"><span>处理状态</span><select defaultValue="处理中"><option>处理中</option><option>已解决</option></select></label><label className="dialog-field"><span>平台回复</span><textarea placeholder="填写给会员的处理回复"></textarea></label></>}{detailMode==='reply'&&<label className="dialog-field"><span>回复内容</span><textarea placeholder="输入对会员的回复"></textarea></label>}<div className="drawer-actions"><button onClick={()=>setSelected(null)}>关闭</button>{detailMode==='audit'&&<><button className="danger" onClick={()=>finishDetail('申请已驳回')}>驳回</button><button className="primary" onClick={()=>finishDetail('审核已通过')}>通过</button></>}{detailMode==='feedback'&&<button className="primary" onClick={()=>finishDetail('反馈处理结果已保存')}>保存处理结果</button>}{detailMode==='reply'&&<button className="primary" onClick={()=>finishDetail('回复已发表')}>发表回复</button>}{detailMode==='edit'&&<button className="primary" onClick={()=>finishDetail('修改已保存')}>保存修改</button>}</div></aside></div>}
+    {creating&&<div className="dialog-mask" onClick={()=>setCreating(false)}><section className="admin-dialog module-form-dialog" onClick={(e)=>e.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">CREATE</span><h2>{action}</h2></div><button onClick={()=>setCreating(false)}>×</button></div><div className="module-form-grid">{formFields.map((field)=><ModuleField key={field.label} field={field}/>)}</div><div className="dialog-actions"><button onClick={()=>setCreating(false)}>取消</button><button className="primary" onClick={()=>{setCreating(false);notify(`${action}已保存`);}}>确认保存</button></div></section></div>}
+  </section>;
 }
 
 function MerchantSettingsPage({ notify }) {
   const [open,setOpen] = useState(true);
   const [name,setName] = useState('山野生活店');
-  const [phone,setPhone] = useState('400-800-2026');
   const [intro,setIntro] = useState('挑选耐用、舒适、有生活气息的日常好物。');
-  return <section className="admin-page merchant-settings-page" data-screen-label="商家后台店铺设置"><div className="settings-form-card"><div className="settings-section-title"><span className="shelf-mark"></span><div><b>基础资料</b><small>资料仅作用于当前店铺，保存后同步展示在 App 店铺页</small></div><StatusTicket tone={open?'success':'neutral'}>{open?'正常营业':'暂停营业'}</StatusTicket></div><div className="settings-form-grid"><label><span>店铺名称</span><input value={name} onChange={(e)=>setName(e.target.value)}/></label><label><span>客服电话</span><input value={phone} onChange={(e)=>setPhone(e.target.value)}/></label><label className="wide"><span>店铺简介</span><textarea value={intro} onChange={(e)=>setIntro(e.target.value)}></textarea></label><label><span>主营分类</span><select defaultValue="居家生活"><option>居家生活</option><option>数码影音</option><option>美容护肤</option></select></label><label className="business-switch"><span><b>营业状态</b><small>关闭后商品仍保留，但店铺停止接单</small></span><input type="checkbox" checked={open} onChange={(e)=>setOpen(e.target.checked)}/></label></div><div className="settings-save-bar"><span>上次保存：2026-10-27 08:12</span><button onClick={()=>notify('店铺设置已保存')}>保存设置</button></div></div></section>;
+  return <section className="admin-page merchant-settings-page" data-screen-label="商家后台店铺设置"><div className="settings-form-card"><div className="settings-section-title"><span className="shelf-mark"></span><div><b>店铺信息设置</b><small>资料仅作用于当前登录选择的店铺，保存后同步展示在 App 店铺页</small></div><StatusTicket tone={open?'success':'neutral'}>{open?'营业中':'已停业'}</StatusTicket></div><div className="settings-form-layout"><div className="settings-logo-panel"><div className="settings-logo-preview">野</div><button onClick={()=>notify('请选择店铺 Logo 图片')}>更换 Logo</button><small>建议 200 × 200，支持 JPG、PNG</small></div><div className="settings-form-grid"><label><span>店铺编号</span><input value="SHAN-YE" disabled/></label><label><span>店铺名称</span><input value={name} onChange={(e)=>setName(e.target.value)}/></label><label className="wide"><span>店铺简介</span><textarea maxLength="500" value={intro} onChange={(e)=>setIntro(e.target.value)}></textarea><small>{intro.length}/500</small></label><label className="business-switch"><span><b>营业状态</b><small>停业后商品仍可浏览，但用户不能提交新订单</small></span><input type="checkbox" checked={open} onChange={(e)=>setOpen(e.target.checked)}/></label><label><span>平台佣金</span><input value="5%" disabled/><small>由平台统一设置</small></label><label><span>结算周期</span><input value="订单完成后 7 天" disabled/><small>如有疑问请联系平台管理员</small></label></div></div><div className="settings-save-bar"><button onClick={()=>notify('店铺设置已恢复为加载值')}>重置</button><button className="primary" onClick={()=>notify('店铺设置已保存')}>保存设置</button></div></div></section>;
 }
 
 function FrameworkReferencePage({ route, notify }) {
@@ -1893,21 +1997,85 @@ function FrameworkReferencePage({ route, notify }) {
     ]
   };
   const [title,columns,rows] = definitions[view] || definitions.user;
-  return <section className="admin-page framework-reference-page" data-screen-label={`平台后台系统管理-${title}`}><div className="framework-preserved-note"><Icon name="settings" size={18}/><span className="framework-note-copy"><b>{title}沿用 yeahboot 现有页面</b><small>原型仅还原菜单位置，不改变框架页面结构与交互。</small></span><StatusTicket>FRAMEWORK</StatusTicket></div><FilterBar onReset={()=>notify('筛选条件已重置')} onSearch={()=>notify(`找到 ${rows.length} 条记录`)}><label><span>关键词</span><input placeholder={`搜索${title}`}/></label><label><span>状态</span><select defaultValue="全部状态"><option>全部状态</option><option>正常</option><option>停用</option></select></label></FilterBar><div className="admin-table-frame"><div className="table-toolbar"><div><span className="shelf-mark"></span><b>{title}</b><StatusTicket small>{rows.length} 条</StatusTicket></div><button onClick={()=>notify('列表已刷新')}><Icon name="clock" size={16}/>刷新</button></div><table className="admin-table"><thead><tr>{columns.map((col)=><th key={col}>{col}</th>)}<th className="actions">操作</th></tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((cell)=><td key={cell}>{cell}</td>)}<td className="actions"><button className="table-link" onClick={()=>notify(`${title}详情已打开`)}>查看</button></td></tr>)}</tbody></table><AdminPagination count={rows.length}/></div></section>;
+  return <section className="admin-page framework-reference-page" data-screen-label={`平台后台系统管理-${title}`}><div className="framework-preserved-note"><Icon name="settings" size={18}/><span className="framework-note-copy"><b>{title}沿用 YeahBoot 页面能力</b><small>仅接入统一主题、紧凑密度和布局外壳，不改变框架接口、权限与交互契约。</small></span><StatusTicket>FRAMEWORK</StatusTicket></div><FilterBar onReset={()=>notify('筛选条件已重置')} onSearch={()=>notify(`找到 ${rows.length} 条记录`)}><label><span>关键词</span><input placeholder={`搜索${title}`}/></label><label><span>状态</span><select defaultValue="全部状态"><option>全部状态</option><option>正常</option><option>停用</option></select></label></FilterBar><div className="admin-table-frame"><table className="admin-table"><thead><tr>{columns.map((col)=><th key={col}>{col}</th>)}<th className="actions">操作</th></tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((cell)=><td key={cell}>{cell}</td>)}<td className="actions"><button className="table-link" onClick={()=>notify(`${title}详情已打开`)}>查看</button></td></tr>)}</tbody></table><AdminPagination count={rows.length}/></div></section>;
+}
+
+function AdminSettlementPage({ surface, route, navigate, notify }) {
+  const platform=surface==='platform';
+  const tabs=platform?['结算台账','账户审核','支付通道']:['结算记录','收款账户','独立App支付'];
+  const requested=routeParam(route,'tab');
+  const active=tabs.includes(requested)?requested:tabs[0];
+  const [keyword,setKeyword]=useState('');
+  const [status,setStatus]=useState('全部状态');
+  const [selected,setSelected]=useState([]);
+  const [dialog,setDialog]=useState(null);
+  useEffect(()=>{setKeyword('');setStatus('全部状态');setSelected([]);setDialog(null);},[active,surface]);
+  const ledger=[
+    ['YM202611020018','山野生活店','订单收入','¥0.01','¥0.00','+¥0.01','待结算','-'],
+    ['YM202611010086','Yeah 数码生活馆','订单收入','¥299.00','¥14.95','+¥284.05','已结算','JS20261101001'],
+    ['YM202610290032','白茶生活馆','退款冲减','¥139.00','¥0.00','-¥139.00','待结算','-']
+  ];
+  const filteredLedger=ledger.filter((row)=>(status==='全部状态'||row.includes(status))&&row.join('').includes(keyword));
+  const accounts=[['1','山野生活店','银行卡','杭州山野生活有限公司','**** 8862','待审核','2026-11-01 15:20'],['2','Yeah 数码生活馆','支付宝','杭州悦数科技有限公司','pay***@mail.com','已通过','2026-10-28 09:36']];
+  const channels=[['平台普通商户','平台主通道','平台普通商户直收','platform','启用'],['服务商主通道','平台主通道','服务商代子商户收款','platform','停用'],['山野独立 App','山野生活店','独立店铺普通商户直收','shop-app','启用']];
+  const changeTab=(tab)=>navigate(`${surface}/settlement?tab=${encodeURIComponent(tab)}`);
+  const renderLedger=()=> <><FilterBar onReset={()=>{setKeyword('');setStatus('全部状态');}} onSearch={()=>notify(`找到 ${filteredLedger.length} 条结算记录`)} actions={platform&&<button className="business-primary" disabled={!selected.length} onClick={()=>setDialog({type:'settle'})}><Icon name="check" size={16}/>确认线下打款</button>}><label><span>{platform?'店铺或订单':'订单编号'}</span><input value={keyword} onChange={(e)=>setKeyword(e.target.value)} placeholder={platform?'店铺 ID、名称或订单号':'请输入订单编号'}/></label><label><span>结算状态</span><select value={status} onChange={(e)=>setStatus(e.target.value)}><option>全部状态</option><option>待结算</option><option>已结算</option><option>已取消</option></select></label><label><span>结算批次</span><input placeholder="请输入结算批次编号"/></label></FilterBar><div className="admin-table-frame"><table className="admin-table"><thead><tr>{platform&&<th className="selection-cell"></th>}<th>订单编号</th>{platform&&<th>店铺</th>}<th>业务类型</th><th className="numeric">实际支付</th><th className="numeric">平台佣金</th><th className="numeric">结算变动</th><th>状态</th><th>结算批次</th></tr></thead><tbody>{filteredLedger.map((row,index)=><tr key={row[0]}>{platform&&<td className="selection-cell"><input type="checkbox" checked={selected.includes(index)} disabled={row[6]!=='待结算'} onChange={()=>setSelected(selected.includes(index)?selected.filter((item)=>item!==index):[...selected,index])}/></td>}<td><b className="mono">{row[0]}</b><small className="cell-sub">可结算 2026-11-03</small></td>{platform&&<td>{row[1]}</td>}<td>{row[2]}</td><td className="numeric">{row[3]}</td><td className="numeric">{row[4]}</td><td className={`numeric ${row[5].startsWith('-')?'negative-amount':'positive-amount'}`}>{row[5]}</td><td><StatusTicket tone={row[6]==='已结算'?'success':'warning'}>{row[6]}</StatusTicket></td><td className="mono">{row[7]}</td></tr>)}</tbody></table><AdminPagination count={filteredLedger.length}/></div></>;
+  const renderAccounts=()=> <><FilterBar onReset={()=>{}} onSearch={()=>notify(`找到 ${accounts.length} 个账户`)}><label><span>店铺</span><input placeholder="店铺 ID 或名称"/></label><label><span>审核状态</span><select defaultValue="全部状态"><option>全部状态</option><option>待审核</option><option>已通过</option><option>已拒绝</option></select></label></FilterBar><div className="admin-table-frame"><table className="admin-table"><thead><tr><th>店铺</th><th>账户类型</th><th>收款名称</th><th>收款账号</th><th>审核状态</th><th>提交时间</th><th className="actions">操作</th></tr></thead><tbody>{accounts.map((row)=><tr key={row[0]}><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td className="mono">{row[4]}</td><td><StatusTicket tone={row[5]==='已通过'?'success':'warning'}>{row[5]}</StatusTicket></td><td>{row[6]}</td><td className="actions"><button className="table-link" onClick={()=>setDialog({type:'audit',row})}>{row[5]==='待审核'?'审核':'查看'}</button></td></tr>)}</tbody></table><AdminPagination count={accounts.length}/></div></>;
+  const renderChannels=()=> <><div className="settlement-channel-actions"><button className="business-primary" onClick={()=>setDialog({type:'channel',mode:'平台普通商户直收'})}>新增平台普通商户通道</button><button onClick={()=>setDialog({type:'channel',mode:'服务商代子商户收款'})}>新增服务商主通道</button><button onClick={()=>setDialog({type:'channel',mode:'子商户路由'})}>新增子商户路由</button></div><div className="admin-table-frame"><table className="admin-table"><thead><tr><th>通道名称</th><th>适用范围</th><th>收款模式</th><th>App 目标</th><th>状态</th><th className="actions">操作</th></tr></thead><tbody>{channels.map((row)=><tr key={row[0]}>{row.map((cell,index)=><td key={index}>{index===4?<StatusTicket tone={cell==='启用'?'success':'neutral'}>{cell}</StatusTicket>:cell}</td>)}<td className="actions"><button className="table-link" onClick={()=>setDialog({type:'channel',mode:row[2],editing:true})}>编辑</button></td></tr>)}</tbody></table><AdminPagination count={channels.length}/></div></>;
+  const renderMerchantForm=(payment=false)=> <section className="settlement-editor"><div className="settlement-editor-head"><div><b>{payment?'独立 App 支付通道':'收款账户'}</b><span>{payment?'配置当前店铺独立 App 的微信支付信息':'平台线下结算将打款到审核通过的账户'}</span></div><StatusTicket tone={payment?'success':'warning'}>{payment?'已启用':'待审核'}</StatusTicket></div><div className="settlement-form-grid">{payment?<><label><span>通道名称</span><input defaultValue="山野独立 App 支付"/></label><label><span>App 目标</span><input defaultValue="shop-app"/></label><label><span>应用 AppID</span><input placeholder="请输入应用 AppID"/></label><label><span>商户号</span><input placeholder="请输入微信支付商户号"/></label><label><span>商户 API 证书序列号</span><input placeholder="请输入证书序列号"/></label><label><span>微信支付公钥 ID</span><input placeholder="请输入公钥 ID"/></label><label className="wide"><span>支付回调地址</span><input placeholder="请输入支付回调地址"/></label><label className="wide"><span>退款回调地址</span><input placeholder="请输入退款回调地址"/></label></>:<><label><span>账户类型</span><select defaultValue="银行卡"><option>银行卡</option><option>支付宝</option></select></label><label><span>收款名称</span><input defaultValue="杭州山野生活有限公司"/></label><label><span>收款账号</span><input defaultValue="6222 **** **** 8862"/></label><label><span>开户银行</span><input defaultValue="招商银行杭州分行"/></label></>}</div><div className="settlement-save-bar"><span>{payment?'敏感凭据仅在保存时提交，页面不回显明文':'审核通过前可继续修改账户信息'}</span><button onClick={()=>notify(payment?'支付配置已保存':'收款账户已提交审核')}>保存设置</button></div></section>;
+  return <section className="admin-page settlement-admin-page" data-screen-label={`${platform?'平台':'商家'}结算管理`}><div className="module-tabs">{tabs.map((tab)=><button className={active===tab?'active':''} key={tab} onClick={()=>changeTab(tab)}>{tab}</button>)}</div>{platform?(active==='结算台账'?renderLedger():active==='账户审核'?renderAccounts():renderChannels()):(active==='结算记录'?renderLedger():renderMerchantForm(active==='独立App支付'))}{dialog?.type==='settle'&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog settlement-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">OFFLINE SETTLEMENT</span><h2>确认线下打款</h2></div><button onClick={()=>setDialog(null)}>×</button></div><div className="settlement-summary"><span>本次结算 {selected.length} 条记录</span><b>净额 ¥284.06</b></div><div className="description-grid"><div><span>收款方式</span><b>银行卡</b></div><div><span>收款名称</span><b>杭州山野生活有限公司</b></div><div className="wide"><span>收款账号</span><b>6222 **** **** 8862</b></div></div><label className="dialog-field"><span>转账流水号</span><input placeholder="请输入银行或第三方转账流水号"/></label><label className="dialog-field"><span>打款凭证</span><button className="upload-placeholder"><Icon name="image" size={18}/>上传图片</button></label><label className="dialog-field"><span>备注 <small>选填</small></span><textarea placeholder="补充本次结算说明"></textarea></label><div className="dialog-actions"><button onClick={()=>setDialog(null)}>取消</button><button className="primary" onClick={()=>{setDialog(null);notify('结算已确认');}}>确认已打款</button></div></section></div>}{dialog?.type==='audit'&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog settlement-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">ACCOUNT AUDIT</span><h2>结算账户审核</h2></div><button onClick={()=>setDialog(null)}>×</button></div><div className="description-grid">{[['店铺',dialog.row[1]],['账户类型',dialog.row[2]],['收款名称',dialog.row[3]],['收款账号',dialog.row[4]]].map(([label,value])=><div key={label}><span>{label}</span><b>{value}</b></div>)}</div><label className="dialog-field"><span>审核备注</span><textarea placeholder="拒绝时必须填写审核原因"></textarea></label><div className="dialog-actions"><button onClick={()=>setDialog(null)}>关闭</button><button className="danger" onClick={()=>{setDialog(null);notify('账户已拒绝');}}>拒绝</button><button className="primary" onClick={()=>{setDialog(null);notify('账户审核通过');}}>通过</button></div></section></div>}{dialog?.type==='channel'&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog channel-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">PAYMENT CHANNEL</span><h2>{dialog.editing?'编辑支付通道':'新增支付通道'}</h2></div><button onClick={()=>setDialog(null)}>×</button></div><div className="settlement-form-grid"><label><span>通道名称</span><input placeholder="请输入通道名称"/></label><label><span>收款模式</span><select defaultValue={dialog.mode}><option>平台普通商户直收</option><option>服务商代子商户收款</option><option>子商户路由</option></select></label><label><span>适用店铺</span><select><option>平台主通道</option><option>山野生活店</option></select></label><label><span>App 目标</span><input defaultValue="platform"/></label><label><span>应用 AppID</span><input placeholder="请输入应用 AppID"/></label><label><span>商户号</span><input placeholder="请输入商户号"/></label><label className="wide"><span>支付回调地址</span><input placeholder="请输入支付回调地址"/></label></div><div className="dialog-actions"><button onClick={()=>setDialog(null)}>取消</button><button className="primary" onClick={()=>{setDialog(null);notify('支付通道已保存');}}>保存</button></div></section></div>}</section>;
 }
 
 function AdminServicePage({ notify }) {
-  const [active,setActive] = useState(MOCKS.conversations[0]);
+  const conversations=[
+    {id:'cs-1',name:'周予安',preview:'请问订单今天可以发货吗？',time:'10:24'},
+    {id:'cs-2',name:'林可',preview:'收到商品了，谢谢。',time:'昨天'},
+    {id:'cs-3',name:'陈一禾',preview:'想咨询一下长续航版本。',time:'10/30'}
+  ];
+  const [active,setActive] = useState(conversations[0]);
   const [text,setText] = useState('');
-  const [messages,setMessages] = useState(['您好，请问有什么可以帮您？','想确认订单今天可以发货吗？','可以，预计下午四点前交给快递。']);
-  const send=()=>{if(!text.trim())return;setMessages([...messages,text.trim()]);setText('');notify('消息已发送');};
-  return <section className="admin-page service-admin-page" data-screen-label="商家客服消息"><div className="service-console"><aside><label><Icon name="search" size={16}/><input placeholder="搜索会话"/></label>{MOCKS.conversations.map((item)=><button key={item.id} className={active.id===item.id?'active':''} onClick={()=>setActive(item)}><Avatar name={item.name}/><span><b>{item.name}</b><small>{item.preview}</small></span><time>{item.time}</time></button>)}</aside><main><header><Avatar name={active.name}/><div><b>{active.name}</b><span>最近活跃 · 订单咨询</span></div><StatusTicket tone="success">在线</StatusTicket><button onClick={()=>notify('会话已标记完成')}>结束会话</button></header><div className="service-chat">{messages.map((msg,index)=><div className={index%2===0?'them':'me'} key={index}>{msg}</div>)}</div><footer><input value={text} onChange={(e)=>setText(e.target.value)} onKeyDown={(e)=>e.key==='Enter'&&send()} placeholder="输入回复内容"/><button onClick={send}>发送</button></footer></main></div></section>;
+  const [attachmentOpen,setAttachmentOpen] = useState(false);
+  const [messages,setMessages] = useState([
+    {side:'them',type:'text',content:'您好，请问订单今天可以发货吗？',time:'10:16'},
+    {side:'me',type:'text',content:'可以，预计下午四点前交给快递。',time:'10:18'},
+    {side:'them',type:'image',content:'商品图片',time:'10:19'},
+    {side:'me',type:'file',content:'售后说明.pdf',meta:'1.2 MB',time:'10:21'}
+  ]);
+  const send=()=>{if(!text.trim())return;setMessages([...messages,{side:'me',type:'text',content:text.trim(),time:'刚刚'}]);setText('');notify('消息已发送');};
+  const sendAttachment=(type)=>{setMessages([...messages,{side:'me',type,content:type==='image'?'客服图片':type==='video'?'商品演示视频.mp4':'商品说明.pdf',meta:type==='video'?'18.6 MB':'1.2 MB',time:'刚刚'}]);setAttachmentOpen(false);notify(`${type==='image'?'图片':type==='video'?'视频':'文件'}已发送`);};
+  return <section className="admin-page service-admin-page" data-screen-label="商家客服消息"><div className="service-console"><aside><label><Icon name="search" size={16}/><input placeholder="搜索用户昵称或消息内容"/></label>{conversations.map((item)=><button key={item.id} className={active.id===item.id?'active':''} onClick={()=>setActive(item)}><Avatar name={item.name}/><span><b>{item.name}</b><small>{item.preview}</small></span><time>{item.time}</time></button>)}</aside><main><header><Avatar name={active.name}/><div><b>{active.name}</b><span>会员 ID 211094 · 订单咨询</span></div><StatusTicket tone="success">会话中</StatusTicket><button onClick={()=>notify('会话已标记完成')}>结束会话</button></header><div className="service-chat">{messages.map((message,index)=><article className={`service-message ${message.side}`} key={index}><Avatar name={message.side==='me'?'野':active.name} size={32}/><span><small>{message.side==='me'?'山野生活店':active.name} · {message.time}</small><div className={`service-bubble type-${message.type}`}>{message.type==='image'?<ProductArt type="serum"/>:message.type==='video'?<><span className="service-file-icon"><Icon name="video" size={18}/></span><span><b>{message.content}</b><small>{message.meta}</small></span></>:message.type==='file'?<><span className="service-file-icon"><Icon name="file" size={18}/></span><span><b>{message.content}</b><small>{message.meta}</small></span></>:message.content}</div></span></article>)}</div><footer className="service-input-bar"><div className="service-attachment-wrap"><button className="service-attachment-button" onClick={()=>setAttachmentOpen(!attachmentOpen)}><Icon name="plus" size={18}/></button>{attachmentOpen&&<div className="service-attachment-menu"><button onClick={()=>sendAttachment('image')}><Icon name="image" size={17}/>图片</button><button onClick={()=>sendAttachment('video')}><Icon name="video" size={17}/>视频</button><button onClick={()=>sendAttachment('file')}><Icon name="file" size={17}/>文件</button></div>}</div><input value={text} onChange={(e)=>setText(e.target.value)} onKeyDown={(e)=>e.key==='Enter'&&send()} placeholder="输入回复内容"/><button className="service-send-button" onClick={send}>发送</button></footer></main></div></section>;
+}
+
+function adminRouteTitle(surface, route) {
+  const page = routePath(route).split('/')[1] || 'overview';
+  const names = {
+    overview:'经营概览', merchants:'商家管理', shops:'店铺管理', members:'会员管理', reviews:'评价管理', points:'积分管理',
+    'points-mall':'积分商城', seckill:'秒杀管理', groupbuy:'拼团管理', content:'首页运营', feedback:'意见反馈',
+    products:'SPU 管理', sku:'SKU 管理', categories:surface==='platform'?'平台分类':'商品分类', specs:'规格管理', banner:'轮播图',
+    orders:'订单管理', coupons:'优惠券管理', shipping:'物流设置', service:'客服消息', settings:'店铺设置', settlement:'结算管理', system:'系统管理'
+  };
+  return routeParam(route,'tab') || names[page] || '商城管理';
 }
 
 function AdminPrototype({ surface, route, navigate, notify }) {
   const page = routePath(route).split('/')[1] || 'overview';
   const [members, setMembers] = useState(MOCKS.members);
   const [orders, setOrders] = useState(MOCKS.orders);
+  const [sidebarCollapsed,setSidebarCollapsed] = useState(false);
+  const [pageTabs,setPageTabs] = useState([{route:`${surface}/overview`,title:'经营概览'}]);
+  useEffect(()=>setPageTabs([{route:`${surface}/overview`,title:'经营概览'}]),[surface]);
+  useEffect(()=>{
+    setPageTabs((current)=>current.some((item)=>item.route===route) ? current : [...current,{route,title:adminRouteTitle(surface,route)}]);
+  },[route,surface]);
+  const closeTab=(target)=>{
+    const index=pageTabs.findIndex((item)=>item.route===target);
+    const next=pageTabs.filter((item)=>item.route!==target);
+    setPageTabs(next.length?next:[{route:`${surface}/overview`,title:'经营概览'}]);
+    if(target===route){
+      const fallback=next[index] || next[index-1] || {route:`${surface}/overview`};
+      navigate(fallback.route);
+    }
+  };
   let content;
   if (page === 'overview') content = <AdminOverview surface={surface} navigate={navigate}/>;
   else if (surface === 'platform' && page === 'members') content = <AdminMembers members={members} setMembers={setMembers} notify={notify}/>;
@@ -1915,12 +2083,13 @@ function AdminPrototype({ surface, route, navigate, notify }) {
   else if (surface === 'merchant' && page === 'products') content = <MerchantProducts notify={notify}/>;
   else if (surface === 'merchant' && page === 'service') content = <AdminServicePage notify={notify}/>;
   else if (surface === 'merchant' && page === 'settings') content = <MerchantSettingsPage notify={notify}/>;
+  else if (page === 'settlement') content = <AdminSettlementPage surface={surface} route={route} navigate={navigate} notify={notify}/>;
   else if (surface === 'platform' && page === 'system') content = <FrameworkReferencePage route={route} notify={notify}/>;
   else content = <AdminModulePage surface={surface} page={page} route={route} navigate={navigate} notify={notify}/>;
   return (
-    <div className="admin-shell" data-screen-label={surface === 'platform' ? '平台后台' : '商家后台'}>
-      <AdminSidebar surface={surface} route={route} navigate={navigate}/>
-      <div className="admin-workspace"><AdminTopbar surface={surface} page={page} route={route} notify={notify}/>{content}</div>
+    <div className={`admin-shell admin-shell-light${sidebarCollapsed?' is-collapsed':''}`} data-screen-label={surface === 'platform' ? '平台后台' : '商家后台'}>
+      <AdminSidebar surface={surface} route={route} navigate={navigate} collapsed={sidebarCollapsed}/>
+      <div className="admin-workspace"><AdminTopbar surface={surface} page={page} route={route} notify={notify} collapsed={sidebarCollapsed} onToggleSidebar={()=>setSidebarCollapsed(!sidebarCollapsed)}/><AdminTabs tabs={pageTabs} route={route} navigate={navigate} onClose={closeTab}/>{content}</div>
     </div>
   );
 }

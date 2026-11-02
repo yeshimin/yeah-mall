@@ -72,7 +72,7 @@ Pages not named above remain prototype-covered but are not yet considered produc
 
 Supplementary App references: `app/seckill-detail`, `app/groupbuy-detail`, and `app/group-select`. These refine campaign flows without pretending to be additional registered pages.
 
-## Admin: 40 mall business pages
+## Admin: 43 mall business pages
 
 | Actual page | Prototype target | Coverage |
 | --- | --- | --- |
@@ -98,6 +98,7 @@ Supplementary App references: `app/seckill-detail`, `app/groupbuy-detail`, and `
 | `mall/member-points/index.vue` | `platform/points` tabs | Dedicated module template |
 | `mall/member/index.vue` | `platform/members` | Dedicated page |
 | `mall/merchant/index.vue` | `platform/merchants` | Shared management template |
+| `mall/platform-category/index.vue` | `platform/categories` | Dedicated tree/list template |
 | `mall/order/index.vue` | `merchant/orders` | Dedicated order template |
 | `mall/platBanner/index.vue` | `platform/content?tab=Banner` | Dedicated module tab |
 | `mall/points-mall/index.vue` | `platform/points-mall` tabs | Dedicated module template |
@@ -111,13 +112,15 @@ Supplementary App references: `app/seckill-detail`, `app/groupbuy-detail`, and `
 | `mall/seckill/monitor/index.vue` | `platform/seckill?tab=实时监控` | Dedicated module tab |
 | `mall/seckill/analysis/index.vue` | `platform/seckill?tab=成交分析` | Dedicated module tab |
 | `mall/settings/index.vue` | `merchant/settings` | Dedicated editor |
+| `mall/settlement/index.vue` | `platform/settlement` tabs | Dedicated settlement workspace |
+| `mall/mch-settlement/index.vue` | `merchant/settlement` tabs | Dedicated settlement workspace |
 | `mall/shipping/index.vue` | `merchant/shipping` tabs | Dedicated module template |
 | `mall/shop/index.vue` | `platform/shops` | Shared management template |
 | `mall/sku/index.vue` | `merchant/sku` | Dedicated list template |
 | `mall/specDef/index.vue` | `merchant/specs` tabs | Dedicated module template |
 | `mall/spu/index.vue` | `merchant/products` | Dedicated page |
 
-The two `banner/test*.vue` files and `member-points/components/PointsAdjustDialog.vue` are excluded because they are test/internal component files, not business pages.
+The two `banner/test*.vue` files, `member-points/components/PointsAdjustDialog.vue`, and the shared payment/settlement components under `mall/components` are excluded from the page count because they are test or internal component files. Their visible states are represented by the dedicated settlement workspaces and dialogs.
 
 ## Yeahboot system pages
 

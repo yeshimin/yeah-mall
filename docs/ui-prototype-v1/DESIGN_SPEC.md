@@ -53,6 +53,7 @@ Small body and secondary text must maintain WCAG-readable contrast. Muted, warni
 3. Points increase/decrease with validation and simulated balance update.
 4. Order filtering and shipping dialog with logistics provider selection.
 5. Reviews, points, points mall, seckill, group-buy, content and feedback.
+6. Platform category, settlement account audit, settlement ledger and payment channels.
 
 ### Merchant admin
 
@@ -60,6 +61,7 @@ Small body and secondary text must maintain WCAG-readable contrast. Muted, warni
 2. Product, category and order management.
 3. Reviews, coupons, seckill and group-buy.
 4. Shipping, customer service and shop settings.
+5. Settlement records, collection account and independent App payment settings.
 
 ## App visual language
 
@@ -72,6 +74,20 @@ Small body and secondary text must maintain WCAG-readable contrast. Muted, warni
 - Lists use inset separators and one shared end-of-list boundary. Empty states, loading states and list boundaries are visually distinct.
 - Form controls use the shared subtle surface, consistent labels and full-width alignment. Native checkboxes are replaced by the shared switch or selection treatment in the prototype.
 - Authentication, privacy, notification, order, marketing, points, address, review and after-sales pages share these rules. Business-specific hero colors are allowed only when they communicate state or account value.
+
+## Admin visual language
+
+- The default shell uses a light left navigation and compact readable content density. Desktop navigation starts expanded, supports a 68px collapsed state and preserves the user's last choice; narrow layouts may collapse automatically.
+- Platform and merchant consoles share one content system. Their differences come from permissions, fields and workflows rather than separate visual implementations.
+- The navigation shell and business content are independent. Navigation position, navigation theme, content density and collapsed state must not require duplicated pages.
+- YeahBoot provides framework layout abilities such as left or top navigation, tabs, breadcrumbs and dynamic menu rendering. YeahMall owns mall-specific filters, tables, detail drawers, audit dialogs and semantic status presentation.
+- Admin body text and table cells use 13px, supporting text uses 11-12px, section titles use 15-16px and dialog or drawer titles use 18-20px. Compact density must never reduce business text to miniature overview sizing.
+- The page canvas uses the paper background, white functional panels, subtle separators and almost no shadows. Shadows are reserved for drawers, dialogs and floating menus.
+- List pages contain one filter panel and one table panel. Query controls stay together; create, export and batch actions form a separate right-aligned group in the same panel.
+- Tables show column headers, rows and right-aligned pagination only. Duplicate page titles, record-count toolbars and default refresh controls are omitted.
+- Read-heavy details use drawers. Short create or edit flows use dialogs. Long product editors and settings use full content pages. Read-only fields use descriptions or visually muted surfaces rather than enabled-looking inputs.
+- Semantic colors are stable: brand for primary and positive actions, warning for pending work, danger for rejection, refund or destructive actions, price for monetary emphasis and neutral gray for closed or disabled states.
+- Page tabs remain available for frequent task switching. They are compact, closable and independent from module tabs inside a business page.
 
 ## Production mapping
 

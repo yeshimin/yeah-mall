@@ -9,12 +9,12 @@ This audit covers mall-owned screens only:
 - Merchant admin: all current merchant mall pages are mapped, including SPU, SKU, specifications and shop operations.
 - Yeahboot system-management entries remain visible for shell fidelity but are explicitly excluded from visual redesign.
 
-The following yeahboot-owned areas are protected and must not be restyled by this work:
+The following yeahboot-owned areas remain protected from downstream structural rewrites:
 
-- Admin layout, router, request layer and authentication shell.
+- Router, request layer, authentication shell and permission contracts.
 - Shared system-management views.
 - Shared Element Plus wrappers such as the global pagination component.
-- Framework-wide CSS and theme entry files.
+- Framework layout behavior that has not first been implemented in the independent YeahBoot project.
 
 ## Current UI findings
 
@@ -41,7 +41,7 @@ The following yeahboot-owned areas are protected and must not be restyled by thi
 ## Design response
 
 - Use one mall-only token set and component vocabulary.
-- Keep the admin shell from yeahboot; redesign only the content region of mall pages.
+- Use the YeahBoot shell after its generic navigation-layout improvements are merged; keep mall page design independent from shell position.
 - Use a compact filter bar, a predictable table toolbar, fixed action hierarchy and drawers for read-heavy details.
 - Use product imagery, price, stock and order state as the App's visual hierarchy.
 - Replace decorative containers with meaningful grouping and separators.
@@ -49,8 +49,9 @@ The following yeahboot-owned areas are protected and must not be restyled by thi
 
 ## Merge-safe implementation boundary
 
-- New admin UI code should live under a mall-specific directory such as `src/views/mall/_ui`.
+- New mall content UI code should live under a mall-specific directory such as `src/views/mall/_ui`.
 - Mall pages opt into the visual layer explicitly.
-- Do not edit framework layout, global style entry, router generation or system pages.
+- Navigation position, page tabs and collapse behavior should be implemented upstream in YeahBoot and merged into YeahMall, not maintained as a downstream fork.
+- System pages may consume the upstream theme tokens and density settings, but their DOM, APIs and behavior remain unchanged.
 - App may own a dedicated theme file and mall components because it is not merged from yeahboot.
 - Rollout commits should be grouped by business module to keep future upstream merges reviewable.

@@ -13,8 +13,8 @@ Use the surface switcher to move between App, platform admin and merchant admin.
 Coverage:
 
 - App: all 41 registered pages are mapped, plus 6 supplementary flow/state references.
-- Platform admin: all current platform mall pages are mapped, with the yeahboot system-management menu retained and marked as framework-owned.
-- Merchant admin: all current merchant mall pages are mapped, including SPU, SKU, specifications, marketing, service, logistics and settings.
+- Platform admin: all current platform mall pages are mapped, including platform categories, settlement account audit, settlement ledger and payment channels; the YeahBoot system-management menu remains visible and framework-owned.
+- Merchant admin: all current merchant mall pages are mapped, including SPU, SKU, specifications, marketing, service, logistics, settings, settlement records, collection account and independent App payment.
 
 See `COVERAGE.md` for the exact actual-page-to-prototype mapping.
 
@@ -31,7 +31,8 @@ Final visual QA:
 - 47 App prototype states checked with no horizontal overflow.
 - 47 App states checked with no diagonal/asymmetric card radii.
 - 47 App states checked with no partially clipped visible text or out-of-bounds interactive control.
-- 32 platform-admin and 22 merchant-admin route states checked with no horizontal overflow.
+- 33 platform-admin and 28 merchant-admin route states loaded with no runtime errors, miniature text or default Element Plus blue.
+- The admin prototype defaults to a light left navigation and compact readable density, with interactive collapse and closable page tabs.
 - No browser console errors and no visible prototype button without an interaction handler.
 - Ordinary admin pages use breadcrumb-only page identity; no repeated content-area page title.
 - All four TabBar root pages follow root-navigation rules; category, cart and profile do not expose a back button.
