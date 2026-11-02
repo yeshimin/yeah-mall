@@ -22,9 +22,9 @@
   --violet: #65538d;
   --violet-soft: #eeebf6;
   --shadow-float: 0 20px 55px rgba(18, 38, 29, .16);
-  --font-body: "Noto Sans SC", "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-display: "Barlow Condensed", "DIN Condensed", var(--font-body);
-  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --font-body: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --font-display: "DIN Condensed", "Arial Narrow", "Roboto Condensed", var(--font-body);
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }
 
 * { box-sizing: border-box; }

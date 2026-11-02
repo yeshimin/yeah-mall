@@ -128,12 +128,12 @@ window.YEAH_MALL_MOCKS = {
   ],
   activities: {
     seckill: [
-      { id: 's-1', title: '秋日数码秒杀', time: '10:00 场', status: '抢购中', product: '云感降噪头戴耳机', price: 299, stock: 18, art: 'headphone' },
-      { id: 's-2', title: '晚八点居家场', time: '20:00 场', status: '即将开始', product: '弧光人体工学休闲椅', price: 499, stock: 10, art: 'chair' }
+      { id: 's-1', title: '秋日品质生活秒杀', description: '数码、美护与居家精选限时直降', time: '10月27日 10:00 – 22:00', status: '进行中', art: 'headphone' },
+      { id: 's-2', title: '周末居家焕新专场', description: '舒适家具与生活好物限时特惠', time: '10月25日 10:00 – 22:00', status: '已结束', art: 'chair' }
     ],
     group: [
-      { id: 'g-1', title: '白茶修护双人团', time: '活动结束统一结算', status: '进行中', product: '白茶屏障修护精华', price: 139, people: '1/2 人', art: 'serum' },
-      { id: 'g-2', title: '山野咖啡三人团', time: '活动结束统一结算', status: '进行中', product: '山野拼配挂耳咖啡', price: 49, people: '2/3 人', art: 'coffee' }
+      { id: 'g-1', title: '双人好物团', description: '数码、美护与居家精选，邀请好友一起拼更划算', time: '10月27日 10:00 – 10月31日 22:00', status: '进行中', minPeople: 2, art: 'serum' },
+      { id: 'g-2', title: '山野咖啡三人团', description: '咖啡与轻食好物专场，活动结果可继续查看', time: '10月20日 10:00 – 10月25日 22:00', status: '已结束', minPeople: 3, art: 'coffee' }
     ]
   },
   addresses: [
@@ -145,8 +145,8 @@ window.YEAH_MALL_MOCKS = {
     { id: 'cv-2', name: '山野咖啡', preview: '感谢您的反馈，我们已经记录。', time: '昨天', unread: 0 }
   ],
   pointsProducts: [
-    { id: 'pp-1', name: '品牌帆布袋', points: 600, stock: 36, art: 'coffee', type: '实物商品' },
-    { id: 'pp-2', name: '全店 20 元券', points: 300, stock: 88, art: 'serum', type: '优惠券' },
-    { id: 'pp-3', name: '专属客服权益', points: 1200, stock: 12, art: 'headphone', type: '虚拟权益' }
+    { id: 'pp-1', name: '品牌帆布袋', points: 600, stock: 36, art: 'coffee', type: '实物商品', category: '生活好物' },
+    { id: 'pp-2', name: '全店 20 元券', points: 300, stock: 88, art: 'serum', type: '优惠券', category: '卡券权益' },
+    { id: 'pp-3', name: '专属客服权益', points: 1200, stock: 12, art: 'headphone', type: '虚拟权益', category: '会员服务' }
   ]
 };

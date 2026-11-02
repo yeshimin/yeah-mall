@@ -298,10 +298,10 @@ function QuantityControl({ value, setValue, max = 9 }) {
   );
 }
 
-function AppProduct({ navigate, notify, singleShop = false }) {
+function AppProduct({ navigate, notify, singleShop = false, route = '' }) {
   const product = MOCKS.products[0];
-  const [favorite, setFavorite] = useState(false);
-  const [sheet, setSheet] = useState(false);
+  const [favorite, setFavorite] = useState(true);
+  const [sheet, setSheet] = useState(routeParam(route,'sheet') === '1');
   const [color, setColor] = useState(product.colors[0]);
   const [spec, setSpec] = useState(product.specs[0]);
   const [quantity, setQuantity] = useState(1);
@@ -336,7 +336,7 @@ function AppProduct({ navigate, notify, singleShop = false }) {
       <nav className={`product-section-tabs ${sectionTabsVisible ? 'visible' : ''}`}>{[['base','宝贝'],['review','评价'],['detail','详情']].map(([key,label])=><button key={key} className={activeSection===key?'active':''} onClick={()=>scrollToProductSection(key)}>{label}</button>)}</nav>
       <main ref={detailScrollRef} className="mobile-scroll detail-scroll-content" onScroll={handleDetailScroll}>
         <div className="detail-gallery">
-        <div className="detail-side-actions"><button onClick={() => notify('分享入口已打开') }><Icon name="share"/></button><button onClick={() => setFavorite(!favorite)} className={favorite ? 'is-favorite' : ''}><Icon name="heart"/></button></div>
+        <div className="detail-side-actions"><button onClick={() => notify('分享入口已打开') }><Icon name="share"/></button><button aria-label={favorite?'取消收藏':'收藏商品'} aria-pressed={favorite} onClick={() => setFavorite(!favorite)} className={favorite ? 'is-favorite' : ''}><Icon name="heart" filled={favorite}/></button></div>
         <ProductArt type={product.art} className={`gallery-variant variant-${gallery}`}/>
         <div className="gallery-dots">{[0,1,2].map((dot) => <button key={dot} className={gallery === dot ? 'active' : ''} onClick={() => setGallery(dot)}></button>)}</div>
         </div>
@@ -375,7 +375,9 @@ function AppProduct({ navigate, notify, singleShop = false }) {
         <div className="sheet-mask" onClick={() => setSheet(false)}>
           <section className="mobile-sheet product-spec-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="sheet-handle"></div>
-            <div className="sku-summary"><ProductArt type={product.art}/><div><b>¥{product.price}</b><span>库存 {product.stock} 件</span><small>已选 {color} · {spec}</small></div><button onClick={() => setSheet(false)}>×</button></div>
+            <header className="purchase-sheet-heading"><div><b>{purchaseMode === 'cart' ? '加入购物车' : '立即购买'}</b><small>选择商品规格和购买数量</small></div></header>
+            <button className="purchase-sheet-close" aria-label="关闭规格弹层" onClick={() => setSheet(false)}><Icon name="close" size={16}/></button>
+            <div className="sku-summary"><ProductArt type={product.art}/><div><b>¥{product.price}</b><span>库存 {product.stock} 件</span><small>已选 {color} · {spec}</small></div></div>
             <div className="option-group"><label>颜色</label><div>{product.colors.map((item) => <button key={item} className={color === item ? 'active' : ''} onClick={() => setColor(item)}>{item}</button>)}</div></div>
             <div className="option-group"><label>规格</label><div>{product.specs.map((item) => <button key={item} className={spec === item ? 'active' : ''} onClick={() => setSpec(item)}>{item}</button>)}</div></div>
             <div className="quantity-row"><label>数量</label><QuantityControl value={quantity} setValue={setQuantity}/></div>
@@ -615,7 +617,9 @@ function AppOrders({ navigate, route, notify }) {
   const [reviewTab,setReviewTab] = useState(requestedTab === '已评价' ? '已评价' : '待评价');
   const tabs = ['全部','待付款','待发货','待收货','退款/售后','评价'];
   const forceEmpty = routeParam(route, 'state') === 'empty';
-  const visible = forceEmpty ? [] : MOCKS.orders.filter((item) => tab === '全部' || (tab === '评价' ? item.status === reviewTab : (tab === '退款/售后' ? item.status === '退款中' : item.status === tab)));
+  const visible = (forceEmpty ? [] : MOCKS.orders.filter((item) => tab === '全部' || (tab === '评价' ? item.status === reviewTab : (tab === '退款/售后' ? item.status === '退款中' : item.status === tab))))
+    .slice()
+    .sort((left,right)=>String(right.createdAt).localeCompare(String(left.createdAt)));
   const emptyStatus = tab === '评价' ? reviewTab : tab;
   const emptyTitle = tab === '全部' ? '还没有订单' : `暂无${emptyStatus}订单`;
   const emptyDescription = tab === '全部' ? '选购喜欢的商品，订单进度会展示在这里' : `当前没有${emptyStatus}订单，可以查看其他订单状态`;
@@ -626,7 +630,6 @@ function AppOrders({ navigate, route, notify }) {
     if(order.status==='待收货') actions.push({label:'查看物流',value:'logistics'},{label:'申请退款',value:'refund'},{label:'确认收货',value:'receive',primary:true});
     if(order.status==='退款中') actions.push({label:'退款进度',value:'refund-detail',primary:true});
     if(order.status==='待评价') actions.push({label:'申请退款',value:'refund'},{label:'去评价',value:'review',primary:true});
-    if(order.status==='已评价') actions.push({label:'查看评价',value:'review-detail'});
     if(order.status==='已评价') actions.push({label:'查看评价',value:'review-detail',primary:true});
     return actions;
   };
@@ -677,7 +680,7 @@ function AppCollection({ navigate, mode }) {
   const [historyItems,setHistoryItems] = useState(MOCKS.products);
   const [clearConfirm,setClearConfirm] = useState(false);
   const rows = mode === 'favorites' ? favoriteItems : historyItems;
-  return <div className="mobile-screen" data-screen-label={`App ${title}`}><SimpleMobileHeader title={title} navigate={navigate} back="app/profile"/><main className="mobile-scroll collection-page">{mode === 'history' && !!rows.length && <div className="history-toolbar"><span>今天 · 浏览 {rows.length} 件商品</span><button onClick={()=>setClearConfirm(true)}>清空</button></div>}{!!rows.length?<><div className="product-grid list-grid">{rows.map((item,index) => <button className="product-card" key={item.id} onClick={() => navigate('app/product')}><ProductArt type={item.art}/>{mode === 'favorites' ? <span className="collection-favorite-action" role="button" aria-label="取消收藏" onClick={(event)=>{event.stopPropagation();setFavoriteItems(favoriteItems.filter((row)=>row.id!==item.id));}}><Icon name="heart" size={14}/></span> : <span className="collection-history-action" role="button" aria-label="删除浏览记录" onClick={(event)=>{event.stopPropagation();setHistoryItems(historyItems.filter((row)=>row.id!==item.id));}}><Icon name="close" size={13}/></span>}<span className="product-card-name">{item.name}</span><span className="product-card-meta"><b>¥{item.price}</b><small>{mode === 'favorites' ? `${item.favoriteCount} 人收藏` : `10:${String(Math.max(0,26-index)).padStart(2,'0')}`}</small></span></button>)}</div><ListBoundary text={mode==='favorites'?'没有更多收藏了':'没有更多浏览记录了'}/></>:<EmptyState icon={mode==='favorites'?'heart':'clock'} title={mode==='favorites'?'暂未收藏商品':'暂无浏览足迹'} description={mode==='favorites'?'遇到喜欢的商品时，可以先收藏起来':'浏览过的商品会按时间记录在这里'} fill/>}</main>{clearConfirm&&<div className="sheet-mask" onClick={()=>setClearConfirm(false)}><section className="mobile-sheet history-clear-sheet" onClick={(event)=>event.stopPropagation()}><div className="sheet-handle"></div><h2>清空浏览足迹？</h2><p>全部浏览记录将被移除，清空后无法恢复。</p><div><button onClick={()=>setClearConfirm(false)}>取消</button><button className="danger" onClick={()=>{setHistoryItems([]);setClearConfirm(false);}}>确认清空</button></div></section></div>}</div>;
+  return <div className="mobile-screen" data-screen-label={`App ${title}`}><SimpleMobileHeader title={title} navigate={navigate} back="app/profile"/><main className="mobile-scroll collection-page">{mode === 'history' && !!rows.length && <div className="history-toolbar"><span>今天 · 浏览 {rows.length} 件商品</span><button onClick={()=>setClearConfirm(true)}>清空</button></div>}{!!rows.length?<><div className="product-grid list-grid">{rows.map((item,index) => <button className="product-card" key={item.id} onClick={() => navigate('app/product')}><ProductArt type={item.art}/>{mode === 'favorites' ? <span className="collection-favorite-action" role="button" aria-label="取消收藏" onClick={(event)=>{event.stopPropagation();setFavoriteItems(favoriteItems.filter((row)=>row.id!==item.id));}}><Icon name="heart" size={14} filled/></span> : <span className="collection-history-action" role="button" aria-label="删除浏览记录" onClick={(event)=>{event.stopPropagation();setHistoryItems(historyItems.filter((row)=>row.id!==item.id));}}><Icon name="close" size={13}/></span>}<span className="product-card-name">{item.name}</span><span className="product-card-meta"><b>¥{item.price}</b><small>{mode === 'favorites' ? `${item.favoriteCount} 人收藏` : `10:${String(Math.max(0,26-index)).padStart(2,'0')}`}</small></span></button>)}</div><ListBoundary text={mode==='favorites'?'没有更多收藏了':'没有更多浏览记录了'}/></>:<EmptyState icon={mode==='favorites'?'heart':'clock'} title={mode==='favorites'?'暂未收藏商品':'暂无浏览足迹'} description={mode==='favorites'?'遇到喜欢的商品时，可以先收藏起来':'浏览过的商品会按时间记录在这里'} fill/>}</main>{clearConfirm&&<div className="sheet-mask" onClick={()=>setClearConfirm(false)}><section className="mobile-sheet history-clear-sheet" onClick={(event)=>event.stopPropagation()}><div className="sheet-handle"></div><h2>清空浏览足迹？</h2><p>全部浏览记录将被移除，清空后无法恢复。</p><div><button onClick={()=>setClearConfirm(false)}>取消</button><button className="danger" onClick={()=>{setHistoryItems([]);setClearConfirm(false);}}>确认清空</button></div></section></div>}</div>;
 }
 
 function AppCouponCard({ coupon, state = 'available', singleShop = false, center = false, claimed = false, onAction }) {
@@ -720,17 +723,19 @@ function AppPoints({ navigate, singleShop = false }) {
 
 function AppPointsMall({ navigate }) {
   const [category,setCategory] = useState('全部');
-  const products = MOCKS.pointsProducts.filter((item)=>category==='全部'||item.type===category);
-  return <div className="mobile-screen" data-screen-label="App 积分商城"><SimpleMobileHeader title="积分商城" navigate={navigate} back="app/home" action={<button onClick={()=>navigate('app/points-orders')}>订单</button>}/><main className="mobile-scroll points-mall-page"><div className="points-mall-tabs">{['全部','实物商品','优惠券','虚拟权益'].map((item)=><button key={item} className={category===item?'active':''} onClick={()=>setCategory(item)}>{item}</button>)}</div><div className="points-product-list">{products.map((item) => <article key={item.id}><ProductArt type={item.art}/><div><StatusTicket small>{item.type}</StatusTicket><b>{item.name}</b><span>{item.points} 积分 · 库存 {item.stock}</span></div><button onClick={() => navigate('app/points-product')}>查看</button></article>)}</div>{!!products.length&&<ListBoundary text="积分商品已全部展示"/>}</main></div>;
+  const categories = ['全部','生活好物','卡券权益','会员服务','限定周边'];
+  const products = MOCKS.pointsProducts.filter((item)=>category==='全部'||item.category===category);
+  return <div className="mobile-screen" data-screen-label="App 积分商城"><SimpleMobileHeader title="积分商城" navigate={navigate} back="app/home"/><main className="mobile-scroll points-mall-page"><button className="points-orders-entry" onClick={()=>navigate('app/points-orders')}><Icon name="order" size={17}/><span>兑换记录</span><Icon name="chevron" size={15}/></button><div className="points-mall-tabs">{categories.map((item)=><button key={item} className={category===item?'active':''} onClick={()=>setCategory(item)}>{item}</button>)}</div>{products.length?<><div className="points-product-list">{products.map((item) => <article key={item.id} role="button" tabIndex="0" onClick={() => navigate('app/points-product')} onKeyDown={(event)=>{if(event.key==='Enter'||event.key===' ') navigate('app/points-product');}}><ProductArt type={item.art}/><div><StatusTicket small>{item.type}</StatusTicket><b>{item.name}</b><span>{item.points} 积分起 · 库存 {item.stock}</span></div><Icon name="chevron" size={16}/></article>)}</div><ListBoundary text="积分商品已全部展示"/></>:<div className="points-mall-empty"><Icon name="box" size={30}/><b>当前分类暂无可兑换商品</b><span>可以看看其他分类的积分好物</span></div>}</main></div>;
 }
 
 function AppActivity({ navigate, type, singleShop = false }) {
   const isSeckill = type === 'seckill';
   const sourceRows = isSeckill ? MOCKS.activities.seckill : MOCKS.activities.group;
   const rows = singleShop ? sourceRows.map((row,index)=>({...row,title:isSeckill?['山野晚八点闪购','周末会员专享'][index]||row.title:['山野生活双人团','咖啡好友三人团'][index]||row.title})) : sourceRows;
-  const tabs = isSeckill?['10:00','14:00','20:00']:['全部活动','报名中','进行中'];
-  const [active,setActive] = useState(tabs[0]);
-  return <div className="mobile-screen" data-screen-label={`App ${isSeckill?'秒杀':'拼团'}`}><SimpleMobileHeader title={isSeckill?'秒杀活动':'拼团活动'} navigate={navigate}/><main className="mobile-scroll activity-page"><div className="activity-tabs">{tabs.map((item,index) => <button className={active===item?'active':''} onClick={()=>setActive(item)} key={item}>{item}<small>{index===0?'进行中':'即将开始'}</small></button>)}</div>{rows.map((row) => <article className="activity-card" key={row.id}><ProductArt type={row.art}/><div><StatusTicket tone={row.status.includes('进行')||row.status.includes('抢购')?'danger':'neutral'} small>{row.status}</StatusTicket><h3>{row.title}</h3><span>{row.time}</span><b>¥{row.price}</b><small>{isSeckill?`剩余 ${row.stock} 件`:row.people}</small></div><button onClick={() => navigate(isSeckill?'app/seckill-products':'app/groupbuy-products')}>{isSeckill?'查看商品':'查看拼团'}</button></article>)}{!!rows.length&&<ListBoundary text="没有更多活动了"/>}</main></div>;
+  if (isSeckill) {
+    return <div className="mobile-screen" data-screen-label="App 秒杀活动"><SimpleMobileHeader title="秒杀活动" navigate={navigate}/><main className="mobile-scroll activity-page seckill-activity-page"><section className="seckill-activity-intro"><span>LIMITED SALE</span><h2>限时好价，按活动选购</h2><p>活动结束后仍可查看商品与价格记录，下架后不再展示。</p></section><div className="seckill-activity-list">{rows.map((row)=><article className="seckill-activity-card" key={row.id}><ProductArt type={row.art}/><div><span className="seckill-activity-card-head"><StatusTicket tone={row.status==='进行中'?'danger':'neutral'} small>{row.status}</StatusTicket><small>{row.time}</small></span><h3>{row.title}</h3><p>{row.description}</p><button onClick={()=>navigate(`app/seckill-products?activity=${row.id}&status=${row.status==='进行中'?'active':'ended'}`)}>查看活动商品 <Icon name="chevron" size={13}/></button></div></article>)}</div>{!!rows.length&&<ListBoundary text="没有更多活动了"/>}</main></div>;
+  }
+  return <div className="mobile-screen" data-screen-label="App 拼团"><SimpleMobileHeader title="拼团活动" navigate={navigate}/><main className="mobile-scroll activity-page groupbuy-activity-page"><section className="groupbuy-rule-note"><span><Icon name="users" size={19}/></span><div><b>活动结束统一结算</b><p>满团后等待活动结束，成团订单才可由商家安排发货</p></div></section><section className="groupbuy-activity-list">{rows.map((row)=><article className="groupbuy-activity-card" key={row.id}><ProductArt type={row.art}/><div><header><StatusTicket tone={row.status==='进行中'?'success':'neutral'} small>{row.status}</StatusTicket><small>{row.minPeople} 人成团</small></header><h3>{row.title}</h3><p>{row.description}</p><time>{row.time}</time><button onClick={()=>navigate(`app/groupbuy-products?activity=${row.id}&status=${row.status==='已结束'?'ended':'active'}`)}>查看活动商品 <Icon name="chevron" size={13}/></button></div></article>)}</section>{!!rows.length&&<ListBoundary text="没有更多活动了"/>}</main></div>;
 }
 
 function AppService({ navigate, notify, route = '', singleShop = false }) {
@@ -811,7 +816,7 @@ function AppReviews({ navigate }) {
       <section className="review-list-v2">
         {visible.map((review)=><article className="review-full-item review-full-item-v2" key={`${review.id}-${review.index}`}>
           <header><Avatar name={review.user}/><b>{review.user}</b><time>{review.time}</time></header>
-          <div className="stars" aria-label={`${review.rating}星`}>{'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)}</div>
+          <RatingStars value={review.rating} size={12} className="stars"/>
           <p>{review.content}</p>
           {!!review.images?.length&&<div className="review-image-row">{review.images.map((image,imageIndex)=><button key={`${review.id}-${imageIndex}`} onClick={()=>setPreview(image)}><ProductArt type={image}/></button>)}</div>}
           {!!review.replies?.length&&<div className="review-thread-full">{review.replies.map((reply)=><div className={reply.sender} key={reply.id}><p><b>{reply.sender==='merchant'?'商家回复':'买家回复'}：</b><span>{reply.content}</span></p><time>{reply.time}</time></div>)}</div>}
@@ -1067,7 +1072,7 @@ function AppReviewForm({ navigate, notify }) {
     },500);
   };
   const removeImage = (item,imageIndex) => updateItem(item.id,{images:item.images.filter((_,index)=>index!==imageIndex)});
-  const renderStars = (value,onChange) => <div className="review-star-control">{[1,2,3,4,5].map((star)=><button key={star} className={star<=value?'active':''} onClick={()=>onChange(star)}>★</button>)}</div>;
+  const renderStars = (value,onChange) => <RatingStars value={value} size={20} onChange={onChange}/>;
   const publish = () => {
     if(uploadingId)return notify('图片仍在上传，请稍候');
     if(items.some((item)=>item.rating<3&&!item.content.trim()))return notify('低评分商品请填写评价内容');
@@ -1098,12 +1103,51 @@ function AppReviewForm({ navigate, notify }) {
   </div>;
 }
 
-function AppReviewDetail({ navigate, notify }) {
-  const [replies,setReplies] = useState([{side:'merchant',text:'感谢您的认可，耳罩配件可单独购买。'},{side:'buyer',text:'好的，后续有需要再联系。'},{side:'merchant',text:'有需要可以直接在这里继续留言。'}]);
-  const [text,setText] = useState('');
-  const canReply = replies[replies.length-1]?.side === 'merchant';
-  const submit = () => { if(!text.trim()) return notify('请输入回复内容'); setReplies([...replies,{side:'buyer',text:text.trim()}]); setText(''); notify('回复已发布，等待商家回复'); };
-  return <div className="mobile-screen" data-screen-label="App 评价详情"><SimpleMobileHeader title="评价详情" navigate={navigate} back="app/orders?tab=待评价"/><main className="mobile-scroll review-detail-page"><div className="review-product-head"><ProductArt type="headphone"/><div><b>云感降噪头戴耳机</b><span>雾银 · 标准版</span></div></div><article className="review-conversation"><header><Avatar name="林可"/><div><b>林可</b><span>2026-10-23 14:20</span></div><span className="stars-inline">★★★★★</span></header><p>佩戴两小时没有压耳，降噪对通勤很有帮助。包装也很稳妥。</p>{replies.map((reply,index)=><div key={index} className={reply.side==='merchant'?'merchant-reply':'buyer-reply'}><b>{reply.side==='merchant'?'商家回复':'我的回复'}</b><span>{reply.text}</span></div>)}</article>{canReply?<section className="review-reply-box"><textarea value={text} onChange={(e)=>setText(e.target.value)} placeholder="回复商家，继续沟通使用体验"></textarea><button onClick={submit}>发表回复</button></section>:<div className="reply-waiting"><Icon name="clock" size={16}/><span>已回复，等待商家继续回复后可再次留言</span></div>}</main></div>;
+function AppReviewDetail({ navigate, route, notify }) {
+  const state = routeParam(route,'state') || 'ready';
+  const [items,setItems] = useState([
+    { id:'review-headphone', art:'headphone', name:'云感降噪头戴耳机', spec:'雾银 · 标准版', rating:5, ratingText:'非常满意', content:'佩戴两小时没有压耳，降噪对通勤很有帮助。包装也很稳妥。', images:['headphone','chair'], replies:[{id:1,side:'merchant',text:'感谢您的认可，耳罩配件可单独购买。',time:'10月24日 09:18'}] },
+    { id:'review-serum', art:'serum', name:'氨基酸净澈洁面乳', spec:'120g · 单支', rating:4, ratingText:'满意', content:'泡沫细腻，洗完不紧绷，包装完好。', images:[], replies:[{id:2,side:'merchant',text:'感谢反馈，后续有需要可以继续留言。',time:'10月24日 09:26'},{id:3,side:'buyer',text:'好的，使用一段时间后再来反馈。',time:'10月24日 10:02'}] }
+  ]);
+  const [drafts,setDrafts] = useState({});
+  const [editing,setEditing] = useState({});
+  const [preview,setPreview] = useState(null);
+  const canReply = (item) => item.replies[item.replies.length-1]?.side === 'merchant';
+  const canEditReply = (item) => item.replies[item.replies.length-1]?.side === 'buyer';
+  const submitReply = (item) => {
+    const content = (drafts[item.id] || '').trim();
+    if(!content)return notify('请输入回复内容');
+    setItems(items.map((row)=>{
+      if(row.id!==item.id)return row;
+      const replies = editing[item.id]
+        ? row.replies.map((reply,index)=>index===row.replies.length-1?{...reply,text:content,time:'刚刚'}:reply)
+        : [...row.replies,{id:Date.now(),side:'buyer',text:content,time:'刚刚'}];
+      return {...row,replies};
+    }));
+    setDrafts({...drafts,[item.id]:''});
+    setEditing({...editing,[item.id]:false});
+    notify(editing[item.id]?'回复已修改':'回复已发布，等待商家继续回复');
+  };
+  if(state==='loading')return <div className="mobile-screen" data-screen-label="App 评价详情"><SimpleMobileHeader title="评价详情" navigate={navigate} back="app/orders?tab=已评价"/><main className="review-detail-state"><i></i><b>评价详情加载中</b><span>正在读取评价与回复记录</span></main></div>;
+  if(state==='error')return <div className="mobile-screen" data-screen-label="App 评价详情"><SimpleMobileHeader title="评价详情" navigate={navigate} back="app/orders?tab=已评价"/><main className="review-detail-state"><span><Icon name="close" size={22}/></span><b>评价详情加载失败</b><small>网络波动，请稍后重新加载</small><button onClick={()=>notify('正在重新加载评价详情')}>重新加载</button></main></div>;
+  return <div className="mobile-screen" data-screen-label="App 评价详情">
+    <SimpleMobileHeader title="评价详情" navigate={navigate} back="app/orders?tab=已评价"/>
+    <main className="mobile-scroll review-detail-v2">
+      <section className="review-detail-meta"><div><small>订单编号</small><b className="mono">YM202610250021</b></div><span><StatusTicket tone="neutral" small>匿名评价</StatusTicket><time>2026-10-25 18:36</time></span></section>
+      <section className="review-detail-shop-ratings"><header><h2>店铺评分</h2><span>本次购物体验</span></header>{[['描述相符',5],['物流服务',5],['服务态度',5]].map(([label,value])=><div key={label}><span>{label}</span><RatingStars value={value} size={16}/><b>{value}分</b></div>)}</section>
+      {items.map((item)=><section className="review-detail-item" key={item.id}>
+        <header className="review-detail-product"><ProductArt type={item.art}/><div><b>{item.name}</b><span>{item.spec}</span></div></header>
+        <div className="review-detail-score"><RatingStars value={item.rating} size={16}/><b>{item.ratingText}</b></div>
+        <p className="review-detail-content">{item.content}</p>
+        {!!item.images.length&&<div className="review-detail-images">{item.images.map((image,index)=><button key={`${image}-${index}`} onClick={()=>setPreview(image)}><ProductArt type={image}/></button>)}</div>}
+        {!!item.replies.length&&<div className="review-detail-thread">{item.replies.map((reply)=><article className={reply.side} key={reply.id}><header><b>{reply.side==='merchant'?'商家回复':'我的回复'}</b><time>{reply.time}</time></header><p>{reply.text}</p></article>)}</div>}
+        {canReply(item)||editing[item.id]?<div className="review-detail-reply"><textarea value={drafts[item.id] || ''} maxLength="500" onChange={(event)=>setDrafts({...drafts,[item.id]:event.target.value})} placeholder={editing[item.id]?'修改你的最新回复':'回复商家，继续沟通使用体验'}></textarea><footer><small>{(drafts[item.id] || '').length}/500</small><span>{editing[item.id]&&<button className="secondary" onClick={()=>{setDrafts({...drafts,[item.id]:''});setEditing({...editing,[item.id]:false});}}>取消</button>}<button onClick={()=>submitReply(item)}>{editing[item.id]?'保存修改':'发表回复'}</button></span></footer></div>:canEditReply(item)?<div className="review-detail-edit-ready"><span>你已回复，可修改最新回复</span><button onClick={()=>{const latest=item.replies[item.replies.length-1];setDrafts({...drafts,[item.id]:latest?.text||''});setEditing({...editing,[item.id]:true});}}>修改回复</button></div>:<div className="review-detail-waiting"><Icon name="clock" size={15}/><span>等待商家回复后可继续留言</span></div>}
+      </section>)}
+      {!items.length&&<EmptyState icon="message" title="暂无评价信息" description="评价发布后会显示在这里" fill/>}
+      <div className="review-detail-end"><ListBoundary/></div>
+    </main>
+    {preview&&<div className="image-preview-mask" onClick={()=>setPreview(null)}><button onClick={()=>setPreview(null)}>×</button><ProductArt type={preview}/><span>点击任意位置关闭</span></div>}
+  </div>;
 }
 
 function ProfileDateWheel({ value, onChange }) {
@@ -1181,39 +1225,227 @@ function SingleShopUnavailable({ navigate }) {
   return <div className="mobile-screen single-shop-unavailable" data-screen-label="单店 App 店铺不可用"><MobileStatusBar tone="paper"/><div className="single-shop-unavailable-capsule"><WechatCapsule/></div><main><img src="assets/shop-logo-mountain.png" alt=""/><StatusTicket tone="neutral">暂时停业</StatusTicket><h1>店铺暂不可用</h1><p>店铺可能正在维护、暂停营业，或当前商城配置尚未完成。请稍后重新进入。</p><button className="primary" onClick={()=>navigate('app/home')}>重新加载</button><button onClick={()=>navigate('app/service')}>联系客服</button></main></div>;
 }
 
-function AppActivityProducts({ navigate, type, singleShop = false }) {
+function AppActivityProducts({ navigate, route = '', type, singleShop = false }) {
   const title = type==='seckill'?'秒杀商品':'拼团商品';
-  return <div className="mobile-screen" data-screen-label={`App ${title}`}><SimpleMobileHeader title={title} navigate={navigate} back={type==='seckill'?'app/seckill':'app/groupbuy'}/><main className="mobile-scroll activity-products-page"><header><b>{singleShop?(type==='seckill'?'山野晚八点闪购':'山野生活双人团'):(type==='seckill'?'秋日数码秒杀':'双人好物团')}</b><span>{type==='seckill'?'10:00–12:00':'活动结束后，成团订单可发货'}</span></header>{MOCKS.products.map((item)=><article key={item.id}><ProductArt type={item.art}/><div><b>{item.name}</b><span>{item.subtitle}</span><strong>¥{type==='seckill'?Math.max(49,item.price-100):Math.max(39,item.price-30)}</strong><del>¥{item.price}</del></div><button onClick={()=>navigate(type==='seckill'?'app/seckill-detail':'app/groupbuy-detail')}>{type==='seckill'?'抢购':'拼团'}</button></article>)}<ListBoundary text="活动商品已全部展示"/></main></div>;
+  const sessions = [
+    { id:'all', name:'全部', time:'10:00–22:00', status:'进行中' },
+    { id:'morning', name:'10:00 场', time:'10:00–12:00', status:'已结束' },
+    { id:'afternoon', name:'14:00 场', time:'14:00–16:00', status:'进行中' },
+    { id:'evening', name:'20:00 场', time:'20:00–22:00', status:'未开始' }
+  ];
+  const [activeSession,setActiveSession] = useState('afternoon');
+  const activityEnded = routeParam(route,'status') === 'ended';
+  const seckillRows = MOCKS.products.slice(0,8).map((item,index)=>({
+    ...item,
+    sessionId:['morning','afternoon','afternoon','evening'][index%4],
+    shop:['Yeah 数码生活馆','山野生活店','Yeah 美护精选','山野咖啡'][index%4],
+    seckillPrice:Math.max(39,item.price-[100,130,50,20][index%4])
+  }));
+  const visibleRows = activeSession==='all' ? seckillRows : seckillRows.filter((item)=>item.sessionId===activeSession);
+  const openSeckillProduct = (item, session, event) => {
+    event?.stopPropagation();
+    const status = activityEnded || session?.status === '已结束' ? 'ended' : session?.status === '未开始' ? 'upcoming' : 'active';
+    navigate(`app/seckill-detail?session=${item.sessionId}&status=${status}`);
+  };
+  if (type === 'seckill') {
+    return <div className="mobile-screen" data-screen-label="App 秒杀商品"><SimpleMobileHeader title="秒杀商品" navigate={navigate} back="app/seckill"/><main className="mobile-scroll activity-products-page seckill-products-page"><section className="seckill-products-summary"><span><StatusTicket tone={activityEnded?'neutral':'danger'} small>{activityEnded?'已结束':'进行中'}</StatusTicket><small>活动时间 · 10月27日 10:00–22:00</small></span><h2>{singleShop?'山野生活限时闪购':'秋日品质生活秒杀'}</h2><p>{activityEnded?'活动已经结束，商品仅供查看。':'选择当前场次商品，秒杀库存售完即止。'}</p></section><nav className="seckill-session-tabs" aria-label="秒杀场次">{sessions.map((session)=><button key={session.id} className={activeSession===session.id?'active':''} onClick={()=>setActiveSession(session.id)}><b>{session.name}</b><small>{session.status}</small></button>)}</nav><section className="seckill-product-list">{visibleRows.map((item)=>{const session=sessions.find((candidate)=>candidate.id===item.sessionId);const purchasable=!activityEnded&&session?.status==='进行中';return <article className="seckill-product-row" key={item.id} onClick={(event)=>openSeckillProduct(item,session,event)}><ProductArt type={item.art}/><div className="seckill-product-copy"><h3>{item.name}</h3><p>{item.shop} · {session?.name}</p><span><strong>¥{item.seckillPrice}</strong><del>¥{item.price}</del><small>已售 {item.sales}</small></span></div><button className={purchasable?'':'ended'} onClick={(event)=>openSeckillProduct(item,session,event)}>{purchasable?'抢购':'查看'}</button></article>;})}</section>{!!visibleRows.length&&<ListBoundary text="活动商品已全部展示"/>}</main></div>;
+  }
+  const groupActivityId = routeParam(route,'activity') || 'g-1';
+  const groupActivity = MOCKS.activities.group.find((item)=>item.id===groupActivityId) || MOCKS.activities.group[0];
+  const groupActivityEnded = routeParam(route,'status')==='ended' || groupActivity.status==='已结束';
+  const groupActivityTitle = singleShop
+    ? (groupActivity.id==='g-1'?'山野生活双人团':'咖啡好友三人团')
+    : groupActivity.title;
+  const groupRows = MOCKS.products.slice(0,8).map((item,index)=>{
+    const groupPrice = Math.max(39,item.price-[30,60,20,45][index%4]);
+    return {
+      ...item,
+      groupPrice,
+      maxGroupPrice:index%3===0?groupPrice:groupPrice+[20,30,40][index%3],
+      groupStock:[48,36,90,24][index%4]
+    };
+  });
+  return <div className="mobile-screen" data-screen-label={`App ${title}`}><SimpleMobileHeader title={title} navigate={navigate} back="app/groupbuy"/><main className="mobile-scroll activity-products-page groupbuy-products-page"><section className="groupbuy-products-summary"><span><StatusTicket tone={groupActivityEnded?'neutral':'success'} small>{groupActivityEnded?'已结束':'进行中'}</StatusTicket><small>{groupActivity.time}</small></span><h2>{groupActivityTitle}</h2><p>{groupActivityEnded?'活动已经结束，商品与拼团结果仍可查看。':`${groupActivity.minPeople} 人成团，活动结束后仅成团订单可由商家安排发货。`}</p></section><section className="groupbuy-product-list">{groupRows.map((item)=><article className="groupbuy-product-row" key={item.id}><ProductArt type={item.art}/><div className="groupbuy-product-copy"><h3>{item.name}</h3><p>{groupActivity.minPeople} 人成团 · 已售 {item.sales}</p><span><strong>¥{item.groupPrice}</strong>{item.maxGroupPrice>item.groupPrice&&<em>起</em>}<del>¥{item.price}</del><small>库存 {item.groupStock}</small></span></div><button className={groupActivityEnded?'ended':''} onClick={()=>navigate(`app/groupbuy-detail?status=${groupActivityEnded?'ended':'active'}`)}>{groupActivityEnded?'查看':'去拼团'}</button></article>)}</section><ListBoundary text="活动商品已全部展示"/></main></div>;
 }
 
 function AppCouponSelect({ navigate, singleShop = false }) {
-  const [selected,setSelected] = useState(MOCKS.coupons[0].id);
-  return <div className="mobile-screen" data-screen-label="App 选择优惠券"><SimpleMobileHeader title="选择优惠券" navigate={navigate} back="app/confirm"/><main className="mobile-scroll coupon-page">{MOCKS.coupons.map((coupon)=><button className={`coupon-select-card ${selected===coupon.id?'active':''}`} key={coupon.id} onClick={()=>setSelected(coupon.id)}><div><b>{coupon.value}</b><span>{coupon.condition}</span></div><div><strong>{coupon.name}</strong><small>{singleShop?'山野生活':coupon.shop} · {coupon.endAt} 到期</small></div><i>{selected===coupon.id&&<Icon name="check" size={13}/>}</i></button>)}</main><div className="single-bottom-action"><button onClick={()=>navigate('app/confirm')}>确认使用</button></div></div>;
+  const shopName = singleShop ? '山野生活' : 'Yeah 数码生活馆';
+  const rows = [
+    {...MOCKS.coupons[0],shop:shopName,name:'全店满 199 减 20',useRangeText:'店铺通用'},
+    {...MOCKS.coupons[1],shop:shopName,name:'数码配件 9 折券',useRangeText:'指定商品'},
+    {...MOCKS.coupons[2],shop:shopName,name:'新客无门槛券',useRangeText:'指定分类'}
+  ];
+  const [selected,setSelected] = useState(null);
+  return <div className="mobile-screen" data-screen-label="App 选择优惠券">
+    <SimpleMobileHeader title="选择优惠券" navigate={navigate} back="app/confirm"/>
+    <main className="mobile-scroll coupon-select-page">
+      <section className="coupon-order-context"><span><Icon name="store" size={17}/><b>{shopName}</b></span><small>{rows.length} 张可用</small></section>
+      <button className={`coupon-none-option ${selected===null?'active':''}`} onClick={()=>setSelected(null)}><span><b>不使用优惠券</b><small>按当前订单金额结算</small></span><i className="coupon-select-radio">{selected===null&&<Icon name="check" size={12}/>}</i></button>
+      <section className="coupon-select-list">{rows.map((coupon)=><button className={`coupon-select-card-v2 ${selected===coupon.id?'active':''}`} key={coupon.id} onClick={()=>setSelected(coupon.id)}>
+        <span className="coupon-select-value"><b>{coupon.value}</b><small>{coupon.condition}</small></span>
+        <span className="coupon-select-copy"><strong>{coupon.name}</strong><span><i>{coupon.useRangeText}</i><small>{coupon.shop}</small></span><small>{coupon.endAt} 到期</small></span>
+        <i className="coupon-select-radio">{selected===coupon.id&&<Icon name="check" size={12}/>}</i>
+      </button>)}</section>
+    </main>
+    <div className="single-bottom-action"><button onClick={()=>navigate('app/confirm')}>{selected===null?'不使用优惠券':'确认使用'}</button></div>
+  </div>;
 }
 
 function AppPointsProduct({ navigate, singleShop = false }) {
-  const item = MOCKS.pointsProducts[0]; const [quantity,setQuantity] = useState(1);
-  return <div className="mobile-screen" data-screen-label="App 积分商品"><SimpleMobileHeader title="积分商品" navigate={navigate} back="app/points"/><main className="mobile-scroll points-product-page"><ProductArt type={item.art}/><section><StatusTicket>{item.type}</StatusTicket><h1>{item.name}</h1><b>{item.points} <small>积分</small></b><p>环保棉帆布材质，适合日常通勤与购物使用。</p></section><div className="detail-choice-row static-row"><span className="choice-label">库存</span><b>{item.stock} 件</b><QuantityControl value={quantity} setValue={setQuantity} max={3}/></div><article><h3>兑换说明</h3><p>每位会员限兑 2 件，实物商品兑换后由{singleShop?'店铺':'平台'}安排物流发货。</p></article></main><div className="single-bottom-action"><button onClick={()=>navigate('app/points-confirm')}>立即兑换</button></div></div>;
+  const item = MOCKS.pointsProducts[0];
+  const skus = [
+    {id:'points-sku-1',name:'标准款',points:600,stock:36,art:'coffee'},
+    {id:'points-sku-2',name:'加厚款',points:880,stock:12,art:'coffee'},
+    {id:'points-sku-3',name:'限定配色',points:1200,stock:0,art:'coffee'}
+  ];
+  const [selectedSkuId,setSelectedSkuId] = useState('points-sku-1');
+  const [quantity,setQuantity] = useState(1);
+  const selectedSku = skus.find((sku)=>sku.id===selectedSkuId) || skus[0];
+  const selectSku = (sku) => { if (sku.stock<=0) return; setSelectedSkuId(sku.id); setQuantity(1); };
+  return <div className="mobile-screen" data-screen-label="App 积分商品"><SimpleMobileHeader title="积分商品" navigate={navigate} back="app/points-mall"/><main className="mobile-scroll points-product-page points-product-v2"><ProductArt type={item.art}/><section className="points-product-summary"><div className="points-product-tags"><StatusTicket small>{item.type}</StatusTicket><StatusTicket tone="success" small>物流配送</StatusTicket></div><h1>{item.name}</h1><p>环保棉帆布材质，适合日常通勤与购物使用。</p><b>{selectedSku.points} <small>积分/件</small></b></section><section className="points-sku-section"><h2>选择规格</h2><div>{skus.map((sku)=><button key={sku.id} disabled={sku.stock<=0} className={selectedSkuId===sku.id?'active':''} onClick={()=>selectSku(sku)}><ProductArt type={sku.art}/><span><b>{sku.name}</b><small>{sku.stock>0?`${sku.points} 积分 · 库存 ${sku.stock}`:'已兑完'}</small></span><i>{selectedSkuId===sku.id&&<Icon name="check" size={12}/>}</i></button>)}</div></section><section className="points-quantity-section"><span><b>兑换数量</b><small>每位会员限兑 2 件</small></span><QuantityControl value={quantity} setValue={setQuantity} max={Math.min(selectedSku.stock,2)}/></section><section className="points-rules-section"><h2>兑换说明</h2><div><span>每人限兑</span><b>2 件</b></div><div><span>兑换截止</span><b>2026-12-31 23:59</b></div><p>兑换后由{singleShop?'店铺':'平台'}安排物流发货，请在确认兑换页填写收货地址。</p></section><section className="points-detail-section"><h2>商品详情</h2><ProductArt type="coffee"/><p>轻便耐用的品牌帆布袋，适合通勤、购物与日常收纳。商品颜色与尺寸以实际发货为准。</p></section></main><div className="points-product-action"><span><small>合计</small><b>{selectedSku.points*quantity} 积分</b></span><button onClick={()=>navigate('app/points-confirm')}>立即兑换</button></div></div>;
 }
 
-function AppPointsConfirm({ navigate }) {
-  return <div className="mobile-screen" data-screen-label="App 确认兑换"><SimpleMobileHeader title="确认兑换" navigate={navigate} back="app/points-product"/><main className="mobile-scroll confirm-scroll"><button className="address-panel" onClick={()=>navigate('app/addresses')}><span className="address-icon"><Icon name="store"/></span><div><b>林可&nbsp;&nbsp;138****7621</b><p>浙江省杭州市西湖区文三路 88 号 3 幢 502</p></div><Icon name="chevron"/></button><section className="confirm-shop-card"><div className="confirm-product"><ProductArt type="coffee"/><div><b>品牌帆布袋</b><span>标准款</span><div><strong>600 积分</strong><small>×1</small></div></div></div></section><section className="price-summary"><div><span>当前积分</span><b>1,280</b></div><div><span>兑换积分</span><b className="saving">600</b></div><div className="summary-total"><span>兑换后剩余</span><strong>680</strong></div></section></main><div className="single-bottom-action"><button onClick={()=>navigate('app/points-order')}>确认兑换</button></div></div>;
+function AppPointsConfirm({ navigate, route }) {
+  const type = routeParam(route,'type') || 'logistics';
+  const isLogistics = type==='logistics';
+  const isCoupon = type==='coupon';
+  const product = isCoupon ? {name:'全店 20 元券',sku:'20 元券',points:300,art:'serum'} : type==='manual' ? {name:'专属客服权益',sku:'30 天权益',points:1200,art:'headphone'} : {name:'品牌帆布袋',sku:'标准款',points:600,art:'coffee'};
+  const fulfillment = isCoupon ? '自动发券' : type==='manual' ? '人工履约' : '物流配送';
+  return <div className="mobile-screen" data-screen-label="App 确认兑换"><SimpleMobileHeader title="确认兑换" navigate={navigate} back="app/points-product"/><main className="mobile-scroll confirm-scroll points-confirm-v2">{isLogistics&&<button className="address-panel" onClick={()=>navigate('app/addresses')}><span className="address-icon"><Icon name="location"/></span><div><b>林可&nbsp;&nbsp;138****7621</b><p>浙江省杭州市西湖区文三路 88 号 3 幢 502</p></div><Icon name="chevron"/></button>}<section className="confirm-shop-card"><div className="confirm-product"><ProductArt type={product.art}/><div><b>{product.name}</b><span>{product.sku}</span><div><strong>{product.points} 积分</strong><small>×1</small></div></div></div></section><section className="price-summary"><div><span>履约方式</span><b>{fulfillment}</b></div><div><span>当前积分</span><b>1,280</b></div><div><span>兑换积分</span><b className="saving">{product.points}</b></div><div className="summary-total"><span>兑换后剩余</span><strong>{1280-product.points}</strong></div></section><section className="points-confirm-notice"><h3>兑换须知</h3><p>积分兑换成功后将生成独立的积分订单。</p><p>{isCoupon?'优惠券会自动发放，兑换成功后不可取消。':'订单处于待履约状态时可以取消，积分和库存会自动退回。'}</p></section></main><div className="single-bottom-action"><button onClick={()=>navigate(`app/points-order?status=${isCoupon?'completed':'pending'}&type=${type}`)}>确认兑换</button></div></div>;
 }
 
 function AppPointsOrders({ navigate }) {
-  const rows=[['PX20261027001','品牌帆布袋','600','待发货','coffee'],['PX20261020008','全店 20 元券','300','已完成','serum']];
-  return <div className="mobile-screen" data-screen-label="App 积分订单"><SimpleMobileHeader title="兑换记录" navigate={navigate} back="app/points"/><main className="mobile-scroll mobile-order-list">{rows.map((row)=><article className="mobile-order-card" key={row[0]}><header><span className="mono">{row[0]}</span><StatusTicket tone={row[3]==='已完成'?'success':'warning'}>{row[3]}</StatusTicket></header><button className="mobile-order-product" onClick={()=>navigate('app/points-order')}><ProductArt type={row[4]}/><div><b>{row[1]}</b><span>数量 × 1</span><strong>{row[2]} 积分</strong></div></button><footer><span>2026-10-27 10:18</span><div><button onClick={()=>navigate('app/points-order')}>查看详情</button></div></footer></article>)}<ListBoundary text="没有更多兑换记录了"/></main></div>;
+  const [status,setStatus] = useState('全部');
+  const rows=[
+    {id:'PX20261027001',name:'品牌帆布袋',sku:'标准款',points:600,status:'待履约',tone:'warning',art:'coffee',time:'2026-10-27 10:18',fulfillment:'物流配送',route:'status=pending&type=logistics'},
+    {id:'PX20261026006',name:'品牌帆布袋',sku:'加厚款',points:880,status:'已发货',tone:'neutral',art:'coffee',time:'2026-10-26 16:42',fulfillment:'物流配送',route:'status=shipped&type=logistics'},
+    {id:'PX20261020008',name:'全店 20 元券',sku:'20 元券',points:300,status:'已完成',tone:'success',art:'serum',time:'2026-10-20 09:35',fulfillment:'自动发券',route:'status=completed&type=coupon'},
+    {id:'PX20261018003',name:'专属客服权益',sku:'30 天权益',points:1200,status:'已取消',tone:'neutral',art:'headphone',time:'2026-10-18 14:06',fulfillment:'人工履约',route:'status=canceled&type=manual'}
+  ];
+  const visible = status==='全部' ? rows : rows.filter((row)=>row.status===status);
+  return <div className="mobile-screen" data-screen-label="App 积分订单"><SimpleMobileHeader title="兑换记录" navigate={navigate} back="app/points-mall"/><main className="mobile-scroll points-orders-page"><div className="points-order-tabs">{['全部','待履约','已发货','已完成','已取消'].map((item)=><button key={item} className={status===item?'active':''} onClick={()=>setStatus(item)}>{item}</button>)}</div><div className="points-order-list">{visible.map((row)=><article key={row.id} role="button" tabIndex="0" onClick={()=>navigate(`app/points-order?${row.route}`)}><header><span className="mono">{row.id}</span><StatusTicket tone={row.tone} small>{row.status}</StatusTicket></header><div className="points-order-product"><ProductArt type={row.art}/><span><b>{row.name}</b><small>{row.sku} × 1</small><strong>{row.points} 积分</strong></span><Icon name="chevron" size={16}/></div><footer><time>{row.time}</time><span>{row.fulfillment}</span></footer></article>)}</div>{visible.length?<ListBoundary text="没有更多兑换记录了"/>:<div className="points-orders-empty"><Icon name="order" size={30}/><b>暂无相关兑换记录</b><span>兑换积分商品后可在这里查看进度</span></div>}</main></div>;
 }
 
-function AppPointsOrder({ navigate, singleShop = false }) {
-  return <div className="mobile-screen" data-screen-label="App 积分订单详情"><SimpleMobileHeader title="积分订单详情" navigate={navigate} back="app/points-orders"/><main className="mobile-scroll order-detail-scroll"><section className="order-state-panel"><span className="state-icon"><Icon name="box" size={27}/></span><div><h2>等待{singleShop?'店铺':'平台'}发货</h2><p>兑换商品正在准备中</p></div></section><section className="order-address"><Icon name="store"/><div><b>林可&nbsp;&nbsp;138****7621</b><p>浙江省杭州市西湖区文三路 88 号 3 幢 502</p></div></section><section className="order-goods"><div className="confirm-product"><ProductArt type="coffee"/><div><b>品牌帆布袋</b><span>标准款 × 1</span><div><strong>600 积分</strong></div></div></div></section><section className="order-info-list"><div><span>积分订单号</span><b>PX20261027001</b></div><div><span>兑换积分</span><b>600</b></div><div><span>兑换时间</span><b>2026-10-27 10:18</b></div></section></main></div>;
+function AppPointsOrder({ navigate, route, singleShop = false }) {
+  const status = routeParam(route,'status') || 'pending';
+  const type = routeParam(route,'type') || 'logistics';
+  const stateMap = {
+    pending:{title:'待履约',hint:type==='logistics'?`等待${singleShop?'店铺':'平台'}发货`:'平台正在处理本次兑换',icon:'clock',tone:'pending'},
+    shipped:{title:'已发货',hint:'商品正在运输中，请留意物流信息',icon:'truck',tone:'shipped'},
+    completed:{title:'已完成',hint:type==='coupon'?'优惠券已发放至你的账户':'本次积分兑换已经完成',icon:'check',tone:'completed'},
+    canceled:{title:'已取消',hint:'积分和商品库存已经退回',icon:'close',tone:'canceled'}
+  };
+  const state = stateMap[status] || stateMap.pending;
+  const isLogistics = type==='logistics';
+  const isCoupon = type==='coupon';
+  const product = isCoupon ? {name:'全店 20 元券',sku:'20 元券',points:300,art:'serum'} : type==='manual' ? {name:'专属客服权益',sku:'30 天权益',points:1200,art:'headphone'} : {name:'品牌帆布袋',sku:status==='shipped'?'加厚款':'标准款',points:status==='shipped'?880:600,art:'coffee'};
+  return <div className="mobile-screen" data-screen-label="App 积分订单详情"><SimpleMobileHeader title="积分订单详情" navigate={navigate} back="app/points-orders"/><main className={`mobile-scroll points-order-detail-v2 ${state.tone}`}><section className="points-order-state"><span><Icon name={state.icon} size={26}/></span><div><h2>{state.title}</h2><p>{state.hint}</p></div></section><section className="points-order-goods"><ProductArt type={product.art}/><div><b>{product.name}</b><span>{product.sku} × 1</span><strong>{product.points} 积分</strong></div></section>{isLogistics&&<section className="points-order-address"><Icon name="location" size={20}/><div><b>林可&nbsp;&nbsp;138****7621</b><p>浙江省杭州市西湖区文三路 88 号 3 幢 502</p></div></section>}<section className="points-order-info"><h3>订单信息</h3><div><span>积分订单号</span><b>{status==='shipped'?'PX20261026006':'PX20261027001'}</b></div><div><span>履约方式</span><b>{isCoupon?'自动发券':type==='manual'?'人工履约':'物流配送'}</b></div><div><span>兑换积分</span><b>{product.points}</b></div><div><span>兑换时间</span><b>2026-10-27 10:18</b></div>{status==='completed'&&<div><span>完成时间</span><b>2026-10-27 10:19</b></div>}{status==='canceled'&&<><div><span>取消时间</span><b>2026-10-18 14:12</b></div><div><span>取消原因</span><b>会员主动取消</b></div></>}</section>{status==='shipped'&&<section className="points-order-info"><h3>物流信息</h3><div><span>物流公司</span><b>顺丰速运</b></div><div><span>物流单号</span><b>SF1234567890</b></div><div><span>发货时间</span><b>2026-10-27 08:30</b></div></section>}{isCoupon&&status==='completed'&&<button className="points-coupon-link" onClick={()=>navigate('app/coupons')}><span><Icon name="ticket" size={20}/><b>优惠券已发放</b></span><Icon name="chevron" size={16}/></button>}{type==='manual'&&status!=='canceled'&&<section className="points-order-info"><h3>履约信息</h3><p>平台将在 1 个工作日内完成权益开通，请留意消息通知。</p></section>}{status==='canceled'&&<section className="points-refund-note"><Icon name="check" size={18}/><span><b>{product.points} 积分已退回</b><small>商品库存已同步恢复</small></span></section>}</main>{status==='pending'&&!isCoupon&&<div className="single-bottom-action points-order-action"><button className="secondary" onClick={()=>navigate('app/points-orders')}>取消兑换</button></div>}{status==='shipped'&&<div className="single-bottom-action points-order-action"><button onClick={()=>navigate('app/points-orders')}>确认收货</button></div>}</div>;
 }
 
-function AppCampaignDetail({ navigate, route, type }) {
-  const seckill = type === 'seckill';
+function AppSeckillDetail({ navigate, route, notify }) {
+  const product = MOCKS.products[0];
+  const sessionMap = { morning:'10:00 场', afternoon:'14:00 场', evening:'20:00 场' };
+  const sessionName = sessionMap[routeParam(route,'session')] || '14:00 场';
+  const activityEnded = routeParam(route,'status') === 'ended';
+  const activityUpcoming = routeParam(route,'status') === 'upcoming';
+  const skus = [
+    { id:'sku-1', name:'雾银 · 标准版', price:299, originPrice:399, stock:12 },
+    { id:'sku-2', name:'曜石黑 · 标准版', price:309, originPrice:399, stock:6 },
+    { id:'sku-3', name:'雾银 · 长续航版', price:349, originPrice:459, stock:0 }
+  ];
+  const [favorite,setFavorite] = useState(false);
+  const [sheet,setSheet] = useState(routeParam(route,'sheet') === '1');
+  const [selectedSkuId,setSelectedSkuId] = useState('sku-1');
+  const [sectionTabsVisible,setSectionTabsVisible] = useState(false);
+  const [activeSection,setActiveSection] = useState('base');
+  const detailScrollRef = useRef(null);
+  const reviewSectionRef = useRef(null);
+  const storySectionRef = useRef(null);
+  const selectedSku = skus.find((item)=>item.id===selectedSkuId) || skus[0];
+  const handleDetailScroll = (event) => {
+    const scrollTop = event.currentTarget.scrollTop;
+    const marker = scrollTop + 128;
+    setSectionTabsVisible(scrollTop > 250);
+    if (storySectionRef.current && marker >= storySectionRef.current.offsetTop) setActiveSection('detail');
+    else if (reviewSectionRef.current && marker >= reviewSectionRef.current.offsetTop) setActiveSection('review');
+    else setActiveSection('base');
+  };
+  const scrollToSection = (section) => {
+    const target = section==='review' ? reviewSectionRef.current : section==='detail' ? storySectionRef.current : null;
+    detailScrollRef.current?.scrollTo({ top:target?Math.max(target.offsetTop-112,0):0, behavior:'smooth' });
+    setActiveSection(section);
+  };
+  return <div className="mobile-screen product-detail campaign-product-detail" data-screen-label="App 秒杀商品详情">
+    <MobileStatusBar tone="transparent"/>
+    <div className="detail-floatbar"><button onClick={()=>navigate('app/seckill-products')}><Icon name="back"/></button><WechatCapsule/></div>
+    <div className={`product-detail-nav-surface ${sectionTabsVisible?'visible':''}`}></div>
+    <nav className={`product-section-tabs ${sectionTabsVisible?'visible':''}`}>{[['base','宝贝'],['review','评价'],['detail','详情']].map(([key,label])=><button key={key} className={activeSection===key?'active':''} onClick={()=>scrollToSection(key)}>{label}</button>)}</nav>
+    <main ref={detailScrollRef} className="mobile-scroll detail-scroll-content campaign-product-scroll" onScroll={handleDetailScroll}>
+      <div className="detail-gallery campaign-detail-gallery"><div className="detail-side-actions"><button onClick={()=>notify?.('分享入口已打开')}><Icon name="share"/></button><button aria-label={favorite?'取消收藏':'收藏商品'} aria-pressed={favorite} className={favorite?'is-favorite':''} onClick={()=>setFavorite(!favorite)}><Icon name="heart" filled={favorite}/></button></div><ProductArt type={product.art}/><div className="gallery-dots"><button className="active"></button><button></button><button></button></div></div>
+      <section className={`seckill-detail-band ${activityEnded||activityUpcoming?'is-inactive':''}`}><span><b>{sessionName}</b><small>限时秒杀</small></span><span><small>{activityEnded?'本场状态':activityUpcoming?'距本场开始':'距本场结束'}</small><b>{activityEnded?'已结束':activityUpcoming?'02 : 18 : 00':'01 : 42 : 18'}</b></span></section>
+      <section className="detail-main-info seckill-detail-info"><div className="price-line"><b>¥{selectedSku.price}</b><del>¥{selectedSku.originPrice}</del></div><h1>{product.name}</h1><p>{product.subtitle}</p><div className="detail-metrics"><span>已售 {product.sales}</span><span>好评率 {product.rating}%</span><span>剩余库存 18</span></div></section>
+      <button className="detail-choice-row detail-choice-row-end" onClick={()=>setSheet(true)}><span className="choice-label">已选</span><b>{selectedSku.name} · 1 件</b><Icon name="chevron" size={18}/></button>
+      <section className="seckill-rule-strip"><span><Icon name="clock" size={16}/></span><div><b>秒杀规则</b><p>同一秒杀商品每人限购 1 件，库存售完即止。</p></div></section>
+      <section ref={reviewSectionRef} className="review-block"><div className="section-heading compact"><div><span className="shelf-mark"></span><h2>买家评价</h2></div><button onClick={()=>navigate('app/reviews')}>全部 {MOCKS.reviews.length*63} <Icon name="chevron" size={15}/></button></div>{MOCKS.reviews.slice(0,2).map((review)=><article className="review-item" key={review.id}><div className="review-user"><Avatar name={review.user}/><b>{review.user}</b><span>{review.time}</span></div><p>{review.content}</p>{!!review.images?.length&&<div className="review-item-images">{review.images.map((image,index)=><button key={`${review.id}-${index}`} onClick={()=>notify?.('已打开评价图片预览')}><ProductArt type={image}/></button>)}</div>}</article>)}</section>
+      <section ref={storySectionRef} className="product-story"><div className="section-heading compact"><div><span className="shelf-mark"></span><h2>商品详情</h2></div></div><div className="rich-text-prototype"><ProductArt type="headphone"/><h3>柔和包覆，长时间佩戴也轻松</h3><p>记忆海绵耳罩与轻量化头梁保持稳定贴合，秒杀商品详情与原商品图文信息保持一致。</p><ProductArt type="headphone" className="rich-text-detail-art"/><h3>通勤与居家，都保持沉浸聆听</h3><p>高清语音、低延迟连接与长续航满足多场景使用，具体内容以商家发布信息为准。</p></div></section>
+    </main>
+    <div className="mobile-action-bar campaign-detail-action"><button className="action-icon" onClick={()=>navigate('app/shop')}><Icon name="store"/><span>店铺</span></button><button className="action-icon" onClick={()=>navigate('app/service')}><Icon name="message"/><span>客服</span></button><button className={`primary-action ${activityEnded||activityUpcoming?'view-only':''}`} onClick={()=>setSheet(true)}>{activityEnded||activityUpcoming?'查看规格':'立即抢购'}</button></div>
+    {sheet&&<div className="sheet-mask" onClick={()=>setSheet(false)}><section className="mobile-sheet product-spec-sheet campaign-spec-sheet seckill-spec-sheet" onClick={(event)=>event.stopPropagation()}><div className="sheet-handle"></div><header className="purchase-sheet-heading"><div><b>{activityEnded?'活动已结束':activityUpcoming?'活动未开始':'秒杀抢购'}</b><small>{sessionName} · 每人限购 1 件</small></div></header><button className="purchase-sheet-close" aria-label="关闭规格弹层" onClick={()=>setSheet(false)}><Icon name="close" size={16}/></button><div className="sku-summary"><ProductArt type={product.art}/><div><span className="campaign-sheet-price"><b>¥{selectedSku.price}</b><del>¥{selectedSku.originPrice}</del></span><span>库存 {selectedSku.stock} 件</span><small>已选 {selectedSku.name}</small></div></div><div className="option-group campaign-sku-options seckill-sku-options"><label>选择规格</label><div>{skus.map((sku)=><button key={sku.id} disabled={sku.stock===0} className={selectedSkuId===sku.id?'active':''} onClick={()=>setSelectedSkuId(sku.id)}><span>{sku.name}</span><small>{sku.stock===0?'已售罄':`¥${sku.price} · 剩余 ${sku.stock} 件`}</small></button>)}</div></div><div className="quantity-row campaign-fixed-quantity"><label>购买数量</label><b>1 件</b><small>秒杀商品数量固定为 1 件</small></div><button className="sheet-confirm" disabled={activityEnded||activityUpcoming} onClick={()=>{setSheet(false);navigate('app/confirm');}}>{activityEnded?'活动已结束':activityUpcoming?'活动未开始':'确认抢购'}</button></section></div>}
+  </div>;
+}
+
+function AppCampaignDetail({ navigate, route, type, notify }) {
+  if (type === 'seckill') return <AppSeckillDetail navigate={navigate} route={route} notify={notify}/>;
   const selectedGroup = routeParam(route,'group');
-  const [quantity,setQuantity] = useState(1);
-  return <div className="mobile-screen campaign-detail-page" data-screen-label={`App ${seckill?'秒杀':'拼团'}商品详情`}><SimpleMobileHeader title={seckill?'秒杀商品':'拼团商品'} navigate={navigate} back={seckill?'app/seckill-products':'app/groupbuy-products'}/><main className="mobile-scroll"><div className="campaign-art"><ProductArt type={seckill?'headphone':'serum'}/><StatusTicket tone="danger">{seckill?'距结束 01:42:18':'双人成团'}</StatusTicket></div><section className="campaign-copy"><div><strong>¥{seckill?'299':'139'}</strong><del>¥{seckill?'399':'168'}</del></div><h1>{seckill?'云感降噪头戴耳机':'白茶屏障修护精华'}</h1><p>{seckill?'秒杀库存 18 件，每人限购 1 件':'活动结束后仅成团订单可由商家安排发货'}</p></section>{!seckill&&<button className="group-choice" onClick={()=>navigate('app/group-select')}><span><small>拼团方式</small><b>{selectedGroup?`已选择 ${selectedGroup} 号团`:'请选择现有团或发起新团'}</b></span><Icon name="chevron" size={17}/></button>}<section className="campaign-rule"><h3>活动规则</h3><p>{seckill?'同一账号每场限购 1 件，库存售完即止。':'每位用户在同一活动中仅可参与一个团；待支付即占席，未满团不能发货。'}</p></section><div className="quantity-row campaign-quantity"><label>购买数量</label><QuantityControl value={quantity} setValue={setQuantity} max={seckill?1:1}/></div></main><div className="single-bottom-action"><button disabled={!seckill&&!selectedGroup} onClick={()=>navigate('app/confirm')}>{seckill?'立即抢购':selectedGroup?'按所选团购买':'先选择拼团方式'}</button></div></div>;
+  const activityEnded = routeParam(route,'status') === 'ended';
+  const product = MOCKS.products[2];
+  const groupSkus = [
+    {id:'group-sku-1',name:'30ml · 单瓶',price:139,originPrice:168,stock:24},
+    {id:'group-sku-2',name:'30ml · 双瓶装',price:259,originPrice:336,stock:10},
+    {id:'group-sku-3',name:'旅行装 · 10ml',price:49,originPrice:69,stock:0}
+  ];
+  const [sheet,setSheet] = useState(routeParam(route,'sheet') === '1');
+  const [selectedSkuId,setSelectedSkuId] = useState('group-sku-1');
+  const [sectionTabsVisible,setSectionTabsVisible] = useState(false);
+  const [activeSection,setActiveSection] = useState('base');
+  const detailScrollRef = useRef(null);
+  const reviewSectionRef = useRef(null);
+  const storySectionRef = useRef(null);
+  const selectedSku = groupSkus.find((item)=>item.id===selectedSkuId) || groupSkus[0];
+  const handleDetailScroll = (event) => {
+    const scrollTop = event.currentTarget.scrollTop;
+    const marker = scrollTop + 128;
+    setSectionTabsVisible(scrollTop > 250);
+    if (storySectionRef.current && marker >= storySectionRef.current.offsetTop) setActiveSection('detail');
+    else if (reviewSectionRef.current && marker >= reviewSectionRef.current.offsetTop) setActiveSection('review');
+    else setActiveSection('base');
+  };
+  const scrollToSection = (section) => {
+    const target = section==='review' ? reviewSectionRef.current : section==='detail' ? storySectionRef.current : null;
+    detailScrollRef.current?.scrollTo({ top:target?Math.max(target.offsetTop-112,0):0, behavior:'smooth' });
+    setActiveSection(section);
+  };
+  const openPurchaseSheet = () => {
+    if (activityEnded) { setSheet(true); return; }
+    if (!selectedGroup) { navigate('app/group-select'); return; }
+    setSheet(true);
+  };
+  return <div className="mobile-screen product-detail campaign-product-detail campaign-detail-page" data-screen-label="App 拼团商品详情">
+    <MobileStatusBar tone="transparent"/>
+    <div className="detail-floatbar"><button onClick={()=>navigate('app/groupbuy-products')}><Icon name="back"/></button><WechatCapsule/></div>
+    <div className={`product-detail-nav-surface ${sectionTabsVisible?'visible':''}`}></div>
+    <nav className={`product-section-tabs ${sectionTabsVisible?'visible':''}`}>{[['base','宝贝'],['review','评价'],['detail','详情']].map(([key,label])=><button key={key} className={activeSection===key?'active':''} onClick={()=>scrollToSection(key)}>{label}</button>)}</nav>
+    <main ref={detailScrollRef} className="mobile-scroll detail-scroll-content campaign-product-scroll groupbuy-detail-scroll" onScroll={handleDetailScroll}>
+      <div className="campaign-art"><ProductArt type="serum"/><StatusTicket tone={activityEnded?'neutral':'danger'}>{activityEnded?'活动已结束':'双人成团'}</StatusTicket></div>
+      <section className="campaign-copy"><div><strong>¥{selectedSku.price}</strong><del>¥{selectedSku.originPrice}</del></div><h1>{product.name}</h1><p>{activityEnded?'活动已经结束，商品与拼团结果仅供查看':'活动结束后仅成团订单可由商家安排发货'}</p></section>
+      <button className={`group-choice ${activityEnded?'ended':''}`} disabled={activityEnded} onClick={()=>navigate('app/group-select')}><span><small>拼团方式</small><b>{activityEnded?'活动已结束，不可继续参团':selectedGroup?`已选择 ${selectedGroup} 号团`:'请选择现有团或发起新团'}</b></span><Icon name="chevron" size={17}/></button>
+      <section className="campaign-rule"><h3>活动规则</h3><p>每位用户在同一活动中仅可参与一个团；待支付即占席，未满团不能发货。</p></section>
+      <section ref={reviewSectionRef} className="review-block"><div className="section-heading compact"><div><span className="shelf-mark"></span><h2>买家评价</h2></div><button onClick={()=>navigate('app/reviews')}>全部 {MOCKS.reviews.length*63} <Icon name="chevron" size={15}/></button></div>{MOCKS.reviews.slice(0,2).map((review)=><article className="review-item" key={review.id}><div className="review-user"><Avatar name={review.user}/><b>{review.user}</b><span>{review.time}</span></div><p>{review.content}</p>{!!review.images?.length&&<div className="review-item-images">{review.images.map((image,index)=><button key={`${review.id}-${index}`} onClick={()=>notify?.('已打开评价图片预览')}><ProductArt type={image}/></button>)}</div>}</article>)}</section>
+      <section ref={storySectionRef} className="product-story"><div className="section-heading compact"><div><span className="shelf-mark"></span><h2>商品详情</h2></div></div><div className="rich-text-prototype"><ProductArt type="serum"/><h3>轻盈质地，日常护理更从容</h3><p>拼团商品复用原商品的图文详情、评价和店铺信息，活动结束后仍可查看商品资料。</p><ProductArt type="serum" className="rich-text-detail-art"/><h3>规格与活动价格清晰展示</h3><p>购买前请确认拼团方式与所选规格，成团订单将在活动结束后由商家统一安排发货。</p></div></section>
+    </main>
+    <div className="single-bottom-action"><button className={activityEnded?'view-only':''} onClick={openPurchaseSheet}>{activityEnded?'查看规格':selectedGroup?'立即拼团':'先选择拼团方式'}</button></div>
+    {sheet&&<div className="sheet-mask" onClick={()=>setSheet(false)}><section className="mobile-sheet product-spec-sheet campaign-spec-sheet groupbuy-spec-sheet" onClick={(event)=>event.stopPropagation()}><div className="sheet-handle"></div><header className="purchase-sheet-heading"><div><b>{activityEnded?'活动已结束':'拼团购买'}</b><small>{activityEnded?'历史拼团规格仅供查看':`双人成团 · 已选择 ${selectedGroup} 号团`}</small></div></header><button className="purchase-sheet-close" aria-label="关闭规格弹层" onClick={()=>setSheet(false)}><Icon name="close" size={16}/></button><div className="sku-summary"><ProductArt type={product.art}/><div><span className="campaign-sheet-price"><b>¥{selectedSku.price}</b><del>¥{selectedSku.originPrice}</del></span><span>拼团库存 {selectedSku.stock} 件</span><small>已选 {selectedSku.name}</small></div></div><div className="option-group campaign-sku-options groupbuy-sku-options"><label>选择规格</label><div>{groupSkus.map((sku)=><button key={sku.id} disabled={sku.stock===0} className={selectedSkuId===sku.id?'active':''} onClick={()=>setSelectedSkuId(sku.id)}><span>{sku.name}</span><small>{sku.stock===0?'已售罄':`¥${sku.price} · 库存 ${sku.stock} 件`}</small></button>)}</div></div><div className="campaign-purchase-context"><Icon name="users" size={18}/><span><b>{activityEnded?'拼团活动已结束':`${selectedGroup} 号团 · 双人成团`}</b><small>{activityEnded?'订单与拼团结果仍可查看，不可继续购买':'支付后占用 1 个席位，活动结束统一结算'}</small></span></div><div className="quantity-row campaign-fixed-quantity"><label>购买数量</label><b>1 件</b><small>拼团商品数量固定为 1 件</small></div><button className="sheet-confirm" disabled={activityEnded} onClick={()=>{setSheet(false);navigate('app/confirm');}}>{activityEnded?'活动已结束':'确认拼团'}</button></section></div>}
+  </div>;
 }
 
 function AppGroupSelect({ navigate }) {
@@ -1324,7 +1556,7 @@ function AppPrototype({ route, navigate, notify, appMode = 'platform' }) {
       {page === 'home' && (singleShop ? <SingleShopHome navigate={appNavigate}/> : <AppHome navigate={appNavigate}/>)}
       {page === 'category' && <AppCategory navigate={appNavigate} singleShop={singleShop}/>}
       {page === 'products' && <AppProductList navigate={appNavigate} route={route} singleShop={singleShop}/>}
-      {page === 'product' && <AppProduct navigate={appNavigate} notify={notify} singleShop={singleShop}/>}
+      {page === 'product' && <AppProduct navigate={appNavigate} notify={notify} singleShop={singleShop} route={route}/>}
       {page === 'cart' && (singleShop ? <SingleShopCart navigate={appNavigate} notify={notify}/> : <AppCart navigate={appNavigate} notify={notify}/>)}
       {page === 'confirm' && <AppConfirm navigate={appNavigate} notify={notify} singleShop={singleShop}/>}
       {page === 'orders' && <AppOrders navigate={appNavigate} route={route} notify={notify}/>}
@@ -1349,19 +1581,19 @@ function AppPrototype({ route, navigate, notify, appMode = 'platform' }) {
       {page === 'logistics' && <AppLogistics navigate={appNavigate} route={route} notify={notify}/>}
       {page === 'refund' && <AppRefund navigate={appNavigate} route={route} notify={notify}/>}
       {page === 'review-form' && <AppReviewForm navigate={appNavigate} notify={notify}/>}
-      {page === 'review-detail' && <AppReviewDetail navigate={appNavigate} notify={notify}/>}
+      {page === 'review-detail' && <AppReviewDetail navigate={appNavigate} route={route} notify={notify}/>}
       {page === 'profile-edit' && <AppProfileEdit navigate={appNavigate} notify={notify}/>}
       {page === 'about' && (singleShop ? <SingleShopBrand navigate={appNavigate}/> : <AppAbout navigate={appNavigate}/>)}
       {page === 'legal' && <AppLegal navigate={appNavigate} route={route}/>}
-      {page === 'seckill-products' && <AppActivityProducts navigate={appNavigate} type="seckill" singleShop={singleShop}/>}
-      {page === 'groupbuy-products' && <AppActivityProducts navigate={appNavigate} type="groupbuy" singleShop={singleShop}/>}
+      {page === 'seckill-products' && <AppActivityProducts navigate={appNavigate} route={route} type="seckill" singleShop={singleShop}/>}
+      {page === 'groupbuy-products' && <AppActivityProducts navigate={appNavigate} route={route} type="groupbuy" singleShop={singleShop}/>}
       {page === 'coupon-select' && <AppCouponSelect navigate={appNavigate} singleShop={singleShop}/>}
       {page === 'points-product' && <AppPointsProduct navigate={appNavigate} singleShop={singleShop}/>}
-      {page === 'points-confirm' && <AppPointsConfirm navigate={appNavigate}/>}
+      {page === 'points-confirm' && <AppPointsConfirm navigate={appNavigate} route={route}/>}
       {page === 'points-orders' && <AppPointsOrders navigate={appNavigate}/>}
-      {page === 'points-order' && <AppPointsOrder navigate={appNavigate} singleShop={singleShop}/>}
-      {page === 'seckill-detail' && <AppCampaignDetail navigate={appNavigate} route={route} type="seckill"/>}
-      {page === 'groupbuy-detail' && <AppCampaignDetail navigate={appNavigate} route={route} type="groupbuy"/>}
+      {page === 'points-order' && <AppPointsOrder navigate={appNavigate} route={route} singleShop={singleShop}/>}
+      {page === 'seckill-detail' && <AppCampaignDetail navigate={appNavigate} route={route} type="seckill" notify={notify}/>}
+      {page === 'groupbuy-detail' && <AppCampaignDetail navigate={appNavigate} route={route} type="groupbuy" notify={notify}/>}
       {page === 'group-select' && <AppGroupSelect navigate={appNavigate}/>}
       {page === 'address-edit' && <AppAddressEdit navigate={appNavigate} route={route} notify={notify}/>}
       {page === 'refund-detail' && <AppRefundDetail navigate={appNavigate} route={route}/>}

@@ -1,6 +1,6 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
-function Icon({ name, size = 20, strokeWidth = 1.8, className = '' }) {
+function Icon({ name, size = 20, strokeWidth = 1.8, className = '', filled = false }) {
   const paths = {
     search: <><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></>,
     home: <><path d="m3 10 9-7 9 7"/><path d="M5.5 9v11h13V9M9 20v-6h6v6"/></>,
@@ -46,11 +46,22 @@ function Icon({ name, size = 20, strokeWidth = 1.8, className = '' }) {
   };
   return (
     <svg className={`icon ${className}`} width={size} height={size} viewBox="0 0 24 24"
-         fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+         fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
          aria-hidden="true">
       {paths[name] || paths.box}
     </svg>
   );
+}
+
+function RatingStars({ value = 0, size = 18, gap = 2, onChange, className = '' }) {
+  return <span className={`rating-stars-image ${className}`} style={{ gap: `${gap}px` }} aria-label={`${value}星`}>
+    {[1,2,3,4,5].map((star) => {
+      const image = <img src={`assets/rating-star-${star <= value ? 'active' : 'muted'}.svg`} width={size} height={size} alt=""/>;
+      return onChange
+        ? <button type="button" key={star} style={{ width:size, height:size }} onClick={()=>onChange(star)}>{image}</button>
+        : <span key={star} style={{ width:size, height:size }}>{image}</span>;
+    })}
+  </span>;
 }
 
 function ProductArt({ type, className = '', bare = false }) {
