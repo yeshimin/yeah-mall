@@ -153,6 +153,12 @@ public class SysConfigService {
             this.validateIpWhitelist(configValue);
             return;
         }
+        if (config == SysConfigEnum.ADMIN_LAYOUT_NAVIGATION_MODE) {
+            if (!"side".equals(configValue) && !"top".equals(configValue)) {
+                throw new BaseException("管理后台导航模式只能填写side或top");
+            }
+            return;
+        }
         if (LONG_POSITIVE_CONFIGS.contains(config)) {
             long value = this.parseLong(configValue);
             if (value < 1) {

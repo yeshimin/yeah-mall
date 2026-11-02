@@ -81,6 +81,12 @@ public enum SysConfigEnum {
             "admin.auth.login.ip-whitelist.values", SysConfigValueTypeEnum.STRING, ""),
 
     /**
+     * 管理后台全局导航模式：side-左侧导航 top-顶部导航
+     */
+    ADMIN_LAYOUT_NAVIGATION_MODE(
+            "admin.layout.navigation-mode", SysConfigValueTypeEnum.STRING, "side"),
+
+    /**
      * 管理后台密码最小长度，用于前端密码规则提示
      */
     ADMIN_AUTH_PASSWORD_MIN_LENGTH(
