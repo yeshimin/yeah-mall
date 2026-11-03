@@ -43,7 +43,7 @@ public class AdminPointsMallController {
     /**
      * 查询商品分类
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:query')")
     @GetMapping("/categories")
     public R<List<PointsCategoryEntity>> categories() {
         return R.ok(service.categories());
@@ -52,7 +52,7 @@ public class AdminPointsMallController {
     /**
      * 保存商品分类
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:update')")
     @PostMapping("/category/save")
     public R<Void> saveCategory(@Validated @RequestBody PointsCategorySaveDto dto) {
         service.saveCategory(dto);
@@ -62,7 +62,7 @@ public class AdminPointsMallController {
     /**
      * 删除空分类
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:update')")
     @PostMapping("/category/delete")
     public R<Void> deleteCategory(@RequestParam Long id) {
         service.deleteCategory(id);
@@ -72,7 +72,7 @@ public class AdminPointsMallController {
     /**
      * 分页查询积分商品
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:query')")
     @GetMapping("/products")
     public R<IPage<PointsSpuEntity>> products(Page<PointsSpuEntity> page,
                                               @RequestParam(required = false) String name,
@@ -84,7 +84,7 @@ public class AdminPointsMallController {
     /**
      * 保存积分商品
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:update')")
     @PostMapping("/product/save")
     public R<Void> saveProduct(@Validated @RequestBody PointsProductSaveDto dto) {
         service.saveProduct(dto);
@@ -94,7 +94,7 @@ public class AdminPointsMallController {
     /**
      * 更新积分商品上架状态
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:update')")
     @PostMapping("/product/status")
     public R<Void> updateProductStatus(@Validated @RequestBody PointsProductStatusUpdateDto dto) {
         service.updateProductStatus(dto);
@@ -104,7 +104,7 @@ public class AdminPointsMallController {
     /**
      * 删除没有兑换记录的积分商品
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:update')")
     @PostMapping("/product/delete")
     public R<Void> deleteProduct(@RequestParam Long id) {
         service.deleteProduct(id);
@@ -114,7 +114,7 @@ public class AdminPointsMallController {
     /**
      * 查询商品SKU
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:query')")
     @GetMapping("/skus")
     public R<List<PointsSkuEntity>> skus(@RequestParam Long spuId) {
         return R.ok(service.skus(spuId));
@@ -123,7 +123,7 @@ public class AdminPointsMallController {
     /**
      * 保存商品SKU
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:update')")
     @PostMapping("/sku/save")
     public R<Void> saveSku(@Validated @RequestBody PointsSkuSaveDto dto) {
         service.saveSku(dto);
@@ -133,7 +133,7 @@ public class AdminPointsMallController {
     /**
      * 删除没有兑换记录的积分商品SKU
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:update')")
     @PostMapping("/sku/delete")
     public R<Void> deleteSku(@RequestParam Long id) {
         service.deleteSku(id);
@@ -143,7 +143,7 @@ public class AdminPointsMallController {
     /**
      * 查询可用于积分兑换的优惠券
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:query')")
     @GetMapping("/coupons")
     public R<List<MchCouponEntity>> coupons() {
         return R.ok(service.coupons());
@@ -152,7 +152,7 @@ public class AdminPointsMallController {
     /**
      * 查询物流服务商下拉选项
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:query')")
     @GetMapping("/deliveryProviders")
     public R<List<DeliveryProviderOptionVo>> deliveryProviders(
             @RequestParam(required = false) String keyword) {
@@ -162,7 +162,7 @@ public class AdminPointsMallController {
     /**
      * 分页查询积分订单
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:query')")
     @GetMapping("/orders")
     public R<IPage<PointsOrderEntity>> orders(Page<PointsOrderEntity> page,
                                               @RequestParam(required = false) String orderNo,
@@ -174,7 +174,7 @@ public class AdminPointsMallController {
     /**
      * 查询积分订单详情
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:query')")
     @GetMapping("/order/detail")
     public R<PointsOrderEntity> orderDetail(@RequestParam Long id) {
         return R.ok(service.orderDetail(id));
@@ -183,7 +183,7 @@ public class AdminPointsMallController {
     /**
      * 查询积分订单状态日志
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:query')")
     @GetMapping("/order/logs")
     public R<List<PointsOrderLogEntity>> orderLogs(@RequestParam Long id) {
         return R.ok(service.orderLogs(id));
@@ -192,7 +192,7 @@ public class AdminPointsMallController {
     /**
      * 物流订单发货
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:update')")
     @PostMapping("/order/ship")
     public R<Void> ship(@Validated @RequestBody PointsOrderShipDto dto) {
         service.ship(dto);
@@ -202,7 +202,7 @@ public class AdminPointsMallController {
     /**
      * 完成人工履约订单
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:update')")
     @PostMapping("/order/fulfill")
     public R<Void> fulfill(@Validated @RequestBody PointsOrderFulfillDto dto) {
         service.fulfill(dto);
@@ -212,7 +212,7 @@ public class AdminPointsMallController {
     /**
      * 取消待履约订单
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:pointsMall:update')")
     @PostMapping("/order/cancel")
     public R<Void> cancel(@Validated @RequestBody PointsOrderCancelDto dto) {
         service.cancel(dto);

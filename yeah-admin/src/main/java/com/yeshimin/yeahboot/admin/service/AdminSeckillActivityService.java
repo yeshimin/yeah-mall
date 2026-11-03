@@ -8,15 +8,18 @@ import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivitySaveDto;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivityStatusUpdateDto;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.data.common.consts.BizConsts;
+import com.yeshimin.yeahboot.data.common.enums.SeckillActivityApplyAuditStatusEnum;
 import com.yeshimin.yeahboot.data.common.enums.SeckillActivityStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSessionEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSkuEntity;
+import com.yeshimin.yeahboot.data.domain.entity.SeckillSpuEntity;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityCacheVo;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillSkuCacheVo;
 import com.yeshimin.yeahboot.data.repository.SeckillActivityRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSessionRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSkuRepo;
+import com.yeshimin.yeahboot.data.repository.SeckillSpuRepo;
 import com.yeshimin.yeahboot.storage.StorageManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +45,7 @@ public class AdminSeckillActivityService {
     private final SeckillActivityRepo seckillActivityRepo;
     private final SeckillSessionRepo seckillSessionRepo;
     private final SeckillSkuRepo seckillSkuRepo;
+    private final SeckillSpuRepo seckillSpuRepo;
 
     private final CacheService cacheService;
 
@@ -141,7 +145,7 @@ public class AdminSeckillActivityService {
                 SeckillSessionEntity prev = null;
                 for (SeckillSessionEntity session : sessions) {
                     // 检查：结束时间必须大于开始时间
-                    if (session.getBeginTime().isAfter(session.getEndTime())) {
+                    if (!session.getBeginTime().isBefore(session.getEndTime())) {
                         throw new RuntimeException("场次时间非法");
                     }
                     // 检查：场次必须在活动时间范围内
@@ -249,8 +253,18 @@ public class AdminSeckillActivityService {
                 .filter(session -> Boolean.TRUE.equals(session.getIsEnabled()))
                 .collect(Collectors.toMap(SeckillSessionEntity::getId, Function.identity()));
 
-        // 获取活动下所有sku
-        List<SeckillSkuEntity> skus = seckillSkuRepo.findListByActivityId(activity.getId());
+        // 只有审核通过的秒杀商品才能进入活动缓存，避免通过SKU ID绕过审核状态。
+        Set<Long> approvedSpuIds = seckillSpuRepo.lambdaQuery()
+                .select(SeckillSpuEntity::getId)
+                .eq(SeckillSpuEntity::getActivityId, activity.getId())
+                .eq(SeckillSpuEntity::getAuditStatus,
+                        SeckillActivityApplyAuditStatusEnum.PASSED.getIntValue())
+                .list().stream()
+                .map(SeckillSpuEntity::getId)
+                .collect(Collectors.toSet());
+        List<SeckillSkuEntity> skus = seckillSkuRepo.findListByActivityId(activity.getId()).stream()
+                .filter(sku -> approvedSpuIds.contains(sku.getSeckillSpuId()))
+                .collect(Collectors.toList());
         for (SeckillSkuEntity sku : skus) {
             SeckillSessionEntity session = sessionMap.get(sku.getSessionId());
             if (session == null) {

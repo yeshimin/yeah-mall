@@ -41,7 +41,7 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     /**
      * 创建
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
     @PostMapping("/create")
     public R<Void> create(@Validated @RequestBody SeckillActivitySaveDto dto) {
         // 检查参数：报名时间段
@@ -59,7 +59,7 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     /**
      * 更新
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/update")
     public R<Void> update(@Validated @RequestBody SeckillActivitySaveDto dto) {
         // 检查参数：报名时间段
@@ -77,7 +77,7 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     /**
      * 删除
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:delete')")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         service.delete(ids);
@@ -87,7 +87,7 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     /**
      * 更新状态
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/updateStatus")
     public R<Void> updateStatus(@Validated @RequestBody SeckillActivityStatusUpdateDto dto) {
         service.updateStatus(dto);
@@ -97,7 +97,7 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     /**
      * 更新【是否启用】状态
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/updateEnabled")
     public R<Void> updateEnabled(@Validated @RequestBody SeckillActivityEnabledUpdateDto dto) {
         service.updateEnabled(dto);

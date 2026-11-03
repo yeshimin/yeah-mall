@@ -67,9 +67,11 @@ public class AppCsConversationService {
             }
 
             // 新会话按当前店铺和买家维度创建，同一买家与同一店铺复用会话。
+            mallAppContextService.checkShopVisible(shopId);
             ShopEntity currentShop = shopRepo.getOneById(shopId, "店铺不存在");
             conversation = csConversationRepo.getOrCreateOne(currentShop.getMchId(), shopId, userId);
         }
+        // 历史会话允许继续查看，但仍必须处于当前App数据范围内。
         mallAppContextService.checkShopScope(shopId);
 
         // 补齐会话双方和店铺信息，供聊天页面一次性初始化展示。

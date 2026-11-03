@@ -40,7 +40,7 @@ public class AdminPlatQuickEntryController extends CrudController<PlatQuickEntry
     /**
      * 创建
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
     @PostMapping("/create")
     public R<Void> create(@Validated(Create.class) @RequestBody PlatQuickEntrySaveDto dto) {
         service.create(dto);
@@ -50,7 +50,7 @@ public class AdminPlatQuickEntryController extends CrudController<PlatQuickEntry
     /**
      * 更新
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/update")
     public R<Void> update(@Validated(Update.class) @RequestBody PlatQuickEntrySaveDto dto) {
         service.update(dto);
@@ -60,7 +60,7 @@ public class AdminPlatQuickEntryController extends CrudController<PlatQuickEntry
     /**
      * 删除
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:delete')")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         service.delete(ids);

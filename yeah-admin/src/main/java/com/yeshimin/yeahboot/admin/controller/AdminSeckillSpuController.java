@@ -30,7 +30,7 @@ public class AdminSeckillSpuController extends BaseController {
     /**
      * 查询
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:seckillSpu:query')")
     @GetMapping("/query")
     public R<IPage<SeckillSpuVo>> query(Page<SeckillSpuEntity> page, @Validated SeckillSpuQueryDto query) {
         return R.ok(service.query(page, query));
@@ -39,7 +39,7 @@ public class AdminSeckillSpuController extends BaseController {
     /**
      * 详情
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:seckillSpu:query')")
     @GetMapping("/detail")
     public R<AdminSeckillSpuDetailVo> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));

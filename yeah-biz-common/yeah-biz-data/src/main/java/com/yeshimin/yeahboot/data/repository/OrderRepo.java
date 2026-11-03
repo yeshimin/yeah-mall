@@ -58,6 +58,32 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
     }
 
     /**
+     * 原子完成订单签收并保存签收信息。
+     */
+    public boolean completeReceive(Long orderId, LocalDateTime receiveTime, String receiveRemark) {
+        return lambdaUpdate()
+                .eq(OrderEntity::getId, orderId)
+                .eq(OrderEntity::getStatus, OrderStatusEnum.WAIT_RECEIVE.getValue())
+                .set(OrderEntity::getStatus, OrderStatusEnum.COMPLETED.getValue())
+                .set(OrderEntity::getReceiveTime, receiveTime)
+                .set(OrderEntity::getReceiveRemark, receiveRemark)
+                .update();
+    }
+
+    /**
+     * 仅在订单尚未保存预支付ID时写入。
+     */
+    public boolean setPrepayIdIfAbsent(Long orderId, String prepayId) {
+        return lambdaUpdate()
+                .eq(OrderEntity::getId, orderId)
+                .eq(OrderEntity::getStatus, OrderStatusEnum.WAIT_PAY.getValue())
+                .and(wrapper -> wrapper.isNull(OrderEntity::getWxPrepayId)
+                        .or().eq(OrderEntity::getWxPrepayId, ""))
+                .set(OrderEntity::getWxPrepayId, prepayId)
+                .update();
+    }
+
+    /**
      * 更新订单状态
      * 场景：取消/关闭订单
      * 逻辑：先更新主要状态，再更新次要信息

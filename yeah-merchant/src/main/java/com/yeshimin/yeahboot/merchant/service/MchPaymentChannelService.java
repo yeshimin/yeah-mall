@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.merchant.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.common.enums.PaymentCollectionModeEnum;
 import com.yeshimin.yeahboot.data.domain.dto.PaymentChannelSaveDto;
 import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
@@ -36,6 +37,14 @@ public class MchPaymentChannelService {
     public PaymentChannelVo save(Long mchId, PaymentChannelSaveDto dto) {
         permissionService.checkShop(mchId, dto.getShopId());
         ShopEntity shop = shopRepo.getOneById(dto.getShopId(), "店铺不存在");
+        if (dto.getId() != null) {
+            PaymentChannelVo current = paymentChannelConfigService.detail(dto.getId());
+            if (!dto.getShopId().equals(current.getShopId())
+                    || !PaymentCollectionModeEnum.SHOP_DIRECT.getValue().equals(current.getCollectionMode())
+                    || !shop.getShopNo().equalsIgnoreCase(current.getAppTarget())) {
+                throw new BaseException("无权修改该支付通道");
+            }
+        }
         // 商家只能维护当前店铺独立App直连通道，不能修改平台或服务商路由。
         dto.setAppTarget(shop.getShopNo());
         dto.setCollectionMode(PaymentCollectionModeEnum.SHOP_DIRECT.getValue());

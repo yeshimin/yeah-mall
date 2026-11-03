@@ -28,7 +28,7 @@ public class AdminMemberPointsController {
     /**
      * 平台调整会员积分
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:memberPoints:adjust')")
     @PostMapping("/account/adjust")
     public R<Void> adjustPoints(@Validated @RequestBody MemberPointsAdjustDto dto) {
         service.adjustPoints(dto);
@@ -38,7 +38,7 @@ public class AdminMemberPointsController {
     /**
      * 查询积分流水
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:memberPoints:query')")
     @GetMapping("/ledger/query")
     public R<IPage<MemberPointsLedgerEntity>> queryLedger(Page<MemberPointsLedgerEntity> page,
                                                            @RequestParam(required = false) Long memberId,
@@ -49,7 +49,7 @@ public class AdminMemberPointsController {
     /**
      * 查询积分规则
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:memberPoints:query')")
     @GetMapping("/rule/query")
     public R<List<MemberPointsRuleEntity>> queryRules() {
         return R.ok(service.queryRules());
@@ -58,7 +58,7 @@ public class AdminMemberPointsController {
     /**
      * 更新积分规则
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:memberPoints:update')")
     @PostMapping("/rule/update")
     public R<Void> updateRule(@Validated @RequestBody MemberPointsRuleUpdateDto dto) {
         service.updateRule(dto);

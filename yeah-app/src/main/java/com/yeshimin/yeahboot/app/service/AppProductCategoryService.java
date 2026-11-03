@@ -22,7 +22,7 @@ public class AppProductCategoryService {
     private final MallAppContextService mallAppContextService;
 
     public List<ProductCategoryVo> query(Long shopId) {
-        mallAppContextService.checkShopScope(shopId);
+        mallAppContextService.checkShopVisible(shopId);
         List<ProductCategoryEntity> list = productCategoryRepo.findListByShopId(shopId);
         return BeanUtil.copyToList(list, ProductCategoryVo.class);
     }

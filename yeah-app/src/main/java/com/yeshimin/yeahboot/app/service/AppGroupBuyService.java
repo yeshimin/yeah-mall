@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.app.domain.vo.GroupBuyActivityVo;
 import com.yeshimin.yeahboot.app.domain.vo.GroupBuyGroupVo;
 import com.yeshimin.yeahboot.app.domain.vo.GroupBuyGroupOptionVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
@@ -62,7 +63,7 @@ public class AppGroupBuyService {
     /**
      * 查询 App 可见的拼团活动；仅下架活动不再展示。
      */
-    public IPage<GroupBuyActivityEntity> queryActivity(Page<GroupBuyActivityEntity> page) {
+    public IPage<GroupBuyActivityVo> queryActivity(Page<GroupBuyActivityEntity> page) {
         Set<Long> visibleShopIds = mallAppContextService.queryVisibleShopIds();
         if (visibleShopIds.isEmpty()) {
             return new Page<>(page.getCurrent(), page.getSize(), 0);
@@ -84,7 +85,8 @@ public class AppGroupBuyService {
                 .orderByAsc(GroupBuyActivityEntity::getSort)
                 .orderByDesc(GroupBuyActivityEntity::getCreateTime);
         wrapper.in(GroupBuyActivityEntity::getId, activityIds);
-        return groupBuyActivityRepo.page(page, wrapper);
+        return groupBuyActivityRepo.page(page, wrapper)
+                .convert(entity -> BeanUtil.copyProperties(entity, GroupBuyActivityVo.class));
     }
 
     /**

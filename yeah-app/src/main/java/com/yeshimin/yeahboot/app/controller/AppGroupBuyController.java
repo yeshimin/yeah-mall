@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.app.domain.vo.GroupBuyActivityVo;
 import com.yeshimin.yeahboot.app.domain.vo.GroupBuyGroupVo;
 import com.yeshimin.yeahboot.app.domain.vo.GroupBuyGroupOptionVo;
 import com.yeshimin.yeahboot.app.domain.vo.ProductDetailVo;
@@ -37,7 +38,7 @@ public class AppGroupBuyController extends BaseController {
      */
     @PublicAccess
     @GetMapping("/queryActivity")
-    public R<IPage<GroupBuyActivityEntity>> queryActivity(Page<GroupBuyActivityEntity> page) {
+    public R<IPage<GroupBuyActivityVo>> queryActivity(Page<GroupBuyActivityEntity> page) {
         return R.ok(service.queryActivity(page));
     }
 

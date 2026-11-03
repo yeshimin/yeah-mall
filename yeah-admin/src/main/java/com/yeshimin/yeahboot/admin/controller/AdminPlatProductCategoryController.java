@@ -39,7 +39,7 @@ public class AdminPlatProductCategoryController extends CrudController<PlatProdu
     /**
      * 创建
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:create')")
     @PostMapping("/create")
     public R<PlatProductCategoryEntity> create(@Validated @RequestBody PlatProductCategoryCreateDto dto) {
         return R.ok(service.create(dto));
@@ -48,7 +48,7 @@ public class AdminPlatProductCategoryController extends CrudController<PlatProdu
     /**
      * 查询树
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
     @GetMapping("/tree")
     public R<List<PlatProductCategoryTreeNodeVo>> tree(@Validated PlatProductCategoryTreeDto query) {
         return R.ok(service.tree(query));
@@ -57,7 +57,7 @@ public class AdminPlatProductCategoryController extends CrudController<PlatProdu
     /**
      * 更新
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/update")
     public R<PlatProductCategoryEntity> update(@Validated @RequestBody PlatProductCategoryUpdateDto dto) {
         return R.ok(service.update(dto));
@@ -66,7 +66,7 @@ public class AdminPlatProductCategoryController extends CrudController<PlatProdu
     /**
      * 删除
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:delete')")
     @PostMapping("/delete")
     public R<Void> delete(@Validated @RequestBody Collection<Long> ids) {
         service.delete(ids);

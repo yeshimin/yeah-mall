@@ -28,7 +28,7 @@ public class AdminSeckillActivityApplyController extends BaseController {
     /**
      * 查询
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:seckillActivityApply:query')")
     @GetMapping("/query")
     public R<IPage<SeckillActivityApplyVo>> query(Page<SeckillActivityApplyEntity> page,
                                                   @Validated SeckillActivityApplyQueryDto query) {
@@ -38,7 +38,7 @@ public class AdminSeckillActivityApplyController extends BaseController {
     /**
      * 详情
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:seckillActivityApply:query')")
     @GetMapping("/detail")
     public R<SeckillActivityApplyDetailVo> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));
@@ -47,7 +47,7 @@ public class AdminSeckillActivityApplyController extends BaseController {
     /**
      * 审核
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:seckillActivityApply:audit')")
     @PostMapping("/audit")
     public R<Void> audit(@Validated @RequestBody SeckillApplyAuditDto dto) {
         service.audit(dto);

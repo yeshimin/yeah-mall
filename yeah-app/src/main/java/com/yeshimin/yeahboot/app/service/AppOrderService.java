@@ -43,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -102,6 +103,7 @@ public class AppOrderService {
     private final ShopSettlementService shopSettlementService;
     private final MallAppContextService mallAppContextService;
     private final StorageManager storageManager;
+    private final TransactionTemplate transactionTemplate;
 
     /**
      * 订单支付超时时间（分钟）
@@ -415,6 +417,13 @@ public class AppOrderService {
     public OrderSeckillVo seckill(Long userId, SeckillDto dto) {
         Long skuId = dto.getSkuId();
         SeckillSkuEntity seckillSku = seckillSkuRepo.getOneById(skuId, "秒杀商品不存在");
+        SeckillSpuEntity seckillSpu = seckillSpuRepo.getOneById(
+                seckillSku.getSeckillSpuId(), "秒杀商品不存在");
+        if (!Objects.equals(seckillSku.getActivityId(), dto.getActivityId())
+                || !Objects.equals(seckillSpu.getActivityId(), dto.getActivityId())
+                || !SeckillActivityApplyAuditStatusEnum.PASSED.equalsValue(seckillSpu.getAuditStatus())) {
+            throw new BaseException("秒杀商品不可用");
+        }
         mallAppContextService.checkShopTradeAvailable(seckillSku.getShopId());
 
         OrderSeckillVo result = new OrderSeckillVo();
@@ -562,6 +571,10 @@ public class AppOrderService {
         Set<Long> spuIds = listSku.stream().map(SeckillSkuEntity::getSeckillSpuId).collect(Collectors.toSet());
         Map<Long, SeckillSpuEntity> mapSpu = seckillSpuRepo.findListByIds(spuIds)
                 .stream().collect(Collectors.toMap(SeckillSpuEntity::getId, spu -> spu));
+        if (mapSpu.size() != spuIds.size() || mapSpu.values().stream()
+                .anyMatch(spu -> !SeckillActivityApplyAuditStatusEnum.PASSED.equalsValue(spu.getAuditStatus()))) {
+            throw new BaseException("订单中存在不可用的秒杀商品");
+        }
 
         // 总金额
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -633,7 +646,6 @@ public class AppOrderService {
     /**
      * 生成支付信息
      */
-    @Transactional(rollbackFor = Exception.class)
     public WxPayInfoVo genPayInfo(Long userId, Long orderId) {
         return this.genPayInfo(userId, orderId, true);
     }
@@ -641,7 +653,6 @@ public class AppOrderService {
     /**
      * 异步任务生成支付信息
      */
-    @Transactional(rollbackFor = Exception.class)
     public WxPayInfoVo genPayInfoForAsync(Long userId, Long orderId) {
         return this.genPayInfo(userId, orderId, false);
     }
@@ -673,9 +684,14 @@ public class AppOrderService {
         // 如果还没有预支付订单，则创建一个
         if (StrUtil.isBlank(order.getWxPrepayId())) {
             prepayId = wxPayService.prepay(order, "商品描述" + System.currentTimeMillis());
-            // 更新
-            order.setWxPrepayId(prepayId);
-            order.updateById();
+            if (!orderRepo.setPrepayIdIfAbsent(order.getId(), prepayId)) {
+                // 并发请求可能已保存同一订单的预支付ID，统一返回数据库中的稳定结果。
+                OrderEntity latest = orderRepo.findOneById(order.getId());
+                if (latest == null || StrUtil.isBlank(latest.getWxPrepayId())) {
+                    throw new BaseException("订单状态已变化，请刷新后重试");
+                }
+                prepayId = latest.getWxPrepayId();
+            }
         } else {
             prepayId = order.getWxPrepayId();
         }
@@ -1064,14 +1080,8 @@ public class AppOrderService {
         // 查询订单明细
         List<OrderItemEntity> orderItems = orderItemRepo.findListByOrderId(order.getId());
 
-        // 查询sku
-        List<Long> skuIds = orderItems.stream().map(OrderItemEntity::getSkuId).collect(Collectors.toList());
-        List<ProductSkuEntity> listSku = productSkuRepo.findListByIds(skuIds);
-
-        // --------------------------------------------------------------------------------
-
         List<OrderShopProductVo> listOrderShopProductVo =
-                orderService.queryOrderShopProductForOrderDetail(listSku, skuIds, orderItems);
+                orderService.queryOrderShopProductForOrderDetail(order, orderItems);
 
         // --------------------------------------------------------------------------------
 
@@ -1174,7 +1184,6 @@ public class AppOrderService {
      * 取消订单
      * 买家端触发，需要检查订单权限
      */
-    @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(Long userId, Long orderId, String closeReason) {
         // 检查：订单是否存在
         OrderEntity order = orderRepo.getOneById(orderId);
@@ -1192,10 +1201,16 @@ public class AppOrderService {
         if (paid) {
             throw new BaseException("订单已支付，无法取消");
         }
-        orderService.cancelOrder(order, closeReason);
-        if (OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())) {
-            groupBuyTradeService.handleOrderClosed(order.getId());
-        }
+        transactionTemplate.executeWithoutResult(status -> {
+            OrderEntity current = orderRepo.getOneById(orderId, "订单不存在");
+            if (!OrderStatusEnum.WAIT_PAY.equalsValue(current.getStatus())) {
+                throw new BaseException("订单状态已变化，请刷新后重试");
+            }
+            orderService.cancelOrder(current, closeReason);
+            if (OrderTypeEnum.GROUP_BUY.equalsValue(current.getOrderType())) {
+                groupBuyTradeService.handleOrderClosed(current.getId());
+            }
+        });
     }
 
     /**
@@ -1273,6 +1288,12 @@ public class AppOrderService {
         orderRepo.updateById(order);
 
         // 现有退款模型只保留当前申请；重新申请时同步替换原因、说明和凭证。
+        List<String> removedImages = existingImages.stream()
+                .filter(image -> !images.contains(image))
+                .collect(Collectors.toList());
+        if (!removedImages.isEmpty()) {
+            storageManager.unmarkUse(removedImages.toArray(new String[0]));
+        }
         orderRefundImageRepo.removeByOrderId(order.getId());
         if (!images.isEmpty()) {
             List<OrderRefundImageEntity> refundImages = new ArrayList<>(images.size());
@@ -1311,15 +1332,14 @@ public class AppOrderService {
             throw new RuntimeException("仅当前订单状态为【待收货】时，才能签收");
         }
 
-        boolean updateStatusSuccess = orderRepo.updateStatus(
-                order.getId(), OrderStatusEnum.WAIT_RECEIVE.getValue(), OrderStatusEnum.COMPLETED.getValue());
+        LocalDateTime receiveTime = LocalDateTime.now();
+        boolean updateStatusSuccess = orderRepo.completeReceive(order.getId(), receiveTime, receiveRemark);
         if (!updateStatusSuccess) {
             throw new RuntimeException("订单签收失败，请稍后重试");
         }
         order.setStatus(OrderStatusEnum.COMPLETED.getValue());
-        order.setReceiveTime(LocalDateTime.now());
+        order.setReceiveTime(receiveTime);
         order.setReceiveRemark(receiveRemark);
-        order.updateById();
         // 订单完成是“订单完成奖励”唯一触发点，记账服务按订单ID保证重复签收不重复赠送。
         memberPointsService.grantForOrderComplete(order);
         shopSettlementService.recordOrderCompleted(order);

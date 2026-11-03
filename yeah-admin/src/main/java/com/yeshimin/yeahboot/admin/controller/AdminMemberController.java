@@ -29,6 +29,7 @@ public class AdminMemberController extends CrudController<MemberMapper, MemberEn
     public AdminMemberController(MemberRepo repo) {
         // 由于lombok方案无法实现构造方法中调用super，只能显式调用
         super(repo);
+        super.setModule("admin:member").disableQuery();
     }
 
     // ================================================================================
@@ -36,7 +37,7 @@ public class AdminMemberController extends CrudController<MemberMapper, MemberEn
     /**
      * 分页查询会员管理列表
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
     @GetMapping("/query")
     public R<IPage<AdminMemberVo>> query(Page<AdminMemberVo> page,
                                          @RequestParam(required = false) Long memberId,

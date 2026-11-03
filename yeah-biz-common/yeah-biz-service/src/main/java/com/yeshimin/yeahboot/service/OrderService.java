@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.payments.model.TransactionAmount;
 import com.wechat.pay.java.service.refund.model.Refund;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.common.utils.WxPayUtils;
 import com.yeshimin.yeahboot.data.common.consts.BizConsts;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -56,24 +58,22 @@ public class OrderService {
     private final WxPayService wxPayService;
     private final MemberPointsService memberPointsService;
     private final ShopSettlementService shopSettlementService;
+    private final TransactionTemplate transactionTemplate;
 
     /**
      * 订单详情场景
      */
-    public List<OrderShopProductVo> queryOrderShopProductForOrderDetail(List<ProductSkuEntity> listSku,
-                                                                        List<Long> skuIds,
-                                                                        List<OrderItemEntity> orderItems) {
+    public List<OrderShopProductVo> queryOrderShopProductForOrderDetail(
+            OrderEntity order, List<OrderItemEntity> orderItems) {
         // 查询店铺信息
-        Set<Long> shopIds = listSku.stream().map(ProductSkuEntity::getShopId).collect(Collectors.toSet());
+        Set<Long> shopIds = orderItems.stream().map(OrderItemEntity::getShopId).collect(Collectors.toSet());
         List<ShopEntity> listShop = shopRepo.findListByIds(shopIds);
         Map<Long, ShopEntity> mapShop = listShop.stream().collect(Collectors.toMap(ShopEntity::getId, shop -> shop));
 
-        // 查询spu信息
-        Set<Long> spuIds = listSku.stream().map(ProductSkuEntity::getSpuId).collect(Collectors.toSet());
-        List<ProductSpuEntity> listSpu = productSpuRepo.findListByIds(spuIds);
-        Map<Long, ProductSpuEntity> mapSpu = listSpu.stream().collect(Collectors.toMap(ProductSpuEntity::getId, spu -> spu));
-
-        // 查询sku规格
+        // 秒杀订单保存的是秒杀SKU ID，不能拿它查询普通商品规格表。
+        List<Long> skuIds = OrderTypeEnum.SECKILL.equalsValue(order.getOrderType())
+                ? Collections.emptyList()
+                : orderItems.stream().map(OrderItemEntity::getSkuId).collect(Collectors.toList());
         List<ProductSkuSpecEntity> listSkuSpec = productSkuSpecRepo.findListBySkuIds(skuIds);
         Map<Long, List<ProductSkuSpecEntity>> mapSkuSpecs = listSkuSpec.stream().collect(Collectors.groupingBy(ProductSkuSpecEntity::getSkuId));
         // 查询specs
@@ -91,10 +91,9 @@ public class OrderService {
             vo.setShopId(orderItem.getShopId());
             Optional.ofNullable(mapShop.get(orderItem.getShopId())).ifPresent(shop -> vo.setShopName(shop.getShopName()));
             vo.setSpuId(orderItem.getSpuId());
-            Optional.ofNullable(mapSpu.get(orderItem.getSpuId())).ifPresent(spu -> {
-                vo.setSpuName(spu.getName());
-                vo.setSpuMainImage(spu.getMainImage());
-            });
+            // 订单详情使用下单快照，避免商品改名、删除或营销SKU撞ID后展示错误。
+            vo.setSpuName(orderItem.getSpuName());
+            vo.setSpuMainImage(orderItem.getSpuMainImage());
             vo.setSkuId(orderItem.getSkuId());
             vo.setSkuName(orderItem.getSkuName());
             vo.setPrice(orderItem.getUnitPrice());
@@ -464,7 +463,6 @@ public class OrderService {
     /**
      * 主动查询普通和秒杀订单的退款状态，避免微信退款回调丢失后长期停留在处理中。
      */
-    @Transactional(rollbackFor = Exception.class)
     public void reconcileRefundingOrders() {
         List<OrderEntity> refundingOrders = orderRepo.lambdaQuery()
                 .eq(OrderEntity::getStatus, OrderStatusEnum.REFUND.getValue())
@@ -478,13 +476,39 @@ public class OrderService {
                 continue;
             }
             try {
-                this.syncRefundQueryResult(order, orderRefund,
-                        wxPayService.queryRefundByOutRefundNo(order, orderRefund.getRefundNo()));
+                Refund result = wxPayService.queryRefundByOutRefundNo(order, orderRefund.getRefundNo());
+                transactionTemplate.executeWithoutResult(status ->
+                        this.syncRefundQueryResult(order, orderRefund, result));
             } catch (Exception e) {
                 log.warn("主动查询退款状态失败，orderNo={}, refundNo={}", order.getOrderNo(),
                         orderRefund.getRefundNo(), e);
+                this.retryRefundRequest(order, orderRefund);
             }
         }
+    }
+
+    /**
+     * 使用原退款单号重试退款请求，避免未知响应场景生成重复退款单。
+     */
+    private void retryRefundRequest(OrderEntity order, OrderRefundEntity refund) {
+        try {
+            long refundAmount = this.toFen(refund.getRefundAmount());
+            long totalAmount = this.toFen(refund.getTotalAmount());
+            wxPayService.refund(order, refund.getRefundNo(), refund.getRefundReason(), refundAmount, totalAmount);
+        } catch (Exception e) {
+            log.error("重试退款请求失败，orderNo={}，refundNo={}",
+                    order.getOrderNo(), refund.getRefundNo(), e);
+        }
+    }
+
+    /**
+     * 将退款金额转换为微信支付分单位。
+     */
+    private long toFen(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BaseException("退款金额无效");
+        }
+        return amount.movePointRight(2).setScale(0, RoundingMode.HALF_UP).longValueExact();
     }
 
     /**

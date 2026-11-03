@@ -28,7 +28,7 @@ public class AdminReviewController {
     /**
      * 查询评价列表
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:review:query')")
     @GetMapping("/query")
     public R<IPage<ProductSkuReviewEntity>> query(Page<ProductSkuReviewEntity> page, @Valid ReviewQueryDto query) {
         return R.ok(service.query(page, query));
@@ -37,7 +37,7 @@ public class AdminReviewController {
     /**
      * 查询评价详情
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:review:query')")
     @GetMapping("/detail")
     public R<ReviewDetailVo> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));
@@ -46,7 +46,7 @@ public class AdminReviewController {
     /**
      * 隐藏或恢复评价
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:review:update')")
     @PostMapping("/updateVisibility")
     public R<Void> updateVisibility(@Validated @RequestBody ReviewVisibilityDto dto) {
         service.updateVisibility(dto);

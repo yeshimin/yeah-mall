@@ -117,18 +117,19 @@ public class AppCartItemService {
             ShopCartItemVo vo = new ShopCartItemVo();
             ShopEntity shop = mapShop.get(cartItem.getShopId());
             ProductSpuEntity spu = mapSpu.get(cartItem.getSpuId());
+            ProductSkuEntity sku = mapSku.get(cartItem.getSkuId());
             vo.setId(cartItem.getId());
             vo.setShopId(cartItem.getShopId());
             vo.setShopName(shop == null ? "店铺不可用" : shop.getShopName());
             vo.setSpuId(cartItem.getSpuId());
             vo.setSpuName(spu == null ? "商品不可用" : spu.getName());
             vo.setSpuMainImage(spu == null ? null : spu.getMainImage());
-            vo.setAvailable(spu != null && Boolean.TRUE.equals(spu.getIsEnabled())
+            vo.setAvailable(spu != null && Boolean.TRUE.equals(spu.getIsEnabled()) && sku != null
                     && shop != null && Boolean.TRUE.equals(shop.getIsEnabled())
                     && Boolean.TRUE.equals(shop.getIsOpen()));
             vo.setSkuId(cartItem.getSkuId());
-            vo.setSkuName(mapSku.get(cartItem.getSkuId()).getName());
-            vo.setPrice(mapSku.get(cartItem.getSkuId()).getPrice());
+            vo.setSkuName(sku == null ? "规格不可用" : sku.getName());
+            vo.setPrice(sku == null ? null : sku.getPrice());
             vo.setQuantity(cartItem.getQuantity());
 
             // specs

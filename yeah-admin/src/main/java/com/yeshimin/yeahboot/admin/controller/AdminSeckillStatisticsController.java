@@ -23,7 +23,7 @@ public class AdminSeckillStatisticsController {
     /**
      * 查询实时监控数据
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:seckill:query')")
     @GetMapping("/monitor/data")
     public R<SeckillDashboardVo> monitorData(@RequestParam Long activityId) {
         return R.ok(service.queryDashboard(activityId));
@@ -32,7 +32,7 @@ public class AdminSeckillStatisticsController {
     /**
      * 查询经营分析数据
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:seckill:query')")
     @GetMapping("/analysis/data")
     public R<SeckillDashboardVo> analysisData(@RequestParam Long activityId) {
         return R.ok(service.queryDashboard(activityId));

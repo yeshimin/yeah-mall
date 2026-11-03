@@ -39,7 +39,7 @@ public class AdminFeedbackController extends CrudController<MemberFeedbackMapper
     /**
      * 查询反馈详情
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:detail')")
     @GetMapping("/detail")
     public R<FeedbackDetailVo> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));
@@ -48,7 +48,7 @@ public class AdminFeedbackController extends CrudController<MemberFeedbackMapper
     /**
      * 处理反馈
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:update')")
     @PostMapping("/handle")
     public R<Void> handle(@Validated @RequestBody FeedbackHandleDto dto) {
         service.handle(dto);

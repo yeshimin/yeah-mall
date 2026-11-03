@@ -39,7 +39,7 @@ public class AdminGroupBuyController {
     /**
      * 查询报名记录
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:groupBuy:query')")
     @GetMapping("/apply/query")
     public R<IPage<GroupBuyApplyVo>> queryApply(Page<GroupBuyApplyEntity> page,
                                                 @Validated GroupBuyApplyQueryDto query) {
@@ -49,7 +49,7 @@ public class AdminGroupBuyController {
     /**
      * 审核报名记录
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:groupBuy:audit')")
     @PostMapping("/apply/audit")
     public R<Void> auditApply(@Validated @RequestBody GroupBuyApplyAuditDto dto) {
         service.auditApply(dto);
@@ -59,7 +59,7 @@ public class AdminGroupBuyController {
     /**
      * 查询拼团商品
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:groupBuy:query')")
     @GetMapping("/product/query")
     public R<IPage<GroupBuySpuVo>> queryProduct(Page<GroupBuySpuEntity> page,
                                                  @Validated GroupBuySpuQueryDto query) {
@@ -69,7 +69,7 @@ public class AdminGroupBuyController {
     /**
      * 查询拼团订单
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:groupBuy:query')")
     @GetMapping("/order/query")
     public R<IPage<GroupBuyOrderVo>> queryOrder(Page<GroupBuyOrderEntity> page,
                                                  @Validated GroupBuyOrderQueryDto query) {
@@ -79,7 +79,7 @@ public class AdminGroupBuyController {
     /**
      * 查询活动下的拼团概览。
      */
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("@pms.hasPermission('admin:groupBuy:query')")
     @GetMapping("/group/query")
     public R<IPage<GroupBuyGroupOverviewVo>> queryGroup(Page<GroupBuyGroupEntity> page,
                                                          @RequestParam Long activityId) {
