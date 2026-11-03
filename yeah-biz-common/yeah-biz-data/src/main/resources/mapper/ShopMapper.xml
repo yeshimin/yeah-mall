@@ -1,4 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeshimin.yeahboot.data.mapper.ShopMapper">
+
+    <!-- 删除店铺前检查全部业务引用，包含已经软删除的历史数据。 -->
+    <select id="countBusinessReferences" resultType="int">
+        SELECT
+            EXISTS(SELECT 1 FROM s_banner WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_cart_item WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_cs_conversation WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_cs_message WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_delivery_info WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_delivery_provider WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_group_buy_apply WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_group_buy_group WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_group_buy_order WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_group_buy_sku WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_group_buy_spu WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_group_buy_spu_image WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_mch_coupon WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_member_coupon WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_order WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_order_coupon WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_order_delivery_tracking WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_order_item WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_order_refund WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_order_refund_image WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_order_review WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_payment_channel WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_browse_history WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_category WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_favorites WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_sku WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_sku_review WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_sku_review_image WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_sku_review_reply WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_sku_spec WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_spec WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_spec_def WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_spec_opt WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_spec_opt_def WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_spu WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_spu_detail_image WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_spu_image WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_product_spu_tag WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_seckill_activity_apply WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_seckill_sku WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_seckill_spu WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_seckill_spu_image WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_shop_settlement_account WHERE shop_id = #{shopId} LIMIT 1)
+            + EXISTS(SELECT 1 FROM s_shop_settlement_ledger WHERE shop_id = #{shopId} LIMIT 1)
+        AS reference_count
+    </select>
 </mapper>

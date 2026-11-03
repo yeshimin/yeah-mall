@@ -10,6 +10,7 @@
             cp.update_time,
             cp.mch_id,
             cp.shop_id,
+            shop.shop_name as shopName,
             cp.name,
             cp.description,
             cp.type,
@@ -22,12 +23,20 @@
             cp.per_limit,
             cp.use_range,
             cp.target_id,
+            cp.is_support_group_buy,
             cp.begin_time,
             cp.end_time,
-            (select count(ucp.id) from s_member_coupon ucp where ucp.deleted = 0 and ucp.coupon_id = cp.id) as receivedCount
+            (select count(ucp.id) from s_member_coupon ucp
+             where ucp.deleted = 0 and ucp.coupon_id = cp.id and ucp.member_id = #{userId}) as receivedCount
         from s_mch_coupon cp
+            inner join s_shop shop on shop.id = cp.shop_id and shop.deleted = 0 and shop.is_enabled = 1
         where cp.deleted = 0
         and cp.is_enabled = 1
+        and now() between cp.begin_time and cp.end_time
+        and cp.received &lt; cp.quantity
+        <if test="query.shopId != null">
+            and cp.shop_id = #{query.shopId}
+        </if>
         <!-- useRange -->
         <if test="query.useRange != null">
             and cp.use_range = #{query.useRange}
@@ -46,7 +55,21 @@
         UPDATE s_mch_coupon c
         SET c.received = c.received + #{count}
         WHERE c.id = #{id}
-        AND c.quantity > c.received + #{count}
+        AND c.quantity &gt;= c.received + #{count}
+    </update>
+
+    <!-- 订单提交后占用优惠券 -->
+    <update id="increaseUsed">
+        UPDATE s_mch_coupon
+        SET used = used + 1
+        WHERE id = #{id} AND deleted = 0
+    </update>
+
+    <!-- 订单关闭或退款成功后释放优惠券 -->
+    <update id="decreaseUsed">
+        UPDATE s_mch_coupon
+        SET used = used - 1
+        WHERE id = #{id} AND deleted = 0 AND used &gt; 0
     </update>
 
 </mapper>

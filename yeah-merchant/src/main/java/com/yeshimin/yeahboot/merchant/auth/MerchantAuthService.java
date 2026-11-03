@@ -35,6 +35,9 @@ public class MerchantAuthService {
         if (user == null) {
             throw new BaseException(ErrorCodeEnum.FAIL, "用户未找到");
         }
+        if (Boolean.FALSE.equals(user.getIsEnabled())) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "账号已停用");
+        }
 
         // 校验密码
         boolean success = passwordService.validatePassword(loginDto.getPassword(), user.getLoginPassword());

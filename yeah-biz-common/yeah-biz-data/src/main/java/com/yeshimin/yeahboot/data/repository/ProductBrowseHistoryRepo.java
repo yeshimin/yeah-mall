@@ -14,6 +14,19 @@ import java.time.LocalDateTime;
 public class ProductBrowseHistoryRepo extends BaseRepo<ProductBrowseHistoryMapper, ProductBrowseHistoryEntity> {
 
     /**
+     * 查询会员商品浏览足迹
+     */
+    public ProductBrowseHistoryEntity findOneByMemberIdAndSpuId(Long memberId, Long spuId) {
+        if (memberId == null || spuId == null) {
+            throw new IllegalArgumentException("memberId和spuId不能为空");
+        }
+        return lambdaQuery()
+                .eq(ProductBrowseHistoryEntity::getMemberId, memberId)
+                .eq(ProductBrowseHistoryEntity::getSpuId, spuId)
+                .one();
+    }
+
+    /**
      * 新增或更新浏览足迹。
      */
     public boolean upsert(Long memberId, Long spuId, Long mchId, Long shopId, LocalDateTime browseTime) {

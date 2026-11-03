@@ -34,6 +34,11 @@ public class ProductSkuVo extends BaseDomain {
     private BigDecimal price;
 
     /**
+     * 原价；营销商品用于展示划线价
+     */
+    private BigDecimal originPrice;
+
+    /**
      * 库存
      */
     private Integer stock;

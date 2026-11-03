@@ -15,17 +15,23 @@ public class SeckillOrderCancelMqPayload extends BaseDomain {
 
     private Long userId;
 
+    /**
+     * 本次抢购尝试标识
+     */
+    private String attemptId;
+
     // of
-    public static SeckillOrderCancelMqPayload of(Long skuId, Long userId) {
+    public static SeckillOrderCancelMqPayload of(Long skuId, Long userId, String attemptId) {
         SeckillOrderCancelMqPayload payload = new SeckillOrderCancelMqPayload();
         payload.setSkuId(skuId);
         payload.setUserId(userId);
+        payload.setAttemptId(attemptId);
         return payload;
     }
 
 
-    public static SeckillOrderCancelMqPayload of(String skuId, String userId) {
-        return of(Long.valueOf(skuId), Long.valueOf(userId));
+    public static SeckillOrderCancelMqPayload of(String skuId, String userId, String attemptId) {
+        return of(Long.valueOf(skuId), Long.valueOf(userId), attemptId);
     }
 
     // toJsonString

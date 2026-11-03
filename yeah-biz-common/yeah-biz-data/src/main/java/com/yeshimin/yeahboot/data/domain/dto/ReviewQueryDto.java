@@ -1,12 +1,13 @@
 package com.yeshimin.yeahboot.data.domain.dto;
 
+import com.yeshimin.yeahboot.common.common.validation.EnumValue;
 import com.yeshimin.yeahboot.common.domain.base.BaseQueryDto;
+import com.yeshimin.yeahboot.data.common.enums.ReviewRatingTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
-import javax.validation.constraints.Pattern;
 
 /**
  * 评价查询条件
@@ -43,7 +44,7 @@ public class ReviewQueryDto extends BaseQueryDto {
     /**
      * 评价等级：good好评、middle中评、bad差评
      */
-    @Pattern(regexp = "good|middle|bad", message = "评价等级不正确")
+    @EnumValue(enumClass = ReviewRatingTypeEnum.class, message = "评价等级不正确")
     private String ratingType;
 
     /**

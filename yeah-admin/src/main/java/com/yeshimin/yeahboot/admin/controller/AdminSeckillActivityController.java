@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityEntity;
 import com.yeshimin.yeahboot.data.mapper.SeckillActivityMapper;
 import com.yeshimin.yeahboot.data.repository.SeckillActivityRepo;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,6 +41,7 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     /**
      * 创建
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
     public R<Void> create(@Validated @RequestBody SeckillActivitySaveDto dto) {
         // 检查参数：报名时间段
@@ -57,6 +59,7 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     /**
      * 更新
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/update")
     public R<Void> update(@Validated @RequestBody SeckillActivitySaveDto dto) {
         // 检查参数：报名时间段
@@ -74,6 +77,7 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     /**
      * 删除
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         service.delete(ids);
@@ -83,6 +87,7 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     /**
      * 更新状态
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/updateStatus")
     public R<Void> updateStatus(@Validated @RequestBody SeckillActivityStatusUpdateDto dto) {
         service.updateStatus(dto);
@@ -92,6 +97,7 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     /**
      * 更新【是否启用】状态
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/updateEnabled")
     public R<Void> updateEnabled(@Validated @RequestBody SeckillActivityEnabledUpdateDto dto) {
         service.updateEnabled(dto);

@@ -26,7 +26,10 @@ public class ProductCategoryRepo extends BaseRepo<ProductCategoryMapper, Product
         if (shopId == null) {
             throw new IllegalArgumentException("shopId不能为空");
         }
-        return lambdaQuery().eq(ProductCategoryEntity::getShopId, shopId).list();
+        return lambdaQuery().eq(ProductCategoryEntity::getShopId, shopId)
+                .orderByAsc(ProductCategoryEntity::getSort)
+                .orderByAsc(ProductCategoryEntity::getId)
+                .list();
     }
 
     /**
@@ -161,6 +164,19 @@ public class ProductCategoryRepo extends BaseRepo<ProductCategoryMapper, Product
             throw new IllegalArgumentException("parentId不能为空");
         }
         return lambdaQuery().eq(ProductCategoryEntity::getParentId, parentId).count();
+    }
+
+    /**
+     * 查询直属子分类
+     */
+    public List<ProductCategoryEntity> findListByParentId(Long parentId) {
+        if (parentId == null) {
+            throw new IllegalArgumentException("parentId不能为空");
+        }
+        return lambdaQuery().eq(ProductCategoryEntity::getParentId, parentId)
+                .orderByAsc(ProductCategoryEntity::getSort)
+                .orderByAsc(ProductCategoryEntity::getId)
+                .list();
     }
 
     /**

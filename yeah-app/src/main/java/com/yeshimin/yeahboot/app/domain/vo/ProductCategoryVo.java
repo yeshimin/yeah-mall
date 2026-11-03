@@ -4,6 +4,8 @@ import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ProductCategoryVo extends BaseDomain {
@@ -32,4 +34,9 @@ public class ProductCategoryVo extends BaseDomain {
      * 层级
      */
     private Integer level;
+
+    /**
+     * 子分类
+     */
+    private List<ProductCategoryVo> children;
 }

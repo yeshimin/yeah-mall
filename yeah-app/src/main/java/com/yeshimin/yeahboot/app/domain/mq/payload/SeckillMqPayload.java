@@ -14,10 +14,29 @@ public class SeckillMqPayload extends OrderSubmitDto {
 
     private Long userId;
 
+    /**
+     * 本次抢购尝试标识
+     */
+    private String attemptId;
+
+    /**
+     * 独立店铺范围，平台模式为空
+     */
+    private Long shopId;
+
+    /**
+     * App构建目标
+     */
+    private String appTarget;
+
     // of
-    public static SeckillMqPayload of(OrderSubmitDto dto, Long userId) {
+    public static SeckillMqPayload of(OrderSubmitDto dto, Long userId, Long shopId,
+                                      String appTarget, String attemptId) {
         SeckillMqPayload payload = BeanUtil.copyProperties(dto, SeckillMqPayload.class);
         payload.setUserId(userId);
+        payload.setShopId(shopId);
+        payload.setAppTarget(appTarget);
+        payload.setAttemptId(attemptId);
         return payload;
     }
 

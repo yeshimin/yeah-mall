@@ -35,4 +35,9 @@ public class OrderDetailVo extends BaseDomain {
      * 拼团订单补充信息；普通、秒杀订单为空。
      */
     private OrderGroupBuyInfoVo groupBuyInfo;
+
+    /**
+     * 退款凭证图片文件键
+     */
+    private List<String> refundImages;
 }

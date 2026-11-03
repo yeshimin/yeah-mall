@@ -28,6 +28,7 @@ public class AppCartItemService {
     private final ProductSkuSpecRepo productSkuSpecRepo;
     private final ProductSpecDefRepo productSpecDefRepo;
     private final ProductSpecOptDefRepo productSpecOptDefRepo;
+    private final MallAppContextService mallAppContextService;
 
     /**
      * 创建
@@ -36,6 +37,11 @@ public class AppCartItemService {
     public void create(Long userId, CartItemCreateDto dto) {
         // 检查：sku是否存在
         ProductSkuEntity sku = productSkuRepo.getOneById(dto.getSkuId());
+        mallAppContextService.checkShopTradeAvailable(sku.getShopId());
+        ProductSpuEntity spu = productSpuRepo.getOneById(sku.getSpuId());
+        if (!Boolean.TRUE.equals(spu.getIsEnabled())) {
+            throw new BaseException("商品已下架");
+        }
 
         // 查询已存在数据（如果有）
         CartItemEntity cartItem = cartItemRepo.findOneByMemberIdAndSkuId(userId, sku.getId());
@@ -70,6 +76,11 @@ public class AppCartItemService {
     public List<CartShopVo> query(Long userId) {
         // 查询购物车商品项
         List<CartItemEntity> listCartItem = cartItemRepo.findListByMemberId(userId);
+        if (mallAppContextService.isShopMode()) {
+            listCartItem = listCartItem.stream()
+                    .filter(item -> mallAppContextService.getShopId().equals(item.getShopId()))
+                    .collect(Collectors.toList());
+        }
 
         // 查询店铺信息
         Set<Long> shopIds = listCartItem.stream().map(CartItemEntity::getShopId).collect(Collectors.toSet());
@@ -104,12 +115,17 @@ public class AppCartItemService {
 
         List<ShopCartItemVo> listShopCartItemVo = listCartItem.stream().map(cartItem -> {
             ShopCartItemVo vo = new ShopCartItemVo();
+            ShopEntity shop = mapShop.get(cartItem.getShopId());
+            ProductSpuEntity spu = mapSpu.get(cartItem.getSpuId());
             vo.setId(cartItem.getId());
             vo.setShopId(cartItem.getShopId());
-            vo.setShopName(mapShop.get(cartItem.getShopId()).getShopName());
+            vo.setShopName(shop == null ? "店铺不可用" : shop.getShopName());
             vo.setSpuId(cartItem.getSpuId());
-            vo.setSpuName(mapSpu.get(cartItem.getSpuId()).getName());
-            vo.setSpuMainImage(mapSpu.get(cartItem.getSpuId()).getMainImage());
+            vo.setSpuName(spu == null ? "商品不可用" : spu.getName());
+            vo.setSpuMainImage(spu == null ? null : spu.getMainImage());
+            vo.setAvailable(spu != null && Boolean.TRUE.equals(spu.getIsEnabled())
+                    && shop != null && Boolean.TRUE.equals(shop.getIsEnabled())
+                    && Boolean.TRUE.equals(shop.getIsOpen()));
             vo.setSkuId(cartItem.getSkuId());
             vo.setSkuName(mapSku.get(cartItem.getSkuId()).getName());
             vo.setPrice(mapSku.get(cartItem.getSkuId()).getPrice());
@@ -165,6 +181,7 @@ public class AppCartItemService {
         if (entity == null) {
             throw new BaseException("购物车商品项未找到");
         }
+        mallAppContextService.checkShopScope(entity.getShopId());
         entity.setQuantity(dto.getQuantity());
         boolean r = entity.updateById();
         log.debug("cartItem.update.result：{}", r);
@@ -174,6 +191,8 @@ public class AppCartItemService {
      * 删除
      */
     public void delete(Long userId, Collection<Long> ids) {
+        List<CartItemEntity> entities = cartItemRepo.findListByMemberIdAndIds(userId, ids);
+        entities.forEach(entity -> mallAppContextService.checkShopScope(entity.getShopId()));
         boolean r = cartItemRepo.deleteByMemberIdAndIds(userId, ids);
         log.debug("cartItem.delete.result：{}", r);
     }

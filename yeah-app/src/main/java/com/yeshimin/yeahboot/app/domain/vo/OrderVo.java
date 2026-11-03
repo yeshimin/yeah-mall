@@ -30,9 +30,29 @@ public class OrderVo extends BaseDomain {
     private Long memberId;
 
     /**
+     * 店铺ID
+     */
+    private Long shopId;
+
+    /**
+     * 店铺名称
+     */
+    private String shopName;
+
+    /**
      * 订单编号
      */
     private String orderNo;
+
+    /**
+     * 买家订单备注
+     */
+    private String buyerRemark;
+
+    /**
+     * 订单类型：1-普通订单 2-秒杀订单 3-拼团订单
+     */
+    private Integer orderType;
 
     /**
      * 总金额
@@ -48,6 +68,21 @@ public class OrderVo extends BaseDomain {
      * 最终金额
      */
     private BigDecimal finalAmount;
+
+    /**
+     * 支付网关实际扣款金额
+     */
+    private BigDecimal payAmount;
+
+    /**
+     * 支付收款模式
+     */
+    private String collectionMode;
+
+    /**
+     * 订单结算模式
+     */
+    private String settlementMode;
 
     /**
      * 状态：1-待付款 2-待发货 3-待收货 4-交易成功 5-交易关闭 6-退款 7-售后
@@ -103,6 +138,11 @@ public class OrderVo extends BaseDomain {
      * 退款申请原因
      */
     private String refundApplyReason;
+
+    /**
+     * 退款申请补充说明
+     */
+    private String refundApplyDescription;
 
     /**
      * 退款确认时间
@@ -256,6 +296,11 @@ public class OrderVo extends BaseDomain {
      * 快递公司编码
      */
     private String deliveryProviderCode;
+
+    /**
+     * 快递公司名称
+     */
+    private String deliveryProviderName;
 
     /**
      * 快递单号

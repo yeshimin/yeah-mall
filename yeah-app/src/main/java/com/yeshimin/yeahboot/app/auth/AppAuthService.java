@@ -23,6 +23,7 @@ import com.yeshimin.yeahboot.service.MemberPointsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
@@ -152,7 +153,17 @@ public class AppAuthService {
         MemberEntity user = new MemberEntity();
         user.setMobile(mobile);
         user.setAccount(idService.nextEncodedId());
-        boolean r = user.insert();
+        boolean r;
+        try {
+            r = user.insert();
+        } catch (DuplicateKeyException e) {
+            // 数据库唯一索引兜底并发注册，手机号始终只对应一个会员主账号。
+            MemberEntity existing = memberRepo.findOneByMobile(mobile);
+            if (existing != null) {
+                return existing;
+            }
+            throw e;
+        }
         log.debug("createMobileUser.result: {}, user: {}", r, user);
         // 注册成功后立即按当前启用的注册规则发放积分，记账服务以会员ID幂等。
         memberPointsService.grantForRegister(user.getId());

@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.data.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,6 +22,7 @@ public class MerchantEntity extends ConditionBaseEntity<MerchantEntity> {
     /**
      * 登录密码
      */
+    @JsonIgnore
     private String loginPassword;
 
     /**
@@ -32,4 +34,9 @@ public class MerchantEntity extends ConditionBaseEntity<MerchantEntity> {
      * 头像
      */
     private String avatar;
+
+    /**
+     * 是否启用
+     */
+    private Boolean isEnabled;
 }

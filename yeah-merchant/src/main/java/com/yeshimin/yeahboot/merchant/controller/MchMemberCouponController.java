@@ -10,6 +10,8 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.dto.MchCouponRecordQueryDto;
 import com.yeshimin.yeahboot.data.domain.vo.MchCouponRecordVo;
 import com.yeshimin.yeahboot.merchant.service.MchMemberCouponService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,10 +38,11 @@ public class MchMemberCouponController extends MchCrudController<MemberCouponMap
     /**
      * 查询优惠券领取和使用记录
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/record/query")
     public R<Page<MchCouponRecordVo>> queryRecord(Page<MchCouponRecordVo> page,
                                                    @RequestParam Long shopId,
-                                                   MchCouponRecordQueryDto query) {
+                                                   @Validated MchCouponRecordQueryDto query) {
         return R.ok(service.queryRecord(super.getUserId(), shopId, page, query));
     }
 }

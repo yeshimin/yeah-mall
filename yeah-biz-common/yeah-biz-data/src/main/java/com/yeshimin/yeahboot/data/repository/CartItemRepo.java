@@ -37,6 +37,17 @@ public class CartItemRepo extends BaseRepo<CartItemMapper, CartItemEntity> {
     }
 
     /**
+     * 根据会员和ID集合查询购物车项
+     */
+    public List<CartItemEntity> findListByMemberIdAndIds(Long memberId, Collection<Long> ids) {
+        if (memberId == null || ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("memberId或ids不能为空");
+        }
+        return lambdaQuery().eq(CartItemEntity::getMemberId, memberId)
+                .in(CartItemEntity::getId, ids).list();
+    }
+
+    /**
      * deleteBySkuIds
      */
     public boolean deleteBySkuIds(Collection<Long> skuIds) {

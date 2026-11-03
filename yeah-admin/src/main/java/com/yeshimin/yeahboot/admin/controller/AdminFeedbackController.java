@@ -8,6 +8,7 @@ import com.yeshimin.yeahboot.data.domain.entity.MemberFeedbackEntity;
 import com.yeshimin.yeahboot.data.domain.vo.FeedbackDetailVo;
 import com.yeshimin.yeahboot.data.mapper.MemberFeedbackMapper;
 import com.yeshimin.yeahboot.data.repository.MemberFeedbackRepo;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +39,7 @@ public class AdminFeedbackController extends CrudController<MemberFeedbackMapper
     /**
      * 查询反馈详情
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/detail")
     public R<FeedbackDetailVo> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));
@@ -46,6 +48,7 @@ public class AdminFeedbackController extends CrudController<MemberFeedbackMapper
     /**
      * 处理反馈
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/handle")
     public R<Void> handle(@Validated @RequestBody FeedbackHandleDto dto) {
         service.handle(dto);

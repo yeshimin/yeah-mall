@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.service;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.yeshimin.yeahboot.common.common.enums.AuthSubjectEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.common.enums.CsMsgDirectionEnum;
@@ -53,9 +54,7 @@ public class CsChatService {
             throw new BaseException("会话权限错误");
         }
 
-        if (msgType == CsMsgTypeEnum.IMAGE) {
-            storageManager.markUse(payload.getContent());
-        }
+        this.markMessageFileUsed(payload.getContent(), msgType);
         CsMessageEntity message = csMessageRepo.createOne(
                 conversation,
                 CsMsgDirectionEnum.MEM2MCH.getIntValue(),
@@ -65,6 +64,8 @@ public class CsChatService {
                 payload.getType());
         csConversationRepo.updateLastMessage(
                 conversation, this.getLastMessage(payload.getContent(), msgType), message.getCreateTime());
+        payload.setMessageId(message.getId());
+        payload.setCreateTime(message.getCreateTime());
 
         // 事件路由由服务端固定，避免客户端构造无法识别或错误方向的推送命令。
         this.normalizeCommand(command, "cs-chat.mem", "msg.mem2mch");
@@ -96,9 +97,7 @@ public class CsChatService {
             throw new BaseException("会话权限错误");
         }
 
-        if (msgType == CsMsgTypeEnum.IMAGE) {
-            storageManager.markUse(payload.getContent());
-        }
+        this.markMessageFileUsed(payload.getContent(), msgType);
         CsMessageEntity message = csMessageRepo.createOne(
                 conversation,
                 CsMsgDirectionEnum.MCH2MEM.getIntValue(),
@@ -108,6 +107,8 @@ public class CsChatService {
                 payload.getType());
         csConversationRepo.updateLastMessage(
                 conversation, this.getLastMessage(payload.getContent(), msgType), message.getCreateTime());
+        payload.setMessageId(message.getId());
+        payload.setCreateTime(message.getCreateTime());
 
         // 事件路由由服务端固定，避免客户端构造无法识别或错误方向的推送命令。
         this.normalizeCommand(command, "cs-chat.mch", "msg.mch2mem");
@@ -124,6 +125,38 @@ public class CsChatService {
     }
 
     private String getLastMessage(String msgContent, CsMsgTypeEnum msgType) {
-        return msgType == CsMsgTypeEnum.TEXT ? msgContent : "[图片]";
+        if (msgType == CsMsgTypeEnum.TEXT) {
+            return msgContent;
+        }
+        if (msgType == CsMsgTypeEnum.IMAGE) {
+            return "[图片]";
+        }
+        if (msgType == CsMsgTypeEnum.VIDEO) {
+            return "[视频]";
+        }
+        return "[文件]";
+    }
+
+    /**
+     * 标记消息附件已被业务使用
+     */
+    private void markMessageFileUsed(String msgContent, CsMsgTypeEnum msgType) {
+        if (msgType == CsMsgTypeEnum.TEXT) {
+            return;
+        }
+
+        String fileKey = msgContent;
+        if (msgType == CsMsgTypeEnum.VIDEO || msgType == CsMsgTypeEnum.FILE) {
+            try {
+                JSONObject metadata = JSON.parseObject(msgContent);
+                fileKey = metadata == null ? null : metadata.getString("fileKey");
+            } catch (RuntimeException exception) {
+                throw new BaseException("附件消息格式错误");
+            }
+        }
+        if (fileKey == null || fileKey.trim().isEmpty()) {
+            throw new BaseException("附件文件不能为空");
+        }
+        storageManager.markUse(fileKey);
     }
 }

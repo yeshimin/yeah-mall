@@ -8,6 +8,7 @@ import com.yeshimin.yeahboot.admin.domain.dto.PointsOrderCancelDto;
 import com.yeshimin.yeahboot.admin.domain.dto.PointsOrderFulfillDto;
 import com.yeshimin.yeahboot.admin.domain.dto.PointsOrderShipDto;
 import com.yeshimin.yeahboot.admin.domain.dto.PointsProductSaveDto;
+import com.yeshimin.yeahboot.admin.domain.dto.PointsProductStatusUpdateDto;
 import com.yeshimin.yeahboot.admin.domain.dto.PointsSkuSaveDto;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.common.consts.PointsMallConsts;
@@ -140,7 +141,7 @@ public class AdminPointsMallService {
     @Transactional(rollbackFor = Exception.class)
     public void saveProduct(PointsProductSaveDto dto) {
         PointsSpuEntity old = dto.getId() == null ? null : spuRepo.getOneById(dto.getId(), "积分商品不存在");
-        validateProduct(dto, old);
+        this.validateProduct(dto, old);
 
         // 校验通过后整体保存商品配置，SKU 仍通过独立入口维护。
         PointsSpuEntity entity = BeanUtil.copyProperties(dto, PointsSpuEntity.class);
@@ -148,6 +149,41 @@ public class AdminPointsMallService {
             spuRepo.save(entity);
         } else {
             spuRepo.updateById(entity);
+        }
+    }
+
+    /**
+     * 更新积分商品上架状态
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateProductStatus(PointsProductStatusUpdateDto dto) {
+        PointsSpuEntity product = spuRepo.getOneById(dto.getId(), "积分商品不存在");
+        if (Objects.equals(product.getIsEnabled(), dto.getIsEnabled())) {
+            return;
+        }
+
+        if (Boolean.TRUE.equals(dto.getIsEnabled())) {
+            PointsCategoryEntity category = categoryRepo.getOneById(product.getCategoryId(), "积分商品分类不存在");
+            if (!Boolean.TRUE.equals(category.getIsEnabled())) {
+                throw new BaseException("停用分类下的商品不能上架");
+            }
+            if (product.getEndTime() == null || !product.getEndTime().isAfter(LocalDateTime.now())) {
+                throw new BaseException("商品兑换已结束，请先调整兑换时间");
+            }
+            long enabledSkuCount = skuRepo.lambdaQuery()
+                    .eq(PointsSkuEntity::getSpuId, product.getId())
+                    .eq(PointsSkuEntity::getIsEnabled, true)
+                    .count();
+            if (enabledSkuCount == 0) {
+                throw new BaseException("商品至少需要一个启用的SKU才能上架");
+            }
+        }
+
+        PointsSpuEntity update = new PointsSpuEntity();
+        update.setId(product.getId());
+        update.setIsEnabled(dto.getIsEnabled());
+        if (!spuRepo.updateById(update)) {
+            throw new BaseException("积分商品状态更新失败");
         }
     }
 
@@ -322,7 +358,7 @@ public class AdminPointsMallService {
         if (!orderRepo.shipPending(order.getId(), providerCode, dto.getTrackingNo().trim(), now)) {
             throw new BaseException("当前订单不可发货");
         }
-        log(order, PointsOrderStatusEnum.PENDING_FULFILLMENT.getValue(),
+        this.log(order, PointsOrderStatusEnum.PENDING_FULFILLMENT.getValue(),
                 PointsOrderStatusEnum.SHIPPED.getValue(), PointsOrderOperationEnum.PLATFORM_SHIP.getDescription());
     }
 
@@ -339,7 +375,7 @@ public class AdminPointsMallService {
         if (!orderRepo.completePending(order.getId(), LocalDateTime.now(), dto.getRemark())) {
             throw new BaseException("当前订单不可履约");
         }
-        log(order, PointsOrderStatusEnum.PENDING_FULFILLMENT.getValue(),
+        this.log(order, PointsOrderStatusEnum.PENDING_FULFILLMENT.getValue(),
                 PointsOrderStatusEnum.COMPLETED.getValue(), dto.getRemark());
     }
 
@@ -359,7 +395,7 @@ public class AdminPointsMallService {
         skuRepo.restoreStock(order.getSkuId(), order.getQuantity());
         pointsService.refundConsume(order.getMemberId(), order.getTotalPoints(), MemberPointsBizTypeEnum.POINTS_CANCEL,
                 order.getId(), order.getOrderNo(), "平台取消兑换退还积分");
-        log(order, PointsOrderStatusEnum.PENDING_FULFILLMENT.getValue(),
+        this.log(order, PointsOrderStatusEnum.PENDING_FULFILLMENT.getValue(),
                 PointsOrderStatusEnum.CANCELED.getValue(), dto.getReason());
     }
 
@@ -377,7 +413,7 @@ public class AdminPointsMallService {
         int completed = 0;
         for (PointsOrderEntity order : orders) {
             if (orderRepo.completeShipped(order.getId(), LocalDateTime.now())) {
-                log(order, PointsOrderStatusEnum.SHIPPED.getValue(),
+                this.log(order, PointsOrderStatusEnum.SHIPPED.getValue(),
                         PointsOrderStatusEnum.COMPLETED.getValue(),
                         PointsOrderOperationEnum.SYSTEM_AUTO_CONFIRM_RECEIPT.getDescription());
                 completed++;
@@ -413,7 +449,7 @@ public class AdminPointsMallService {
         }
         // 商品类型决定唯一合法履约方式，防止创建配置自相矛盾的积分商品。
         if (productType == PointsProductTypeEnum.COUPON) {
-            validateCouponProduct(dto, fulfillmentType);
+            this.validateCouponProduct(dto, fulfillmentType);
         } else {
             dto.setCouponId(null);
         }

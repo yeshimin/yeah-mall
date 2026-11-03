@@ -1,6 +1,8 @@
 package com.yeshimin.yeahboot.merchant.controller;
 
 import com.alibaba.fastjson2.JSON;
+import com.yeshimin.yeahboot.api.encryption.ApiEncryption;
+import com.yeshimin.yeahboot.api.encryption.ApiEncryptionPolicy;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
@@ -12,6 +14,7 @@ import com.yeshimin.yeahboot.storage.StorageManager;
 import com.yeshimin.yeahboot.storage.common.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +36,8 @@ public class MchFileStorageController extends BaseController {
     /**
      * 上传
      */
+    @PreAuthorize("isAuthenticated()")
+    @ApiEncryption(ApiEncryptionPolicy.BYPASS)
     @PostMapping("/upload")
     public R<FileUploadVo> upload(MultipartFile file) {
         // 决定bucket，除了local存储方式需要使用this.bucket，其他方式都指定为null

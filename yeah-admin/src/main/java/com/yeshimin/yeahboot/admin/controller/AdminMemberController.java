@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.data.repository.MemberRepo;
 import com.yeshimin.yeahboot.data.domain.vo.AdminMemberVo;
 import com.yeshimin.yeahboot.admin.service.AdminMemberService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,7 @@ public class AdminMemberController extends CrudController<MemberMapper, MemberEn
     /**
      * 分页查询会员管理列表
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<IPage<AdminMemberVo>> query(Page<AdminMemberVo> page,
                                          @RequestParam(required = false) Long memberId,

@@ -1,6 +1,8 @@
 package com.yeshimin.yeahboot.admin.domain.dto;
 
+import com.yeshimin.yeahboot.common.common.validation.EnumValue;
 import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
+import com.yeshimin.yeahboot.data.common.enums.GroupBuyActivityStatusEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -24,6 +26,7 @@ public class GroupBuyActivityStatusUpdateDto extends BaseDomain {
      * 目标活动状态
      */
     @NotBlank(message = "活动状态不能为空")
+    @EnumValue(enumClass = GroupBuyActivityStatusEnum.class, message = "拼团活动状态不正确")
     private String status;
 
 }

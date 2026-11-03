@@ -11,6 +11,7 @@ import com.yeshimin.yeahboot.data.domain.dto.SeckillActivityApplyQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityApplyEntity;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyVo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,7 @@ public class AdminSeckillActivityApplyController extends BaseController {
     /**
      * 查询
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<IPage<SeckillActivityApplyVo>> query(Page<SeckillActivityApplyEntity> page,
                                                   @Validated SeckillActivityApplyQueryDto query) {
@@ -36,6 +38,7 @@ public class AdminSeckillActivityApplyController extends BaseController {
     /**
      * 详情
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/detail")
     public R<SeckillActivityApplyDetailVo> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));
@@ -44,6 +47,7 @@ public class AdminSeckillActivityApplyController extends BaseController {
     /**
      * 审核
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/audit")
     public R<Void> audit(@Validated @RequestBody SeckillApplyAuditDto dto) {
         service.audit(dto);

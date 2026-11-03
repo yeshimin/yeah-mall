@@ -42,6 +42,11 @@ public class OrderListVo extends BaseDomain {
     private String orderNo;
 
     /**
+     * 订单类型：1普通订单、2秒杀订单、3拼团订单
+     */
+    private Integer orderType;
+
+    /**
      * 订单状态
      */
     private String orderStatus;
@@ -75,6 +80,11 @@ public class OrderListVo extends BaseDomain {
      * 优惠后业务应付金额
      */
     private BigDecimal finalAmount;
+
+    /**
+     * 支付网关实际扣款金额
+     */
+    private BigDecimal payAmount;
 
     /**
      * 下单时间

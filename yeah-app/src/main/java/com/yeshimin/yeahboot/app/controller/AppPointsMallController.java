@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.app.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.dto.PointsExchangeDto;
+import com.yeshimin.yeahboot.app.domain.vo.PointsOrderDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.PointsProductVo;
 import com.yeshimin.yeahboot.app.service.AppPointsMallService;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
@@ -84,7 +85,7 @@ public class AppPointsMallController extends BaseController {
      * 查询我的积分订单详情
      */
     @GetMapping("/order/detail")
-    public R<PointsOrderEntity> orderDetail(@RequestParam Long id) {
+    public R<PointsOrderDetailVo> orderDetail(@RequestParam Long id) {
         return R.ok(service.orderDetail(getUserId(), id));
     }
 

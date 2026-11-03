@@ -24,6 +24,9 @@ public class MerchantUserDetailService implements UserDetailService {
         if (user == null) {
             throw new BaseException(ErrorCodeEnum.FAIL);
         }
+        if (Boolean.FALSE.equals(user.getIsEnabled())) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "账号已停用");
+        }
 
         MerchantUserDetail userDetail = new MerchantUserDetail();
         userDetail.setUsername(user.getLoginAccount());

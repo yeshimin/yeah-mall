@@ -11,6 +11,7 @@ import com.yeshimin.yeahboot.app.common.enums.ProductSortEnum;
 import com.yeshimin.yeahboot.app.domain.dto.HotProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.dto.ProductSpuQueryDto;
 import com.yeshimin.yeahboot.app.domain.vo.*;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.entity.*;
 import com.yeshimin.yeahboot.data.domain.vo.ProductSpecOptVo;
 import com.yeshimin.yeahboot.data.domain.vo.ProductSpecVo;
@@ -22,6 +23,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * App商品服务
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,6 +41,7 @@ public class AppProductSpuService {
     private final ProductSkuSpecRepo productSkuSpecRepo;
     private final ShopRepo shopRepo;
     private final ProductCategoryRepo productCategoryRepo;
+    private final MallAppContextService mallAppContextService;
 
     private final AppFullTextSearchService fullTextSearchService;
 
@@ -44,19 +49,29 @@ public class AppProductSpuService {
      * 查询
      */
     public AppProductQueryVo query(ProductSpuQueryDto query) {
+        Set<Long> visibleShopIds = mallAppContextService.queryVisibleShopIds();
+        if (visibleShopIds.isEmpty()) {
+            return this.emptyProductQueryVo();
+        }
+        ProductSortEnum sort = ProductSortEnum.of(query.getSortBy());
+        if (mallAppContextService.isShopMode() || query.getCategoryId() != null
+                || sort == ProductSortEnum.SALES_ASC || sort == ProductSortEnum.SALES_DESC) {
+            // 销量在支付成功后实时写入业务库，销量排序直接查库，避免全文索引同步延迟。
+            return this.queryByDatabase(query, visibleShopIds);
+        }
         try {
-            return queryByFullText(query);
+            return this.queryByFullText(query, visibleShopIds);
         } catch (RuntimeException exception) {
             // 全文检索不可用时降级查询业务库，保证商城基础浏览能力可用。
             log.warn("商品全文检索不可用，降级查询业务库", exception);
-            return queryByDatabase(query);
+            return this.queryByDatabase(query, visibleShopIds);
         }
     }
 
     /**
      * 使用全文检索查询商品
      */
-    private AppProductQueryVo queryByFullText(ProductSpuQueryDto query) {
+    private AppProductQueryVo queryByFullText(ProductSpuQueryDto query, Set<Long> visibleShopIds) {
         // 从全文检索引擎搜索
         SearchResponse searchResponse = fullTextSearchService.searchProduct(query.getKeyword(),
                 ProductSortEnum.of(query.getSortBy()), query.getScrollToken(), query.getPageSize());
@@ -77,11 +92,14 @@ public class AppProductSpuService {
         List<Long> ids = listData.stream().map(e -> (Long) e.get("id")).collect(Collectors.toList());
 
         // 查业务库
-        List<ProductSpuEntity> listSpu = productSpuRepo.findListByIds(ids);
+        List<ProductSpuEntity> listSpu = productSpuRepo.findListByIds(ids).stream()
+                .filter(spu -> Boolean.TRUE.equals(spu.getIsEnabled()))
+                .filter(spu -> visibleShopIds.contains(spu.getShopId()))
+                .collect(Collectors.toList());
         // list to map
         Map<Long, ProductSpuEntity> mapSpu =
                 listSpu.stream().collect(Collectors.toMap(ProductSpuEntity::getId, spu -> spu));
-        Map<Long, String> categoryNameMap = queryCategoryNameMap(listSpu);
+        Map<Long, String> categoryNameMap = this.queryCategoryNameMap(listSpu);
 
         List<ProductVo> listVo = listData.stream().filter(source -> {
             Long id = (Long) source.get("id");
@@ -95,6 +113,7 @@ public class AppProductSpuService {
             vo.setCategoryId(spu.getCategoryId());
             vo.setCategoryName(categoryNameMap.get(spu.getCategoryId()));
             vo.setName(spu.getName());
+            vo.setSubtitle(spu.getSubtitle());
             vo.setSales(spu.getSales());
             vo.setMinPrice(spu.getMinPrice());
             vo.setMaxPrice(spu.getMaxPrice());
@@ -113,12 +132,15 @@ public class AppProductSpuService {
     /**
      * 使用业务库分页查询商品
      */
-    private AppProductQueryVo queryByDatabase(ProductSpuQueryDto query) {
-        int pageSize = normalizePageSize(query.getPageSize(), 20);
-        long current = parsePageToken(query.getScrollToken());
+    private AppProductQueryVo queryByDatabase(ProductSpuQueryDto query, Set<Long> visibleShopIds) {
+        int pageSize = this.normalizePageSize(query.getPageSize(), 20);
+        long current = this.parsePageToken(query.getScrollToken());
         ProductSortEnum sort = ProductSortEnum.of(query.getSortBy());
 
         LambdaQueryWrapper<ProductSpuEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(ProductSpuEntity::getIsEnabled, true);
+        wrapper.in(ProductSpuEntity::getShopId, visibleShopIds);
+        wrapper.eq(query.getCategoryId() != null, ProductSpuEntity::getCategoryId, query.getCategoryId());
         wrapper.like(StrUtil.isNotBlank(query.getKeyword()), ProductSpuEntity::getName, query.getKeyword());
         if (sort == ProductSortEnum.SALES_ASC) {
             wrapper.orderByAsc(ProductSpuEntity::getSales);
@@ -134,7 +156,7 @@ public class AppProductSpuService {
         wrapper.orderByAsc(ProductSpuEntity::getId);
 
         IPage<ProductSpuEntity> pageResult = productSpuRepo.page(new Page<>(current, pageSize), wrapper);
-        return toProductQueryVo(pageResult);
+        return this.toProductQueryVo(pageResult);
     }
 
     /**
@@ -143,6 +165,10 @@ public class AppProductSpuService {
     public ProductDetailVo detail(Long id) {
         // 获取商品spu
         ProductSpuEntity entity = productSpuRepo.getOneById(id);
+        mallAppContextService.checkShopVisible(entity.getShopId());
+        if (!Boolean.TRUE.equals(entity.getIsEnabled())) {
+            throw new BaseException("商品已下架");
+        }
 
         // 商品图片
         List<ProductSpuImageEntity> listProductImage = productSpuImageRepo.findListBySpuId(entity.getId());
@@ -183,22 +209,28 @@ public class AppProductSpuService {
      * 按照销量排序
      */
     public AppProductQueryVo queryHot(HotProductSpuQueryDto query) {
-        int pageSize = normalizePageSize(query.getPageSize(), 10);
-        long current = parsePageToken(query.getScrollToken());
+        int pageSize = this.normalizePageSize(query.getPageSize(), 10);
+        long current = this.parsePageToken(query.getScrollToken());
+        Set<Long> visibleShopIds = mallAppContextService.queryVisibleShopIds();
+        if (visibleShopIds.isEmpty()) {
+            return this.emptyProductQueryVo();
+        }
 
         LambdaQueryWrapper<ProductSpuEntity> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(ProductSpuEntity::getIsEnabled, true);
+        wrapper.in(ProductSpuEntity::getShopId, visibleShopIds);
         wrapper.orderByDesc(ProductSpuEntity::getSales)
                 .orderByAsc(ProductSpuEntity::getId);
         IPage<ProductSpuEntity> pageResult = productSpuRepo.page(new Page<>(current, pageSize), wrapper);
 
-        return toProductQueryVo(pageResult);
+        return this.toProductQueryVo(pageResult);
     }
 
     /**
      * 将商品分页结果转换为App查询结果
      */
     private AppProductQueryVo toProductQueryVo(IPage<ProductSpuEntity> pageResult) {
-        Map<Long, String> categoryNameMap = queryCategoryNameMap(pageResult.getRecords());
+        Map<Long, String> categoryNameMap = this.queryCategoryNameMap(pageResult.getRecords());
         List<ProductVo> products = pageResult.getRecords().stream()
                 .map(entity -> {
                     ProductVo product = BeanUtil.copyProperties(entity, ProductVo.class);
@@ -213,6 +245,17 @@ public class AppProductSpuService {
         result.setTotal((int) Math.min(pageResult.getTotal(), Integer.MAX_VALUE));
         result.setHasMore(hasMore);
         result.setScrollToken(hasMore ? String.valueOf(pageResult.getCurrent() + 1) : null);
+        return result;
+    }
+
+    /**
+     * 创建空商品查询结果
+     */
+    private AppProductQueryVo emptyProductQueryVo() {
+        AppProductQueryVo result = new AppProductQueryVo();
+        result.setData(Collections.emptyList());
+        result.setTotal(0);
+        result.setHasMore(false);
         return result;
     }
 

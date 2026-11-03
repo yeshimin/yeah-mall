@@ -7,6 +7,7 @@ import com.yeshimin.yeahboot.data.repository.ShopRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.MchCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.ShopUpdateDto;
 import com.yeshimin.yeahboot.merchant.service.ShopService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +36,7 @@ public class ShopController extends MchCrudController<ShopMapper, ShopEntity, Sh
     /**
      * 更新
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/update")
     public R<Void> update(@Validated @RequestBody ShopUpdateDto dto) {
         Long userId = super.getUserId();

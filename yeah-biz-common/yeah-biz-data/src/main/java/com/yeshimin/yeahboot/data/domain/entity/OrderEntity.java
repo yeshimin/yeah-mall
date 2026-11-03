@@ -37,6 +37,11 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
     private String orderNo;
 
     /**
+     * 买家订单备注
+     */
+    private String buyerRemark;
+
+    /**
      * 订单类型：见订单类型枚举
      */
     private Integer orderType;
@@ -55,6 +60,61 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      * 最终金额
      */
     private BigDecimal finalAmount;
+
+    /**
+     * 支付网关实际扣款金额
+     */
+    private BigDecimal payAmount;
+
+    /**
+     * App构建目标快照
+     */
+    private String appTarget;
+
+    /**
+     * 支付收款模式：1平台普通商户直收，2服务商代子商户收款，3独立店铺普通商户直收
+     */
+    private String collectionMode;
+
+    /**
+     * 订单结算模式：1平台线下结算，2微信分账，3无需二次结算
+     */
+    private String settlementMode;
+
+    /**
+     * 支付通道ID
+     */
+    private Long paymentChannelId;
+
+    /**
+     * 支付通道编码
+     */
+    private String paymentChannelCode;
+
+    /**
+     * 支付应用AppID快照
+     */
+    private String paymentAppId;
+
+    /**
+     * 收款商户号快照
+     */
+    private String paymentMchId;
+
+    /**
+     * 子商户号快照
+     */
+    private String paymentSubMchId;
+
+    /**
+     * 下单时的平台佣金比例快照
+     */
+    private BigDecimal settlementCommissionRate;
+
+    /**
+     * 下单时的延迟结算天数快照
+     */
+    private Integer settlementDelayDays;
 
     /**
      * 状态：1-待付款 2-待发货 3-待收货 4-交易成功 5-交易关闭 6-退款 7-售后
@@ -80,6 +140,11 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      * 微信预支付ID
      */
     private String wxPrepayId;
+
+    /**
+     * 微信支付订单号
+     */
+    private String wxTransactionId;
 
     /**
      * 支付成功时间
@@ -110,6 +175,11 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      * 退款申请原因
      */
     private String refundApplyReason;
+
+    /**
+     * 退款申请补充说明
+     */
+    private String refundApplyDescription;
 
     /**
      * 退款确认时间
@@ -263,6 +333,11 @@ public class OrderEntity extends ShopConditionBaseEntity<OrderEntity> {
      * 快递公司编码
      */
     private String deliveryProviderCode;
+
+    /**
+     * 快递公司名称（快照）
+     */
+    private String deliveryProviderName;
 
     /**
      * 快递单号

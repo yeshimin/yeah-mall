@@ -16,6 +16,7 @@ import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuDetailVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductSpuVo;
 import com.yeshimin.yeahboot.merchant.service.ProductSpuService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     /**
      * 创建
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
     public R<ProductSpuEntity> crudCreate(@Validated(Create.class) @RequestBody ProductSpuCreateDto dto) {
         Long userId = super.getUserId();
@@ -53,6 +55,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     /**
      * 设置主图
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/setMainImage")
     public R<ProductSpuEntity> setMainImage(@Validated ProductSpuMainImageSetDto dto) {
         Long userId = super.getUserId();
@@ -65,6 +68,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     /**
      * 查询
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<IPage<ProductSpuVo>> query(Page<ProductSpuEntity> page, @Validated(Query.class) ProductSpuQueryDto query) {
         Long userId = super.getUserId();
@@ -74,6 +78,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     /**
      * 详情
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/detail")
     public R<ProductSpuDetailVo> detail(@RequestParam Long id) {
         Long userId = super.getUserId();
@@ -83,6 +88,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     /**
      * 更新
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/update")
     public R<Boolean> update(@Validated(Update.class) @RequestBody ProductSpuUpdateDto dto) {
         Long userId = super.getUserId();
@@ -90,8 +96,20 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     }
 
     /**
+     * 更新上下架状态
+     */
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/updateStatus")
+    public R<Void> updateStatus(@Validated @RequestBody ProductSpuUpdateStatusDto dto) {
+        Long userId = super.getUserId();
+        service.updateStatus(userId, dto);
+        return R.ok();
+    }
+
+    /**
      * 删除
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         Long userId = super.getUserId();
@@ -102,6 +120,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     /**
      * 设置商品spu规格
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/setSpec")
     public R<Void> setSpec(@Validated(Create.class) @RequestBody ProductSpuSpecSetDto dto) {
         Long userId = super.getUserId();
@@ -112,6 +131,7 @@ public class ProductSpuController extends ShopCrudController<ProductSpuMapper, P
     /**
      * 查询商品spu规格
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/querySpec")
     public R<List<ProductSpecVo>> querySpec(@Validated(Query.class) ProductSpuSpecQueryDto query) {
         Long userId = super.getUserId();

@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.app.controller;
 
+import com.yeshimin.yeahboot.app.domain.vo.LegalContentVo;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.NameValueVo;
@@ -21,6 +22,8 @@ import java.util.List;
 public class AppContentController extends BaseController {
 
     private static final String ABOUT_CONTENT_CONFIG_KEY = "app.about.content";
+    private static final String SERVICE_AGREEMENT_CONFIG_KEY = "app.service-agreement.content";
+    private static final String PRIVACY_POLICY_CONFIG_KEY = "app.privacy-policy.content";
 
     private final DynamicConfigService dynamicConfigService;
 
@@ -30,7 +33,26 @@ public class AppContentController extends BaseController {
     @PublicAccess
     @GetMapping("/about")
     public R<String> about() {
-        List<NameValueVo> configs = dynamicConfigService.getPublicConfigsByConfigKey(ABOUT_CONTENT_CONFIG_KEY);
-        return R.ok(configs.isEmpty() ? "" : configs.get(0).getValue());
+        return R.ok(this.getPublicContent(ABOUT_CONTENT_CONFIG_KEY));
+    }
+
+    /**
+     * 查询服务协议与隐私政策。
+     */
+    @PublicAccess
+    @GetMapping("/legal")
+    public R<LegalContentVo> legal() {
+        LegalContentVo result = new LegalContentVo();
+        result.setServiceAgreement(this.getPublicContent(SERVICE_AGREEMENT_CONFIG_KEY));
+        result.setPrivacyPolicy(this.getPublicContent(PRIVACY_POLICY_CONFIG_KEY));
+        return R.ok(result);
+    }
+
+    /**
+     * 查询公开内容配置。
+     */
+    private String getPublicContent(String configKey) {
+        List<NameValueVo> configs = dynamicConfigService.getPublicConfigsByConfigKey(configKey);
+        return configs.isEmpty() ? "" : configs.get(0).getValue();
     }
 }

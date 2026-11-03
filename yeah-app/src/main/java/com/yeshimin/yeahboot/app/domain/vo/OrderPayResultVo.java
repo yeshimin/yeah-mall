@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -32,6 +33,12 @@ public class OrderPayResultVo extends BaseDomain {
      */
     @Schema(description = "是否成功")
     private Boolean paySuccess;
+
+    /**
+     * 支付网关实际扣款金额
+     */
+    @Schema(description = "支付网关实际扣款金额")
+    private BigDecimal payAmount;
 
     /**
      * 支付成功时间

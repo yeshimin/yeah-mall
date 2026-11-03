@@ -5,6 +5,7 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.merchant.domain.vo.AreaVo;
 import com.yeshimin.yeahboot.merchant.service.MchAreaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +26,7 @@ public class MchAreaController extends BaseController {
     /**
      * tree
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/tree")
     public R<List<AreaVo>> tree(
             @RequestParam(value = "maxLevel", required = false, defaultValue = "3") Integer maxLevel) {

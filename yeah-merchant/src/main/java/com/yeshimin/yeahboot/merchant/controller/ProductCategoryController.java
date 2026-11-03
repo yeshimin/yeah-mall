@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.merchant.domain.dto.ProductCategoryTreeDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.ProductCategoryUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.vo.ProductCategoryTreeNodeVo;
 import com.yeshimin.yeahboot.merchant.service.ProductCategoryService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,7 @@ public class ProductCategoryController extends ShopCrudController<ProductCategor
     /**
      * 创建
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
     public R<ProductCategoryEntity> create(@Validated @RequestBody ProductCategoryCreateDto dto) {
         Long userId = super.getUserId();
@@ -47,6 +49,7 @@ public class ProductCategoryController extends ShopCrudController<ProductCategor
     /**
      * 查询树
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/tree")
     public R<List<ProductCategoryTreeNodeVo>> tree(@Validated ProductCategoryTreeDto query) {
         Long userId = super.getUserId();
@@ -56,6 +59,7 @@ public class ProductCategoryController extends ShopCrudController<ProductCategor
     /**
      * 更新
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/update")
     public R<ProductCategoryEntity> update(@Validated @RequestBody ProductCategoryUpdateDto dto) {
         Long userId = super.getUserId();
@@ -65,6 +69,7 @@ public class ProductCategoryController extends ShopCrudController<ProductCategor
     /**
      * 删除
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/delete")
     public R<Void> delete(@Validated @RequestBody Collection<Long> ids) {
         Long userId = super.getUserId();

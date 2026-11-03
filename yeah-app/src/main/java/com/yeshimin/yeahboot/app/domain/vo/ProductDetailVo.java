@@ -54,4 +54,9 @@ public class ProductDetailVo extends BaseDomain {
      * 当前是否允许参与营销活动；普通商品为空。
      */
     private Boolean activityPurchasable;
+
+    /**
+     * 拼团成团人数；非拼团商品为空。
+     */
+    private Integer groupBuyMinPeople;
 }

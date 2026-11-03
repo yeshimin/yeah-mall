@@ -13,6 +13,7 @@ import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSessionEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSkuEntity;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityCacheVo;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillSkuCacheVo;
 import com.yeshimin.yeahboot.data.repository.SeckillActivityRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSessionRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSkuRepo;
@@ -25,8 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -70,6 +74,9 @@ public class AdminSeckillActivityService {
 
         BeanUtil.copyProperties(dto, entity);
         boolean r = entity.updateById();
+        if (Boolean.TRUE.equals(cacheService.exists(String.format(BizConsts.SECKILL_ACTIVITY_KEY, entity.getId())))) {
+            this.writeActivityCache(entity);
+        }
         log.info("更新秒杀活动，结果：{}", r);
     }
 
@@ -190,6 +197,7 @@ public class AdminSeckillActivityService {
                 entity.updateById();
 
                 // 清理活动相关缓存
+                this.writeActivityCache(entity);
                 this.clearCache(entity.getId());
                 break;
             // 活动下架，仅当【活动结束】状态才可操作
@@ -201,6 +209,8 @@ public class AdminSeckillActivityService {
                 entity.updateById();
 
                 // 清理【秒杀中的活动集合缓存key】；【活动结束】时不清理，【活动下架】时清理。
+                this.writeActivityCache(entity);
+                this.clearCache(entity.getId());
                 cacheService.removeMember(BizConsts.SECKILL_ACTIVITY_ING_KEY, String.valueOf(entity.getId()));
                 break;
             default:
@@ -219,6 +229,9 @@ public class AdminSeckillActivityService {
 
         entity.setIsEnabled(dto.getIsEnabled());
         boolean r = entity.updateById();
+        if (Boolean.TRUE.equals(cacheService.exists(String.format(BizConsts.SECKILL_ACTIVITY_KEY, entity.getId())))) {
+            this.writeActivityCache(entity);
+        }
         log.info("更新【是否启用】，结果：{}", r);
     }
 
@@ -230,21 +243,47 @@ public class AdminSeckillActivityService {
     private void readyCache(SeckillActivityEntity activity) {
         // 记录到进行中的活动集合中
         cacheService.addMember(BizConsts.SECKILL_ACTIVITY_ING_KEY, String.valueOf(activity.getId()));
-        // 活动信息
-        SeckillActivityCacheVo activityCacheVo = BeanUtil.copyProperties(activity, SeckillActivityCacheVo.class);
-        cacheService.set(
-                String.format(BizConsts.SECKILL_ACTIVITY_KEY, activity.getId()), JSON.toJSONString(activityCacheVo));
+        this.writeActivityCache(activity);
+
+        Map<Long, SeckillSessionEntity> sessionMap = seckillSessionRepo.findListByActivityId(activity.getId()).stream()
+                .filter(session -> Boolean.TRUE.equals(session.getIsEnabled()))
+                .collect(Collectors.toMap(SeckillSessionEntity::getId, Function.identity()));
 
         // 获取活动下所有sku
         List<SeckillSkuEntity> skus = seckillSkuRepo.findListByActivityId(activity.getId());
         for (SeckillSkuEntity sku : skus) {
+            SeckillSessionEntity session = sessionMap.get(sku.getSessionId());
+            if (session == null) {
+                log.warn("秒杀SKU所属场次未启用，跳过缓存准备，skuId={}，sessionId={}",
+                        sku.getId(), sku.getSessionId());
+                continue;
+            }
             // activity下的sku集合
             cacheService.addMember(
                     String.format(BizConsts.SECKILL_ACTIVITY_SKUS_KEY, activity.getId()), String.valueOf(sku.getId()));
 
             // 库存
             cacheService.set(String.format(BizConsts.SECKILL_STOCK_KEY, sku.getId()), String.valueOf(sku.getStock()));
+            // SKU所属活动和场次上下文
+            SeckillSkuCacheVo skuCacheVo = new SeckillSkuCacheVo();
+            skuCacheVo.setSkuId(sku.getId());
+            skuCacheVo.setSeckillSpuId(sku.getSeckillSpuId());
+            skuCacheVo.setActivityId(activity.getId());
+            skuCacheVo.setSessionId(session.getId());
+            skuCacheVo.setSessionBeginTime(session.getBeginTime());
+            skuCacheVo.setSessionEndTime(session.getEndTime());
+            cacheService.set(String.format(BizConsts.SECKILL_SKU_CONTEXT_KEY, sku.getId()),
+                    JSON.toJSONString(skuCacheVo));
         }
+    }
+
+    /**
+     * 写入活动实时状态缓存
+     */
+    private void writeActivityCache(SeckillActivityEntity activity) {
+        SeckillActivityCacheVo activityCacheVo = BeanUtil.copyProperties(activity, SeckillActivityCacheVo.class);
+        cacheService.set(String.format(BizConsts.SECKILL_ACTIVITY_KEY, activity.getId()),
+                JSON.toJSONString(activityCacheVo));
     }
 
     /**
@@ -257,8 +296,10 @@ public class AdminSeckillActivityService {
         cacheService.expire(String.format(BizConsts.SECKILL_ACTIVITY_SKUS_KEY, activityId), Duration.ofDays(1));
 
         // 查询活动下所有sku
-        List<Long> skuIds = seckillSkuRepo.findIdsByActivityId(activityId);
-        for (Long skuId : skuIds) {
+        List<SeckillSkuEntity> skus = seckillSkuRepo.findListByActivityId(activityId);
+        Set<Long> seckillSpuIds = skus.stream().map(SeckillSkuEntity::getSeckillSpuId).collect(Collectors.toSet());
+        for (SeckillSkuEntity sku : skus) {
+            Long skuId = sku.getId();
             // 库存
             cacheService.expire(String.format(BizConsts.SECKILL_STOCK_KEY, skuId), Duration.ofDays(1));
             // 用户名额
@@ -267,6 +308,8 @@ public class AdminSeckillActivityService {
             cacheService.expire(String.format(BizConsts.SECKILL_ORDER_KEY, skuId), Duration.ofDays(1));
             // block集合
             cacheService.expire(String.format(BizConsts.SECKILL_BLOCK_KEY, skuId), Duration.ofDays(1));
+            // SKU活动和场次上下文
+            cacheService.expire(String.format(BizConsts.SECKILL_SKU_CONTEXT_KEY, skuId), Duration.ofDays(1));
 
             // 秒杀结果，需要清理sku下所有抢购成功的用户相关数据
             Set<String> members = cacheService.members(String.format(BizConsts.SECKILL_QUOTA_KEY, skuId));
@@ -274,6 +317,9 @@ public class AdminSeckillActivityService {
                 cacheService.expire(String.format(BizConsts.SECKILL_EVENT_KEY, skuId, member), Duration.ofDays(1));
                 cacheService.expire(String.format(BizConsts.SECKILL_RESULT_KEY, skuId, member), Duration.ofDays(1));
             }
+        }
+        for (Long seckillSpuId : seckillSpuIds) {
+            cacheService.expire(String.format(BizConsts.SECKILL_SPU_QUOTA_KEY, seckillSpuId), Duration.ofDays(1));
         }
     }
 }

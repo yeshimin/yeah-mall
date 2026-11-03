@@ -7,6 +7,10 @@ spring:
     active: dev
   application:
     name: yeah-app
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 # for actuator, health endpoint
 management:
@@ -34,6 +38,9 @@ decorator:
       # Custom log format, if specified com.p6spy.engine.spy.appender.CustomLineFormat will be used with this log format
       # see https://p6spy.readthedocs.io/en/latest/configandusage.html#customlogmessageformat
       log-format: "id: %(connectionId) | t: %(currentTime) | d: %(executionTime)ms | c: %(category) | sql: \n\t%(sqlSingleLine)"
+      # 支付凭据、微信身份和结算账号不得进入SQL日志。
+      log-filter:
+        pattern: "(?is)^(?!.*(?:s_payment_channel|s_member_wx_identity|s_shop_settlement_account)).*$"
       # Exclude certain categories from logging. If specified only matched messages will be logged.
       # see https://p6spy.readthedocs.io/en/latest/configandusage.html#excludecategories
       exclude-categories: "info,debug,result,resultset,commit,rollback"

@@ -52,8 +52,9 @@ public class AdminShopController extends CrudController<ShopMapper, ShopEntity, 
      */
     @PreAuthorize("@pms.hasPermission(this.getModule() + ':shop:query')")
     @GetMapping("/query")
-    public R<IPage<ShopVo>> query(Page<ShopEntity> page, ShopQueryDto query) {
-        return R.ok(service.query(page, query));
+    public R<IPage<ShopVo>> query(Page<ShopEntity> page, ShopQueryDto query,
+                                      @RequestParam(required = false) String keyword) {
+        return R.ok(service.query(page, query, keyword));
     }
 
     /**

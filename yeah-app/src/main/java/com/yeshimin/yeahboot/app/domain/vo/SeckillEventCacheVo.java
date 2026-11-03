@@ -13,6 +13,11 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 public class SeckillEventCacheVo extends BaseDomain {
 
+    /**
+     * 本次抢购尝试标识
+     */
+    private String attemptId;
+
     private LocalDateTime quotaTime;
 
     private LocalDateTime orderTime;

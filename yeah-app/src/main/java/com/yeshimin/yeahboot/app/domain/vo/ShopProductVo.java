@@ -24,6 +24,11 @@ public class ShopProductVo extends BaseDomain {
     private String name;
 
     /**
+     * 商品副标题
+     */
+    private String subtitle;
+
+    /**
      * 销量
      */
     private Long sales;
@@ -42,4 +47,14 @@ public class ShopProductVo extends BaseDomain {
      * 商品主图
      */
     private String mainImage;
+
+    /**
+     * 店铺商品分类ID
+     */
+    private Long categoryId;
+
+    /**
+     * 店铺商品分类名称
+     */
+    private String categoryName;
 }

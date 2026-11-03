@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.GroupBuyActivityEntity;
 import com.yeshimin.yeahboot.data.mapper.GroupBuyActivityMapper;
 import com.yeshimin.yeahboot.data.repository.GroupBuyActivityRepo;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,10 +37,11 @@ public class AdminGroupBuyActivityController extends CrudController<GroupBuyActi
     /**
      * 创建
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
     public R<Void> create(@Validated @RequestBody GroupBuyActivitySaveDto dto) {
         // 报名和活动时间段允许重叠，但各自起止时间必须有效。
-        String timeError = validateActivityTime(dto);
+        String timeError = this.validateActivityTime(dto);
         if (timeError != null) {
             return R.fail(timeError);
         }
@@ -50,10 +52,11 @@ public class AdminGroupBuyActivityController extends CrudController<GroupBuyActi
     /**
      * 更新
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/update")
     public R<Void> update(@Validated @RequestBody GroupBuyActivitySaveDto dto) {
         // 编辑复用创建校验，防止管理端绕过前端日期限制。
-        String timeError = validateActivityTime(dto);
+        String timeError = this.validateActivityTime(dto);
         if (timeError != null) {
             return R.fail(timeError);
         }
@@ -64,6 +67,7 @@ public class AdminGroupBuyActivityController extends CrudController<GroupBuyActi
     /**
      * 删除
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         service.delete(ids);
@@ -73,6 +77,7 @@ public class AdminGroupBuyActivityController extends CrudController<GroupBuyActi
     /**
      * 更新状态
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/updateStatus")
     public R<Void> updateStatus(@Validated @RequestBody GroupBuyActivityStatusUpdateDto dto) {
         service.updateStatus(dto);
@@ -82,6 +87,7 @@ public class AdminGroupBuyActivityController extends CrudController<GroupBuyActi
     /**
      * 更新启用状态
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/updateEnabled")
     public R<Void> updateEnabled(@Validated @RequestBody GroupBuyActivityEnabledUpdateDto dto) {
         service.updateEnabled(dto);

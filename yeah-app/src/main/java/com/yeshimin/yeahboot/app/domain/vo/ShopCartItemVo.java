@@ -69,4 +69,9 @@ public class ShopCartItemVo extends BaseDomain {
      * 数量
      */
     private Integer quantity;
+
+    /**
+     * 商品是否仍可购买
+     */
+    private Boolean available;
 }

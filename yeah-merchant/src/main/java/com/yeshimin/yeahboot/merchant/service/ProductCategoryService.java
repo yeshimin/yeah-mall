@@ -37,6 +37,9 @@ public class ProductCategoryService {
     public ProductCategoryEntity create(Long userId, ProductCategoryCreateDto dto) {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
+        if (dto.getParentId() == null) {
+            dto.setParentId(0L);
+        }
 
         // 检查：父节点是否存在
         ProductCategoryEntity parent = null;
@@ -47,6 +50,12 @@ public class ProductCategoryService {
             }
             // 检查：父节点权限
             permissionService.checkShopId(dto.getShopId(), parent.getShopId());
+            if (!Objects.equals(parent.getLevel(), 1)) {
+                throw new BaseException("店铺商品分类最多支持两级");
+            }
+            if (productSpuRepo.countByCategoryId(parent.getId()) > 0) {
+                throw new BaseException("该分类已挂载商品，不能再新增子分类");
+            }
         }
         // 检查：同一个父节点下是否存在相同编码
         if (productCategoryRepo.countByParentIdAndCode(dto.getParentId(), dto.getCode()) > 0) {
@@ -136,6 +145,12 @@ public class ProductCategoryService {
             }
             // 检查：父节点权限
             permissionService.checkShopId(dto.getShopId(), parent.getShopId());
+            if (!Objects.equals(parent.getLevel(), 1)) {
+                throw new BaseException("店铺商品分类最多支持两级");
+            }
+            if (productSpuRepo.countByCategoryId(parent.getId()) > 0) {
+                throw new BaseException("目标分类已挂载商品，不能作为上级分类");
+            }
             // 检查：不能挂载到子节点
             if (productCategoryRepo.countByChildrenMatched(entity.getPath(), dto.getParentId()) > 0) {
                 throw new BaseException("不能挂载到子节点");
@@ -143,22 +158,35 @@ public class ProductCategoryService {
         }
         Long parentId = dto.getParentId() != null ? dto.getParentId() : entity.getParentId();
 
+        // 一级分类存在子分类时不能移动到其他一级分类下，否则会产生第三级。
+        if (parentId != null && parentId > 0 && productCategoryRepo.countByParentId(entity.getId()) > 0) {
+            throw new BaseException("存在子分类的一级分类不能调整为二级分类");
+        }
+        // 商品只允许挂载二级分类，已有商品的分类不能调整为一级分类。
+        if ((parentId == null || parentId == 0) && productSpuRepo.countByCategoryId(entity.getId()) > 0) {
+            throw new BaseException("已挂载商品的二级分类不能调整为一级分类");
+        }
+
+        boolean parentChanged = dto.getParentId() != null && !Objects.equals(dto.getParentId(), entity.getParentId());
+        String targetCode = StrUtil.isNotBlank(dto.getCode()) ? dto.getCode() : entity.getCode();
+        String targetName = StrUtil.isNotBlank(dto.getName()) ? dto.getName() : entity.getName();
+
         // 检查：同一个父节点下是否存在相同编码
-        if (StrUtil.isNotBlank(dto.getCode()) && !Objects.equals(dto.getCode(), entity.getCode())) {
-            long count = productCategoryRepo.countByParentIdAndCode(parentId, dto.getCode());
+        if (parentChanged || !Objects.equals(targetCode, entity.getCode())) {
+            long count = productCategoryRepo.countByParentIdAndCode(parentId, targetCode);
             if (count > 0) {
                 throw new BaseException("同一个父节点下已存在相同编码");
             }
         }
         // 检查：同一个父节点下是否存在相同名称
-        if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(dto.getName(), entity.getName())) {
-            if (productCategoryRepo.countByParentIdAndName(parentId, dto.getName()) > 0) {
+        if (parentChanged || !Objects.equals(targetName, entity.getName())) {
+            if (productCategoryRepo.countByParentIdAndName(parentId, targetName) > 0) {
                 throw new BaseException("同一个父节点下已存在相同名称");
             }
         }
 
         // 判断是否需要刷新层级和路径（parentId 或 code 变更时需要刷新）
-        boolean needRefresh = dto.getParentId() != null && !Objects.equals(dto.getParentId(), entity.getParentId()) ||
+        boolean needRefresh = parentChanged ||
                 StrUtil.isNotBlank(dto.getCode()) && !Objects.equals(dto.getCode(), entity.getCode());
 
         // 设置属性

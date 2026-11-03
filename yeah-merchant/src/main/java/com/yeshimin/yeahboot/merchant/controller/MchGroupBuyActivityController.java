@@ -8,6 +8,7 @@ import com.yeshimin.yeahboot.data.domain.entity.GroupBuyActivityEntity;
 import com.yeshimin.yeahboot.merchant.domain.dto.GroupBuyApplySubmitDto;
 import com.yeshimin.yeahboot.merchant.service.MchGroupBuyActivityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ public class MchGroupBuyActivityController extends BaseController {
     /**
      * 查询活动
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<IPage<GroupBuyActivityEntity>> query(Page<GroupBuyActivityEntity> page, GroupBuyActivityEntity query) {
         return R.ok(service.query(page, query));
@@ -36,6 +38,7 @@ public class MchGroupBuyActivityController extends BaseController {
     /**
      * 提交报名
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/submitApply")
     public R<Void> submitApply(@Validated @RequestBody GroupBuyApplySubmitDto dto) {
         service.submitApply(super.getUserId(), dto);

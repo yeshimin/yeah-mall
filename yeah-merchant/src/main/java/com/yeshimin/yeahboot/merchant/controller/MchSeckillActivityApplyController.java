@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.MchSeckillActivityApplyDetailVo;
 import com.yeshimin.yeahboot.merchant.service.MchSeckillActivityApplyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,7 @@ public class MchSeckillActivityApplyController extends BaseController {
     /**
      * 查询
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<IPage<SeckillActivityApplyVo>> query(Page<SeckillActivityApplyEntity> page,
                                                   @Validated SeckillActivityApplyQueryDto query) {
@@ -39,6 +41,7 @@ public class MchSeckillActivityApplyController extends BaseController {
     /**
      * 详情
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/detail")
     public R<MchSeckillActivityApplyDetailVo> detail(@RequestParam Long id) {
         Long userId = super.getUserId();

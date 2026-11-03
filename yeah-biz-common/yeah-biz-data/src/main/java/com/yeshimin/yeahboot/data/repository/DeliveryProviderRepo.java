@@ -41,6 +41,19 @@ public class DeliveryProviderRepo extends BaseRepo<DeliveryProviderMapper, Deliv
     }
 
     /**
+     * 按店铺和编码查询物流公司
+     */
+    public DeliveryProviderEntity findOneByShopIdAndCode(Long shopId, String code) {
+        return lambdaQuery()
+                .eq(DeliveryProviderEntity::getShopId, shopId)
+                .eq(DeliveryProviderEntity::getCode, code)
+                .list()
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
      * createOne
      */
     public boolean createOne(Long mchId, Long shopId, String name, String code, String remark) {

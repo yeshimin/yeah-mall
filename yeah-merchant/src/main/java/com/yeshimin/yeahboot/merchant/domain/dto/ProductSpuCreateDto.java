@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -28,6 +29,12 @@ public class ProductSpuCreateDto extends ShopDataBaseDomain {
      */
     @NotBlank(message = "商品名称不能为空", groups = {Create.class})
     private String name;
+
+    /**
+     * 商品副标题
+     */
+    @Size(max = 128, message = "商品副标题不能超过128个字符")
+    private String subtitle;
 
     /**
      * 商品规格与选项

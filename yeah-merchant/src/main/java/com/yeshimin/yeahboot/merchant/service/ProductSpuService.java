@@ -68,10 +68,7 @@ public class ProductSpuService {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, dto);
 
-        // 检查：商品分类是否存在
-        if (productCategoryRepo.countByIdAndShopId(dto.getCategoryId(), dto.getShopId()) == 0) {
-            throw new BaseException("商品分类未找到");
-        }
+        this.checkLeafCategory(dto.getShopId(), dto.getCategoryId());
         // 检查：同一个店铺下，SPU名称不能重复
         if (productSpuRepo.countByShopIdAndName(dto.getShopId(), dto.getName()) > 0) {
             throw new BaseException("同一个店铺下，SPU名称不能重复");
@@ -82,7 +79,10 @@ public class ProductSpuService {
         spu.setShopId(dto.getShopId());
         spu.setCategoryId(dto.getCategoryId());
         spu.setName(dto.getName());
+        spu.setSubtitle(StrUtil.blankToDefault(dto.getSubtitle(), "").trim());
         spu.setDetailDesc(dto.getDetailDesc());
+        // 新商品完成图片和SKU配置后，再由商家主动上架。
+        spu.setIsEnabled(false);
         boolean r = productSpuRepo.save(spu);
         log.debug("spu.save.result：{}", r);
 
@@ -99,9 +99,6 @@ public class ProductSpuService {
             storageManager.markUse(dto.getDetailImages().toArray(new String[0]));
             productSpuDetailImageRepo.createMany(spu, dto.getDetailImages());
         }
-
-        // 同步到全文搜索引擎
-        fullTextSearchService.syncProduct(spu, null, null, false);
 
         return spu;
     }
@@ -148,7 +145,26 @@ public class ProductSpuService {
         // 权限检查和控制
         permissionService.checkMchAndShop(userId, query);
 
+        Long categoryId = query.getCategoryId();
+        query.setCategoryId(null);
         LambdaQueryWrapper<ProductSpuEntity> wrapper = QueryHelper.getQueryWrapper(query);
+        if (categoryId != null) {
+            ProductCategoryEntity category = productCategoryRepo.findOneById(categoryId);
+            if (category == null || !Objects.equals(category.getShopId(), query.getShopId())) {
+                throw new BaseException("商品分类未找到");
+            }
+            if (Objects.equals(category.getLevel(), 1)) {
+                List<Long> childIds = productCategoryRepo.findListByParentId(categoryId).stream()
+                        .map(ProductCategoryEntity::getId).collect(Collectors.toList());
+                if (childIds.isEmpty()) {
+                    wrapper.eq(ProductSpuEntity::getCategoryId, categoryId);
+                } else {
+                    wrapper.in(ProductSpuEntity::getCategoryId, childIds);
+                }
+            } else {
+                wrapper.eq(ProductSpuEntity::getCategoryId, categoryId);
+            }
+        }
         wrapper.orderByDesc(ProductSpuEntity::getCreateTime);
         IPage<ProductSpuEntity> pageResult = productSpuRepo.page(page, wrapper);
 
@@ -201,11 +217,9 @@ public class ProductSpuService {
 
         ProductSpuEntity old = productSpuRepo.getOneById(dto.getId());
 
-        // 检查：商品分类是否存在
+        // 检查：商品只能挂载到当前店铺的二级分类。
         if (dto.getCategoryId() != null && !Objects.equals(dto.getCategoryId(), old.getCategoryId())) {
-            if (productCategoryRepo.countByIdAndShopId(dto.getCategoryId(), dto.getShopId()) == 0) {
-                throw new BaseException("商品分类未找到");
-            }
+            this.checkLeafCategory(dto.getShopId(), dto.getCategoryId());
         }
         // 检查：同一个商品SPU下，SKU名称不能重复
         if (StrUtil.isNotBlank(dto.getName()) && !Objects.equals(old.getName(), dto.getName())) {
@@ -216,6 +230,7 @@ public class ProductSpuService {
 
         old.setCategoryId(dto.getCategoryId());
         old.setName(dto.getName());
+        old.setSubtitle(StrUtil.blankToDefault(dto.getSubtitle(), "").trim());
         old.setDetailDesc(dto.getDetailDesc());
         boolean r = productSpuRepo.updateById(old);
         log.debug("update.result：{}", r);
@@ -241,12 +256,40 @@ public class ProductSpuService {
             productSpuDetailImageRepo.createMany(old, dto.getDetailImages());
         }
 
-        // 同步到全文搜索引擎
-        List<String> skuNames = this.getSkuNames(old.getId());
-        List<String> skuSpecs = this.getSkuSpecs(old.getId());
-        fullTextSearchService.syncProduct(old, skuNames, skuSpecs, true);
+        if (Boolean.TRUE.equals(old.getIsEnabled())) {
+            List<String> skuNames = this.getSkuNames(old.getId());
+            List<String> skuSpecs = this.getSkuSpecs(old.getId());
+            fullTextSearchService.syncProduct(old, skuNames, skuSpecs, true);
+        }
 
         return r;
+    }
+
+    /**
+     * 更新商品上下架状态
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateStatus(Long userId, ProductSpuUpdateStatusDto dto) {
+        permissionService.checkMchAndShop(userId, dto);
+        ProductSpuEntity spu = permissionService.getSpu(dto.getShopId(), dto.getId());
+
+        if (Boolean.TRUE.equals(dto.getIsEnabled())) {
+            this.checkLeafCategory(spu.getShopId(), spu.getCategoryId());
+            if (StrUtil.isBlank(spu.getMainImage())) {
+                throw new BaseException("请先设置商品主图");
+            }
+            if (productSkuRepo.findListBySpuId(spu.getId()).isEmpty()) {
+                throw new BaseException("请先配置商品SKU");
+            }
+        }
+
+        spu.setIsEnabled(dto.getIsEnabled());
+        spu.updateById();
+        if (Boolean.TRUE.equals(dto.getIsEnabled())) {
+            fullTextSearchService.syncProduct(spu, this.getSkuNames(spu.getId()), this.getSkuSpecs(spu.getId()), true);
+        } else {
+            fullTextSearchService.deleteIndexAfterCommit(FulltextTableConsts.PRODUCT, spu.getId());
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -291,6 +334,19 @@ public class ProductSpuService {
         for (Long id : ids) {
             // 删除全文索引
             fullTextSearchService.deleteIndexAfterCommit(FulltextTableConsts.PRODUCT, id);
+        }
+    }
+
+    /**
+     * 校验商品分类为当前店铺的二级分类
+     */
+    private void checkLeafCategory(Long shopId, Long categoryId) {
+        ProductCategoryEntity category = productCategoryRepo.findOneById(categoryId);
+        if (category == null || !Objects.equals(category.getShopId(), shopId)) {
+            throw new BaseException("商品分类未找到");
+        }
+        if (!Objects.equals(category.getLevel(), 2) || productCategoryRepo.countByParentId(category.getId()) > 0) {
+            throw new BaseException("商品只能挂载到二级分类");
         }
     }
 

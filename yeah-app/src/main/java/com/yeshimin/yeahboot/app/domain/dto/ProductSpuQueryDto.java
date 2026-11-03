@@ -24,6 +24,11 @@ public class ProductSpuQueryDto extends BaseDomain {
     private String keyword;
 
     /**
+     * 店铺商品分类ID
+     */
+    private Long categoryId;
+
+    /**
      * 排序选项
      */
     @NotNull(message = "商品排序选项不能为空")

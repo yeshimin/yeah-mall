@@ -1,14 +1,18 @@
 package com.yeshimin.yeahboot.app.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.io.IoUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.api.encryption.ApiEncryption;
+import com.yeshimin.yeahboot.api.encryption.ApiEncryptionPolicy;
 import com.yeshimin.yeahboot.app.common.enums.OrderSceneEnum;
 import com.yeshimin.yeahboot.app.domain.dto.*;
 import com.yeshimin.yeahboot.app.domain.mq.payload.SeckillMqPayload;
 import com.yeshimin.yeahboot.app.domain.vo.*;
 import com.yeshimin.yeahboot.app.service.AppOrderService;
+import com.yeshimin.yeahboot.app.service.MallAppContextService;
 import com.yeshimin.yeahboot.auth.common.config.security.PublicAccess;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
@@ -17,8 +21,10 @@ import com.yeshimin.yeahboot.common.domain.base.IdDto;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.data.common.consts.BizConsts;
+import com.yeshimin.yeahboot.data.common.enums.SeckillActivityStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityCacheVo;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillSkuCacheVo;
 import com.yeshimin.yeahboot.mq.MqMessage;
 import com.yeshimin.yeahboot.mq.MqPublisher;
 import com.yeshimin.yeahboot.service.WxPayInfoVo;
@@ -33,6 +39,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.nio.charset.StandardCharsets;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 订单表
@@ -48,6 +56,7 @@ public class AppOrderController extends BaseController {
     private final WxPayService wxPayService;
     private final CacheService cacheService;
     private final MqPublisher mqPublisher;
+    private final MallAppContextService mallAppContextService;
 
     /**
      * 提交订单
@@ -97,31 +106,61 @@ public class AppOrderController extends BaseController {
         // 检查参数：当前用户是否已经抢占到该sku的购买资格
         Long userId = super.getUserId();
         Long skuId = dto.getItems().get(0).getSkuId();
-        boolean isOk = cacheService.isMember(String.format(BizConsts.SECKILL_QUOTA_KEY, skuId), String.valueOf(userId));
+        Long contextShopId = mallAppContextService.isShopMode() ? mallAppContextService.getShopId() : null;
+        appOrderService.checkSeckillShopScope(skuId);
+        SeckillSkuCacheVo skuCacheVo = this.getSeckillSkuCache(skuId);
+        String userIdText = String.valueOf(userId);
+        boolean skuQuota = cacheService.isMember(
+                String.format(BizConsts.SECKILL_QUOTA_KEY, skuId), userIdText);
+        String spuQuotaKey = String.format(BizConsts.SECKILL_SPU_QUOTA_KEY, skuCacheVo.getSeckillSpuId());
+        boolean spuQuota = cacheService.isMember(spuQuotaKey, userIdText);
+        if (skuQuota && !spuQuota) {
+            // 兼容升级前已抢到的SKU资格，提交订单时补齐商品级限购记录。
+            cacheService.addMember(spuQuotaKey, userIdText);
+            spuQuota = true;
+        }
+        boolean isOk = skuQuota && spuQuota;
         if (!isOk) {
             throw new BaseException(ErrorCodeEnum.FAIL, "您没有抢占到该商品");
         }
 
-        // 尝试添加购买记录，如果已经下单购买，则不允许再次下单
-        long count = cacheService.addMember(String.format(BizConsts.SECKILL_ORDER_KEY, skuId), String.valueOf(userId));
+        String seckillEventKey = String.format(BizConsts.SECKILL_EVENT_KEY, skuId, userId);
+        SeckillEventCacheVo seckillEvent = cacheService.get(seckillEventKey, SeckillEventCacheVo.class);
+        if (seckillEvent == null) {
+            throw new BaseException(ErrorCodeEnum.FAIL, "秒杀信息未找到");
+        }
+        String attemptId = seckillEvent.getAttemptId();
+        if (attemptId == null || attemptId.trim().isEmpty()) {
+            // 兼容升级前已经抢到名额的缓存数据。
+            attemptId = userIdText;
+            seckillEvent.setAttemptId(attemptId);
+        }
+
+        // 同一次抢购尝试只能提交一次；取消后新attempt仍可再次下单。
+        String orderKey = String.format(BizConsts.SECKILL_ORDER_KEY, skuId);
+        long count = cacheService.addMember(orderKey, attemptId);
         if (count == 0) {
             throw new BaseException(ErrorCodeEnum.FAIL, "不能重复下单");
         }
 
-        // 记录下单时间
-        String seckillEventKey = String.format(BizConsts.SECKILL_EVENT_KEY, skuId, userId);
-        SeckillEventCacheVo seckillEvent = cacheService.get(seckillEventKey, SeckillEventCacheVo.class);
-        if (seckillEvent == null) {
-            log.error("seckillEvent is null, key: {}", seckillEventKey);
-            throw new BaseException(ErrorCodeEnum.FAIL, "秒杀信息未找到");
+        // 添加下单记录期间attempt可能已经超时，写回前必须再次确认仍是当前尝试。
+        SeckillEventCacheVo currentEvent = cacheService.get(seckillEventKey, SeckillEventCacheVo.class);
+        String currentAttemptId = currentEvent == null ? null : currentEvent.getAttemptId();
+        currentAttemptId = currentAttemptId == null || currentAttemptId.trim().isEmpty()
+                ? userIdText : currentAttemptId;
+        if (currentEvent == null || !attemptId.equals(currentAttemptId)) {
+            cacheService.removeMember(orderKey, attemptId);
+            throw new BaseException(ErrorCodeEnum.FAIL, "本次抢购已超时，请重新参与");
         }
-        seckillEvent.setOrderTime(LocalDateTime.now());
-        cacheService.set(seckillEventKey, JSONObject.toJSONString(seckillEvent));
+        currentEvent.setAttemptId(attemptId);
+        currentEvent.setOrderTime(LocalDateTime.now());
+        cacheService.set(seckillEventKey, JSONObject.toJSONString(currentEvent));
 
         // 发布到秒杀队列异步处理
         MqMessage message = new MqMessage();
         message.setTopic(BizConsts.SECKILL_ORDER_TOPIC);
-        message.setPayload(SeckillMqPayload.of(dto, userId).toJsonString());
+        message.setPayload(SeckillMqPayload.of(
+                dto, userId, contextShopId, mallAppContextService.getAppTarget(), attemptId).toJsonString());
         mqPublisher.publish(message);
 
         return R.ok();
@@ -139,19 +178,41 @@ public class AppOrderController extends BaseController {
             throw new BaseException("活动信息错误");
         }
         // 判断秒杀是否已经开始
-        SeckillActivityCacheVo activityCacheVo = cacheService.get(
-                String.format(BizConsts.SECKILL_ACTIVITY_KEY, dto.getActivityId()), SeckillActivityCacheVo.class);
+        SeckillActivityCacheVo activityCacheVo = appOrderService.getSeckillActivityCache(dto.getActivityId());
         if (activityCacheVo == null) {
             throw new BaseException("活动配置未找到");
+        }
+        if (!Boolean.TRUE.equals(activityCacheVo.getIsEnabled())
+                || !SeckillActivityStatusEnum.ACTIVITY_STARTED.equalsValue(activityCacheVo.getStatus())) {
+            throw new BaseException("活动已结束或暂停");
         }
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(activityCacheVo.getActivityBeginTime()) || now.isAfter(activityCacheVo.getActivityEndTime())) {
             throw new BaseException("不在活动期间");
         }
+        SeckillSkuCacheVo skuCacheVo = this.getSeckillSkuCache(dto.getSkuId());
+        if (!Objects.equals(skuCacheVo.getActivityId(), dto.getActivityId())) {
+            throw new BaseException("活动信息错误");
+        }
+        if (now.isBefore(skuCacheVo.getSessionBeginTime()) || now.isAfter(skuCacheVo.getSessionEndTime())) {
+            throw new BaseException("不在当前秒杀场次期间");
+        }
 
         Long userId = super.getUserId();
         OrderSeckillVo result = appOrderService.seckill(userId, dto);
         return R.ok(result);
+    }
+
+    /**
+     * 查询秒杀SKU活动与场次缓存
+     */
+    private SeckillSkuCacheVo getSeckillSkuCache(Long skuId) {
+        SeckillSkuCacheVo result = appOrderService.getSeckillSkuCache(skuId);
+        if (result == null || result.getSeckillSpuId() == null
+                || result.getSessionBeginTime() == null || result.getSessionEndTime() == null) {
+            throw new BaseException("秒杀商品配置未找到");
+        }
+        return result;
     }
 
     /**
@@ -198,18 +259,20 @@ public class AppOrderController extends BaseController {
      * https://pay.weixin.qq.com/doc/v3/merchant/4012791861
      */
     @PublicAccess
+    @ApiEncryption(ApiEncryptionPolicy.BYPASS)
     @PostMapping("/wxpay/payNotify")
     public ResponseEntity<Void> wxPayNotify(
-            @RequestBody(required = false) String notifyData,
+            @RequestParam(value = "channelCode", required = false) String channelCode,
+            HttpServletRequest request,
             @RequestHeader(value = "Wechatpay-Serial", required = false) String serial,
             @RequestHeader(value = "Wechatpay-Signature", required = false) String signature,
             @RequestHeader(value = "Wechatpay-Timestamp", required = false) String timestamp,
             @RequestHeader(value = "Wechatpay-Nonce", required = false) String nonce) {
-        log.info("wxpay.payNotify serial: {}, signature: {}, timestamp: {}, nonce: {}",
-                serial, signature, timestamp, nonce);
+        String notifyData = this.readRawBody(request);
 
         // 验证签名
-        boolean verifySuccess = wxPayService.verifySign(notifyData, serial, signature, timestamp, nonce);
+        boolean verifySuccess = wxPayService.verifySign(
+                channelCode, notifyData, serial, signature, timestamp, nonce);
         if (!verifySuccess) {
             log.warn("微信支付通知验签失败");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -218,9 +281,10 @@ public class AppOrderController extends BaseController {
         // 处理业务
         boolean handleSuccess = false;
         try {
-            handleSuccess = appOrderService.handlePayNotify(notifyData, serial, signature, timestamp, nonce);
+            handleSuccess = appOrderService.handlePayNotify(
+                    channelCode, notifyData, serial, signature, timestamp, nonce);
         } catch (Exception e) {
-            log.error("微信支付通知处理异常", e);
+            log.warn("微信支付通知处理异常，异常类型：{}", e.getClass().getSimpleName());
         }
         if (!handleSuccess) {
             log.warn("微信支付通知处理失败");
@@ -235,18 +299,20 @@ public class AppOrderController extends BaseController {
      * https://pay.weixin.qq.com/doc/v3/merchant/4012791906
      */
     @PublicAccess
+    @ApiEncryption(ApiEncryptionPolicy.BYPASS)
     @PostMapping("/wxpay/refundNotify")
     public ResponseEntity<Void> wxRefundNotify(
-            @RequestBody(required = false) String notifyData,
+            @RequestParam(value = "channelCode", required = false) String channelCode,
+            HttpServletRequest request,
             @RequestHeader(value = "Wechatpay-Serial", required = false) String serial,
             @RequestHeader(value = "Wechatpay-Signature", required = false) String signature,
             @RequestHeader(value = "Wechatpay-Timestamp", required = false) String timestamp,
             @RequestHeader(value = "Wechatpay-Nonce", required = false) String nonce) {
-        log.info("wxpay.refundNotify serial: {}, signature: {}, timestamp: {}, nonce: {}",
-                serial, signature, timestamp, nonce);
+        String notifyData = this.readRawBody(request);
 
         // 验证签名
-        boolean verifySuccess = wxPayService.verifySign(notifyData, serial, signature, timestamp, nonce);
+        boolean verifySuccess = wxPayService.verifySign(
+                channelCode, notifyData, serial, signature, timestamp, nonce);
         if (!verifySuccess) {
             log.warn("微信退款通知验签失败");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -255,9 +321,10 @@ public class AppOrderController extends BaseController {
         // 处理业务
         boolean handleSuccess = false;
         try {
-            handleSuccess = appOrderService.handleRefundNotify(notifyData, serial, signature, timestamp, nonce);
+            handleSuccess = appOrderService.handleRefundNotify(
+                    channelCode, notifyData, serial, signature, timestamp, nonce);
         } catch (Exception e) {
-            log.error("微信退款通知处理异常", e);
+            log.warn("微信退款通知处理异常，异常类型：{}", e.getClass().getSimpleName());
         }
         if (!handleSuccess) {
             log.warn("微信退款通知处理失败");
@@ -265,6 +332,17 @@ public class AppOrderController extends BaseController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 读取微信通知原始请求体，避免重新序列化导致验签失败。
+     */
+    private String readRawBody(HttpServletRequest request) {
+        try {
+            return new String(IoUtil.readBytes(request.getInputStream()), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new BaseException("读取微信支付通知失败");
+        }
     }
 
     /**

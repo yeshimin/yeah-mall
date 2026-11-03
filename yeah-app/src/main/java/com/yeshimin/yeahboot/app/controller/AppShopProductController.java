@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.app.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.app.domain.dto.ShopProductQueryDto;
 import com.yeshimin.yeahboot.app.domain.vo.ShopProductDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.ShopProductVo;
 import com.yeshimin.yeahboot.app.service.AppShopProductSpuService;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 /**
  * 店铺商品SPU
@@ -32,8 +35,8 @@ public class AppShopProductController extends BaseController {
      */
     @PublicAccess
     @GetMapping("/query")
-    public R<IPage<ShopProductVo>> query(Page<ProductSpuEntity> page, @RequestParam Long shopId) {
-        return R.ok(service.query(page, shopId));
+    public R<IPage<ShopProductVo>> query(Page<ProductSpuEntity> page, @Valid ShopProductQueryDto query) {
+        return R.ok(service.query(page, query));
     }
 
     /**

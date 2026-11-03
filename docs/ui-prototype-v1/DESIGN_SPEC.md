@@ -102,6 +102,36 @@ Small body and secondary text must maintain WCAG-readable contrast. Muted, warni
 | Action menu | Row actions beyond the primary one |
 | Semantic status ticket | Central mall status mapping |
 
+## Admin information architecture
+
+Platform and merchant consoles both use “经营概览” as the fixed first entry. The route and dashboard data differ by login subject, while the navigation label remains consistent.
+
+Platform navigation follows this structure:
+
+```text
+经营概览
+商城管理：商家管理 / 店铺管理 / 平台分类 / 会员管理 / 评价管理 / 积分管理 / 积分商城 / 首页运营 / 意见反馈
+秒杀管理：活动管理 / 场次管理 / 报名审核 / 商品管理 / 实时监控 / 成交分析
+拼团管理：活动管理 / 申请审核 / 商品管理 / 订单管理
+资金结算：结算管理
+系统管理：用户管理 / 角色管理 / 资源管理 / 组织管理 / 岗位管理 / 字典管理 / 系统参数 / 系统日志 / 地区管理 / 文件管理 / 存储管理
+```
+
+Merchant navigation follows this structure:
+
+```text
+经营概览
+商品管理：SPU 管理 / 商品分类 / 规格管理
+交易服务：订单管理 / 评价管理 / 客服消息
+优惠券管理：优惠券 / 领取记录 / 使用记录
+秒杀管理：活动列表 / 报名记录 / 秒杀商品
+拼团管理：活动列表 / 申请记录 / 拼团商品 / 拼团订单
+店铺管理：轮播图 / 物流设置 / 店铺设置
+资金结算：结算管理
+```
+
+“首页运营”保持一个侧栏入口，Banner 与快捷入口放在页面内部 Tab；“结算管理”从商城或商品管理中独立为一级业务域；SKU 作为 SPU 的关联管理页，从商品操作进入，不单独占用侧栏菜单。
+
 ## Interaction requirements
 
 - Every visible control in the prototype must respond.

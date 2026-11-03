@@ -6,6 +6,7 @@ import com.yeshimin.yeahboot.data.domain.entity.DeliveryInfoEntity;
 import com.yeshimin.yeahboot.merchant.domain.dto.DeliveryInfoSaveDto;
 import com.yeshimin.yeahboot.merchant.service.DeliveryInfoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class DeliveryInfoController extends BaseController {
     /**
      * 保存
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/save")
     public R<Void> save(@Validated @RequestBody DeliveryInfoSaveDto dto) {
         Long userId = super.getUserId();
@@ -32,6 +34,7 @@ public class DeliveryInfoController extends BaseController {
     /**
      * 查询
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<DeliveryInfoEntity> query(@RequestParam("shopId") Long shopId) {
         Long userId = super.getUserId();

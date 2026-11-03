@@ -23,4 +23,10 @@ public class ProductSpuQueryDto extends ShopDataBaseDomain {
      */
     @QueryField(type = QueryField.Type.LIKE)
     private String name;
+
+    /**
+     * 是否上架
+     */
+    @QueryField(type = QueryField.Type.EQ)
+    private Boolean isEnabled;
 }

@@ -8,6 +8,8 @@
             cp.id,
             cp.create_time,
             cp.update_time,
+            cp.shop_id,
+            shop.shop_name as shopName,
             cp.name,
             cp.description,
             cp.type,
@@ -22,8 +24,12 @@
             cp.is_used,
             cp.used_time
         from s_member_coupon cp
+            left join s_shop shop on shop.id = cp.shop_id
         where cp.deleted = 0
         and cp.member_id = #{userId}
+        <if test="query.shopId != null">
+            and cp.shop_id = #{query.shopId}
+        </if>
         <!-- 状态筛选 -->
         <if test="query.condition == 1">
             and cp.is_used = 0

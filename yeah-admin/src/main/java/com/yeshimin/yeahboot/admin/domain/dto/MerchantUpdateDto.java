@@ -21,8 +21,4 @@ public class MerchantUpdateDto extends BaseDomain {
      */
     private String loginAccount;
 
-    /**
-     * 登录密码
-     */
-    private String loginPassword;
 }

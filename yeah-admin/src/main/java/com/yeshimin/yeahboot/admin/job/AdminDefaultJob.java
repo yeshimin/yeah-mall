@@ -9,8 +9,10 @@ import com.yeshimin.yeahboot.data.common.consts.BizConsts;
 import com.yeshimin.yeahboot.data.common.enums.GroupBuyActivityStatusEnum;
 import com.yeshimin.yeahboot.data.common.properties.SeckillProperties;
 import com.yeshimin.yeahboot.data.domain.entity.GroupBuyActivityEntity;
+import com.yeshimin.yeahboot.data.domain.entity.SeckillSkuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.GroupBuyActivityRepo;
+import com.yeshimin.yeahboot.data.repository.SeckillSkuRepo;
 import com.yeshimin.yeahboot.data.repository.SysStorageRepo;
 import com.yeshimin.yeahboot.mq.MqMessage;
 import com.yeshimin.yeahboot.mq.MqPublisher;
@@ -47,6 +49,7 @@ public class AdminDefaultJob {
 
     private final SysStorageRepo sysStorageRepo;
     private final GroupBuyActivityRepo groupBuyActivityRepo;
+    private final SeckillSkuRepo seckillSkuRepo;
 
     private final StorageService storageService;
     private final CacheService cacheService;
@@ -143,13 +146,10 @@ public class AdminDefaultJob {
                             // 判断是否下单超时，是否超过1分钟
                             if (seckillEvent.getQuotaTime().isBefore(orderTimeout)) {
                                 log.info("秒杀抢占名额后过期未下单的-用户：{}，sku：{}，下单超时", userId, skuId);
-                                // 这里设置“阻止订单”的缓存key，后续操作据此key判断是否可以继续操作，包括mq订单逻辑和订单支付回调逻辑
-                                cacheService.addMember(String.format(BizConsts.SECKILL_BLOCK_KEY, skuId), userId);
-                                // 删除抢占名额和event信息
-                                String quotaKey = String.format(BizConsts.SECKILL_QUOTA_KEY, skuId);
-                                cacheService.delete(seckillEventKey, quotaKey);
-                                // 释放库存
-                                cacheService.increase(String.format(BizConsts.SECKILL_STOCK_KEY, skuId));
+                                String attemptId = this.resolveSeckillAttemptId(seckillEvent, userId);
+                                // 只阻止本次已失效尝试，用户释放名额后可以发起新一轮抢购。
+                                cacheService.addMember(String.format(BizConsts.SECKILL_BLOCK_KEY, skuId), attemptId);
+                                this.releaseSeckillQuota(skuId, userId, seckillEventKey);
                             }
                         }
                         // 当还未支付
@@ -158,12 +158,19 @@ public class AdminDefaultJob {
                             if (seckillEvent.getOrderTime().isBefore(payTimeout)) {
                                 log.info("秒杀抢占名额后过期未下单的-用户：{}，sku：{}，支付超时", userId, skuId);
 
-                                // 这里设置“阻止订单”的缓存key，后续操作据此key判断是否可以继续操作，包括mq订单逻辑和订单支付回调逻辑
-                                cacheService.addMember(String.format(BizConsts.SECKILL_BLOCK_KEY, skuId), userId);
+                                String attemptId = this.resolveSeckillAttemptId(seckillEvent, userId);
+                                // 阻止当前尝试的迟到消息，取消完成后新attempt不受影响。
+                                cacheService.addMember(String.format(BizConsts.SECKILL_BLOCK_KEY, skuId), attemptId);
+                                if (seckillEvent.getOrderId() == null) {
+                                    // MQ尚未生成订单，不需要发送取消消息，直接释放本次尝试占用的名额和库存。
+                                    this.releaseSeckillQuota(skuId, userId, seckillEventKey);
+                                    continue;
+                                }
                                 // 取消订单，走mq
                                 MqMessage message = new MqMessage();
                                 message.setTopic(BizConsts.SECKILL_ORDER_CANCEL_TOPIC);
-                                message.setPayload(SeckillOrderCancelMqPayload.of(skuId, userId).toJsonString());
+                                message.setPayload(SeckillOrderCancelMqPayload.of(
+                                        skuId, userId, attemptId).toJsonString());
                                 mqPublisher.publish(message);
                             }
                         }
@@ -173,6 +180,29 @@ public class AdminDefaultJob {
 
             log.info("检查秒杀下单超时和支付超时的-结束");
         }
+    }
+
+    /**
+     * 获取抢购尝试标识，兼容升级前的缓存数据。
+     */
+    private String resolveSeckillAttemptId(SeckillEventCacheVo event, String userId) {
+        String attemptId = event.getAttemptId();
+        return attemptId == null || attemptId.trim().isEmpty() ? userId : attemptId;
+    }
+
+    /**
+     * 释放一次失效抢购尝试占用的名额和Redis库存。
+     */
+    private void releaseSeckillQuota(String skuId, String userId, String eventKey) {
+        String quotaKey = String.format(BizConsts.SECKILL_QUOTA_KEY, skuId);
+        SeckillSkuEntity seckillSku = seckillSkuRepo.getOneById(Long.valueOf(skuId));
+        cacheService.delete(eventKey);
+        cacheService.removeMember(quotaKey, userId);
+        if (seckillSku != null) {
+            cacheService.removeMember(String.format(
+                    BizConsts.SECKILL_SPU_QUOTA_KEY, seckillSku.getSeckillSpuId()), userId);
+        }
+        cacheService.increase(String.format(BizConsts.SECKILL_STOCK_KEY, skuId));
     }
 
     /**

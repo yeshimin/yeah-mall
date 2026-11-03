@@ -11,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
+/**
+ * 商家店铺设置服务
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,6 +33,13 @@ public class ShopService {
 
         if (StrUtil.isNotBlank(dto.getShopName())) {
             shop.setShopName(dto.getShopName());
+        }
+        if (dto.getShopIntro() != null) {
+            shop.setShopIntro(dto.getShopIntro().trim());
+        }
+        // 商家只能维护营业开关，平台启停状态不允许从商家端覆盖。
+        if (dto.getIsOpen() != null) {
+            shop.setIsOpen(dto.getIsOpen());
         }
         if (StrUtil.isNotBlank(dto.getShopLogo()) && !Objects.equals(dto.getShopLogo(), shop.getShopLogo())) {
             storageManager.markUse(dto.getShopLogo());

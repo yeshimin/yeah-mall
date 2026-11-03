@@ -4,6 +4,7 @@ import com.yeshimin.yeahboot.admin.domain.vo.SeckillDashboardVo;
 import com.yeshimin.yeahboot.admin.service.AdminSeckillStatisticsService;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +23,7 @@ public class AdminSeckillStatisticsController {
     /**
      * 查询实时监控数据
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/monitor/data")
     public R<SeckillDashboardVo> monitorData(@RequestParam Long activityId) {
         return R.ok(service.queryDashboard(activityId));
@@ -30,6 +32,7 @@ public class AdminSeckillStatisticsController {
     /**
      * 查询经营分析数据
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/analysis/data")
     public R<SeckillDashboardVo> analysisData(@RequestParam Long activityId) {
         return R.ok(service.queryDashboard(activityId));

@@ -46,6 +46,12 @@
         <if test="query.sessionId != null">
             and spu.session_id = #{query.sessionId}
         </if>
+        <if test="query.shopId != null">
+            and spu.shop_id = #{query.shopId}
+        </if>
+        <if test="query.visibleShopOnly != null and query.visibleShopOnly">
+            and shop.is_enabled = 1
+        </if>
         <!-- query.mchName -->
         <if test="query.mchName != null">
             and mch.nickname like concat('%', #{query.mchName}, '%')

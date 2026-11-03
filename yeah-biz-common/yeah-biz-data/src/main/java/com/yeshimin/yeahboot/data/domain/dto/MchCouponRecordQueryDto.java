@@ -1,6 +1,8 @@
 package com.yeshimin.yeahboot.data.domain.dto;
 
+import com.yeshimin.yeahboot.common.common.validation.EnumValue;
 import com.yeshimin.yeahboot.common.domain.base.BaseQueryDto;
+import com.yeshimin.yeahboot.data.common.enums.MemberCouponRecordStatusEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -24,5 +26,6 @@ public class MchCouponRecordQueryDto extends BaseQueryDto {
     /**
      * 状态：0-未使用，1-已使用，2-已过期
      */
+    @EnumValue(enumClass = MemberCouponRecordStatusEnum.class, message = "优惠券记录状态不正确")
     private Integer status;
 }

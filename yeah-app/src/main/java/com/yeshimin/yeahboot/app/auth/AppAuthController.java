@@ -24,6 +24,7 @@ import javax.validation.Valid;
 public class AppAuthController extends BaseController {
 
     private final AppAuthService appAuthService;
+    private final AppWxIdentityService appWxIdentityService;
 
     /**
      * 登录
@@ -43,6 +44,16 @@ public class AppAuthController extends BaseController {
     @PostMapping("/sendSmsCode")
     public R<Void> sendSmsCode(@Valid @RequestBody SendSmsCodeDto dto) {
         appAuthService.sendSmsCode(dto);
+        return R.ok();
+    }
+
+    /**
+     * 绑定当前小程序微信身份
+     */
+    @SysLog(value = "绑定微信身份", category = SysLogCategoryEnum.AUTH)
+    @PostMapping("/bindWxIdentity")
+    public R<Void> bindWxIdentity(@Valid @RequestBody WxIdentityBindDto dto) {
+        appWxIdentityService.bind(super.getUserId(), dto.getCode());
         return R.ok();
     }
 }

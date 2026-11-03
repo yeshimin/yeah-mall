@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.merchant.domain.dto.MchCouponCreateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchCouponUpdateDto;
 import com.yeshimin.yeahboot.merchant.domain.dto.MchCouponUpdateStatusDto;
 import com.yeshimin.yeahboot.merchant.service.MchCouponService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +38,7 @@ public class MchCouponController extends MchCrudController<MchCouponMapper, MchC
     /**
      * 创建
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
     public R<Void> create(@Validated @RequestBody MchCouponCreateDto dto) {
         Long userId = super.getUserId();
@@ -47,6 +49,7 @@ public class MchCouponController extends MchCrudController<MchCouponMapper, MchC
     /**
      * 更新
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/update")
     public R<Void> update(@Validated @RequestBody MchCouponUpdateDto dto) {
         Long userId = super.getUserId();
@@ -57,6 +60,7 @@ public class MchCouponController extends MchCrudController<MchCouponMapper, MchC
     /**
      * 更新状态
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/updateStatus")
     public R<Void> updateStatus(@Validated @RequestBody MchCouponUpdateStatusDto dto) {
         Long userId = super.getUserId();

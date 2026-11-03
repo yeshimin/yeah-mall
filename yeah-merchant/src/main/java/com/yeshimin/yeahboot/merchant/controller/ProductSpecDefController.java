@@ -8,6 +8,7 @@ import com.yeshimin.yeahboot.data.mapper.ProductSpecDefMapper;
 import com.yeshimin.yeahboot.data.repository.ProductSpecDefRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.service.ProductSpecDefService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +39,7 @@ public class ProductSpecDefController extends ShopCrudController<ProductSpecDefM
     /**
      * 创建
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
     public R<ProductSpecDefEntity> create(@Validated(Create.class) @RequestBody ProductSpecDefEntity e) {
         Long userId = super.getUserId();
@@ -47,6 +49,7 @@ public class ProductSpecDefController extends ShopCrudController<ProductSpecDefM
     /**
      * 更新
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/update")
     public R<ProductSpecDefEntity> update(@Validated(Update.class) @RequestBody ProductSpecDefEntity e) {
         Long userId = super.getUserId();
@@ -56,6 +59,7 @@ public class ProductSpecDefController extends ShopCrudController<ProductSpecDefM
     /**
      * 删除
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         Long userId = super.getUserId();

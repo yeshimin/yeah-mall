@@ -39,6 +39,11 @@ public class ProductVo extends BaseDomain {
     private String name;
 
     /**
+     * 商品副标题
+     */
+    private String subtitle;
+
+    /**
      * 销量
      */
     private Long sales;

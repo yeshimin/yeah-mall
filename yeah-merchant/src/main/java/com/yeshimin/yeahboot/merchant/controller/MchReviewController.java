@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.data.domain.entity.ProductSkuReviewEntity;
 import com.yeshimin.yeahboot.data.domain.vo.ReviewDetailVo;
 import com.yeshimin.yeahboot.merchant.service.MchReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,7 @@ public class MchReviewController extends BaseController {
     /**
      * 查询评价列表
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<IPage<ProductSkuReviewEntity>> query(Page<ProductSkuReviewEntity> page, @RequestParam Long shopId,
                                                    @Valid ReviewQueryDto query) {
@@ -37,6 +39,7 @@ public class MchReviewController extends BaseController {
     /**
      * 查询评价详情
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/detail")
     public R<ReviewDetailVo> detail(@RequestParam Long shopId, @RequestParam Long id) {
         return R.ok(service.detail(getUserId(), shopId, id));
@@ -45,6 +48,7 @@ public class MchReviewController extends BaseController {
     /**
      * 回复评价
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/reply")
     public R<Void> reply(@RequestParam Long shopId, @Validated @RequestBody ReviewReplyDto dto) {
         service.reply(getUserId(), shopId, getUserId(), dto);

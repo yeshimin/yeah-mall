@@ -32,7 +32,27 @@ public class ShopDetailVo extends BaseDomain {
     private String shopLogo;
 
     /**
+     * 店铺简介
+     */
+    private String shopIntro;
+
+    /**
+     * 平台是否启用
+     */
+    private Boolean isEnabled;
+
+    /**
+     * 商家是否营业
+     */
+    private Boolean isOpen;
+
+    /**
      * 店铺商品数量
      */
     private Long productCount;
+
+    /**
+     * 在售商品数量
+     */
+    private Long onSaleProductCount;
 }

@@ -22,4 +22,14 @@ public interface MchCouponMapper extends BaseMapper<MchCouponEntity> {
      * 领取优惠券
      */
     int receiveCoupon(@Param("id") Long id, @Param("count") Integer count);
+
+    /**
+     * 增加已占用数量
+     */
+    int increaseUsed(@Param("id") Long id);
+
+    /**
+     * 减少已占用数量
+     */
+    int decreaseUsed(@Param("id") Long id);
 }

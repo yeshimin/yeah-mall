@@ -10,7 +10,9 @@ import lombok.Getter;
 public enum CsMsgTypeEnum implements IValueEnum {
 
     TEXT("1", "文本"),
-    IMAGE("2", "图片");
+    IMAGE("2", "图片"),
+    VIDEO("3", "视频"),
+    FILE("4", "文件");
 
     private final String value;
     private final String desc;

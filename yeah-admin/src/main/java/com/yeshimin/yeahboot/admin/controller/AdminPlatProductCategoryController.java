@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.PlatProductCategoryEntity;
 import com.yeshimin.yeahboot.data.mapper.PlatProductCategoryMapper;
 import com.yeshimin.yeahboot.data.repository.PlatProductCategoryRepo;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,7 @@ public class AdminPlatProductCategoryController extends CrudController<PlatProdu
     /**
      * 创建
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
     public R<PlatProductCategoryEntity> create(@Validated @RequestBody PlatProductCategoryCreateDto dto) {
         return R.ok(service.create(dto));
@@ -46,6 +48,7 @@ public class AdminPlatProductCategoryController extends CrudController<PlatProdu
     /**
      * 查询树
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/tree")
     public R<List<PlatProductCategoryTreeNodeVo>> tree(@Validated PlatProductCategoryTreeDto query) {
         return R.ok(service.tree(query));
@@ -54,6 +57,7 @@ public class AdminPlatProductCategoryController extends CrudController<PlatProdu
     /**
      * 更新
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/update")
     public R<PlatProductCategoryEntity> update(@Validated @RequestBody PlatProductCategoryUpdateDto dto) {
         return R.ok(service.update(dto));
@@ -62,6 +66,7 @@ public class AdminPlatProductCategoryController extends CrudController<PlatProdu
     /**
      * 删除
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/delete")
     public R<Void> delete(@Validated @RequestBody Collection<Long> ids) {
         service.delete(ids);

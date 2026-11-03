@@ -17,8 +17,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * 秒杀订单支付超时取消消息监听器
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,6 +34,9 @@ public class SeckillOrderCancelMqListener implements MqListener {
 
     private final OrderRepo orderRepo;
 
+    /**
+     * 关闭超时未支付订单并补偿支付回调丢失场景
+     */
     @Override
     public void onMessage(MqMessage message) {
         // 定时任务只传SKU和会员，MQ消费端再从秒杀事件缓存定位实际订单。
@@ -38,12 +45,19 @@ public class SeckillOrderCancelMqListener implements MqListener {
 
         String skuId = payloadObj.getSkuId().toString();
         String userId = payloadObj.getUserId().toString();
+        String attemptId = this.resolveAttemptId(payloadObj.getAttemptId(), userId);
 
         // 查询秒杀事件信息
         String seckillEventKey = String.format(BizConsts.SECKILL_EVENT_KEY, skuId, userId);
         SeckillEventCacheVo seckillEvent = cacheService.get(seckillEventKey, SeckillEventCacheVo.class);
-        if (seckillEvent == null || seckillEvent.getOrderId() == null) {
-            log.warn("秒杀事件不存在或订单还未生成，不做处理");
+        if (seckillEvent == null
+                || !attemptId.equals(this.resolveAttemptId(seckillEvent.getAttemptId(), userId))) {
+            log.info("忽略已失效的秒杀取消消息，skuId={}, userId={}, attemptId={}", skuId, userId, attemptId);
+            return;
+        }
+        if (seckillEvent.getOrderId() == null) {
+            log.warn("秒杀订单还未生成，不做取消处理，skuId={}, userId={}, attemptId={}",
+                    skuId, userId, attemptId);
             return;
         }
 
@@ -59,14 +73,20 @@ public class SeckillOrderCancelMqListener implements MqListener {
         if (!Objects.equals(order.getStatus(), OrderStatusEnum.WAIT_PAY.getValue())) {
             log.info("秒杀订单超时取消消息已过期，跳过处理，orderId={}, status={}",
                     order.getId(), order.getStatus());
+            if (order.getPaySuccessTime() != null) {
+                seckillEvent.setPayTime(order.getPaySuccessTime());
+                cacheService.set(seckillEventKey, JSON.toJSONString(seckillEvent));
+            }
             return;
         }
         // 微信已支付时主动查询并同步本地状态，避免支付回调丢失导致订单卡在待付款。
-        if (wxPayService.closeOrder(order.getOrderNo())) {
-            Transaction transaction = wxPayService.queryOrderByOutTradeNo(order.getOrderNo());
+        if (wxPayService.closeOrder(order)) {
+            Transaction transaction = wxPayService.queryOrderByOutTradeNo(order);
             if (!orderService.handlePaySuccessByQuery(transaction)) {
                 throw new IllegalStateException("秒杀订单支付状态同步失败");
             }
+            seckillEvent.setPayTime(LocalDateTime.now());
+            cacheService.set(seckillEventKey, JSON.toJSONString(seckillEvent));
             log.info("秒杀订单超时关单时同步了已支付订单，订单ID：{}", order.getId());
             return;
         }
@@ -74,6 +94,16 @@ public class SeckillOrderCancelMqListener implements MqListener {
         orderService.cancelOrder(order, "秒杀订单支付超时自动关闭");
     }
 
+    /**
+     * 获取抢购尝试标识，兼容升级前的消息和缓存数据。
+     */
+    private String resolveAttemptId(String attemptId, String userId) {
+        return attemptId == null || attemptId.trim().isEmpty() ? userId : attemptId;
+    }
+
+    /**
+     * 获取监听主题
+     */
     @Override
     public String getTopic() {
         return BizConsts.SECKILL_ORDER_CANCEL_TOPIC;

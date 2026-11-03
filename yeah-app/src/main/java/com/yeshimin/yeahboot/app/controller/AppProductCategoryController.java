@@ -31,4 +31,13 @@ public class AppProductCategoryController extends BaseController {
     public R<List<ProductCategoryVo>> query(@RequestParam Long shopId) {
         return R.ok(service.query(shopId));
     }
+
+    /**
+     * 查询店铺分类树
+     */
+    @PublicAccess
+    @GetMapping("/shopTree")
+    public R<List<ProductCategoryVo>> tree(@RequestParam Long shopId) {
+        return R.ok(service.tree(shopId));
+    }
 }

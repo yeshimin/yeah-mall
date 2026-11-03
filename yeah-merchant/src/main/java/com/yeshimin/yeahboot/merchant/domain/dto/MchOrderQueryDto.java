@@ -1,6 +1,12 @@
 package com.yeshimin.yeahboot.merchant.domain.dto;
 
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryField;
+import com.yeshimin.yeahboot.common.common.validation.EnumValue;
+import com.yeshimin.yeahboot.common.controller.validation.Query;
+import com.yeshimin.yeahboot.data.common.enums.AfterSaleStatusEnum;
+import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
+import com.yeshimin.yeahboot.data.common.enums.OrderTypeEnum;
+import com.yeshimin.yeahboot.data.common.enums.RefundStatusEnum;
 import com.yeshimin.yeahboot.merchant.domain.base.ShopDataBaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,12 +30,14 @@ public class MchOrderQueryDto extends ShopDataBaseDomain {
      * 订单状态
      */
     @QueryField(type = QueryField.Type.EQ)
+    @EnumValue(enumClass = OrderStatusEnum.class, groups = Query.class, message = "订单状态不正确")
     private String status;
 
     /**
      * 退款状态
      */
     @QueryField(type = QueryField.Type.EQ)
+    @EnumValue(enumClass = RefundStatusEnum.class, groups = Query.class, message = "退款状态不正确")
     private String refundStatus;
 
     /**
@@ -41,6 +49,7 @@ public class MchOrderQueryDto extends ShopDataBaseDomain {
      * 售后状态
      */
     @QueryField(type = QueryField.Type.EQ)
+    @EnumValue(enumClass = AfterSaleStatusEnum.class, groups = Query.class, message = "售后状态不正确")
     private String afterSaleStatus;
 
     /**
@@ -65,5 +74,6 @@ public class MchOrderQueryDto extends ShopDataBaseDomain {
      * 订单类型：见【订单类型枚举】
      */
     @QueryField(type = QueryField.Type.EQ)
+    @EnumValue(enumClass = OrderTypeEnum.class, groups = Query.class, message = "订单类型不正确")
     private Integer orderType;
 }

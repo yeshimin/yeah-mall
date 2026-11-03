@@ -30,6 +30,16 @@ public class MemberCouponVo extends BaseDomain {
     private LocalDateTime updateTime;
 
     /**
+     * 店铺ID
+     */
+    private Long shopId;
+
+    /**
+     * 店铺名称
+     */
+    private String shopName;
+
+    /**
      * 优惠券名称
      */
     private String name;

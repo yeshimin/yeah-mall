@@ -16,6 +16,7 @@ import com.yeshimin.yeahboot.data.domain.entity.MchCouponEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MemberCouponEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSkuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
+import com.yeshimin.yeahboot.data.domain.entity.ProductCategoryEntity;
 import com.yeshimin.yeahboot.data.domain.entity.GroupBuySkuEntity;
 import com.yeshimin.yeahboot.data.domain.vo.CouponVo;
 import com.yeshimin.yeahboot.data.domain.vo.MemberCouponVo;
@@ -23,6 +24,7 @@ import com.yeshimin.yeahboot.data.repository.MchCouponRepo;
 import com.yeshimin.yeahboot.data.repository.MemberCouponRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
+import com.yeshimin.yeahboot.data.repository.ProductCategoryRepo;
 import com.yeshimin.yeahboot.data.repository.GroupBuySkuRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,12 +46,17 @@ public class AppCouponService {
     private final MemberCouponRepo memberCouponRepo;
     private final ProductSkuRepo productSkuRepo;
     private final ProductSpuRepo productSpuRepo;
+    private final ProductCategoryRepo productCategoryRepo;
     private final GroupBuySkuRepo groupBuySkuRepo;
+    private final MallAppContextService mallAppContextService;
 
     /**
      * 查询领券中心优惠券列表
      */
     public Page<CouponVo> queryCenterList(Long userId, Page<CouponVo> page, CouponCenterQueryDto query) {
+        if (mallAppContextService.isShopMode()) {
+            query.setShopId(mallAppContextService.getShopId());
+        }
         return mchCouponRepo.queryCenterList(userId, page, query);
     }
 
@@ -56,6 +64,9 @@ public class AppCouponService {
      * 查询用户领取的优惠券列表
      */
     public Page<MemberCouponVo> queryReceiveList(Long userId, Page<MemberCouponVo> page, CouponQueryDto query) {
+        if (mallAppContextService.isShopMode()) {
+            query.setShopId(mallAppContextService.getShopId());
+        }
         return memberCouponRepo.queryReceiveList(userId, page, query);
     }
 
@@ -66,9 +77,15 @@ public class AppCouponService {
     public void receive(Long userId, Long couponId) {
         // 检查：优惠券是否存在
         MchCouponEntity coupon = mchCouponRepo.getOneById(couponId);
+        mallAppContextService.checkShopVisible(coupon.getShopId());
         // 检查：优惠券是否可用
         if (!coupon.getIsEnabled()) {
             throw new BaseException("优惠券不可用");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (coupon.getBeginTime() == null || coupon.getEndTime() == null
+                || now.isBefore(coupon.getBeginTime()) || now.isAfter(coupon.getEndTime())) {
+            throw new BaseException("优惠券不在领取有效期内");
         }
         // 检查：优惠券是否已被领取完
         if (coupon.getReceived() >= coupon.getQuantity()) {
@@ -118,6 +135,7 @@ public class AppCouponService {
         if (shopIds.size() > 1) {
             throw new BaseException("订单项中存在多家店铺的SKU");
         }
+        shopIds.forEach(mallAppContextService::checkShopScope);
 
         // 查询spu
         Set<Long> spuIds = listSku.stream().map(ProductSkuEntity::getSpuId).collect(Collectors.toSet());
@@ -144,8 +162,9 @@ public class AppCouponService {
             // 分组累加分类金额
             mapCategoryAmount.merge(spu.getCategoryId(), itemAmount, BigDecimal::add);
         }
+        this.mergeParentCategoryAmount(mapCategoryAmount);
 
-        return filterAvailableCoupons(userId, shopId, mapSpuAmount, mapCategoryAmount, totalAmount, false);
+        return this.filterAvailableCoupons(userId, shopId, mapSpuAmount, mapCategoryAmount, totalAmount, false);
     }
 
     /**
@@ -166,6 +185,7 @@ public class AppCouponService {
         if (shopIds.size() > 1) {
             throw new BaseException("订单项中存在多家店铺的SKU");
         }
+        shopIds.forEach(mallAppContextService::checkShopScope);
         Map<Long, Integer> quantityMap = query.getItems().stream()
                 .collect(Collectors.toMap(OrderPreviewItemDto::getSkuId, OrderPreviewItemDto::getQuantity));
         Set<Long> sourceSkuIds = groupBuySkus.stream().map(GroupBuySkuEntity::getSkuId).collect(Collectors.toSet());
@@ -189,8 +209,24 @@ public class AppCouponService {
             spuAmount.merge(spu.getId(), itemAmount, BigDecimal::add);
             categoryAmount.merge(spu.getCategoryId(), itemAmount, BigDecimal::add);
         }
+        this.mergeParentCategoryAmount(categoryAmount);
         // 最后一个参数要求优惠券显式开启“支持拼团”才可返回。
-        return filterAvailableCoupons(userId, groupBuySkus.get(0).getShopId(), spuAmount, categoryAmount, totalAmount, true);
+        return this.filterAvailableCoupons(userId, groupBuySkus.get(0).getShopId(), spuAmount, categoryAmount, totalAmount, true);
+    }
+
+    /**
+     * 将二级分类商品金额同步累加到一级分类
+     */
+    private void mergeParentCategoryAmount(Map<Long, BigDecimal> categoryAmount) {
+        if (categoryAmount.isEmpty()) {
+            return;
+        }
+        List<ProductCategoryEntity> categories = productCategoryRepo.findListByIds(categoryAmount.keySet());
+        for (ProductCategoryEntity category : categories) {
+            if (category.getParentId() != null && category.getParentId() > 0) {
+                categoryAmount.merge(category.getParentId(), categoryAmount.get(category.getId()), BigDecimal::add);
+            }
+        }
     }
 
     /**
@@ -201,8 +237,12 @@ public class AppCouponService {
                                                          Map<Long, BigDecimal> mapCategoryAmount,
                                                          BigDecimal totalAmount, boolean groupBuy) {
         // 先按会员券基础状态取候选集，再在内存中结合本次订单金额和范围精确筛选。
-        List<MemberCouponVo> allAvailableCoupons = memberCouponRepo.queryReceiveList(userId, Page.of(1, 999999),
-                CouponQueryDto.of(MemberCouponQueryConditionEnum.AVAILABLE.getIntValue())).getRecords();
+        CouponQueryDto couponQuery = CouponQueryDto.of(MemberCouponQueryConditionEnum.AVAILABLE.getIntValue());
+        if (mallAppContextService.isShopMode()) {
+            couponQuery.setShopId(mallAppContextService.getShopId());
+        }
+        List<MemberCouponVo> allAvailableCoupons = memberCouponRepo
+                .queryReceiveList(userId, Page.of(1, 999999), couponQuery).getRecords();
 
         // 然后根据条件过滤出满足条件的红包列表
         BigDecimal finalTotalAmount = totalAmount;

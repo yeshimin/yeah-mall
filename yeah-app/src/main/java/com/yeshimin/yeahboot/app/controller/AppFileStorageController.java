@@ -1,6 +1,8 @@
 package com.yeshimin.yeahboot.app.controller;
 
 import com.alibaba.fastjson2.JSON;
+import com.yeshimin.yeahboot.api.encryption.ApiEncryption;
+import com.yeshimin.yeahboot.api.encryption.ApiEncryptionPolicy;
 import com.yeshimin.yeahboot.common.common.enums.ErrorCodeEnum;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
@@ -33,6 +35,7 @@ public class AppFileStorageController extends BaseController {
     /**
      * 上传
      */
+    @ApiEncryption(ApiEncryptionPolicy.BYPASS)
     @PostMapping("/upload")
     public R<FileUploadVo> upload(MultipartFile file) {
         // 决定bucket，除了local存储方式需要使用this.bucket，其他方式都指定为null

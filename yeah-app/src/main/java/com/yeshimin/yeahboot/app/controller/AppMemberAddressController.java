@@ -28,10 +28,9 @@ public class AppMemberAddressController extends BaseController {
      * 创建
      */
     @PostMapping("/create")
-    public R<Void> create(@Validated @RequestBody MemberAddressCreateDto dto) {
+    public R<String> create(@Validated @RequestBody MemberAddressCreateDto dto) {
         Long userId = super.getUserId();
-        service.create(userId, dto);
-        return R.ok();
+        return R.ok(String.valueOf(service.create(userId, dto)));
     }
 
     /**

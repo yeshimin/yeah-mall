@@ -30,4 +30,18 @@ public class MchCouponRepo extends BaseRepo<MchCouponMapper, MchCouponEntity> {
     public int receiveCoupon(Long id, Integer count) {
         return mchCouponMapper.receiveCoupon(id, count);
     }
+
+    /**
+     * 增加优惠券已占用数量
+     */
+    public boolean increaseUsed(Long id) {
+        return mchCouponMapper.increaseUsed(id) == 1;
+    }
+
+    /**
+     * 减少优惠券已占用数量
+     */
+    public boolean decreaseUsed(Long id) {
+        return mchCouponMapper.decreaseUsed(id) == 1;
+    }
 }

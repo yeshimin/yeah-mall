@@ -36,7 +36,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -54,19 +57,34 @@ public class AppGroupBuyService {
     private final ShopRepo shopRepo;
     private final MemberRepo memberRepo;
     private final GroupBuyImageService groupBuyImageService;
+    private final MallAppContextService mallAppContextService;
 
     /**
      * 查询 App 可见的拼团活动；仅下架活动不再展示。
      */
     public IPage<GroupBuyActivityEntity> queryActivity(Page<GroupBuyActivityEntity> page) {
+        Set<Long> visibleShopIds = mallAppContextService.queryVisibleShopIds();
+        if (visibleShopIds.isEmpty()) {
+            return new Page<>(page.getCurrent(), page.getSize(), 0);
+        }
+        List<Long> activityIds = groupBuySpuRepo.lambdaQuery()
+                .select(GroupBuySpuEntity::getActivityId)
+                .in(GroupBuySpuEntity::getShopId, visibleShopIds)
+                .eq(GroupBuySpuEntity::getAuditStatus, GroupBuyApplyAuditStatusEnum.PASSED.getIntValue())
+                .list().stream().map(GroupBuySpuEntity::getActivityId).distinct().collect(Collectors.toList());
+        if (activityIds.isEmpty()) {
+            return new Page<>(page.getCurrent(), page.getSize(), 0);
+        }
         // 已结束活动保留给用户查看历史拼团结果，下架活动才完全隐藏。
-        return groupBuyActivityRepo.page(page, new LambdaQueryWrapper<GroupBuyActivityEntity>()
+        LambdaQueryWrapper<GroupBuyActivityEntity> wrapper = new LambdaQueryWrapper<GroupBuyActivityEntity>()
                 .in(GroupBuyActivityEntity::getStatus,
                         GroupBuyActivityStatusEnum.ACTIVITY_STARTED.getValue(),
                         GroupBuyActivityStatusEnum.ACTIVITY_FINISHED.getValue())
                 .orderByAsc(GroupBuyActivityEntity::getStatus)
                 .orderByAsc(GroupBuyActivityEntity::getSort)
-                .orderByDesc(GroupBuyActivityEntity::getCreateTime));
+                .orderByDesc(GroupBuyActivityEntity::getCreateTime);
+        wrapper.in(GroupBuyActivityEntity::getId, activityIds);
+        return groupBuyActivityRepo.page(page, wrapper);
     }
 
     /**
@@ -74,13 +92,29 @@ public class AppGroupBuyService {
      */
     public IPage<GroupBuySpuVo> queryProduct(Page<GroupBuySpuEntity> page, Long activityId) {
         GroupBuyActivityEntity activity = groupBuyActivityRepo.getOneById(activityId, "拼团活动不存在");
-        ensureActivityVisible(activity);
+        this.ensureActivityVisible(activity);
+        Set<Long> visibleShopIds = mallAppContextService.queryVisibleShopIds();
+        if (visibleShopIds.isEmpty()) {
+            return new Page<>(page.getCurrent(), page.getSize(), 0);
+        }
         // App 商品页只显示平台审核通过的报名商品。
-        return groupBuySpuRepo.page(page, new LambdaQueryWrapper<GroupBuySpuEntity>()
+        IPage<GroupBuySpuEntity> spuPage = groupBuySpuRepo.page(page, new LambdaQueryWrapper<GroupBuySpuEntity>()
                         .eq(GroupBuySpuEntity::getActivityId, activityId)
+                        .in(GroupBuySpuEntity::getShopId, visibleShopIds)
                         .eq(GroupBuySpuEntity::getAuditStatus, GroupBuyApplyAuditStatusEnum.PASSED.getIntValue())
-                        .orderByDesc(GroupBuySpuEntity::getCreateTime))
-                .convert(spu -> toSpuVo(spu, activity));
+                        .orderByDesc(GroupBuySpuEntity::getCreateTime));
+        Set<Long> spuIds = spuPage.getRecords().stream()
+                .map(GroupBuySpuEntity::getId)
+                .collect(Collectors.toSet());
+        // 当前页一次查询并按SPU汇总SKU库存，避免列表逐条查询。
+        Map<Long, Integer> stockMap = spuIds.isEmpty()
+                ? Collections.emptyMap()
+                : groupBuySkuRepo.lambdaQuery()
+                .in(GroupBuySkuEntity::getGroupBuySpuId, spuIds)
+                .list().stream()
+                .collect(Collectors.groupingBy(GroupBuySkuEntity::getGroupBuySpuId,
+                        Collectors.summingInt(sku -> sku.getStock() == null ? 0 : sku.getStock())));
+        return spuPage.convert(spu -> this.toSpuVo(spu, activity, stockMap.getOrDefault(spu.getId(), 0)));
     }
 
     /**
@@ -88,8 +122,9 @@ public class AppGroupBuyService {
      */
     public ProductDetailVo queryProductDetail(Long id) {
         GroupBuySpuEntity groupBuySpu = groupBuySpuRepo.getOneById(id, "拼团商品不存在");
+        mallAppContextService.checkShopVisible(groupBuySpu.getShopId());
         GroupBuyActivityEntity activity = groupBuyActivityRepo.getOneById(groupBuySpu.getActivityId(), "拼团活动不存在");
-        ensureActivityVisible(activity);
+        this.ensureActivityVisible(activity);
         if (!Integer.valueOf(GroupBuyApplyAuditStatusEnum.PASSED.getIntValue()).equals(groupBuySpu.getAuditStatus())) {
             throw new BaseException("拼团商品未通过审核");
         }
@@ -115,6 +150,7 @@ public class AppGroupBuyService {
                     vo.setName(sku.getName());
                     vo.setSpecCode(sku.getSpecCode());
                     vo.setPrice(sku.getGroupPrice());
+                    vo.setOriginPrice(sku.getOriginPrice());
                     vo.setStock(sku.getStock());
                     vo.setMainImage(groupBuyImageService.resolveSkuMainImage(sku));
                     return vo;
@@ -132,7 +168,8 @@ public class AppGroupBuyService {
         result.setShop(shopVo);
         // 详情可查看与是否可购买分离：已结束活动可浏览，但不能再开团或下单。
         result.setActivityStatus(activity.getStatus());
-        result.setActivityPurchasable(isActivityPurchasable(activity));
+        result.setActivityPurchasable(this.isActivityPurchasable(activity));
+        result.setGroupBuyMinPeople(activity.getMinPeople());
         return result;
     }
 
@@ -140,6 +177,8 @@ public class AppGroupBuyService {
      * 查询商品当前可见的团。
      */
     public List<GroupBuyGroupVo> queryGroups(Long groupBuySpuId) {
+        GroupBuySpuEntity groupBuySpu = groupBuySpuRepo.getOneById(groupBuySpuId, "拼团商品不存在");
+        mallAppContextService.checkShopVisible(groupBuySpu.getShopId());
         // 返回全部团状态，让商品详情能展示已成团、失败和关闭等历史团信息。
         return groupBuyGroupRepo.lambdaQuery()
                 .eq(GroupBuyGroupEntity::getGroupBuySpuId, groupBuySpuId)
@@ -154,8 +193,9 @@ public class AppGroupBuyService {
      */
     public GroupBuyGroupOptionVo queryGroupOptions(Long userId, Long groupBuySpuId) {
         GroupBuySpuEntity groupBuySpu = groupBuySpuRepo.getOneById(groupBuySpuId, "拼团商品不存在");
+        mallAppContextService.checkShopVisible(groupBuySpu.getShopId());
         GroupBuyActivityEntity activity = groupBuyActivityRepo.getOneById(groupBuySpu.getActivityId(), "拼团活动不存在");
-        ensureActivityRunning(activity);
+        this.ensureActivityRunning(activity);
 
         // 关闭的未支付团只是临时占位，不计入活动最大开团数。
         long usedGroupCount = groupBuyGroupRepo.lambdaQuery()
@@ -186,21 +226,26 @@ public class AppGroupBuyService {
             // 用户已占用活动名额时回传所在团，引导其继续原订单而不是重新选团。
             GroupBuyGroupEntity joinedGroup = groupBuyGroupRepo.findOneById(joinedOrder.getGroupId());
             if (joinedGroup != null) {
-                result.setJoinedGroup(toGroupVo(joinedGroup));
+                result.setJoinedGroup(this.toGroupVo(joinedGroup));
             }
         }
-        result.setGroups(queryGroups(groupBuySpuId));
+        result.setGroups(this.queryGroups(groupBuySpuId));
         return result;
     }
 
     /**
      * 将拼团商品转换为活动商品列表视图。
      */
-    private GroupBuySpuVo toSpuVo(GroupBuySpuEntity spu, GroupBuyActivityEntity activity) {
+    private GroupBuySpuVo toSpuVo(GroupBuySpuEntity spu, GroupBuyActivityEntity activity, Integer groupStock) {
         GroupBuySpuVo vo = BeanUtil.copyProperties(spu, GroupBuySpuVo.class);
         groupBuyImageService.fillSpuMainImages(vo, spu);
         vo.setActivityName(activity.getName());
+        vo.setActivityStatus(activity.getStatus());
+        vo.setActivityBeginTime(activity.getActivityBeginTime());
+        vo.setActivityEndTime(activity.getActivityEndTime());
+        vo.setActivityPurchasable(this.isActivityPurchasable(activity));
         vo.setMinPeople(activity.getMinPeople());
+        vo.setGroupStock(groupStock);
         return vo;
     }
 
@@ -225,7 +270,7 @@ public class AppGroupBuyService {
      * 校验活动是否允许创建或加入拼团。
      */
     private void ensureActivityRunning(GroupBuyActivityEntity activity) {
-        if (!isActivityPurchasable(activity)) {
+        if (!this.isActivityPurchasable(activity)) {
             throw new BaseException("拼团活动未开始或已结束");
         }
     }

@@ -12,6 +12,7 @@ import com.yeshimin.yeahboot.data.domain.entity.MemberPointsLedgerEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -38,8 +39,10 @@ public class AppMemberPointsController extends BaseController {
      * 查询积分流水
      */
     @GetMapping("/ledger")
-    public R<IPage<MemberPointsLedgerVo>> ledger(Page<MemberPointsLedgerEntity> page) {
-        return R.ok(service.ledger(getUserId(), page));
+    public R<IPage<MemberPointsLedgerVo>> ledger(Page<MemberPointsLedgerEntity> page,
+                                                  @RequestParam(value = "direction", required = false)
+                                                  Integer direction) {
+        return R.ok(service.ledger(getUserId(), page, direction));
     }
 
     /**

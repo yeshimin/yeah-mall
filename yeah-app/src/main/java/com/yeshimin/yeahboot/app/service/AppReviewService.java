@@ -28,11 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.math.RoundingMode;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -48,6 +49,8 @@ public class AppReviewService {
     private final ProductSkuReviewReplyRepo productSkuReviewReplyRepo;
     private final ReviewReplyService reviewReplyService;
     private final MemberPointsService memberPointsService;
+    private final ProductSpuRepo productSpuRepo;
+    private final MallAppContextService mallAppContextService;
 
     private final StorageManager storageManager;
 
@@ -58,6 +61,7 @@ public class AppReviewService {
     public void publish(Long userId, ReviewPublishDto dto) {
         // 检查：订单是否存在
         OrderEntity order = orderRepo.getOneById(dto.getOrderId(), "订单不存在");
+        mallAppContextService.checkShopScope(order.getShopId());
         // 检查：订单是否属于当前用户
         if (!order.getMemberId().equals(userId)) {
             throw new BaseException("订单不属于当前用户");
@@ -107,6 +111,7 @@ public class AppReviewService {
      * 查询商品评价列表
      */
     public IPage<ProductReviewListVo> list(Long userId, Page page, Long spuId, Boolean hasImage, Boolean goodOnly) {
+        mallAppContextService.checkShopScope(productSpuRepo.getOneById(spuId, "商品不存在").getShopId());
         // 先分页查询当前SPU下的评价主记录。
         Page<ProductSkuReviewEntity> pageReview = productSkuReviewRepo.queryPage(page, spuId, hasImage, goodOnly);
 
@@ -123,13 +128,14 @@ public class AppReviewService {
                 .stream().collect(Collectors.groupingBy(ProductSkuReviewReplyEntity::getReviewId));
 
         // 将分页主记录转换成前端展示VO，并补上图片列表。
-        return pageReview.convert(review -> toListVo(review, mapImages, replyMap, userId));
+        return pageReview.convert(review -> this.toListVo(review, mapImages, replyMap, userId));
     }
 
     /**
      * 查询商品评价摘要。
      */
     public ProductReviewSummaryVo summary(Long userId, Long spuId) {
+        mallAppContextService.checkShopScope(productSpuRepo.getOneById(spuId, "商品不存在").getShopId());
         long totalCount = productSkuReviewRepo.lambdaQuery()
                 .eq(ProductSkuReviewEntity::getSpuId, spuId)
                 .eq(ProductSkuReviewEntity::getIsVisible, true)
@@ -145,9 +151,9 @@ public class AppReviewService {
         result.setGoodCount(goodCount);
         result.setImageCount(imageCount);
         result.setGoodRate(totalCount == 0 ? 100
-                : java.math.BigDecimal.valueOf(goodCount * 100)
-                .divide(java.math.BigDecimal.valueOf(totalCount), 0, RoundingMode.HALF_UP).intValue());
-        result.setTopReviews(list(userId, Page.of(1, 3), spuId, null, false).getRecords());
+                : BigDecimal.valueOf(goodCount * 100)
+                .divide(BigDecimal.valueOf(totalCount), 0, RoundingMode.HALF_UP).intValue());
+        result.setTopReviews(this.list(userId, Page.of(1, 3), spuId, null, false).getRecords());
         return result;
     }
 
@@ -155,6 +161,8 @@ public class AppReviewService {
      * 买家回复商家评价回复。
      */
     public void reply(Long userId, ReviewReplyDto dto) {
+        ProductSkuReviewEntity review = productSkuReviewRepo.getOneById(dto.getId(), "评价不存在");
+        mallAppContextService.checkShopScope(review.getShopId());
         reviewReplyService.replyByMember(userId, dto);
     }
 
@@ -163,6 +171,7 @@ public class AppReviewService {
      */
     public OrderReviewDetailVo orderDetail(Long userId, Long orderId) {
         OrderEntity order = orderRepo.getOneById(orderId, "订单不存在");
+        mallAppContextService.checkShopScope(order.getShopId());
         if (!order.getMemberId().equals(userId)) {
             throw new BaseException("订单不属于当前用户");
         }
@@ -190,7 +199,7 @@ public class AppReviewService {
         result.setServiceRating(orderReview.getServiceRating());
         result.setIsAnonymous(reviews.stream().findFirst().map(ProductSkuReviewEntity::getIsAnonymous).orElse(false));
         result.setItems(reviews.stream()
-                .map(review -> toListVo(review, imageMap, replyMap, userId))
+                .map(review -> this.toListVo(review, imageMap, replyMap, userId))
                 .collect(Collectors.toList()));
         return result;
     }

@@ -72,6 +72,27 @@ public class ProductSpuRepo extends BaseRepo<ProductSpuMapper, ProductSpuEntity>
     }
 
     /**
+     * 统计店铺在售商品数量
+     */
+    public long countEnabledByShopId(Long shopId) {
+        if (shopId == null) {
+            throw new IllegalArgumentException("shopId不能为空");
+        }
+        return lambdaQuery().eq(ProductSpuEntity::getShopId, shopId)
+                .eq(ProductSpuEntity::getIsEnabled, true).count();
+    }
+
+    /**
+     * 原子增加商品累计支付件数
+     */
+    public boolean increaseSales(Long id, Integer quantity) {
+        if (id == null || quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("商品ID不能为空且销量增量必须大于0");
+        }
+        return baseMapper.increaseSales(id, quantity) == 1;
+    }
+
+    /**
      * countByCategoryId
      */
     public long countByCategoryId(Long categoryId) {

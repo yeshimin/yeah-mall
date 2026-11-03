@@ -45,6 +45,11 @@ public class FavoritesProductVo extends BaseDomain {
     private String mainImage;
 
     /**
+     * 收藏人数
+     */
+    private Long favoriteCount;
+
+    /**
      * 收藏时间
      */
     private LocalDateTime favoriteTime;

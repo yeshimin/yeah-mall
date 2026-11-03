@@ -27,6 +27,7 @@ public class AppShopService {
 
     private final ShopRepo shopRepo;
     private final ProductSpuRepo productSpuRepo;
+    private final MallAppContextService mallAppContextService;
 
     /**
      * 分页查询店铺
@@ -34,13 +35,17 @@ public class AppShopService {
     public IPage<ShopDetailVo> query(Page<ShopEntity> page, String keyword) {
         page.setCurrent(Math.max(page.getCurrent(), 1));
         page.setSize(Math.min(Math.max(page.getSize(), 1), 50));
+        // 平台停用店铺从公开列表隐藏；商家暂停营业仍保留展示并由前端提示。
         IPage<ShopEntity> entityPage = shopRepo.page(page, Wrappers.<ShopEntity>lambdaQuery()
+                .eq(ShopEntity::getIsEnabled, true)
+                .eq(mallAppContextService.isShopMode(), ShopEntity::getId, mallAppContextService.getShopId())
                 .and(StrUtil.isNotBlank(keyword), wrapper -> wrapper
                         .like(ShopEntity::getShopName, keyword)
                         .or()
                         .like(ShopEntity::getShopNo, keyword))
                 .orderByDesc(ShopEntity::getId));
 
+        // 商品数量按本页店铺批量统计，避免逐店查询。
         List<Long> shopIds = entityPage.getRecords().stream()
                 .map(ShopEntity::getId)
                 .collect(Collectors.toList());
@@ -60,9 +65,12 @@ public class AppShopService {
      * 查询店铺详情
      */
     public ShopDetailVo detail(Long shopId) {
+        mallAppContextService.checkShopVisible(shopId);
         ShopEntity entity = shopRepo.getOneById(shopId);
         ShopDetailVo result = BeanUtil.copyProperties(entity, ShopDetailVo.class);
-        result.setProductCount(productSpuRepo.countByShopId(shopId));
+        long onSaleProductCount = productSpuRepo.countEnabledByShopId(shopId);
+        result.setProductCount(onSaleProductCount);
+        result.setOnSaleProductCount(onSaleProductCount);
         return result;
     }
 }

@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.PlatQuickEntryEntity;
 import com.yeshimin.yeahboot.data.mapper.PlatQuickEntryMapper;
 import com.yeshimin.yeahboot.data.repository.PlatQuickEntryRepo;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +40,7 @@ public class AdminPlatQuickEntryController extends CrudController<PlatQuickEntry
     /**
      * 创建
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
     public R<Void> create(@Validated(Create.class) @RequestBody PlatQuickEntrySaveDto dto) {
         service.create(dto);
@@ -48,6 +50,7 @@ public class AdminPlatQuickEntryController extends CrudController<PlatQuickEntry
     /**
      * 更新
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/update")
     public R<Void> update(@Validated(Update.class) @RequestBody PlatQuickEntrySaveDto dto) {
         service.update(dto);
@@ -57,6 +60,7 @@ public class AdminPlatQuickEntryController extends CrudController<PlatQuickEntry
     /**
      * 删除
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Collection<Long> ids) {
         service.delete(ids);

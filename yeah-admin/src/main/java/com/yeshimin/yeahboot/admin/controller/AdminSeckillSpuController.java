@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.data.domain.dto.SeckillSpuQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSpuEntity;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillSpuVo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,7 @@ public class AdminSeckillSpuController extends BaseController {
     /**
      * 查询
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<IPage<SeckillSpuVo>> query(Page<SeckillSpuEntity> page, @Validated SeckillSpuQueryDto query) {
         return R.ok(service.query(page, query));
@@ -37,6 +39,7 @@ public class AdminSeckillSpuController extends BaseController {
     /**
      * 详情
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/detail")
     public R<AdminSeckillSpuDetailVo> detail(@RequestParam Long id) {
         return R.ok(service.detail(id));

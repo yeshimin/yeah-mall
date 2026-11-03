@@ -21,6 +21,9 @@ import java.security.PublicKey;
 @ConfigurationProperties(prefix = "yeah-boot.payment.wxpay")
 public class WxPayProperties {
 
+    /**
+     * 初始化旧版YML微信支付密钥对象
+     */
     @PostConstruct
     public void init() {
         log.info("init [yeah-boot.payment.wxpay] properties, appId: {}, mchId: {}, serialNo: {}, wechatPublicKey: {}",
@@ -56,6 +59,8 @@ public class WxPayProperties {
 
     // appid
     private String appId;
+    // appSecret，用于小程序登录身份换取
+    private String appSecret;
     // 商户ID
     private String mchId;
     // 证书序列号
@@ -78,6 +83,9 @@ public class WxPayProperties {
 
     private Api api;
 
+    /**
+     * 微信支付接口与回调地址配置
+     */
     @Data
     public static class Api {
         private String host;

@@ -31,6 +31,11 @@ public class ProductSpuEntity extends ShopConditionBaseEntity<ProductSpuEntity> 
     private String name;
 
     /**
+     * 商品副标题
+     */
+    private String subtitle;
+
+    /**
      * 销量
      */
     private Long sales;
@@ -54,4 +59,9 @@ public class ProductSpuEntity extends ShopConditionBaseEntity<ProductSpuEntity> 
      * 详细描述
      */
     private String detailDesc;
+
+    /**
+     * 是否上架
+     */
+    private Boolean isEnabled;
 }

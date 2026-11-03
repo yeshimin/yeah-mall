@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.MemberPointsLedgerEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MemberPointsRuleEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,7 @@ public class AdminMemberPointsController {
     /**
      * 平台调整会员积分
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/account/adjust")
     public R<Void> adjustPoints(@Validated @RequestBody MemberPointsAdjustDto dto) {
         service.adjustPoints(dto);
@@ -36,6 +38,7 @@ public class AdminMemberPointsController {
     /**
      * 查询积分流水
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/ledger/query")
     public R<IPage<MemberPointsLedgerEntity>> queryLedger(Page<MemberPointsLedgerEntity> page,
                                                            @RequestParam(required = false) Long memberId,
@@ -46,6 +49,7 @@ public class AdminMemberPointsController {
     /**
      * 查询积分规则
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/rule/query")
     public R<List<MemberPointsRuleEntity>> queryRules() {
         return R.ok(service.queryRules());
@@ -54,6 +58,7 @@ public class AdminMemberPointsController {
     /**
      * 更新积分规则
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/rule/update")
     public R<Void> updateRule(@Validated @RequestBody MemberPointsRuleUpdateDto dto) {
         service.updateRule(dto);

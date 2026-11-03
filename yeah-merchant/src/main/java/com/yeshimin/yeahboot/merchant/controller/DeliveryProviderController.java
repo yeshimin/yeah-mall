@@ -8,6 +8,7 @@ import com.yeshimin.yeahboot.data.repository.DeliveryProviderRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.domain.dto.*;
 import com.yeshimin.yeahboot.merchant.service.DeliveryProviderService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +38,7 @@ public class DeliveryProviderController extends ShopCrudController<DeliveryProvi
      * 同步快递公司信息
      * 使用第三方接口
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/syncExpCompany")
     public R<JSONObject> syncExpCompany(@Validated @RequestBody SyncExpCompanyDto dto) {
         Long userId = super.getUserId();
@@ -47,6 +49,7 @@ public class DeliveryProviderController extends ShopCrudController<DeliveryProvi
     /**
      * 创建
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
     public R<Void> create(@Validated @RequestBody DeliveryProviderCreateDto dto) {
         Long userId = super.getUserId();
@@ -57,6 +60,7 @@ public class DeliveryProviderController extends ShopCrudController<DeliveryProvi
     /**
      * 更新
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/update")
     public R<Void> update(@Validated @RequestBody DeliveryProviderUpdateDto dto) {
         Long userId = super.getUserId();
@@ -67,6 +71,7 @@ public class DeliveryProviderController extends ShopCrudController<DeliveryProvi
     /**
      * 设置默认
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/setDefault")
     public R<Void> setDefault(@Validated @RequestBody DeliveryProviderSetDefaultDto dto) {
         Long userId = super.getUserId();
@@ -77,6 +82,7 @@ public class DeliveryProviderController extends ShopCrudController<DeliveryProvi
     /**
      * 设置主流
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/setPopular")
     public R<Void> setPopular(@Validated @RequestBody DeliveryProviderSetPopularDto dto) {
         Long userId = super.getUserId();

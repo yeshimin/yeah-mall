@@ -14,6 +14,7 @@ import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.service.MchCsConversationService;
 import com.yeshimin.yeahboot.service.CsChatService;
 import com.yeshimin.yeahboot.ws.mq.command.BaseCommand;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +40,7 @@ public class MchCsConversationController
     /**
      * 查询会话列表
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<Page<CsConversationVo>> query(Page<CsConversationVo> page, CsConversationQueryDto query) {
         Long userId = super.getUserId();
@@ -48,6 +50,7 @@ public class MchCsConversationController
     /**
      * 查询会话消息
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/messages")
     public R<Page<CsMessageEntity>> queryMessages(Page<CsMessageEntity> page, @RequestParam Long conversationId) {
         Long userId = super.getUserId();
@@ -57,6 +60,7 @@ public class MchCsConversationController
     /**
      * 初始化会话
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/init")
     public R<CsConversationInfoVo> initConversation(@Validated @RequestBody IdDto dto) {
         Long userId = super.getUserId();
@@ -66,6 +70,7 @@ public class MchCsConversationController
     /**
      * 发送商家客服消息
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/sendMessage")
     public R<Void> sendMessage(@RequestBody BaseCommand command) {
         // HTTP写入复用现有WebSocket业务处理，保证鉴权、落库和推送行为一致。

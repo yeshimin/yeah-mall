@@ -35,11 +35,21 @@ public class SeckillMqListener implements MqListener {
 
         Long userId = payloadObj.getUserId();
         Long skuId = payloadObj.getItems().get(0).getSkuId();
+        String userIdText = String.valueOf(userId);
+        String attemptId = this.resolveAttemptId(payloadObj.getAttemptId(), userIdText);
+        String seckillEventKey = String.format(BizConsts.SECKILL_EVENT_KEY, skuId, userId);
+        SeckillEventCacheVo seckillEvent = cacheService.get(seckillEventKey, SeckillEventCacheVo.class);
+        if (seckillEvent == null
+                || !attemptId.equals(this.resolveAttemptId(seckillEvent.getAttemptId(), userIdText))) {
+            // 旧attempt的延迟消息不能覆盖用户新一轮抢购的处理结果。
+            log.info("忽略已失效的秒杀下单消息，skuId={}, userId={}, attemptId={}", skuId, userId, attemptId);
+            return;
+        }
 
-        // 检查block标识
-        if (cacheService.isMember(String.format(BizConsts.SECKILL_BLOCK_KEY, skuId), String.valueOf(userId))) {
+        // Block集合记录失效attempt，不限制用户后续发起新的抢购尝试。
+        if (cacheService.isMember(String.format(BizConsts.SECKILL_BLOCK_KEY, skuId), attemptId)) {
             result.setSuccess(false);
-            result.setMessage("因下单或支付超时被限制，暂不可再参与");
+            result.setMessage("本次抢购已超时，请重新参与");
 
             // set to cache
             cacheService.set(String.format(BizConsts.SECKILL_RESULT_KEY, skuId, userId), JSON.toJSONString(result));
@@ -47,10 +57,11 @@ public class SeckillMqListener implements MqListener {
         }
 
         try {
-            OrderEntity order = appOrderService.submitForSeckill(userId, payloadObj);
+            OrderEntity order = appOrderService.submitForSeckill(
+                    userId, payloadObj, payloadObj.getShopId(), payloadObj.getAppTarget());
 
             // 生成支付信息
-            WxPayInfoVo payInfoVo = appOrderService.genPayInfo(userId, order.getId());
+            WxPayInfoVo payInfoVo = appOrderService.genPayInfoForAsync(userId, order.getId());
 
             OrderSubmitVo vo = BeanUtil.copyProperties(payInfoVo, OrderSubmitVo.class);
             vo.setOrderId(order.getId());
@@ -60,16 +71,16 @@ public class SeckillMqListener implements MqListener {
             result.setMessage("秒杀订单处理成功");
             result.setData(vo);
 
-            // 记录订单ID
-            String seckillEventKey = String.format(BizConsts.SECKILL_EVENT_KEY, skuId, userId);
-            SeckillEventCacheVo seckillEvent = cacheService.get(seckillEventKey, SeckillEventCacheVo.class);
-            if (seckillEvent == null) {
-                log.error("seckillEvent is null, key: {}", seckillEventKey);
+            // 记录订单ID；仅允许当前attempt更新事件缓存。
+            SeckillEventCacheVo currentEvent = cacheService.get(seckillEventKey, SeckillEventCacheVo.class);
+            if (currentEvent == null
+                    || !attemptId.equals(this.resolveAttemptId(currentEvent.getAttemptId(), userIdText))) {
+                log.error("秒杀attempt已失效，无法记录订单ID，key={}，attemptId={}", seckillEventKey, attemptId);
                 result.setSuccess(false);
-                result.setMessage("秒杀信息未找到");
+                result.setMessage("秒杀信息已失效");
             } else {
-                seckillEvent.setOrderId(order.getId());
-                cacheService.set(seckillEventKey, JSONObject.toJSONString(seckillEvent));
+                currentEvent.setOrderId(order.getId());
+                cacheService.set(seckillEventKey, JSONObject.toJSONString(currentEvent));
             }
         } catch (Exception e) {
             log.error("秒杀订单提交失败", e);
@@ -79,6 +90,13 @@ public class SeckillMqListener implements MqListener {
 
         // set to cache
         cacheService.set(String.format(BizConsts.SECKILL_RESULT_KEY, skuId, userId), JSON.toJSONString(result));
+    }
+
+    /**
+     * 获取抢购尝试标识，兼容升级前的消息和缓存数据。
+     */
+    private String resolveAttemptId(String attemptId, String userId) {
+        return attemptId == null || attemptId.trim().isEmpty() ? userId : attemptId;
     }
 
     @Override

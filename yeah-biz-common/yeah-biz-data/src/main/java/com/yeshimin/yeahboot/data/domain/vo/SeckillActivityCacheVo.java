@@ -16,6 +16,16 @@ public class SeckillActivityCacheVo extends BaseDomain {
     private Long id;
 
     /**
+     * 活动状态
+     */
+    private String status;
+
+    /**
+     * 是否启用
+     */
+    private Boolean isEnabled;
+
+    /**
      * 活动开始时间
      */
     private LocalDateTime activityBeginTime;

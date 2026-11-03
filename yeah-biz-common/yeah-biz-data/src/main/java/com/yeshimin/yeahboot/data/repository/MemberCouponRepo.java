@@ -55,6 +55,7 @@ public class MemberCouponRepo extends BaseRepo<MemberCouponMapper, MemberCouponE
                 .set(MemberCouponEntity::getIsUsed, false)
                 .set(MemberCouponEntity::getUsedTime, null)
                 .eq(MemberCouponEntity::getId, couponId)
+                .eq(MemberCouponEntity::getIsUsed, true)
                 .update();
     }
 

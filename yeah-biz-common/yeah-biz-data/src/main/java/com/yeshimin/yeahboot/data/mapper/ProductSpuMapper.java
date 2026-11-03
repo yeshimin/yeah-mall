@@ -16,4 +16,9 @@ public interface ProductSpuMapper extends BaseMapper<ProductSpuEntity> {
      * 按店铺统计商品数量
      */
     List<ShopProductCountVo> selectCountByShopIds(@Param("shopIds") Collection<Long> shopIds);
+
+    /**
+     * 原子增加商品累计支付件数
+     */
+    int increaseSales(@Param("id") Long id, @Param("quantity") Integer quantity);
 }

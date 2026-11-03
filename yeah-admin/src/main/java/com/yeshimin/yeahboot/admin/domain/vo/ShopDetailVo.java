@@ -4,6 +4,9 @@ import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * 店铺详情视图
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ShopDetailVo extends ShopEntity {

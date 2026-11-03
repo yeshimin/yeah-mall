@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.data.domain.vo.SeckillSpuVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.MchSeckillSpuDetailVo;
 import com.yeshimin.yeahboot.merchant.service.MchSeckillSpuService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,7 @@ public class MchSeckillSpuController extends BaseController {
     /**
      * 查询
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<IPage<SeckillSpuVo>> query(Page<SeckillSpuEntity> page, @Validated SeckillSpuQueryDto query) {
         Long userId = super.getUserId();
@@ -38,6 +40,7 @@ public class MchSeckillSpuController extends BaseController {
     /**
      * 详情
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/detail")
     public R<MchSeckillSpuDetailVo> detail(@RequestParam Long id) {
         Long userId = super.getUserId();

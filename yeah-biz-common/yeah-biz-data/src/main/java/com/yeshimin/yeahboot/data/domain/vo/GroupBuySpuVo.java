@@ -30,6 +30,26 @@ public class GroupBuySpuVo extends BaseDomain {
     private String activityName;
 
     /**
+     * 拼团活动状态
+     */
+    private String activityStatus;
+
+    /**
+     * 拼团活动开始时间
+     */
+    private LocalDateTime activityBeginTime;
+
+    /**
+     * 拼团活动结束时间
+     */
+    private LocalDateTime activityEndTime;
+
+    /**
+     * 拼团活动当前是否可购买
+     */
+    private Boolean activityPurchasable;
+
+    /**
      * 商家ID
      */
     private Long mchId;

@@ -17,6 +17,8 @@ import com.yeshimin.yeahboot.data.domain.vo.GroupBuyGroupOverviewVo;
 import com.yeshimin.yeahboot.data.domain.vo.GroupBuySpuVo;
 import com.yeshimin.yeahboot.merchant.service.MchGroupBuyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,33 +37,37 @@ public class MchGroupBuyController extends BaseController {
     /**
      * 查询报名记录
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/apply/query")
     public R<IPage<GroupBuyApplyVo>> queryApply(Page<GroupBuyApplyEntity> page, @RequestParam Long shopId,
-                                                 GroupBuyApplyQueryDto query) {
+                                                 @Validated GroupBuyApplyQueryDto query) {
         return R.ok(service.queryApply(super.getUserId(), shopId, page, query));
     }
 
     /**
      * 查询拼团商品
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/product/query")
     public R<IPage<GroupBuySpuVo>> queryProduct(Page<GroupBuySpuEntity> page, @RequestParam Long shopId,
-                                                 GroupBuySpuQueryDto query) {
+                                                 @Validated GroupBuySpuQueryDto query) {
         return R.ok(service.queryProduct(super.getUserId(), shopId, page, query));
     }
 
     /**
      * 查询拼团订单
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/order/query")
     public R<IPage<GroupBuyOrderVo>> queryOrder(Page<GroupBuyOrderEntity> page, @RequestParam Long shopId,
-                                                 GroupBuyOrderQueryDto query) {
+                                                 @Validated GroupBuyOrderQueryDto query) {
         return R.ok(service.queryOrder(super.getUserId(), shopId, page, query));
     }
 
     /**
      * 查询当前店铺在活动下的拼团概览。
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/group/query")
     public R<IPage<GroupBuyGroupOverviewVo>> queryGroup(Page<GroupBuyGroupEntity> page, @RequestParam Long shopId,
                                                          @RequestParam Long activityId) {

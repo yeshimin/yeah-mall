@@ -71,6 +71,7 @@ public class BannerService extends BaseService {
         banner.setMchId(dto.getMchId());
         banner.setShopId(dto.getShopId());
         banner.setImageUrl(result.getFileKey());
+        banner.setTarget(StrUtil.isBlank(dto.getTarget()) ? "" : dto.getTarget().trim());
         boolean r = banner.insert();
         log.info("banner.create.result: {}", r);
 
@@ -109,6 +110,8 @@ public class BannerService extends BaseService {
             // 设置新的值
             banner.setImageUrl(result.getFileKey());
         }
+
+        banner.setTarget(StrUtil.isBlank(dto.getTarget()) ? "" : dto.getTarget().trim());
 
         // 更新Banner记录
         boolean r = banner.updateById();

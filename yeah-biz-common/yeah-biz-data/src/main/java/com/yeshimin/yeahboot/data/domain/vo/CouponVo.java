@@ -40,6 +40,11 @@ public class CouponVo extends BaseDomain {
     private Long shopId;
 
     /**
+     * 店铺名称
+     */
+    private String shopName;
+
+    /**
      * 优惠券名称
      */
     private String name;
@@ -80,7 +85,7 @@ public class CouponVo extends BaseDomain {
     private Integer received;
 
     /**
-     * 已使用数量
+     * 已占用或使用数量
      */
     private Integer used;
 

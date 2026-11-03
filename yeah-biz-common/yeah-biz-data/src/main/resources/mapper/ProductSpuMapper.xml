@@ -6,10 +6,19 @@
         SELECT shop_id AS shopId, COUNT(*) AS productCount
         FROM s_product_spu
         WHERE deleted = 0
+          AND is_enabled = 1
           AND shop_id IN
         <foreach collection="shopIds" item="shopId" open="(" separator="," close=")">
             #{shopId}
         </foreach>
         GROUP BY shop_id
     </select>
+
+    <!-- 支付成功后原子累计商品销量 -->
+    <update id="increaseSales">
+        UPDATE s_product_spu
+        SET sales = COALESCE(sales, 0) + #{quantity}
+        WHERE id = #{id}
+          AND deleted = 0
+    </update>
 </mapper>

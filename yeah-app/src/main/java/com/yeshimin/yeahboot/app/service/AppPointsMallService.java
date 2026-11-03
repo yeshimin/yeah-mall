@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.dto.PointsExchangeDto;
+import com.yeshimin.yeahboot.app.domain.vo.PointsOrderDetailVo;
 import com.yeshimin.yeahboot.app.domain.vo.PointsProductVo;
 import com.yeshimin.yeahboot.common.common.consts.CommonConsts;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
@@ -14,6 +15,7 @@ import com.yeshimin.yeahboot.data.common.enums.MemberPointsBizTypeEnum;
 import com.yeshimin.yeahboot.data.common.enums.PointsFulfillmentTypeEnum;
 import com.yeshimin.yeahboot.data.common.enums.PointsOrderOperationEnum;
 import com.yeshimin.yeahboot.data.common.enums.PointsOrderStatusEnum;
+import com.yeshimin.yeahboot.data.domain.entity.DeliveryProviderEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MemberAddressEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MemberCouponEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MchCouponEntity;
@@ -25,6 +27,7 @@ import com.yeshimin.yeahboot.data.domain.entity.PointsSpuEntity;
 import com.yeshimin.yeahboot.data.repository.MemberAddressRepo;
 import com.yeshimin.yeahboot.data.repository.MemberCouponRepo;
 import com.yeshimin.yeahboot.data.repository.MchCouponRepo;
+import com.yeshimin.yeahboot.data.repository.DeliveryProviderRepo;
 import com.yeshimin.yeahboot.data.repository.PointsCategoryRepo;
 import com.yeshimin.yeahboot.data.repository.PointsOrderLogRepo;
 import com.yeshimin.yeahboot.data.repository.PointsOrderRepo;
@@ -59,6 +62,7 @@ public class AppPointsMallService {
     private final MemberAddressRepo addressRepo;
     private final MchCouponRepo couponRepo;
     private final MemberCouponRepo memberCouponRepo;
+    private final DeliveryProviderRepo deliveryProviderRepo;
     private final MemberPointsService pointsService;
     private final PointsMallConfigService configService;
     private final IdService idService;
@@ -116,7 +120,7 @@ public class AppPointsMallService {
     public PointsSpuEntity detail(Long id) {
         configService.checkMallEnabled();
         PointsSpuEntity entity = spuRepo.getOneById(id, "积分商品不存在");
-        validateExchangeTime(entity);
+        this.validateExchangeTime(entity);
         return entity;
     }
 
@@ -124,7 +128,7 @@ public class AppPointsMallService {
      * 查询商品可兑换规格
      */
     public List<PointsSkuEntity> skus(Long spuId) {
-        detail(spuId);
+        this.detail(spuId);
         return skuRepo.lambdaQuery()
                 .eq(PointsSkuEntity::getSpuId, spuId)
                 .eq(PointsSkuEntity::getIsEnabled, true)
@@ -149,12 +153,21 @@ public class AppPointsMallService {
     /**
      * 查询会员积分订单详情
      */
-    public PointsOrderEntity orderDetail(Long memberId, Long id) {
+    public PointsOrderDetailVo orderDetail(Long memberId, Long id) {
         PointsOrderEntity order = orderRepo.getOneById(id, "积分订单不存在");
         if (!Objects.equals(memberId, order.getMemberId())) {
             throw new BaseException("积分订单不存在");
         }
-        return order;
+        PointsOrderDetailVo result = BeanUtil.copyProperties(order, PointsOrderDetailVo.class);
+        if (order.getDeliveryProviderCode() != null && !order.getDeliveryProviderCode().trim().isEmpty()) {
+            deliveryProviderRepo.lambdaQuery()
+                    .eq(DeliveryProviderEntity::getCode, order.getDeliveryProviderCode())
+                    .list()
+                    .stream()
+                    .findFirst()
+                    .ifPresent(provider -> result.setDeliveryProviderName(provider.getName()));
+        }
+        return result;
     }
 
     /**
@@ -178,7 +191,7 @@ public class AppPointsMallService {
         if (!Boolean.TRUE.equals(sku.getIsEnabled())) {
             throw new BaseException("积分商品规格已停用");
         }
-        PointsSpuEntity spu = detail(sku.getSpuId());
+        PointsSpuEntity spu = this.detail(sku.getSpuId());
 
         PointsFulfillmentTypeEnum fulfillmentType = PointsFulfillmentTypeEnum.of(spu.getFulfillmentType());
         if (fulfillmentType == null) {
@@ -218,15 +231,15 @@ public class AppPointsMallService {
         }
 
         // 先创建订单和初始日志，再扣积分；事务回滚时库存、订单和积分保持一致。
-        PointsOrderEntity order = createOrder(memberId, dto, spu, sku, address, totalPoints);
-        log(order, "", order.getStatus(), PointsOrderOperationEnum.CREATE.getDescription());
+        PointsOrderEntity order = this.createOrder(memberId, dto, spu, sku, address, totalPoints);
+        this.log(order, "", order.getStatus(), PointsOrderOperationEnum.CREATE.getDescription());
         pointsService.consume(memberId, totalPoints, MemberPointsBizTypeEnum.POINTS_EXCHANGE, order.getId(),
                 order.getOrderNo(), "积分商品兑换");
 
         if (fulfillmentType == PointsFulfillmentTypeEnum.AUTO_COUPON) {
             // 自动发券成功后订单直接完成，不进入人工或物流履约队列。
-            issueCoupon(memberId, spu, order);
-            completePending(order, PointsOrderOperationEnum.COUPON_AUTO_FULFILL.getDescription());
+            this.issueCoupon(memberId, spu, order);
+            this.completePending(order, PointsOrderOperationEnum.COUPON_AUTO_FULFILL.getDescription());
         }
         return order;
     }
@@ -236,7 +249,7 @@ public class AppPointsMallService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void cancel(Long memberId, Long id) {
-        PointsOrderEntity order = orderDetail(memberId, id);
+        PointsOrderEntity order = this.orderDetail(memberId, id);
         if (PointsFulfillmentTypeEnum.AUTO_COUPON.getValue().equals(order.getFulfillmentType())) {
             throw new BaseException("自动发券订单不可取消");
         }
@@ -253,7 +266,7 @@ public class AppPointsMallService {
         order.setStatus(PointsOrderStatusEnum.CANCELED.getValue());
         order.setCancelTime(now);
         order.setCancelReason(PointsOrderOperationEnum.MEMBER_CANCEL.getDescription());
-        log(order, PointsOrderStatusEnum.PENDING_FULFILLMENT.getValue(), order.getStatus(),
+        this.log(order, PointsOrderStatusEnum.PENDING_FULFILLMENT.getValue(), order.getStatus(),
                 PointsOrderOperationEnum.MEMBER_CANCEL.getDescription());
     }
 
@@ -262,7 +275,7 @@ public class AppPointsMallService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void confirm(Long memberId, Long id) {
-        PointsOrderEntity order = orderDetail(memberId, id);
+        PointsOrderEntity order = this.orderDetail(memberId, id);
         LocalDateTime now = LocalDateTime.now();
         // 仅已发货订单可确认收货，防止重复点击或跨状态确认。
         if (!orderRepo.completeShipped(order.getId(), now)) {
@@ -270,7 +283,7 @@ public class AppPointsMallService {
         }
         order.setStatus(PointsOrderStatusEnum.COMPLETED.getValue());
         order.setCompleteTime(now);
-        log(order, PointsOrderStatusEnum.SHIPPED.getValue(), order.getStatus(),
+        this.log(order, PointsOrderStatusEnum.SHIPPED.getValue(), order.getStatus(),
                 PointsOrderOperationEnum.MEMBER_CONFIRM_RECEIPT.getDescription());
     }
 
@@ -351,7 +364,7 @@ public class AppPointsMallService {
         order.setStatus(PointsOrderStatusEnum.COMPLETED.getValue());
         order.setCompleteTime(now);
         order.setFulfillmentRemark(remark);
-        log(order, from, order.getStatus(), remark);
+        this.log(order, from, order.getStatus(), remark);
     }
 
     /**

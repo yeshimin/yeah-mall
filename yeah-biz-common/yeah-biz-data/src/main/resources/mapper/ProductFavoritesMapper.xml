@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yeshimin.yeahboot.data.mapper.ProductFavoritesMapper">
+    <select id="selectCountBySpuIds"
+            resultType="com.yeshimin.yeahboot.data.domain.vo.ProductFavoriteCountVo">
+        SELECT spu_id AS spuId, COUNT(*) AS favoriteCount
+        FROM s_product_favorites
+        WHERE deleted = 0
+          AND spu_id IN
+        <foreach collection="spuIds" item="spuId" open="(" separator="," close=")">
+            #{spuId}
+        </foreach>
+        GROUP BY spu_id
+    </select>
 </mapper>

@@ -21,6 +21,16 @@ public class SeckillSpuQueryDto extends BaseQueryDto {
     private Long sessionId;
 
     /**
+     * 店铺ID
+     */
+    private Long shopId;
+
+    /**
+     * 是否仅查询平台启用店铺
+     */
+    private Boolean visibleShopOnly;
+
+    /**
      * 审核状态
      */
     @EnumValue(enumClass = SeckillActivityApplyAuditStatusEnum.class)

@@ -16,6 +16,11 @@ import javax.validation.constraints.NotNull;
 public class CouponQueryDto extends BaseDomain {
 
     /**
+     * 店铺ID
+     */
+    private Long shopId;
+
+    /**
      * 条件：1-可用 2-已使用 3-已过期
      */
     @NotNull(message = "条件不能为空")

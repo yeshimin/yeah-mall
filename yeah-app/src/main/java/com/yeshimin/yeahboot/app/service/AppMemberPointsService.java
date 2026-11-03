@@ -2,10 +2,12 @@ package com.yeshimin.yeahboot.app.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.app.domain.vo.MemberPointsLedgerVo;
 import com.yeshimin.yeahboot.app.domain.vo.MemberPointsOverviewVo;
 import com.yeshimin.yeahboot.app.domain.vo.MemberPointsRuleVo;
+import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.domain.entity.MemberPointsAccountEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MemberPointsLedgerEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MemberPointsRuleEntity;
@@ -46,10 +48,22 @@ public class AppMemberPointsService {
     /**
      * 查询积分流水
      */
-    public IPage<MemberPointsLedgerVo> ledger(Long memberId, Page<MemberPointsLedgerEntity> page) {
+    public IPage<MemberPointsLedgerVo> ledger(Long memberId, Page<MemberPointsLedgerEntity> page,
+                                               Integer direction) {
+        if (direction != null && direction != 1 && direction != 2) {
+            throw new BaseException("积分流水方向参数错误");
+        }
+
         // 流水只允许查询当前会员自己的记录，避免通过分页参数越权查看其他会员资产。
-        Page<MemberPointsLedgerEntity> result = ledgerRepo.lambdaQuery()
-                .eq(MemberPointsLedgerEntity::getMemberId, memberId)
+        LambdaQueryChainWrapper<MemberPointsLedgerEntity> query =
+                ledgerRepo.lambdaQuery().eq(MemberPointsLedgerEntity::getMemberId, memberId);
+        if (direction != null && direction == 1) {
+            query.gt(MemberPointsLedgerEntity::getChangePoints, 0);
+        }
+        if (direction != null && direction == 2) {
+            query.lt(MemberPointsLedgerEntity::getChangePoints, 0);
+        }
+        Page<MemberPointsLedgerEntity> result = query
                 .orderByDesc(MemberPointsLedgerEntity::getCreateTime)
                 .page(page);
         return result.convert(entity -> BeanUtil.copyProperties(entity, MemberPointsLedgerVo.class));

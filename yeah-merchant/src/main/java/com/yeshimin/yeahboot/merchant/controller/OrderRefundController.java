@@ -6,6 +6,7 @@ import com.yeshimin.yeahboot.data.mapper.OrderRefundMapper;
 import com.yeshimin.yeahboot.data.repository.OrderRefundRepo;
 import com.yeshimin.yeahboot.merchant.controller.base.ShopCrudController;
 import com.yeshimin.yeahboot.merchant.service.OrderRefundService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,7 @@ public class OrderRefundController extends ShopCrudController<OrderRefundMapper,
     /**
      * 查询订单退款记录
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<List<OrderRefundEntity>> query(@RequestParam Long orderId) {
         Long userId = super.getUserId();

@@ -24,6 +24,7 @@ import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.request.PrintReq;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.request.corder.COrderReq;
 import com.yeshimin.yeahboot.merchant.third.kuaidi100sdk.utils.SignUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.validation.annotation.Validated;
@@ -104,9 +105,9 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
 
         try {
             // 1. 签名校验
-            if (!verifySign(paramJson, sign)) {
+            if (!this.verifySign(paramJson, sign)) {
                 log.warn("快递100回调签名校验失败 taskId={}", taskId);
-                return callbackFail("签名校验失败");
+                return this.callbackFail("签名校验失败");
             }
 
             // 2. 解析 param
@@ -118,20 +119,21 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
             // }
 
             // 4. 业务处理
-            handleDeliveryStatus(param);
+            this.handleDeliveryStatus(param);
 
             // 5. 返回成功（一定要）
-            return callbackSuccess();
+            return this.callbackSuccess();
 
         } catch (Exception e) {
             log.error("快递100回调处理异常 taskId={}", taskId, e);
-            return callbackFail("服务器异常");
+            return this.callbackFail("服务器异常");
         }
     }
 
     /**
      * 查询店铺订单
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<IPage<OrderEntity>> queryOrder(Page<OrderEntity> page, @Validated(Query.class) MchOrderQueryDto query) {
         Long userId = super.getUserId();
@@ -142,6 +144,7 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
     /**
      * 查询订单详情
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/detail")
     public R<OrderDetailVo> queryOrderDetail(@RequestParam("id") Long id) {
         Long userId = super.getUserId();
@@ -153,6 +156,7 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
      * 发货
      * 场景：手动发货后填写物流公司和快递单号
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/ship")
     public R<Void> shipOrder(@Validated @RequestBody OrderShipDto dto) {
         Long userId = super.getUserId();
@@ -163,6 +167,7 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
     /**
      * 更新发货信息
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/updateShipInfo")
     public R<Void> updateShipInfo(@Validated @RequestBody UpdateShipInfoDto dto) {
         Long userId = super.getUserId();
@@ -173,6 +178,7 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
     /**
      * 查询订单物流信息
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/queryTracking")
     public R<JSONObject> queryTracking(@RequestParam("orderId") Long orderId) {
         Long userId = super.getUserId();
@@ -183,6 +189,7 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
     /**
      * 确认退款
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/confirmRefund")
     public R<Void> confirmRefund(@Validated @RequestBody ConfirmRefundDto dto) {
         Long userId = super.getUserId();
@@ -193,6 +200,7 @@ public class MchOrderController extends CrudController<OrderMapper, OrderEntity,
     /**
      * 拒绝退款
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/rejectRefund")
     public R<Void> rejectRefund(@Validated @RequestBody RejectRefundDto dto) {
         Long userId = super.getUserId();

@@ -14,6 +14,11 @@ import lombok.EqualsAndHashCode;
 public class CouponCenterQueryDto extends BaseDomain {
 
     /**
+     * 店铺ID
+     */
+    private Long shopId;
+
+    /**
      * 使用范围：1-店铺通用 2-指定商品 3-指定分类
      */
     @EnumValue(enumClass = CouponUseRangeEnum.class)

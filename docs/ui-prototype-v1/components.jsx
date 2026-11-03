@@ -1,5 +1,24 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
+const ADMIN_ICON_ALIASES = {
+  back:'Back', box:'Goods', check:'Check', chevron:'ArrowRight', close:'Close', coupon:'Ticket',
+  down:'ArrowDown', eye:'View', file:'Document', filter:'Fold', grid:'Grid', image:'Picture',
+  members:'Avatar', message:'ChatDotRound', more:'MoreFilled', order:'Tickets', plus:'Plus',
+  points:'Coin', search:'Search', settings:'Setting', spark:'MagicStick', store:'Shop',
+  ticket:'Ticket', truck:'Van', user:'User', users:'Avatar', video:'VideoPlay', warning:'WarningFilled',
+  bolt:'Lightning', clock:'Clock'
+};
+
+function AdminIcon({ name, size = 20, className = '' }) {
+  const iconName = ADMIN_ICON_ALIASES[name] || name || 'Goods';
+  const maskImage = `url(assets/admin-icons/${iconName}.svg)`;
+  return <span
+    className={`icon admin-element-icon ${className}`}
+    style={{ width:size, height:size, WebkitMaskImage:maskImage, maskImage }}
+    aria-hidden="true"
+  />;
+}
+
 function Icon({ name, size = 20, strokeWidth = 1.8, className = '', filled = false }) {
   const paths = {
     search: <><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></>,
@@ -128,6 +147,38 @@ function StatusTicket({ children, tone = 'neutral', small = false }) {
   return <span className={`status-ticket tone-${tone}${small ? ' is-small' : ''}`}>{children}</span>;
 }
 
+function ReadOnlyStatus({ children, tone = 'neutral' }) {
+  return <span className={`readonly-status tone-${tone}`}><i></i><span>{children}</span></span>;
+}
+
+async function copyPrototypeText(value) {
+  const text = String(value ?? '');
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const input = document.createElement('textarea');
+  input.value = text;
+  input.style.position = 'fixed';
+  input.style.opacity = '0';
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+  input.remove();
+}
+
+function CopyableText({ value, label = '内容', notify, className = '' }) {
+  const copy = async () => {
+    try {
+      await copyPrototypeText(value);
+      notify?.(`${label}已复制`);
+    } catch (error) {
+      notify?.('复制失败，请手动选择内容');
+    }
+  };
+  return <button className={`copyable-value ${className}`} title={`${label}：${value}（点击复制）`} aria-label={`复制${label}：${value}`} onClick={()=>void copy()}>{value}</button>;
+}
+
 function EmptyState({ icon = 'box', title, description, actionLabel = '', onAction, fill = false, compact = false }) {
   return <div className={`empty-state-v2${fill?' is-fill':''}${compact?' is-compact':''}`}>
     <span className="empty-state-icon"><Icon name={icon} size={compact?22:30}/></span>
@@ -146,4 +197,4 @@ function Toast({ message }) {
   return <div className="prototype-toast"><Icon name="check" size={17}/><span>{message}</span></div>;
 }
 
-Object.assign(window, { Icon, ProductArt, StatusTicket, Avatar, Toast });
+Object.assign(window, { Icon, AdminIcon, ProductArt, StatusTicket, ReadOnlyStatus, CopyableText, Avatar, Toast });

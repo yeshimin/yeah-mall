@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -29,6 +30,17 @@ public class MsgCommand extends BaseCommand {
 
         @NotNull(message = "type不能为空")
         private Integer type;
+
+        /**
+         * 已落库消息ID，仅由服务端推送时填写
+         */
+        @JSONField(serializeFeatures = JSONWriter.Feature.WriteLongAsString)
+        private Long messageId;
+
+        /**
+         * 消息创建时间，仅由服务端推送时填写
+         */
+        private LocalDateTime createTime;
     }
 
     public static MsgCommand parse(BaseCommand baseCommand) {

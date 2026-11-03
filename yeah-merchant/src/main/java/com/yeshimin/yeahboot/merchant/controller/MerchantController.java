@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.merchant.domain.vo.MerchantMineVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.MerchantResourceVo;
 import com.yeshimin.yeahboot.merchant.service.MerchantService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,7 @@ public class MerchantController extends BaseController {
     /**
      * 详情
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/detail")
     public R<MerchantEntity> detail() {
         Long userId = WebContextUtils.getUserId();
@@ -37,6 +39,7 @@ public class MerchantController extends BaseController {
     /**
      * mine
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/mine")
     public R<MerchantMineVo> mine() {
         Long userId = WebContextUtils.getUserId();
@@ -46,6 +49,7 @@ public class MerchantController extends BaseController {
     /**
      * mineResource
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/mineResources")
     public R<List<MchRoleResTreeNodeVo>> mineResources() {
         Long userId = WebContextUtils.getUserId();

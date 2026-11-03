@@ -11,6 +11,7 @@ import com.yeshimin.yeahboot.merchant.domain.vo.SeckillActivityVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.SeckillSessionVo;
 import com.yeshimin.yeahboot.merchant.service.MchSeckillActivityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,6 +30,7 @@ public class MchSeckillActivityController extends BaseController {
     /**
      * 查询活动
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/query")
     public R<IPage<SeckillActivityVo>> query(Page<SeckillActivityEntity> page, SeckillActivityEntity query) {
         return R.ok(service.query(page, query));
@@ -37,6 +39,7 @@ public class MchSeckillActivityController extends BaseController {
     /**
      * 查询商家报名的活动
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/queryApplyActivity")
     public R<List<IdNameVo>> queryApplyActivity() {
         Long userId = super.getUserId();
@@ -46,6 +49,7 @@ public class MchSeckillActivityController extends BaseController {
     /**
      * 查询场次
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/querySession")
     public R<List<SeckillSessionVo>> querySession(@RequestParam Long activityId) {
         return R.ok(service.querySession(activityId));
@@ -54,6 +58,7 @@ public class MchSeckillActivityController extends BaseController {
     /**
      * 提交报名申请
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/submitApply")
     public R<Void> submitApply(@Valid @RequestBody SeckillApplySubmitDto dto) {
         Long userId = super.getUserId();

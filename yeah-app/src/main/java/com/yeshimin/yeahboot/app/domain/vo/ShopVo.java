@@ -30,4 +30,14 @@ public class ShopVo extends BaseDomain {
      * 店铺名称
      */
     private String shopName;
+
+    /**
+     * 平台是否启用
+     */
+    private Boolean isEnabled;
+
+    /**
+     * 商家是否营业
+     */
+    private Boolean isOpen;
 }
