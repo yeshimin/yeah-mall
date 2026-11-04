@@ -227,8 +227,6 @@ logging.level.com.yeshimin.yeahboot=debug
 # 通知-阿里云短信配置
 yeah-boot.notification.aliyun.sms.access-key-id=your-access-key-id
 yeah-boot.notification.aliyun.sms.access-key-secret=your-access-key-secret
-yeah-boot.notification.aliyun.sms.sign-name=your-sign-name
-yeah-boot.notification.aliyun.sms.template-code=your-template-code
 
 # 接口权限校验，true 表示不启用
 yeah-boot.safe-mode=true
@@ -245,6 +243,7 @@ yeah-boot.storage.impl.qiniu.secret-key=your-qiniu-secret-key
 
 - `yeah-boot.safe-mode=true` 表示关闭接口权限校验，适合本地联调或初始化阶段使用
 - 阿里云短信与七牛云存储相关配置按需启用，不使用时可不配置
+- 短信签名和模板编号属于可动态调整的业务参数，通过 `global.sms.aliyun.sign-name`、`global.sms.aliyun.template-code` 系统参数维护
 - 仓库中的 JWT 相关 key/secret 仅用于测试或开发环境，正式部署前务必替换为你自己的安全配置
 - 除上述自定义配置外，仍需补充 `spring.datasource.*`、`spring.redis.*` 等标准 Spring Boot 配置
 
