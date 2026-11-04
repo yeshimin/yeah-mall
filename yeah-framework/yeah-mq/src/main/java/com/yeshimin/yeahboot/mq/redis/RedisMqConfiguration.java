@@ -2,6 +2,7 @@ package com.yeshimin.yeahboot.mq.redis;
 
 import com.yeshimin.yeahboot.mq.MqProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -11,6 +12,9 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 
 @Configuration
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        prefix = "yeah-boot.mq", name = "impl",
+        havingValue = MqProperties.IMPL_REDIS, matchIfMissing = true)
 public class RedisMqConfiguration {
 
     @Bean

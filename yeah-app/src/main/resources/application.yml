@@ -48,11 +48,17 @@ yeah-boot:
   id-generator:
     alphabet: GQT0FNR3taz1vDVEjsSJ2biZmLB8qk6OCMndohlKf4IAw7xr9eYgXWPcuHpU5y
     min-length: 8
-  # 消息队列 配置见MqProperties类
+  # 消息队列，详细配置见 MqProperties 类
   mq:
     # 实现：redis | rabbitmq
 #    impl: redis
     auto-ack: true
+    pending-retry-enabled: true
+    pending-scan-interval: 10s
+    pending-min-idle: 30s
+    max-deliveries: 5
+    dead-letter-suffix: ":DLQ"
+    redis-key-prefix: mq
   # api加解密相关【app端暂未支持】
   encryption:
     # OFF、OPTIONAL、REQUIRED；未配置环境变量时保持关闭

@@ -50,6 +50,14 @@ mybatis-plus:
       select-strategy: not_empty
 
 yeah-boot:
+  # 消息队列，详细配置见 MqProperties 类
+  mq:
+    pending-retry-enabled: true
+    pending-scan-interval: 10s
+    pending-min-idle: 30s
+    max-deliveries: 5
+    dead-letter-suffix: ":DLQ"
+    redis-key-prefix: mq
   # 跨域默认关闭；业务项目按环境配置启用并指定来源白名单。详细配置见CorsProperties类
   cors:
     enabled: false
