@@ -12,7 +12,7 @@ import com.yeshimin.yeahboot.notification.domain.vo.NotifMessageVo;
 import com.yeshimin.yeahboot.notification.service.NotifMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -7,7 +7,7 @@ import com.yeshimin.yeahboot.notification.common.enums.NotifMessageTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import jakarta.validation.constraints.Size;
+import javax.validation.constraints.Size;
 
 /**
  * 站内信查询参数。

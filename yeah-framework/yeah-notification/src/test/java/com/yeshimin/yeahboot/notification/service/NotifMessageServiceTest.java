@@ -10,10 +10,10 @@ import com.yeshimin.yeahboot.notification.domain.entity.NotifMessageReceiverEnti
 import com.yeshimin.yeahboot.notification.event.NotifMessageCreatedEvent;
 import com.yeshimin.yeahboot.notification.repository.NotifMessageReceiverRepo;
 import com.yeshimin.yeahboot.notification.repository.NotifMessageRepo;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
