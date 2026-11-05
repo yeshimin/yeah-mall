@@ -16,13 +16,10 @@ public class DefaultHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                    WebSocketHandler wsHandler, Map<String, Object> attributes) {
-        log.info("beforeHandshake(), request: {}, response: {}, wsHandler: {}, attributes: {}",
-                request, response, wsHandler, attributes);
-
         String userId = String.valueOf(WebContextUtils.getUserId());
         String subject = WebContextUtils.getSubject();
         String terminal = WebContextUtils.getTerminal();
-        log.info("subject: {}, userId: {}, terminal: {}", subject, userId, terminal);
+        log.info("WebSocket握手开始，subject={}, userId={}, terminal={}", subject, userId, terminal);
 
         SessionKey sk = new SessionKey();
         sk.setUserId(userId);
@@ -36,6 +33,10 @@ public class DefaultHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                WebSocketHandler wsHandler, Exception exception) {
-        log.info("afterHandshake(), request: {}, response: {}, wsHandler: {}", request, response, wsHandler, exception);
+        if (exception == null) {
+            log.info("WebSocket握手完成");
+            return;
+        }
+        log.warn("WebSocket握手失败，error={}", exception.getClass().getSimpleName());
     }
 }

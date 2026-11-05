@@ -13,7 +13,7 @@
 - 统一返回结构与全局异常处理
 - MyBatis-Plus 分页与基础 CRUD 抽象
 - 文件存储抽象，支持本地 / MinIO / 七牛等扩展
-- 短信通知、Redis 消息队列、WebSocket 推送
+- 短信通知、站内信、Redis 消息队列、WebSocket 推送
 - 注解式接口限流
 
 适合作为中小型后台系统、内部业务系统或自定义管理平台的基础脚手架。
@@ -49,7 +49,7 @@ yeah-boot
     ├── yeah-flowcontrol       流控与限流
     ├── yeah-generator         代码生成相关
     ├── yeah-mq                消息队列抽象
-    ├── yeah-notification      通知能力
+    ├── yeah-notification      短信与站内信能力
     ├── yeah-storage           文件存储抽象
     └── yeah-websocket         WebSocket 能力
 ```
@@ -77,6 +77,7 @@ yeah-boot
 - 文件上传、下载、公开预览
 - 地区数据查询与树形组装
 - WebSocket 消息推送与广播
+- 管理端与 App 端站内信、未读统计、指定用户与全局通告
 - Redis 消息发布与消费
 - 注解式限流控制
 - 登录失败限制、IP 白名单、审计来源 IP 与敏感日志脱敏
