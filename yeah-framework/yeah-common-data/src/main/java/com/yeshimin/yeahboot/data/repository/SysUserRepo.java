@@ -3,6 +3,7 @@ package com.yeshimin.yeahboot.data.repository;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yeshimin.yeahboot.common.common.enums.DataStatusEnum;
 import com.yeshimin.yeahboot.common.repository.base.BaseRepo;
 import com.yeshimin.yeahboot.data.domain.vo.SysUserAuthResourceVo;
 import com.yeshimin.yeahboot.data.domain.dto.SysUserQueryDto;
@@ -90,6 +91,47 @@ public class SysUserRepo extends BaseRepo<SysUserMapper, SysUserEntity> {
                 .stream()
                 .map(SysUserEntity::getUsername)
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * 查询全部启用用户ID。
+     */
+    public List<Long> findAllEnabledIds() {
+        return this.lambdaQuery()
+                .select(SysUserEntity::getId)
+                .eq(SysUserEntity::getStatus, DataStatusEnum.ENABLED.getValue())
+                .list()
+                .stream()
+                .map(SysUserEntity::getId)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 查询全部启用用户。
+     */
+    public List<SysUserEntity> findAllEnabledUsers() {
+        return this.lambdaQuery()
+                .select(SysUserEntity::getId, SysUserEntity::getUsername, SysUserEntity::getNickname)
+                .eq(SysUserEntity::getStatus, DataStatusEnum.ENABLED.getValue())
+                .orderByAsc(SysUserEntity::getId)
+                .list();
+    }
+
+    /**
+     * 查询指定范围内的启用用户ID。
+     */
+    public List<Long> findEnabledIdsByIds(Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return this.lambdaQuery()
+                .select(SysUserEntity::getId)
+                .in(SysUserEntity::getId, ids)
+                .eq(SysUserEntity::getStatus, DataStatusEnum.ENABLED.getValue())
+                .list()
+                .stream()
+                .map(SysUserEntity::getId)
+                .collect(Collectors.toList());
     }
 
     /**

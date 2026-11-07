@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeshimin.yeahboot.notification.mapper.NotifMessageReceiverMapper">
+
+    <sql id="messageColumns">
+        r.id as receiverId,
+        m.id as messageId,
+        m.message_type as messageType,
+        m.target_type as targetType,
+        m.title,
+        m.content,
+        m.biz_type as bizType,
+        m.biz_id as bizId,
+        m.link_url as linkUrl,
+        m.sender_name as senderName,
+        m.send_time as sendTime,
+        r.read_status as readStatus,
+        r.read_time as readTime
+    </sql>
+
+    <sql id="messageSummaryColumns">
+        r.id as receiverId,
+        m.id as messageId,
+        m.message_type as messageType,
+        m.target_type as targetType,
+        m.title,
+        m.sender_name as senderName,
+        m.send_time as sendTime,
+        r.read_status as readStatus,
+        r.read_time as readTime
+    </sql>
+
+    <sql id="mineConditions">
+        where r.deleted = 0
+          and m.deleted = 0
+          and r.receiver_subject = #{receiverSubject}
+          and r.receiver_user_id = #{receiverUserId}
+        <if test="query != null and query.readStatus != null and query.readStatus != ''">
+            and r.read_status = #{query.readStatus}
+        </if>
+        <if test="query != null and query.messageType != null and query.messageType != ''">
+            and m.message_type = #{query.messageType}
+        </if>
+        <if test="query != null and query.title != null and query.title != ''">
+            and m.title like concat('%', #{query.title}, '%')
+        </if>
+    </sql>
+
+    <select id="queryMine" resultType="com.yeshimin.yeahboot.notification.domain.vo.NotifMessageVo">
+        select
+        <include refid="messageColumns" />
+        from notif_message_receiver r
+        inner join notif_message m on m.id = r.message_id
+        <include refid="mineConditions" />
+        order by r.id desc
+    </select>
+
+    <select id="findRecent" resultType="com.yeshimin.yeahboot.notification.domain.vo.NotifMessageVo">
+        select
+        <include refid="messageSummaryColumns" />
+        from notif_message_receiver r
+        inner join notif_message m on m.id = r.message_id
+        where r.deleted = 0
+          and m.deleted = 0
+          and r.receiver_subject = #{receiverSubject}
+          and r.receiver_user_id = #{receiverUserId}
+        order by r.id desc
+        limit #{limit}
+    </select>
+
+</mapper>

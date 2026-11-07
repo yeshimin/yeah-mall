@@ -26,7 +26,7 @@ public class DefaultWebSocketHandler extends TextWebSocketHandler implements Bas
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        log.info("afterConnectionEstablished(), session: {}", session);
+        log.info("WebSocket连接已建立，sessionId={}", session.getId());
 
         SessionKey sk = (SessionKey) session.getAttributes().get("sk");
         WebSocketSession oldSession = defaultSessionHolder.put(sk, session);
@@ -42,7 +42,7 @@ public class DefaultWebSocketHandler extends TextWebSocketHandler implements Bas
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        log.info("afterConnectionClosed(), session: {}, status: {}", session, status);
+        log.info("WebSocket连接已关闭，sessionId={}, status={}", session.getId(), status);
 
         SessionKey sk = (SessionKey) session.getAttributes().get("sk");
         WebSocketSession existSession = defaultSessionHolder.get(sk);
@@ -53,7 +53,7 @@ public class DefaultWebSocketHandler extends TextWebSocketHandler implements Bas
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {
-        log.error("handleTransportError(), session: {}", session, exception);
+        log.error("WebSocket传输异常，sessionId={}", session.getId(), exception);
 
         if (session.isOpen()) {
             try {
@@ -66,7 +66,8 @@ public class DefaultWebSocketHandler extends TextWebSocketHandler implements Bas
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        log.info("handleTextMessage(), message: {}", new String(message.asBytes()));
+        log.debug("收到WebSocket消息，sessionId={}, payloadLength={}",
+                session.getId(), message.getPayloadLength());
 
         SessionKey sk = (SessionKey) session.getAttributes().get("sk");
 

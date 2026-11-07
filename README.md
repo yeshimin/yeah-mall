@@ -19,6 +19,7 @@ YeahMall 面向平台运营、商家经营和消费者购物场景，包含 Java
 - 支付、退款、售后、物流和评价
 - 优惠券、秒杀、拼团和积分商城
 - 在线客服、首页运营和商家结算
+- 站内信、未读统计和 WebSocket 实时推送
 - 平台商城与独立店铺 App
 
 ## 后端模块
@@ -41,7 +42,7 @@ sql                 数据库脚本
 - Java 8、Spring Boot 2.7
 - Spring Security、MyBatis-Plus
 - MySQL、Redis、Redis Stream
-- WebSocket、微信支付 Java SDK
+- WebSocket、站内信、微信支付 Java SDK
 - Maven 多模块工程
 
 ## 快速开始
