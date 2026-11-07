@@ -6,6 +6,8 @@ public class BizConsts {
     public static final String LOGIN_SMS_CODE_TOPIC = "LOGIN_SMS_CODE";
     // 商品浏览足迹队列名称
     public static final String PRODUCT_BROWSE_TOPIC = "PRODUCT_BROWSE";
+    // 订单退款请求队列名称
+    public static final String ORDER_REFUND_TOPIC = "ORDER_REFUND";
 
     // --------------------------------------------------------------------------------
     // 秒杀相关

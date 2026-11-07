@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.yeshimin.yeahboot.common.common.config.mybatis.QueryHelper;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.common.service.IdService;
 import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
 import com.yeshimin.yeahboot.data.common.enums.OrderTypeEnum;
 import com.yeshimin.yeahboot.data.common.enums.GroupBuyGroupStatusEnum;
@@ -21,6 +20,7 @@ import com.yeshimin.yeahboot.data.domain.entity.OrderDeliveryTrackingEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderItemEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderRefundImageEntity;
+import com.yeshimin.yeahboot.data.domain.entity.OrderRefundEntity;
 import com.yeshimin.yeahboot.data.domain.vo.OrderShopProductVo;
 import com.yeshimin.yeahboot.data.repository.*;
 import com.yeshimin.yeahboot.merchant.domain.dto.*;
@@ -29,14 +29,16 @@ import com.yeshimin.yeahboot.merchant.domain.vo.OrderGroupBuyInfoVo;
 import com.yeshimin.yeahboot.service.JuheExpService;
 import com.yeshimin.yeahboot.service.MemberPointsService;
 import com.yeshimin.yeahboot.service.OrderService;
+import com.yeshimin.yeahboot.service.RefundDispatchService;
 import com.yeshimin.yeahboot.service.ShopSettlementService;
-import com.yeshimin.yeahboot.service.TransactionAfterCommitExecutor;
 import com.yeshimin.yeahboot.service.GroupBuyTradeService;
 import com.yeshimin.yeahboot.service.WxPayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -60,20 +62,19 @@ public class MchOrderService {
     private final OrderItemRepo orderItemRepo;
     private final DeliveryProviderRepo deliveryProviderRepo;
     private final OrderDeliveryTrackingRepo orderDeliveryTrackingRepo;
-    private final OrderRefundRepo orderRefundRepo;
     private final OrderRefundImageRepo orderRefundImageRepo;
     private final GroupBuyOrderRepo groupBuyOrderRepo;
     private final GroupBuyGroupRepo groupBuyGroupRepo;
 
-    private final IdService idService;
     private final JuheExpService juheExpService;
     private final WxPayService wxPayService;
     private final OrderService orderService;
     private final GroupBuyTradeService groupBuyTradeService;
     private final MemberPointsService memberPointsService;
     private final ShopSettlementService shopSettlementService;
-    private final TransactionAfterCommitExecutor afterCommitExecutor;
+    private final RefundDispatchService refundDispatchService;
     private final TransactionTemplate transactionTemplate;
+    private final PlatformTransactionManager transactionManager;
 
     /**
      * 订单签收超时时间（天）
@@ -343,8 +344,21 @@ public class MchOrderService {
     /**
      * 确认退款
      */
-    @Transactional(rollbackFor = Exception.class)
     public void confirmRefund(Long userId, ConfirmRefundDto dto) {
+        TransactionTemplate refundTransaction = new TransactionTemplate(transactionManager);
+        refundTransaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        Long refundId = refundTransaction.execute(status -> this.prepareRefund(userId, dto));
+        if (refundId == null) {
+            throw new RuntimeException("创建退款任务失败");
+        }
+        // 事务已提交，MQ 只承担快速触发；发布失败仍由延迟 Job 补偿。
+        refundDispatchService.publishSafely(refundId);
+    }
+
+    /**
+     * 在独立事务内确认退款并创建稳定退款任务。
+     */
+    private Long prepareRefund(Long userId, ConfirmRefundDto dto) {
         // 检查：订单是否存在
         OrderEntity order = orderRepo.getOneById(dto.getOrderId());
         // 检查：订单是否属于该商家
@@ -368,29 +382,15 @@ public class MchOrderService {
         order.setRefundConfirmRemark(dto.getRemark());
         order.updateById();
 
-        // 退款编号
-        String refundNo = idService.nextEncodedId();
         // TODO 切换生产支付后，改为订单最终应付金额；测试阶段固定退1分。
         BigDecimal totalAmount = BigDecimal.valueOf(WxPayService.TEST_PAYMENT_AMOUNT_FEN, 2);
         // 首版仅支持全额退款，因此退款金额与测试支付金额一致。
         BigDecimal refundAmount = totalAmount;
         // 第三方退款原因使用用户申请信息，商家处理备注仍单独保存在订单中。
         String refundReason = this.buildRefundReason(order);
-        // 添加退款记录
-        orderRefundRepo.createOne(order, refundNo, totalAmount, refundAmount, refundReason);
-
-        // 调用第三方退款接口
-        long totalAmountFen = WxPayService.TEST_PAYMENT_AMOUNT_FEN;
-        long refundAmountFen = WxPayService.TEST_PAYMENT_AMOUNT_FEN;
-        // 先提交退款状态和稳定退款单号，再调用微信；失败时补偿任务复用同一退款单号重试。
-        afterCommitExecutor.execute(() -> {
-            try {
-                wxPayService.refund(order, refundNo, refundReason, refundAmountFen, totalAmountFen);
-            } catch (Exception e) {
-                log.error("调用第三方退款接口失败，等待补偿任务重试，orderId={}，refundNo={}",
-                        order.getId(), refundNo, e);
-            }
-        });
+        OrderRefundEntity refund = refundDispatchService.createTask(
+                order, totalAmount, refundAmount, refundReason);
+        return refund.getId();
     }
 
     /**

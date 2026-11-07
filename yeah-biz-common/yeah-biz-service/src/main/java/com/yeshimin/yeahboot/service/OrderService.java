@@ -56,6 +56,7 @@ public class OrderService {
 
     private final CacheService cacheService;
     private final WxPayService wxPayService;
+    private final RefundDispatchService refundDispatchService;
     private final MemberPointsService memberPointsService;
     private final ShopSettlementService shopSettlementService;
     private final TransactionTemplate transactionTemplate;
@@ -418,18 +419,13 @@ public class OrderService {
         // 退款通知可能先到处理中状态，先原样同步退款单再按状态更新主订单。
         LocalDateTime refundSuccessTime = refundInfo.getSuccessTime() == null
                 ? null : refundInfo.getSuccessTime().toLocalDateTime();
-        LambdaUpdateWrapper<OrderRefundEntity> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(OrderRefundEntity::getId, orderRefund.getId())
-                .set(OrderRefundEntity::getRefundStatus, refundInfo.getRefundStatus())
-                .set(OrderRefundEntity::getSuccessTime, refundSuccessTime)
-                .set(OrderRefundEntity::getUserReceivedAccount, refundInfo.getUserReceivedAccount())
-                .set(OrderRefundEntity::getSummary, notification.getSummary())
-                .set(OrderRefundEntity::getRealTotalAmount, refundInfo.getAmount().getTotal())
-                .set(OrderRefundEntity::getRealRefundAmount, refundInfo.getAmount().getRefund());
-        orderRefundRepo.update(updateWrapper);
+        boolean refundResultUpdated = orderRefundRepo.updateWxResult(
+                orderRefund.getId(), null, refundInfo.getRefundStatus(), refundSuccessTime,
+                refundInfo.getUserReceivedAccount(), notification.getSummary(),
+                refundInfo.getAmount().getTotal(), refundInfo.getAmount().getRefund());
 
         // 如果订单状态为【退款】，更新订单退款状态
-        if (Objects.equals(order.getStatus(), OrderStatusEnum.REFUND.getValue())) {
+        if (refundResultUpdated && Objects.equals(order.getStatus(), OrderStatusEnum.REFUND.getValue())) {
             WxRefundStatusEnum wxRefundStatus = WxRefundStatusEnum.of(refundInfo.getRefundStatus());
             switch (Objects.requireNonNull(wxRefundStatus)) {
                 case SUCCESS:
@@ -457,84 +453,84 @@ public class OrderService {
             }
         }
 
+        if (refundResultUpdated) {
+            // 只有退款结果确实被当前回调推进时才调整任务，旧PROCESSING回调不能恢复已结束任务。
+            refundDispatchService.markFromWxCallback(orderRefund.getId(), refundInfo.getRefundStatus());
+        }
+
         return true;
     }
 
     /**
      * 主动查询普通和秒杀订单的退款状态，避免微信退款回调丢失后长期停留在处理中。
      */
-    public void reconcileRefundingOrders() {
-        List<OrderEntity> refundingOrders = orderRepo.lambdaQuery()
-                .eq(OrderEntity::getStatus, OrderStatusEnum.REFUND.getValue())
-                .eq(OrderEntity::getRefundStatus, RefundStatusEnum.PROCESSING.getValue())
-                .ne(OrderEntity::getOrderType, OrderTypeEnum.GROUP_BUY.getValue())
-                .list();
-        for (OrderEntity order : refundingOrders) {
-            OrderRefundEntity orderRefund = orderRefundRepo.findLatestByOrderId(order.getId());
-            if (orderRefund == null) {
-                log.warn("退款处理中订单缺少退款记录，orderNo={}", order.getOrderNo());
-                continue;
-            }
-            try {
-                Refund result = wxPayService.queryRefundByOutRefundNo(order, orderRefund.getRefundNo());
-                transactionTemplate.executeWithoutResult(status ->
-                        this.syncRefundQueryResult(order, orderRefund, result));
-            } catch (Exception e) {
-                log.warn("主动查询退款状态失败，orderNo={}, refundNo={}", order.getOrderNo(),
-                        orderRefund.getRefundNo(), e);
-                this.retryRefundRequest(order, orderRefund);
-            }
+    public void reconcileRefund(Long refundId) {
+        OrderRefundEntity orderRefund = orderRefundRepo.findOneById(refundId);
+        if (orderRefund == null) {
+            return;
         }
-    }
-
-    /**
-     * 使用原退款单号重试退款请求，避免未知响应场景生成重复退款单。
-     */
-    private void retryRefundRequest(OrderEntity order, OrderRefundEntity refund) {
+        OrderEntity order = orderRepo.findOneById(orderRefund.getOrderId());
+        if (order == null) {
+            String processingToken = refundDispatchService.claimDue(orderRefund.getId());
+            if (processingToken != null) {
+                refundDispatchService.markFailed(orderRefund.getId(), processingToken, "OrderNotFound");
+            }
+            return;
+        }
+        if (OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())) {
+            return;
+        }
+        String processingToken = refundDispatchService.claimDue(orderRefund.getId());
+        if (processingToken == null) {
+            return;
+        }
+        Refund result;
         try {
-            long refundAmount = this.toFen(refund.getRefundAmount());
-            long totalAmount = this.toFen(refund.getTotalAmount());
-            wxPayService.refund(order, refund.getRefundNo(), refund.getRefundReason(), refundAmount, totalAmount);
+            result = wxPayService.queryRefundByOutRefundNo(order, orderRefund.getRefundNo());
         } catch (Exception e) {
-            log.error("重试退款请求失败，orderNo={}，refundNo={}",
-                    order.getOrderNo(), refund.getRefundNo(), e);
+            log.warn("主动查询退款状态失败，orderNo={}, refundNo={}, error={}",
+                    order.getOrderNo(), orderRefund.getRefundNo(), e.getClass().getSimpleName());
+            refundDispatchService.retryClaimed(order, orderRefund, processingToken);
+            return;
         }
-    }
-
-    /**
-     * 将退款金额转换为微信支付分单位。
-     */
-    private long toFen(BigDecimal amount) {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BaseException("退款金额无效");
+        try {
+            transactionTemplate.executeWithoutResult(status ->
+                    this.syncRefundQueryResult(order, orderRefund, result, processingToken));
+            refundDispatchService.markFromWxQuery(orderRefund.getId(), processingToken,
+                    result == null || result.getStatus() == null ? null : result.getStatus().name());
+        } catch (Exception e) {
+            log.error("同步退款查询结果失败，orderNo={}, refundNo={}, error={}",
+                    order.getOrderNo(), orderRefund.getRefundNo(), e.getClass().getSimpleName());
+            refundDispatchService.markRetry(orderRefund.getId(), processingToken, e);
         }
-        return amount.movePointRight(2).setScale(0, RoundingMode.HALF_UP).longValueExact();
     }
 
     /**
      * 同步微信退款查询结果
      */
-    private void syncRefundQueryResult(OrderEntity order, OrderRefundEntity orderRefund, Refund refund) {
+    private void syncRefundQueryResult(OrderEntity order, OrderRefundEntity orderRefund, Refund refund,
+                                       String processingToken) {
         if (refund == null || refund.getStatus() == null) {
             return;
         }
         String refundStatus = refund.getStatus().name();
         LocalDateTime successTime = this.parseRefundSuccessTime(refund.getSuccessTime());
         // 先保存微信侧退款明细，便于失败或处理中状态继续追踪。
-        orderRefundRepo.lambdaUpdate()
-                .eq(OrderRefundEntity::getId, orderRefund.getId())
-                .set(OrderRefundEntity::getRefundStatus, refundStatus)
-                .set(OrderRefundEntity::getSuccessTime, successTime)
-                .set(OrderRefundEntity::getUserReceivedAccount, refund.getUserReceivedAccount())
-                .set(refund.getAmount() != null, OrderRefundEntity::getRealTotalAmount, refund.getAmount().getTotal())
-                .set(refund.getAmount() != null, OrderRefundEntity::getRealRefundAmount, refund.getAmount().getRefund())
-                .update();
+        boolean refundResultUpdated = orderRefundRepo.updateWxResult(
+                orderRefund.getId(), processingToken, refundStatus, successTime,
+                refund.getUserReceivedAccount(), null,
+                refund.getAmount() == null ? null : refund.getAmount().getTotal(),
+                refund.getAmount() == null ? null : refund.getAmount().getRefund());
+        if (!refundResultUpdated) {
+            return;
+        }
 
         // 仅在订单状态首次成功推进时回补资源并记录结算冲销，保证重复查询幂等。
         if (WxRefundStatusEnum.SUCCESS.equalsValue(refundStatus)) {
             if (orderRepo.completeRefund(order.getId(), "微信退款查询同步成功",
                     successTime == null ? LocalDateTime.now() : successTime)) {
                 this.restoreRefundResources(order);
+                memberPointsService.reverseForOrderRefund(order);
                 shopSettlementService.recordRefundCompleted(order, orderRefund);
             }
         } else if (WxRefundStatusEnum.CLOSED.equalsValue(refundStatus)

@@ -80,4 +80,29 @@ public class OrderRefundEntity extends ShopConditionBaseEntity<OrderRefundEntity
      * 回调中实际退款金额
      */
     private BigDecimal realRefundAmount;
+
+    /**
+     * 退款请求调度状态：PENDING、PROCESSING、SUBMITTED、RETRY、FAILED、COMPLETED
+     */
+    private String dispatchStatus;
+
+    /**
+     * MQ之外的补偿任务下次可处理时间，同时作为处理中任务的租约截止时间
+     */
+    private LocalDateTime nextProcessTime;
+
+    /**
+     * 调用微信退款申请接口次数
+     */
+    private Integer requestCount;
+
+    /**
+     * 最近一次处理失败的异常类型，不保存异常消息正文
+     */
+    private String lastError;
+
+    /**
+     * 当前处理者令牌，MQ或Job抢占后用于校验租约所有权
+     */
+    private String processingToken;
 }

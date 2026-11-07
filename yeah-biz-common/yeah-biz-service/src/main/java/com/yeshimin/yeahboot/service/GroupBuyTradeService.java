@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.refund.model.Refund;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
-import com.yeshimin.yeahboot.common.service.IdService;
 import com.yeshimin.yeahboot.data.common.enums.GroupBuyGroupStatusEnum;
 import com.yeshimin.yeahboot.data.common.enums.GroupBuyOrderStatusEnum;
 import com.yeshimin.yeahboot.data.common.enums.OrderStatusEnum;
@@ -28,6 +27,8 @@ import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -35,6 +36,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,11 +58,11 @@ public class GroupBuyTradeService {
     private final OrderCouponRepo orderCouponRepo;
     private final MemberCouponRepo memberCouponRepo;
     private final MchCouponRepo mchCouponRepo;
-    private final IdService idService;
     private final WxPayService wxPayService;
     private final OrderService orderService;
-    private final TransactionAfterCommitExecutor afterCommitExecutor;
+    private final RefundDispatchService refundDispatchService;
     private final TransactionTemplate transactionTemplate;
+    private final PlatformTransactionManager transactionManager;
 
     /**
      * 处理拼团订单支付成功
@@ -205,9 +208,15 @@ public class GroupBuyTradeService {
                 .list().stream()
                 .map(GroupBuyGroupEntity::getId)
                 .collect(Collectors.toList());
+        TransactionTemplate settlementTransaction = new TransactionTemplate(transactionManager);
+        settlementTransaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         // 团逐个锁定结算，避免同一活动内一个团的并发变化影响其他团。
         for (Long groupId : groupIds) {
-            transactionTemplate.executeWithoutResult(status -> this.settleGroup(groupId));
+            List<Long> refundIds = settlementTransaction.execute(status -> this.settleGroup(groupId));
+            if (refundIds != null) {
+                // 团结算事务提交后再发布 MQ，任何发布失败都由 Job 延迟补偿。
+                refundIds.forEach(refundDispatchService::publishSafely);
+            }
         }
         // 关单和查单属于远程调用，必须在团状态事务提交后执行。
         this.closeUnpaidActivityOrders(activityId);
@@ -216,46 +225,45 @@ public class GroupBuyTradeService {
     /**
      * 查询并同步拼团自动退款状态，避免回调丢失导致退款长期处理中。
      */
-    public void reconcileRefundingOrders() {
-        List<GroupBuyOrderEntity> refundingOrders = groupBuyOrderRepo.lambdaQuery()
-                .eq(GroupBuyOrderEntity::getStatus, GroupBuyOrderStatusEnum.REFUNDING.getValue())
-                .list();
-        for (GroupBuyOrderEntity groupBuyOrder : refundingOrders) {
-            // 一笔订单可能保留多次退款记录，自动退款只同步最新一笔。
-            List<OrderRefundEntity> refunds = orderRefundRepo.findListByOrderId(groupBuyOrder.getOrderId());
-            if (refunds.isEmpty()) {
-                continue;
-            }
-            OrderRefundEntity refund = refunds.get(refunds.size() - 1);
-            OrderEntity order = orderRepo.findOneById(groupBuyOrder.getOrderId());
-            if (order == null) {
-                continue;
-            }
-            try {
-                Refund result = wxPayService.queryRefundByOutRefundNo(order, refund.getRefundNo());
-                transactionTemplate.executeWithoutResult(status ->
-                        this.syncRefundQueryResult(groupBuyOrder, refund, result));
-            } catch (Exception e) {
-                log.warn("查询拼团退款状态失败，refundNo={}", refund.getRefundNo(), e);
-                this.retryRefundRequest(groupBuyOrder, refund);
-            }
+    public void reconcileRefund(Long refundId) {
+        OrderRefundEntity refund = orderRefundRepo.findOneById(refundId);
+        if (refund == null) {
+            return;
         }
-    }
-
-    /**
-     * 使用原退款单号重试退款请求。
-     */
-    private void retryRefundRequest(GroupBuyOrderEntity groupBuyOrder, OrderRefundEntity orderRefund) {
-        OrderEntity order = orderRepo.findOneById(groupBuyOrder.getOrderId());
+        String processingToken = refundDispatchService.claimDue(refund.getId());
+        if (processingToken == null) {
+            return;
+        }
+        GroupBuyOrderEntity groupBuyOrder = groupBuyOrderRepo.lambdaQuery()
+                .eq(GroupBuyOrderEntity::getOrderId, refund.getOrderId())
+                .one();
+        OrderEntity order = orderRepo.findOneById(refund.getOrderId());
+        if (groupBuyOrder == null) {
+            refundDispatchService.markFailed(refund.getId(), processingToken, "GroupBuyOrderNotFound");
+            return;
+        }
         if (order == null) {
+            refundDispatchService.markFailed(refund.getId(), processingToken, "OrderNotFound");
+            return;
+        }
+        Refund result;
+        try {
+            result = wxPayService.queryRefundByOutRefundNo(order, refund.getRefundNo());
+        } catch (Exception e) {
+            log.warn("查询拼团退款状态失败，refundNo={}, error={}",
+                    refund.getRefundNo(), e.getClass().getSimpleName());
+            refundDispatchService.retryClaimed(order, refund, processingToken);
             return;
         }
         try {
-            // 使用原退款单号重试，微信会按退款单号保证幂等，不会产生重复退款。
-            wxPayService.refund(order, orderRefund.getRefundNo(), orderRefund.getRefundReason(),
-                    WxPayService.TEST_PAYMENT_AMOUNT_FEN, WxPayService.TEST_PAYMENT_AMOUNT_FEN);
+            transactionTemplate.executeWithoutResult(status ->
+                    this.syncRefundQueryResult(groupBuyOrder, refund, result, processingToken));
+            refundDispatchService.markFromWxQuery(refund.getId(), processingToken,
+                    result == null || result.getStatus() == null ? null : result.getStatus().name());
         } catch (Exception e) {
-            log.error("重试拼团退款请求失败，refundNo={}", orderRefund.getRefundNo(), e);
+            log.error("同步拼团退款查询结果失败，refundNo={}, error={}",
+                    refund.getRefundNo(), e.getClass().getSimpleName());
+            refundDispatchService.markRetry(refund.getId(), processingToken, e);
         }
     }
 
@@ -263,32 +271,35 @@ public class GroupBuyTradeService {
      * 将微信退款查询结果同步到退款单、主订单和拼团参与记录。
      */
     private void syncRefundQueryResult(GroupBuyOrderEntity groupBuyOrder, OrderRefundEntity orderRefund,
-                                       Refund refund) {
+                                       Refund refund, String processingToken) {
         if (refund == null || refund.getStatus() == null) {
             return;
         }
         String refundStatus = refund.getStatus().name();
         LocalDateTime successTime = this.parseRefundSuccessTime(refund.getSuccessTime());
         // 先同步退款单的第三方状态，再更新业务订单和拼团参与状态。
-        orderRefundRepo.lambdaUpdate()
-                .eq(OrderRefundEntity::getId, orderRefund.getId())
-                .set(OrderRefundEntity::getRefundStatus, refundStatus)
-                .set(OrderRefundEntity::getSuccessTime, successTime)
-                .set(OrderRefundEntity::getUserReceivedAccount, refund.getUserReceivedAccount())
-                .update();
+        boolean refundResultUpdated = orderRefundRepo.updateWxResult(
+                orderRefund.getId(), processingToken, refundStatus, successTime,
+                refund.getUserReceivedAccount(), null,
+                refund.getAmount() == null ? null : refund.getAmount().getTotal(),
+                refund.getAmount() == null ? null : refund.getAmount().getRefund());
+        if (!refundResultUpdated) {
+            return;
+        }
 
         OrderEntity order = orderRepo.findOneById(groupBuyOrder.getOrderId());
         if (order == null) {
             return;
         }
         if (WxRefundStatusEnum.SUCCESS.equalsValue(refundStatus)) {
-            orderRepo.updateRefundStatus2(order.getId(), RefundStatusEnum.SUCCESS.getValue(),
-                    "微信退款查询同步成功", successTime == null ? LocalDateTime.now() : successTime);
-            this.handleRefundSuccess(groupBuyOrder.getOrderNo());
+            if (orderRepo.completeRefund(order.getId(), "微信退款查询同步成功",
+                    successTime == null ? LocalDateTime.now() : successTime)) {
+                this.handleRefundSuccess(groupBuyOrder.getOrderNo());
+            }
         } else if (WxRefundStatusEnum.CLOSED.equalsValue(refundStatus)
                 || WxRefundStatusEnum.ABNORMAL.equalsValue(refundStatus)) {
             // 微信明确关闭或异常时标记失败，保留记录供后台人工继续处理。
-            orderRepo.updateRefundStatus2(order.getId(), RefundStatusEnum.FAILED.getValue(),
+            orderRepo.updateProcessingRefundStatus(order.getId(), RefundStatusEnum.FAILED.getValue(),
                     "微信退款查询同步：" + refundStatus, LocalDateTime.now());
             groupBuyOrderRepo.lambdaUpdate()
                     .eq(GroupBuyOrderEntity::getId, groupBuyOrder.getId())
@@ -316,15 +327,15 @@ public class GroupBuyTradeService {
     /**
      * 结算单个团。
      */
-    private void settleGroup(Long groupId) {
+    private List<Long> settleGroup(Long groupId) {
         GroupBuyGroupEntity group = groupBuyGroupRepo.findOneByIdForUpdate(groupId);
         if (group == null) {
-            return;
+            return Collections.emptyList();
         }
         if (GroupBuyGroupStatusEnum.SUCCESS.equalsValue(group.getStatus())) {
             // 已成团仅补偿订单状态，不能再次改变团状态。
             this.settleSuccessfulGroupOrders(group.getId());
-            return;
+            return Collections.emptyList();
         }
         if (GroupBuyGroupStatusEnum.FORMING.equalsValue(group.getStatus())
                 && group.getMemberCount() != null && group.getMemberCount() >= group.getMinPeople()) {
@@ -339,7 +350,7 @@ public class GroupBuyTradeService {
             if (completed) {
                 this.settleSuccessfulGroupOrders(group.getId());
             }
-            return;
+            return Collections.emptyList();
         }
         if (GroupBuyGroupStatusEnum.WAIT_PAY.equalsValue(group.getStatus())) {
             // 团长从未支付，团未对外开放，关闭团即可释放最大开团数占位。
@@ -358,20 +369,25 @@ public class GroupBuyTradeService {
                     .set(GroupBuyGroupEntity::getFailedTime, LocalDateTime.now())
                     .update();
             if (!failed) {
-                return;
+                return Collections.emptyList();
             }
         } else {
-            return;
+            return Collections.emptyList();
         }
 
+        List<Long> refundIds = new ArrayList<>();
         List<GroupBuyOrderEntity> groupBuyOrders = groupBuyOrderRepo.lambdaQuery()
                 .eq(GroupBuyOrderEntity::getGroupId, group.getId())
                 .list();
         for (GroupBuyOrderEntity groupBuyOrder : groupBuyOrders) {
             if (GroupBuyOrderStatusEnum.PAID.equalsValue(groupBuyOrder.getStatus())) {
-                this.refundFailedGroupOrder(groupBuyOrder);
+                Long refundId = this.refundFailedGroupOrder(groupBuyOrder);
+                if (refundId != null) {
+                    refundIds.add(refundId);
+                }
             }
         }
+        return refundIds;
     }
 
     /**
@@ -468,14 +484,14 @@ public class GroupBuyTradeService {
     /**
      * 为未成团的已支付参与订单创建自动退款。
      */
-    private void refundFailedGroupOrder(GroupBuyOrderEntity groupBuyOrder) {
+    private Long refundFailedGroupOrder(GroupBuyOrderEntity groupBuyOrder) {
         boolean refunding = groupBuyOrderRepo.lambdaUpdate()
                 .eq(GroupBuyOrderEntity::getId, groupBuyOrder.getId())
                 .eq(GroupBuyOrderEntity::getStatus, GroupBuyOrderStatusEnum.PAID.getValue())
                 .set(GroupBuyOrderEntity::getStatus, GroupBuyOrderStatusEnum.REFUNDING.getValue())
                 .update();
         if (!refunding) {
-            return;
+            return null;
         }
 
         OrderEntity order = orderRepo.getOneById(groupBuyOrder.getOrderId(), "拼团订单不存在");
@@ -483,7 +499,8 @@ public class GroupBuyTradeService {
         boolean orderRefunding = orderRepo.updateStatus(order.getId(),
                 OrderStatusEnum.WAIT_GROUP.getValue(), OrderStatusEnum.REFUND.getValue());
         if (!orderRefunding) {
-            return;
+            // 必须回滚前面的拼团参与状态，避免只剩“退款中”却没有退款任务。
+            throw new BaseException("拼团订单状态已变更，暂时无法创建退款");
         }
         orderRepo.lambdaUpdate()
                 .eq(OrderEntity::getId, order.getId())
@@ -494,21 +511,11 @@ public class GroupBuyTradeService {
         // 自动退款后释放占用优惠券，会员可继续使用。
         this.releaseCoupon(order.getId());
 
-        String refundNo = idService.nextEncodedId();
         // TODO 切换生产支付后，退款金额应使用订单实际支付金额；测试阶段固定退一分钱。
         BigDecimal testAmount = BigDecimal.valueOf(WxPayService.TEST_PAYMENT_AMOUNT_FEN, 2);
-        orderRefundRepo.createOne(order, refundNo, testAmount, testAmount, "拼团活动结束未成团，系统自动退款");
-        afterCommitExecutor.execute(() -> {
-            try {
-                wxPayService.refund(order, refundNo,
-                        "拼团活动结束未成团，系统自动退款",
-                        WxPayService.TEST_PAYMENT_AMOUNT_FEN, WxPayService.TEST_PAYMENT_AMOUNT_FEN);
-            } catch (Exception e) {
-                // 保持退款中状态，补偿任务将复用原退款单号查询并重试。
-                log.error("拼团自动退款调用失败，等待补偿任务重试，orderId={}，refundNo={}",
-                        order.getId(), refundNo, e);
-            }
-        });
+        OrderRefundEntity refund = refundDispatchService.createTask(
+                order, testAmount, testAmount, "拼团活动结束未成团，系统自动退款");
+        return refund.getId();
     }
 
     /**

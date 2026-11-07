@@ -112,20 +112,6 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
     }
 
     /**
-     * 更新退款状态
-     */
-    public boolean updateRefundStatus2(Long orderId, String refundStatus, String summary, LocalDateTime successTime) {
-        LambdaUpdateWrapper<OrderEntity> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(OrderEntity::getId, orderId)
-                // 仅当订单状态为【退款】时才更新退款子状态
-                .eq(OrderEntity::getStatus, OrderStatusEnum.REFUND.getValue())
-                .set(OrderEntity::getRefundStatus, refundStatus)
-                .set(OrderEntity::getRefundSummary, summary)
-                .set(successTime != null, OrderEntity::getRefundSuccessTime, successTime);
-        return super.update(updateWrapper);
-    }
-
-    /**
      * 原子确认退款成功。
      */
     public boolean completeRefund(Long orderId, String summary, LocalDateTime successTime) {
@@ -151,6 +137,18 @@ public class OrderRepo extends BaseRepo<OrderMapper, OrderEntity> {
                 .set(OrderEntity::getRefundStatus, refundStatus)
                 .set(OrderEntity::getRefundSummary, summary)
                 .set(successTime != null, OrderEntity::getRefundSuccessTime, successTime)
+                .update();
+    }
+
+    /**
+     * 退款结果未知时保持处理中，仅写入人工核对提示。
+     */
+    public boolean updateProcessingRefundSummary(Long orderId, String summary) {
+        return lambdaUpdate()
+                .eq(OrderEntity::getId, orderId)
+                .eq(OrderEntity::getStatus, OrderStatusEnum.REFUND.getValue())
+                .eq(OrderEntity::getRefundStatus, RefundStatusEnum.PROCESSING.getValue())
+                .set(OrderEntity::getRefundSummary, summary)
                 .update();
     }
 

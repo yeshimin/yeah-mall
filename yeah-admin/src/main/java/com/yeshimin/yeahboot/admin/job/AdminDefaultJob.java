@@ -7,11 +7,16 @@ import com.yeshimin.yeahboot.basic.service.storage.StorageService;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.data.common.consts.BizConsts;
 import com.yeshimin.yeahboot.data.common.enums.GroupBuyActivityStatusEnum;
+import com.yeshimin.yeahboot.data.common.enums.OrderTypeEnum;
 import com.yeshimin.yeahboot.data.common.properties.SeckillProperties;
 import com.yeshimin.yeahboot.data.domain.entity.GroupBuyActivityEntity;
+import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
+import com.yeshimin.yeahboot.data.domain.entity.OrderRefundEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSkuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SysStorageEntity;
 import com.yeshimin.yeahboot.data.repository.GroupBuyActivityRepo;
+import com.yeshimin.yeahboot.data.repository.OrderRefundRepo;
+import com.yeshimin.yeahboot.data.repository.OrderRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSkuRepo;
 import com.yeshimin.yeahboot.data.repository.SysStorageRepo;
 import com.yeshimin.yeahboot.mq.MqMessage;
@@ -20,6 +25,7 @@ import com.yeshimin.yeahboot.service.GroupBuyStockService;
 import com.yeshimin.yeahboot.service.GroupBuyTradeService;
 import com.yeshimin.yeahboot.service.OrderService;
 import com.yeshimin.yeahboot.service.PointsMallConfigService;
+import com.yeshimin.yeahboot.service.RefundDispatchService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +56,8 @@ public class AdminDefaultJob {
     private final SysStorageRepo sysStorageRepo;
     private final GroupBuyActivityRepo groupBuyActivityRepo;
     private final SeckillSkuRepo seckillSkuRepo;
+    private final OrderRepo orderRepo;
+    private final OrderRefundRepo orderRefundRepo;
 
     private final StorageService storageService;
     private final CacheService cacheService;
@@ -59,6 +67,7 @@ public class AdminDefaultJob {
     private final GroupBuyTradeService groupBuyTradeService;
     private final GroupBuyStockService groupBuyStockService;
     private final OrderService orderService;
+    private final RefundDispatchService refundDispatchService;
     private final AdminPointsMallService adminPointsMallService;
     private final PointsMallConfigService pointsMallConfigService;
 
@@ -234,7 +243,7 @@ public class AdminDefaultJob {
     }
 
     /**
-     * 查询退款中的微信退款单，补偿可能丢失的退款回调。
+     * 扫描已到执行时间的退款任务，补偿 MQ 丢失、进程崩溃或微信回调丢失。
      */
     @Scheduled(fixedDelay = 60_000)
     public void reconcileRefunds() {
@@ -244,8 +253,30 @@ public class AdminDefaultJob {
             return;
         }
         try {
-            orderService.reconcileRefundingOrders();
-            groupBuyTradeService.reconcileRefundingOrders();
+            List<OrderRefundEntity> dueRefunds = orderRefundRepo.findDueList(LocalDateTime.now(), 100);
+            for (OrderRefundEntity refund : dueRefunds) {
+                try {
+                    OrderEntity order = orderRepo.findOneById(refund.getOrderId());
+                    if (order == null) {
+                        log.error("退款任务缺少订单，refundId={}，orderId={}",
+                                refund.getId(), refund.getOrderId());
+                        String processingToken = refundDispatchService.claimDue(refund.getId());
+                        if (processingToken != null) {
+                            refundDispatchService.markFailed(
+                                    refund.getId(), processingToken, "OrderNotFound");
+                        }
+                        continue;
+                    }
+                    if (OrderTypeEnum.GROUP_BUY.equalsValue(order.getOrderType())) {
+                        groupBuyTradeService.reconcileRefund(refund.getId());
+                    } else {
+                        orderService.reconcileRefund(refund.getId());
+                    }
+                } catch (Exception e) {
+                    log.error("退款补偿任务处理失败，refundId={}, error={}",
+                            refund.getId(), e.getClass().getSimpleName());
+                }
+            }
         } finally {
             releaseJobLock(ORDER_REFUND_RECONCILE_LOCK, lockToken);
         }
