@@ -22,7 +22,10 @@ import java.security.PublicKey;
 public class WxPayProperties {
 
     /**
-     * 初始化旧版YML微信支付密钥对象
+     * 初始化旧版YML微信支付密钥对象。
+     * <p>
+     * 配置缺失或密钥文件不存在时不阻断启动，仅记录告警，延迟到实际执行支付相关操作时再报错，
+     * 便于他人拉取代码后无需立即配置完整的支付证书即可启动运行。
      */
     @PostConstruct
     public void init() {
@@ -33,28 +36,47 @@ public class WxPayProperties {
         if (StrUtil.isNotBlank(privateKeyPath)) {
             // 场景：单元测试，如果不做配置，此处会报错，简单以此方法跳过
             if (StrUtil.isNotBlank(privateKeyPath) && !privateKeyPath.startsWith(CommonConsts.VALUE_PLACEHOLDER)) {
-                this.privateKey = WxPayUtils.loadPrivateKeyFromPath(privateKeyPath);
+                try {
+                    this.privateKey = WxPayUtils.loadPrivateKeyFromPath(privateKeyPath);
+                    log.info("WxPayProperties load privateKey success");
+                } catch (Exception e) {
+                    log.warn("WxPayProperties load privateKey failed, will fail when payment is actually performed, path: {}",
+                            privateKeyPath, e);
+                }
             }
         } else if (StrUtil.isNotBlank(privateKeyRaw)) {
-            this.privateKey = WxPayUtils.loadPrivateKeyFromString(privateKeyRaw);
+            try {
+                this.privateKey = WxPayUtils.loadPrivateKeyFromString(privateKeyRaw);
+                log.info("WxPayProperties load privateKey success");
+            } catch (Exception e) {
+                log.warn("WxPayProperties load privateKey from raw failed, will fail when payment is actually performed", e);
+            }
         } else {
-            throw new IllegalArgumentException("WxPayProperties privateKey is required");
+            log.warn("WxPayProperties privateKey is not configured, will fail when payment is actually performed");
         }
-        log.info("WxPayProperties load privateKey success");
 
         // 加载微信支付公钥
         if (StrUtil.isNotBlank(wechatPayPublicKeyPath)) {
-            // 场景：单元测试，如果不做配置，此处会报错，简单以此方法跳过
             if (StrUtil.isNotBlank(wechatPayPublicKeyPath) &&
                     !wechatPayPublicKeyPath.startsWith(CommonConsts.VALUE_PLACEHOLDER)) {
-                this.wechatPayPublicKey = WxPayUtils.loadPublicKeyFromPath(wechatPayPublicKeyPath);
+                try {
+                    this.wechatPayPublicKey = WxPayUtils.loadPublicKeyFromPath(wechatPayPublicKeyPath);
+                    log.info("WxPayProperties load wechatPayPublicKey success");
+                } catch (Exception e) {
+                    log.warn("WxPayProperties load wechatPayPublicKey failed, will fail when payment is actually performed, path: {}",
+                            wechatPayPublicKeyPath, e);
+                }
             }
         } else if (StrUtil.isNotBlank(wechatPayPublicKeyRaw)) {
-            this.wechatPayPublicKey = WxPayUtils.loadPublicKeyFromString(wechatPayPublicKeyRaw);
+            try {
+                this.wechatPayPublicKey = WxPayUtils.loadPublicKeyFromString(wechatPayPublicKeyRaw);
+                log.info("WxPayProperties load wechatPayPublicKey success");
+            } catch (Exception e) {
+                log.warn("WxPayProperties load wechatPayPublicKey from raw failed, will fail when payment is actually performed", e);
+            }
         } else {
-            throw new IllegalArgumentException("WxPayProperties wechatPayPublicKey is required");
+            log.warn("WxPayProperties wechatPayPublicKey is not configured, will fail when payment is actually performed");
         }
-        log.info("WxPayProperties load wechatPayPublicKey success");
     }
 
     // appid
