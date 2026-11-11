@@ -1,0 +1,97 @@
+/* 平台分类树（原型）：树形组织、无分页、默认折叠 */
+.platform-category-page .ptc-count { color: var(--muted); font-size: 12px; }
+.platform-category-page .ptc-tools { display: flex; align-items: center; gap: 6px; }
+
+.platform-category-page .filter-business-actions .business-danger {
+  color: var(--price);
+  border-color: #e6cdc6;
+  background: #fff;
+}
+.platform-category-page .filter-business-actions .business-danger:disabled {
+  color: #9aa8a0;
+  border-color: var(--line);
+  background: #f7faf8;
+  cursor: not-allowed;
+}
+
+.admin-shell-light .ptc-table th.ptc-name-head,
+.admin-shell-light .ptc-table td.ptc-name-cell {
+  padding-left: 14px;
+  text-align: left;
+}
+
+.ptc-table .ptc-name-cell { min-width: 260px; }
+.ptc-table .ptc-check { width: 44px; }
+
+.ptc-cell { display: flex; align-items: center; gap: 6px; min-width: 0; }
+
+.ptc-caret {
+  display: grid;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  place-items: center;
+  color: var(--brand);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.ptc-caret::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform .16s ease;
+}
+.ptc-caret.open::before { transform: rotate(90deg); }
+.ptc-caret.leaf { visibility: hidden; }
+
+.ptc-name {
+  overflow: hidden;
+  color: var(--ink-2);
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ptc-name.is-root { color: var(--ink); font-weight: 700; }
+
+.ptc-chip {
+  display: inline-grid;
+  flex: 0 0 auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  place-items: center;
+  color: var(--muted);
+  background: #eef2ef;
+  border-radius: 9px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.ptc-thumb {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, #7fa695, #24634f);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.ptc-thumb.t2 { background: linear-gradient(135deg, #a8b7c9, #5d7b96); }
+.ptc-thumb.t3 { background: linear-gradient(135deg, #d8b98a, #a67c3e); }
+
+.ptc-muted { color: var(--muted); }
+
+.ptc-actions { white-space: nowrap; }
+.ptc-actions .table-link { padding: 0 4px; font-size: 12px; }
+.ptc-actions .table-link.danger { color: var(--price); }
+
+.ptc-remark { margin-top: 6px; }
+.ptc-dialog-tip { margin: 10px 0 0; color: var(--muted); font-size: 11px; }

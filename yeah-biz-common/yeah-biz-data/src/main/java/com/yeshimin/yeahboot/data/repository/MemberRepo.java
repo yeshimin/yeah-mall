@@ -24,8 +24,11 @@ public class MemberRepo extends BaseRepo<MemberMapper, MemberEntity> {
     /**
      * 查询平台会员管理列表。
      */
-    public IPage<AdminMemberVo> queryAdminMembers(Page<AdminMemberVo> page, Long memberId, String keyword) {
-        return this.baseMapper.queryAdminMembers(page, memberId, keyword);
+    public IPage<AdminMemberVo> queryAdminMembers(Page<AdminMemberVo> page, Long memberId, String keyword,
+                                                  Integer pointsMin, Integer pointsMax,
+                                                  String registerStart, String registerEnd) {
+        return this.baseMapper.queryAdminMembers(page, memberId, keyword,
+                pointsMin, pointsMax, registerStart, registerEnd);
     }
 
     /**

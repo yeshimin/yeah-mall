@@ -40,7 +40,20 @@
                 member.nickname LIKE CONCAT('%', #{keyword}, '%')
                 OR member.account LIKE CONCAT('%', #{keyword}, '%')
                 OR member.mobile LIKE CONCAT('%', #{keyword}, '%')
+                OR CAST(member.id AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
             )
+        </if>
+        <if test="pointsMin != null">
+            AND COALESCE(points.balance, 0) &gt;= #{pointsMin}
+        </if>
+        <if test="pointsMax != null">
+            AND COALESCE(points.balance, 0) &lt;= #{pointsMax}
+        </if>
+        <if test="registerStart != null and registerStart != ''">
+            AND member.create_time &gt;= CONCAT(#{registerStart}, ' 00:00:00')
+        </if>
+        <if test="registerEnd != null and registerEnd != ''">
+            AND member.create_time &lt;= CONCAT(#{registerEnd}, ' 23:59:59')
         </if>
         ORDER BY member.create_time DESC
     </select>

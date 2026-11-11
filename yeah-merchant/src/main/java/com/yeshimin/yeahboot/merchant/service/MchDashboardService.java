@@ -10,8 +10,10 @@ import com.yeshimin.yeahboot.data.domain.entity.ProductSpuEntity;
 import com.yeshimin.yeahboot.data.repository.OrderRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSkuRepo;
 import com.yeshimin.yeahboot.data.repository.ProductSpuRepo;
+import com.yeshimin.yeahboot.data.domain.vo.DashboardTrendVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.MchDashboardVo;
 import com.yeshimin.yeahboot.merchant.domain.vo.MchStockWarningVo;
+import com.yeshimin.yeahboot.service.DashboardTrendService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,7 @@ public class MchDashboardService {
     private final OrderRepo orderRepo;
     private final ProductSkuRepo productSkuRepo;
     private final ProductSpuRepo productSpuRepo;
+    private final DashboardTrendService dashboardTrendService;
 
     /**
      * 查询当前店铺经营概览。
@@ -86,6 +89,14 @@ public class MchDashboardService {
                 .filter(amount -> amount != null)
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
         return result;
+    }
+
+    /**
+     * 查询当前店铺近 N 日交易趋势。
+     */
+    public List<DashboardTrendVo> queryTrend(Long mchId, Long shopId, Integer days) {
+        permissionService.checkShop(mchId, shopId);
+        return dashboardTrendService.queryTrend(shopId, days);
     }
 
     private List<MchStockWarningVo> toStockWarnings(List<ProductSkuEntity> skus) {

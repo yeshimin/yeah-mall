@@ -1654,6 +1654,12 @@ function AdminTopbar({ surface, page, route, navigate, notify, collapsed, onTogg
   const names = { overview:'经营概览', merchants:'商家管理', shops:'店铺管理', members:'会员管理', order:'订单管理', reviews:'评价管理', points:'积分管理', 'points-mall':'积分商城', seckill:'秒杀管理', groupbuy:'拼团管理', content:'首页运营', feedback:'意见反馈', products:'SPU 管理', sku:'SKU 管理', categories:surface==='platform'?'平台分类':'商品分类', specs:'规格管理', banner:'轮播图', orders:'订单管理', coupons:'优惠券管理', shipping:'物流设置', service:'客服消息', settings:'店铺设置', settlement:'结算管理', system:'系统管理' };
   const systemNames = {user:'用户管理',org:'组织管理',position:'岗位管理',role:'角色管理',resource:'资源管理',dict:'字典管理',config:'系统参数',file:'文件管理',storage:'存储管理',log:'系统日志',area:'地区管理'};
   const subName = routeParam(route,'tab') || systemNames[routeParam(route,'view')];
+  const sectionNames = surface === 'platform'
+    ? { merchants:'商城管理', shops:'商城管理', categories:'商城管理', members:'商城管理', reviews:'商城管理', points:'商城管理', 'points-mall':'商城管理', content:'商城管理', feedback:'商城管理', seckill:'秒杀管理', groupbuy:'拼团管理', settlement:'资金结算', system:'系统管理' }
+    : { products:'商品管理', categories:'商品管理', specs:'商品管理', orders:'交易服务', reviews:'交易服务', service:'交易服务', coupons:'优惠券管理', seckill:'秒杀管理', groupbuy:'拼团管理', banner:'店铺管理', shipping:'店铺管理', settings:'店铺管理', settlement:'资金结算' };
+  const sectionName = sectionNames[page] || '';
+  const pageTitle = names[page] || '商城管理';
+  const showSection = Boolean(sectionName && sectionName !== pageTitle);
   const notifications = surface==='platform'
     ? [['3 个商家账号待复核','platform/merchants','Avatar'],['2 条秒杀报名待审核','platform/seckill?tab=报名审核','DocumentChecked'],['5 条意见反馈待处理','platform/feedback','ChatDotRound']]
     : [['12 笔订单等待发货','merchant/orders','Tickets'],['6 条评价等待回复','merchant/reviews','ChatDotRound'],['4 个商品库存偏低','merchant/sku','Goods']];
@@ -1662,7 +1668,7 @@ function AdminTopbar({ surface, page, route, navigate, notify, collapsed, onTogg
   return (
     <>
       {panel&&<button className="admin-popover-backdrop" aria-label="关闭浮层" onClick={()=>setPanel('')}></button>}
-      <header className="admin-topbar"><div><button className="sidebar-collapse-button" title={collapsed?'展开菜单':'折叠菜单'} onClick={onToggleSidebar}><AdminIcon name={collapsed?'Expand':'Fold'} size={18}/></button><span>{surface === 'platform' ? '平台后台' : '商家后台'}</span><AdminIcon name="ArrowRight" size={14}/><b>{names[page] || '商城管理'}</b>{subName&&<><AdminIcon name="ArrowRight" size={14}/><b>{subName}</b></>}</div><div>{surface==='merchant'&&<span className="current-shop-chip"><AdminIcon name="Shop" size={15}/>山野生活店</span>}
+      <header className="admin-topbar"><div><button className="sidebar-collapse-button" title={collapsed?'展开菜单':'折叠菜单'} onClick={onToggleSidebar}><AdminIcon name={collapsed?'Expand':'Fold'} size={18}/></button>{showSection&&<><span>{sectionName}</span><AdminIcon name="ArrowRight" size={14}/></>}<b>{pageTitle}</b>{subName&&<><AdminIcon name="ArrowRight" size={14}/><b>{subName}</b></>}</div><div>{surface==='merchant'&&<span className="current-shop-chip"><AdminIcon name="Shop" size={15}/>山野生活店</span>}
         <span className="topbar-action-wrap"><button className="notification-button" title="通知中心" onClick={()=>setPanel(panel==='notice'?'':'notice')}><AdminIcon name="Bell"/><i></i></button>{panel==='notice'&&<div className="topbar-popover notice-popover"><div className="popover-heading"><div><b>通知中心</b><span>待处理业务提醒</span></div><StatusTicket tone="warning">3 条</StatusTicket></div><div className="popover-list">{notifications.map(([label,target,icon],index)=><button key={target} onClick={()=>openRoute(target)}><span><i className="notice-icon"><AdminIcon name={icon} size={16}/></i><span><b>{label}</b><small>{index===0?'刚刚':index===1?'12 分钟前':'1 小时前'}</small></span></span><AdminIcon name="ArrowRight" size={14}/></button>)}</div><button className="popover-footer" onClick={()=>{setPanel('');notify('全部通知已标记为已读');}}>全部标记为已读</button></div>}</span>
         <span className="topbar-action-wrap"><button className="topbar-account-trigger" title="账号菜单" onClick={()=>setPanel(panel==='account'?'':'account')}><AdminAvatar size={32}/><span>{surface==='platform'?'管理员':'山野生活店'}</span><AdminIcon name="ArrowDown" size={14}/></button>{panel==='account'&&<div className="topbar-popover account-popover"><div className="account-summary"><AdminAvatar size={42}/><span><b>{surface==='platform'?'平台管理员':'山野生活店'}</b><small>{surface==='platform'?'admin · 超级管理员':'mch001 · 商家账号'}</small></span></div><div className="account-menu"><button onClick={()=>setPanel('profile')}><AdminIcon name="User" size={16}/>个人中心</button><button onClick={()=>{setPanel('');notify('已安全退出原型账号');}}><AdminIcon name="SwitchButton" size={16}/>退出登录</button></div></div>}{panel==='profile'&&<div className="topbar-popover profile-popover"><div className="popover-heading"><div><b>个人资料</b><span>当前登录账号信息</span></div><button className="popover-back" onClick={()=>setPanel('account')}><AdminIcon name="Back" size={15}/></button></div><div className="profile-popover-body"><div className="account-summary"><AdminAvatar size={46}/><span><b>{surface==='platform'?'平台管理员':'山野生活店'}</b><small>{surface==='platform'?'超级管理员':'商家账号'}</small></span></div><label><span>登录账号</span><input value={surface==='platform'?'admin':'mch001'} readOnly/></label><label><span>显示名称</span><input defaultValue={surface==='platform'?'平台管理员':'山野生活店'}/></label></div><div className="profile-popover-actions"><button onClick={()=>setPanel('account')}>取消</button><button className="primary" onClick={()=>{setPanel('');notify('个人资料已保存');}}>保存</button></div></div>}</span>
       </div></header>
@@ -1837,17 +1843,30 @@ function PlatformShops({ notify }) {
   </section>;
 }
 
-function AdminMembers({ members, setMembers, notify }) {
+function AdminMembers({ members, setMembers, notify, navigate }) {
   const [keyword, setKeyword] = useState('');
+  const [pointsRange, setPointsRange] = useState('all');
+  const [registeredFrom, setRegisteredFrom] = useState('');
+  const [registeredTo, setRegisteredTo] = useState('');
   const [filtered, setFiltered] = useState(members);
   const [drawer, setDrawer] = useState(null);
   const [menu, setMenu] = useState(null);
   const [adjust, setAdjust] = useState(null);
   const [amount, setAmount] = useState(100);
   const [remark, setRemark] = useState('');
-  const [ledger,setLedger] = useState(null);
   useEffect(() => setFiltered(members), [members]);
-  const search = () => setFiltered(members.filter((item) => `${item.id}${item.nickname}${item.account}${item.mobile}`.includes(keyword.trim())));
+  const search = () => setFiltered(members.filter((item) => {
+    const textMatch = `${item.id}${item.nickname}${item.account}${item.mobile}`.includes(keyword.trim());
+    const points = Number(item.points || 0);
+    const pointsMatch = pointsRange === 'all'
+      || (pointsRange === 'zero' && points === 0)
+      || (pointsRange === 'low' && points > 0 && points < 1000)
+      || (pointsRange === 'high' && points >= 1000);
+    const registeredDate = item.createdAt.slice(0, 10);
+    const afterFrom = !registeredFrom || registeredDate >= registeredFrom;
+    const beforeTo = !registeredTo || registeredDate <= registeredTo;
+    return textMatch && pointsMatch && afterFrom && beforeTo;
+  }));
   const saveAdjust = () => {
     const delta = adjust.type === 'increase' ? Number(amount) : -Number(amount);
     if (!amount || amount < 1) return notify('调整积分必须大于 0');
@@ -1857,21 +1876,243 @@ function AdminMembers({ members, setMembers, notify }) {
   };
   return (
     <section className="admin-page" data-screen-label="平台后台会员管理">
-      <FilterBar onReset={() => { setKeyword(''); setFiltered(members); }} onSearch={search} actions={<button onClick={()=>notify('当前会员结果已导出')}><AdminIcon name="filter" size={17}/>导出结果</button>}>
+      <FilterBar onReset={() => { setKeyword(''); setPointsRange('all'); setRegisteredFrom(''); setRegisteredTo(''); setFiltered(members); }} onSearch={search} actions={<button onClick={()=>notify('当前会员结果已导出')}><AdminIcon name="filter" size={17}/>导出结果</button>}>
         <label><span>会员关键词</span><input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="昵称、账号或手机号" onKeyDown={(e) => e.key === 'Enter' && search()}/></label>
-        <label><span>积分范围</span><select defaultValue="all"><option value="all">全部积分</option><option>0 积分</option><option>1–999</option><option>1000 以上</option></select></label>
-        <label><span>注册时间</span><input type="date" defaultValue="2026-10-01"/></label>
+        <label><span>积分范围</span><select value={pointsRange} onChange={(e)=>setPointsRange(e.target.value)}><option value="all">全部积分</option><option value="zero">0 积分</option><option value="low">1–999</option><option value="high">1000 以上</option></select></label>
+        <label className="member-date-range"><span>注册时间</span><span className="filter-date-range"><input type="date" value={registeredFrom} onChange={(e)=>setRegisteredFrom(e.target.value)}/><i>至</i><input type="date" value={registeredTo} onChange={(e)=>setRegisteredTo(e.target.value)}/></span></label>
       </FilterBar>
       <div className="admin-table-frame">
-        <table className="admin-table"><thead><tr><th>会员</th><th>账号</th><th>手机号</th><th className="numeric">可用积分</th><th className="numeric">累计获得</th><th>注册时间</th><th className="actions">操作</th></tr></thead>
-          <tbody>{filtered.map((member) => <tr key={member.id}><td><div className="member-table-cell"><Avatar name={member.nickname} tone={member.tone}/><div><b><CopyableText value={member.nickname} label="会员名称" notify={notify}/></b><small>ID {member.id}</small></div></div></td><td><CopyableText value={member.account} label="会员账号" notify={notify}/></td><td className="mono"><CopyableText value={member.mobile} label="手机号" notify={notify}/></td><td className="numeric points-number">{member.points.toLocaleString()}</td><td className="numeric">{member.earned.toLocaleString()}</td><td><span>{member.createdAt.slice(0,10)}</span><small className="cell-sub">{member.createdAt.slice(11)}</small></td><td className="actions"><button className="table-link" onClick={() => setDrawer(member)}>查看</button><span className="row-menu-wrap"><button className="table-more" onClick={() => setMenu(menu === member.id ? null : member.id)}>更多 <AdminIcon name="down" size={14}/></button>{menu === member.id && <span className="row-menu"><button onClick={() => { setAdjust({ type:'increase', member }); setMenu(null); }}>增加积分</button><button onClick={() => { setAdjust({ type:'decrease', member }); setMenu(null); }}>扣减积分</button><button onClick={() => { setLedger(member); setMenu(null); }}>积分流水</button></span>}</span></td></tr>)}</tbody>
+        <table className="admin-table"><thead><tr><th>会员</th><th>账号</th><th>手机号</th><th className="numeric">可用积分</th><th className="numeric">累计获得</th><th className="numeric">累计使用</th><th>注册时间</th><th className="actions">操作</th></tr></thead>
+          <tbody>{filtered.map((member) => <tr key={member.id}><td><div className="member-table-cell"><Avatar name={member.nickname} tone={member.tone}/><div><b><CopyableText value={member.nickname} label="会员名称" notify={notify}/></b><small>ID <CopyableText value={member.id} label="会员ID" notify={notify}/></small></div></div></td><td><CopyableText value={member.account} label="会员账号" notify={notify}/></td><td className="mono"><CopyableText value={member.mobile} label="手机号" notify={notify}/></td><td className="numeric points-number">{member.points.toLocaleString()}</td><td className="numeric">{member.earned.toLocaleString()}</td><td className="numeric">{member.used.toLocaleString()}</td><td><span>{member.createdAt.slice(0,10)}</span><small className="cell-sub">{member.createdAt.slice(11)}</small></td><td className="actions"><button className="table-link" onClick={() => setDrawer(member)}>查看</button><span className="row-menu-wrap"><button className="table-more" onClick={() => setMenu(menu === member.id ? null : member.id)}>更多 <AdminIcon name="down" size={14}/></button>{menu === member.id && <span className="row-menu"><button onClick={() => { setAdjust({ type:'increase', member }); setMenu(null); }}>增加积分</button><button onClick={() => { setAdjust({ type:'decrease', member }); setMenu(null); }}>扣减积分</button><button onClick={() => { setMenu(null); navigate(`platform/points?tab=${encodeURIComponent('积分流水')}&memberId=${member.id}`); }}>积分流水</button></span>}</span></td></tr>)}</tbody>
         </table>
         {!filtered.length && <div className="admin-empty"><AdminIcon name="members" size={30}/><b>没有匹配的会员</b><span>修改筛选条件后重试</span></div>}
         <AdminPagination count={filtered.length || 0}/>
       </div>
-      {drawer && <div className="drawer-mask" onClick={() => setDrawer(null)}><aside className="admin-drawer" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">MEMBER PROFILE</span><h2>会员详情</h2></div><button onClick={() => setDrawer(null)}>×</button></div><div className="profile-summary"><Avatar name={drawer.nickname} tone={drawer.tone} size={54}/><div><h3><CopyableText value={drawer.nickname} label="会员名称" notify={notify}/></h3><span><CopyableText value={drawer.account} label="会员账号" notify={notify}/> · <CopyableText value={drawer.mobile} label="手机号" notify={notify}/></span></div><StatusTicket tone="success">正常</StatusTicket></div><div className="profile-metrics"><div><span>可用积分</span><b>{drawer.points.toLocaleString()}</b></div><div><span>累计获得</span><b>{drawer.earned.toLocaleString()}</b></div><div><span>累计使用</span><b>{drawer.used.toLocaleString()}</b></div></div><div className="description-grid">{[['会员ID',drawer.id],['性别',drawer.gender],['生日',drawer.birthday],['注册时间',drawer.createdAt],['最近更新','2026-10-26 18:42:10']].map(([k,v]) => <div key={k}><span>{k}</span><b>{k==='会员ID'?<CopyableText value={v} label="会员ID" notify={notify}/>:v}</b></div>)}</div><div className="drawer-actions"><button onClick={() => { setAdjust({type:'increase',member:drawer}); setDrawer(null); }}>调整积分</button><button className="primary" onClick={() => {setLedger(drawer);setDrawer(null);}}>查看积分流水</button></div></aside></div>}
+      {drawer && <div className="drawer-mask" onClick={() => setDrawer(null)}><aside className="admin-drawer" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">MEMBER PROFILE</span><h2>会员详情</h2></div><button onClick={() => setDrawer(null)}>×</button></div><div className="profile-summary"><Avatar name={drawer.nickname} tone={drawer.tone} size={54}/><div><h3><CopyableText value={drawer.nickname} label="会员名称" notify={notify}/></h3><span><CopyableText value={drawer.account} label="会员账号" notify={notify}/> · <CopyableText value={drawer.mobile} label="手机号" notify={notify}/></span></div><StatusTicket tone="success">正常</StatusTicket></div><div className="profile-metrics"><div><span>可用积分</span><b>{drawer.points.toLocaleString()}</b></div><div><span>累计获得</span><b>{drawer.earned.toLocaleString()}</b></div><div><span>累计使用</span><b>{drawer.used.toLocaleString()}</b></div></div><div className="description-grid">{[['会员ID',drawer.id],['性别',drawer.gender],['生日',drawer.birthday],['注册时间',drawer.createdAt],['最近更新',drawer.updatedAt || drawer.createdAt]].map(([k,v]) => <div key={k}><span>{k}</span><b>{k==='会员ID'?<CopyableText value={v} label="会员ID" notify={notify}/>:v}</b></div>)}</div><div className="drawer-actions"><button onClick={() => { setAdjust({type:'increase',member:drawer}); setDrawer(null); }}>调整积分</button><button className="primary" onClick={() => {setDrawer(null);navigate(`platform/points?tab=${encodeURIComponent('积分流水')}&memberId=${drawer.id}`);}}>查看积分流水</button></div></aside></div>}
       {adjust && <div className="dialog-mask" onClick={() => setAdjust(null)}><section className="admin-dialog points-dialog" onClick={(e) => e.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">POINTS ADJUSTMENT</span><h2>{adjust.type === 'increase' ? '增加积分' : '扣减积分'}</h2></div><button onClick={() => setAdjust(null)}>×</button></div><div className="dialog-member"><Avatar name={adjust.member.nickname} tone={adjust.member.tone}/><div><b>{adjust.member.nickname}</b><span>当前可用积分 {adjust.member.points.toLocaleString()}</span></div></div><label className="dialog-field"><span>调整积分</span><input type="number" min="1" value={amount} onChange={(e) => setAmount(Number(e.target.value))}/></label><div className="balance-preview"><span>调整后积分</span><b>{Math.max(0, adjust.member.points + (adjust.type === 'increase' ? Number(amount) : -Number(amount))).toLocaleString()}</b></div><label className="dialog-field"><span>备注 <small>选填</small></span><textarea value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="说明本次调整用途"></textarea></label><div className="dialog-actions"><button onClick={() => setAdjust(null)}>取消</button><button className="primary" onClick={saveAdjust}>确认调整</button></div></section></div>}
-      {ledger&&<div className="dialog-mask" onClick={()=>setLedger(null)}><section className="admin-dialog ledger-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">POINTS LEDGER</span><h2>{ledger.nickname}的积分流水</h2></div><button onClick={()=>setLedger(null)}>×</button></div><div className="dialog-member"><Avatar name={ledger.nickname} tone={ledger.tone}/><div><b>当前可用积分 {ledger.points.toLocaleString()}</b><span>会员 ID {ledger.id}</span></div></div><table className="mini-data-table"><thead><tr><th>时间</th><th>业务类型</th><th>变动</th><th>余额</th></tr></thead><tbody><tr><td>11-01 18:42</td><td>订单完成</td><td className="positive-amount">+399</td><td>{ledger.points}</td></tr><tr><td>10-28 09:16</td><td>完成评价</td><td className="positive-amount">+10</td><td>{Math.max(0,ledger.points-399)}</td></tr><tr><td>10-24 16:30</td><td>积分兑换</td><td className="negative-amount">-300</td><td>{Math.max(0,ledger.points-409)}</td></tr></tbody></table><div className="dialog-actions"><button onClick={()=>setLedger(null)}>关闭</button><button className="primary" onClick={()=>notify('积分流水已导出')}>导出流水</button></div></section></div>}
+          </section>
+  );
+}
+
+const REVIEW_ROWS_INITIAL = [
+  { id:'r-1', spuId:'2117483241846419458', product:'云感降噪头戴耳机', spec:'雾银 / 标准版', orderNo:'YM202611020018', shopId:'SHAN-YE', user:'林可', rating:5, content:'佩戴舒适，降噪效果很好，通勤使用很合适。', hasImage:true, replied:true, lastReply:'merchant', visible:true, time:'2026-11-01 18:42:10', art:'headphone', images:['headphone','headphone'], replies:[{sender:'merchant',content:'感谢认可，耳罩支持拆卸清洁。',time:'2026-11-01 19:20'},{sender:'buyer',content:'好的，请问替换耳罩可以单独购买吗？',time:'2026-11-01 19:36'}] },
+  { id:'r-2', spuId:'2117483241846419461', product:'白茶屏障修护精华', spec:'30ml', orderNo:'YM202611010086', shopId:'YEAH-DIGITAL', user:'陈一禾', rating:5, content:'敏感肌使用没有刺激，吸收速度比较快。', hasImage:false, replied:false, lastReply:'', visible:true, time:'2026-10-28 09:16:22', art:'serum', images:[], replies:[] },
+  { id:'r-3', spuId:'2117483241846419464', product:'山野拼配挂耳咖啡', spec:'10 片装', orderNo:'YM202610290032', shopId:'SHAN-YE', user:'周予安', rating:3, content:'包装有轻微压痕，咖啡本身没有受影响。', hasImage:true, replied:true, lastReply:'buyer', visible:false, time:'2026-10-24 16:30:08', art:'coffee', images:['coffee'], replies:[{sender:'merchant',content:'已为您登记包装问题并反馈仓库。',time:'2026-10-25 09:12'},{sender:'buyer',content:'收到，希望后续改进包装。',time:'2026-10-25 09:40'}] }
+];
+
+const REVIEW_SPU_OPTIONS = [
+  { value:'2117483241846419458', label:'云感降噪头戴耳机', id:'SPU 2117483241846419458' },
+  { value:'2117483241846419461', label:'白茶屏障修护精华', id:'SPU 2117483241846419461' },
+  { value:'2117483241846419464', label:'山野拼配挂耳咖啡', id:'SPU 2117483241846419464' },
+  { value:'2117483241846419470', label:'弧光人体工学休闲椅', id:'SPU 2117483241846419470' }
+];
+const REVIEW_SHOP_OPTIONS = [
+  { value:'SHAN-YE', label:'山野生活店', id:'SHAN-YE' },
+  { value:'YEAH-DIGITAL', label:'Yeah 数码生活馆', id:'YEAH-DIGITAL' },
+  { value:'WHITE-TEA', label:'白茶生活馆', id:'WHITE-TEA' }
+];
+
+function ReviewSearchPicker({ value, options, placeholder, onChange }) {
+  const [open,setOpen] = useState(false);
+  const [keyword,setKeyword] = useState('');
+  const selected = options.find((item)=>item.value===value);
+  const filtered = options.filter((item)=>`${item.label}${item.id}`.toLowerCase().includes(keyword.trim().toLowerCase()));
+  return <div className="review-search-picker">
+    <input
+      value={open?keyword:(selected?selected.label:'')}
+      placeholder={placeholder}
+      onFocus={()=>{setOpen(true);setKeyword('');}}
+      onChange={(event)=>{setKeyword(event.target.value); if(!open) setOpen(true);}}
+      onBlur={()=>window.setTimeout(()=>setOpen(false),120)}
+    />
+    {value&&!open&&<button type="button" className="review-search-clear" onMouseDown={(event)=>event.preventDefault()} onClick={()=>onChange('')}>×</button>}
+    {open&&<div className="review-search-menu">
+      {filtered.map((item)=><button type="button" key={item.value} onMouseDown={(event)=>event.preventDefault()} onClick={()=>{onChange(item.value);setOpen(false);}}><b>{item.label}</b><span>{item.id}</span></button>)}
+      {!filtered.length&&<div className="review-search-empty">无匹配结果</div>}
+    </div>}
+  </div>;
+}
+
+function AdminReviews({ notify }) {
+  const [rows,setRows] = useState(REVIEW_ROWS_INITIAL);
+  const [filters,setFilters] = useState({ spu:'', shop:'', rating:'全部等级', image:'全部图片', reply:'全部状态', visible:'全部状态', from:'', to:'' });
+  const [detail,setDetail] = useState(null);
+  const updateFilter=(key,value)=>setFilters({...filters,[key]:value});
+  const resetFilters=()=>setFilters({ spu:'', shop:'', rating:'全部等级', image:'全部图片', reply:'全部状态', visible:'全部状态', from:'', to:'' });
+  const replyLabel=(row)=>row.lastReply==='buyer'?'买家已回复':row.replied?'商家已回复':'待商家回复';
+  const replyTone=(row)=>!row.replied?'warning':row.lastReply==='buyer'?'info':'success';
+  const filtered = rows.filter((row) => {
+    if(filters.spu && row.spuId!==filters.spu) return false;
+    if(filters.shop && row.shopId!==filters.shop) return false;
+    if(filters.rating!=='全部等级'){
+      const bucket=filters.rating==='好评'?[4,5]:filters.rating==='中评'?[3]:[1,2];
+      if(!bucket.includes(row.rating)) return false;
+    }
+    if(filters.image!=='全部图片' && row.hasImage!==(filters.image==='有图')) return false;
+    if(filters.reply!=='全部状态' && row.replied!==(filters.reply==='已回复')) return false;
+    if(filters.visible!=='全部状态' && row.visible!==(filters.visible==='公开')) return false;
+    const day=row.time.slice(0,10);
+    if(filters.from && day<filters.from) return false;
+    if(filters.to && day>filters.to) return false;
+    return true;
+  });
+  const toggleVisibility=(row)=>{
+    const next=rows.map((item)=>item.id===row.id?{...item,visible:!item.visible}:item);
+    setRows(next);
+    if(detail?.id===row.id) setDetail({...row,visible:!row.visible});
+    notify(`评价已${row.visible?'隐藏':'恢复公开'}`);
+  };
+  return (
+    <section className="admin-page review-admin-page" data-screen-label="平台后台评价管理">
+      <FilterBar onReset={resetFilters} onSearch={()=>notify(`找到 ${filtered.length} 条评价`)}>
+        <label className="review-search-field"><span>商品 SPU</span><ReviewSearchPicker value={filters.spu} options={REVIEW_SPU_OPTIONS} placeholder="搜索商品名称或 SPU ID" onChange={(value)=>updateFilter('spu',value)}/></label>
+        <label className="review-search-field"><span>店铺</span><ReviewSearchPicker value={filters.shop} options={REVIEW_SHOP_OPTIONS} placeholder="搜索店铺名称或编号" onChange={(value)=>updateFilter('shop',value)}/></label>
+        <label><span>评价等级</span><select value={filters.rating} onChange={(e)=>updateFilter('rating',e.target.value)}>{['全部等级','好评','中评','差评'].map((item)=><option key={item}>{item}</option>)}</select></label>
+        <label><span>评价图片</span><select value={filters.image} onChange={(e)=>updateFilter('image',e.target.value)}>{['全部图片','有图','无图'].map((item)=><option key={item}>{item}</option>)}</select></label>
+        <label><span>回复状态</span><select value={filters.reply} onChange={(e)=>updateFilter('reply',e.target.value)}>{['全部状态','已回复','未回复'].map((item)=><option key={item}>{item}</option>)}</select></label>
+        <label><span>公开状态</span><select value={filters.visible} onChange={(e)=>updateFilter('visible',e.target.value)}>{['全部状态','公开','已隐藏'].map((item)=><option key={item}>{item}</option>)}</select></label>
+        <label className="review-date-range"><span>评价时间</span><span className="filter-date-range"><input type="date" value={filters.from} onChange={(e)=>updateFilter('from',e.target.value)}/><i>至</i><input type="date" value={filters.to} onChange={(e)=>updateFilter('to',e.target.value)}/></span></label>
+      </FilterBar>
+      <div className="admin-table-frame">
+        <table className="admin-table review-admin-table">
+          <thead><tr><th>商品</th><th>规格</th><th>订单编号</th><th>用户</th><th className="numeric">评分</th><th>评价内容</th><th>回复</th><th>状态</th><th>评价时间</th><th className="actions">操作</th></tr></thead>
+          <tbody>{filtered.map((row)=><tr key={row.id}>
+            <td><div className="admin-product-cell review-product-cell"><ProductArt type={row.art}/><div><b><CopyableText value={row.product} label="商品名称" notify={notify}/></b><small>SPU {row.spuId}</small></div></div></td>
+            <td>{row.spec}</td>
+            <td className="mono"><CopyableText value={row.orderNo} label="订单编号" notify={notify}/></td>
+            <td>{row.user}</td>
+            <td className="numeric">{row.rating} 星</td>
+            <td><span className="review-content-text">{row.content}</span></td>
+            <td><StatusTicket tone={replyTone(row)}>{replyLabel(row)}</StatusTicket></td>
+            <td><StatusTicket tone={row.visible?'success':'neutral'}>{row.visible?'公开':'已隐藏'}</StatusTicket></td>
+            <td><span>{row.time.slice(0,10)}</span><small className="cell-sub">{row.time.slice(11)}</small></td>
+            <td className="actions"><button className="table-link" onClick={()=>setDetail(row)}>详情</button><button className={`table-link ${row.visible?'danger-link':''}`} onClick={()=>toggleVisibility(row)}>{row.visible?'隐藏':'恢复'}</button></td>
+          </tr>)}</tbody>
+        </table>
+        {!filtered.length&&<div className="admin-empty"><AdminIcon name="ChatDotRound" size={28}/><b>没有匹配的评价</b><span>调整筛选条件后重试</span></div>}
+        <AdminPagination count={filtered.length}/>
+      </div>
+      {detail&&<div className="drawer-mask" onClick={()=>setDetail(null)}><aside className="admin-drawer review-detail-drawer" onClick={(event)=>event.stopPropagation()}>
+        <div className="drawer-head"><div><span className="drawer-kicker">REVIEW DETAIL</span><h2>评价详情</h2></div><button onClick={()=>setDetail(null)}>×</button></div>
+        <div className="review-detail-product"><ProductArt type={detail.art}/><div><b>{detail.product}</b><span>{detail.spec} · 订单 {detail.orderNo}</span><span>{detail.user} · {detail.time}</span></div><StatusTicket tone={detail.visible?'success':'neutral'}>{detail.visible?'公开':'已隐藏'}</StatusTicket></div>
+        <div className="review-detail-content">{detail.content}</div>
+        {detail.images?.length>0&&<div className="review-detail-images">{detail.images.map((image,index)=><ProductArt key={index} type={image}/>)}</div>}
+        <div className="drawer-section"><h3>回复记录</h3>{detail.replies?.length?<div className="review-reply-list">{detail.replies.map((reply,index)=><div className="review-reply-item" key={index}><b>{reply.sender==='merchant'?'商家回复':'买家回复'}</b><p>{reply.content}</p><span>{reply.time}</span></div>)}</div>:<p className="review-no-reply">暂无回复记录</p>}</div>
+        <div className="drawer-actions"><button onClick={()=>setDetail(null)}>关闭</button><button className={detail.visible?'':'primary'} onClick={()=>toggleVisibility(detail)}>{detail.visible?'隐藏评价':'恢复公开'}</button></div>
+      </aside></div>}
+    </section>
+  );
+}
+
+const POINTS_BIZ_TYPES = [
+  { value:'REGISTER', label:'注册', tone:'success' },
+  { value:'ORDER_COMPLETE', label:'订单完成', tone:'success' },
+  { value:'ORDER_REFUND', label:'订单退款', tone:'danger' },
+  { value:'REVIEW', label:'完成评价', tone:'info' },
+  { value:'MANUAL_ADJUST', label:'平台调整', tone:'warning' },
+  { value:'POINTS_EXCHANGE', label:'积分兑换', tone:'neutral' },
+  { value:'POINTS_CANCEL', label:'兑换取消', tone:'neutral' }
+];
+
+const POINTS_LEDGER_INITIAL = [
+  { id:'pl-1', memberId:'211386217001', bizType:'ORDER_COMPLETE', description:'订单完成赠送', changePoints:399, balanceBefore:881, balanceAfter:1280, bizNo:'YM202611020018', createTime:'2026-11-01 18:42:10' },
+  { id:'pl-2', memberId:'211386217001', bizType:'REVIEW', description:'订单完成评价奖励', changePoints:10, balanceBefore:871, balanceAfter:881, bizNo:'RV202610280001', createTime:'2026-10-28 09:16:22' },
+  { id:'pl-3', memberId:'211386217004', bizType:'POINTS_EXCHANGE', description:'兑换品牌帆布袋', changePoints:-300, balanceBefore:3800, balanceAfter:3500, bizNo:'PX202610240012', createTime:'2026-10-24 16:30:08' },
+  { id:'pl-4', memberId:'211386217002', bizType:'MANUAL_ADJUST', description:'平台调整积分', changePoints:500, balanceBefore:3000, balanceAfter:3500, bizNo:'ADJ202610200003', createTime:'2026-10-20 10:12:45' },
+  { id:'pl-5', memberId:'211386217005', bizType:'REGISTER', description:'新会员注册赠送', changePoints:100, balanceBefore:0, balanceAfter:100, bizNo:'REG202610180005', createTime:'2026-10-18 08:12:53' }
+];
+
+const POINTS_RULES_INITIAL = [
+  { id:'rule-register', code:'REGISTER', name:'注册赠送', calcType:1, fixedPoints:100, pointsPerYuan:0, enabled:true, description:'新会员注册成功赠送 100 积分' },
+  { id:'rule-order', code:'ORDER_COMPLETE', name:'订单完成', calcType:2, fixedPoints:0, pointsPerYuan:1, enabled:true, description:'订单完成后，每 1 元优惠后应付金额获得 1 积分' },
+  { id:'rule-review', code:'REVIEW', name:'完成评价', calcType:1, fixedPoints:10, pointsPerYuan:0, enabled:true, description:'订单完成评价赠送 10 积分' }
+];
+
+function AdminPoints({ route, notify }) {
+  const requestedTab=routeParam(route,'tab');
+  const initialMemberId=routeParam(route,'memberId')||'';
+  const [tab,setTab] = useState(requestedTab==='积分规则'?'rule':'ledger');
+  const [filters,setFilters] = useState({ memberId:initialMemberId, bizType:'全部类型' });
+  const [applied,setApplied] = useState({ memberId:initialMemberId, bizType:'全部类型' });
+  const [rules,setRules] = useState(POINTS_RULES_INITIAL);
+  const [editing,setEditing] = useState(null);
+  useEffect(()=>{
+    setTab(requestedTab==='积分规则'?'rule':'ledger');
+    setFilters({ memberId:initialMemberId, bizType:'全部类型' });
+    setApplied({ memberId:initialMemberId, bizType:'全部类型' });
+  },[requestedTab,initialMemberId]);
+  const bizOption=(type)=>POINTS_BIZ_TYPES.find((item)=>item.value===type);
+  const filtered = POINTS_LEDGER_INITIAL.filter((item) => {
+    const memberKeyword=applied.memberId.trim();
+    const matchMember=!memberKeyword || item.memberId.includes(memberKeyword);
+    const matchBiz=applied.bizType==='全部类型' || item.bizType===applied.bizType;
+    return matchMember && matchBiz;
+  });
+  const search=()=>setApplied({...filters});
+  const reset=()=>{const empty={ memberId:'', bizType:'全部类型' };setFilters(empty);setApplied(empty);};
+  const saveRule=()=>{
+    if(!editing) return;
+    if(Number(editing.fixedPoints)<0 || Number(editing.pointsPerYuan)<0) return notify('规则值不能小于 0');
+    setRules(rules.map((rule)=>rule.id===editing.id?{...editing}:rule));
+    setEditing(null);
+    notify('积分规则已保存');
+  };
+  const changeRuleValue=(value)=>setEditing({...editing,[editing.calcType===1?'fixedPoints':'pointsPerYuan']:Number(value)});
+  return (
+    <section className="admin-page points-admin-page" data-screen-label="平台后台积分管理">
+      <div className="module-tabs">
+        <button className={tab==='ledger'?'active':''} onClick={()=>setTab('ledger')}>积分流水</button>
+        <button className={tab==='rule'?'active':''} onClick={()=>setTab('rule')}>积分规则</button>
+      </div>
+
+      {tab==='ledger'?<>
+        <FilterBar onReset={reset} onSearch={search}>
+          <label><span>会员 ID</span><input value={filters.memberId} onChange={(e)=>setFilters({...filters,memberId:e.target.value})} placeholder="请输入会员 ID"/></label>
+          <label><span>业务类型</span><select value={filters.bizType} onChange={(e)=>setFilters({...filters,bizType:e.target.value})}><option>全部类型</option>{POINTS_BIZ_TYPES.map((item)=><option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
+        </FilterBar>
+        <div className="admin-table-frame">
+          <table className="admin-table points-ledger-table">
+            <thead><tr><th>会员ID</th><th>业务类型</th><th>说明</th><th className="numeric">变动</th><th className="numeric">变动前</th><th className="numeric">变动后</th><th>业务单号</th><th>创建时间</th></tr></thead>
+            <tbody>{filtered.map((item)=>{const biz=bizOption(item.bizType);return <tr key={item.id}>
+              <td className="mono"><CopyableText value={item.memberId} label="会员 ID" notify={notify}/></td>
+              <td><StatusTicket tone={biz?.tone||'neutral'}>{biz?.label||item.bizType}</StatusTicket></td>
+              <td>{item.description}</td>
+              <td className={`numeric ${item.changePoints>=0?'positive-amount':'negative-amount'}`}>{item.changePoints>=0?'+':''}{item.changePoints.toLocaleString()}</td>
+              <td className="numeric">{item.balanceBefore.toLocaleString()}</td>
+              <td className="numeric">{item.balanceAfter.toLocaleString()}</td>
+              <td className="mono"><CopyableText value={item.bizNo} label="业务单号" notify={notify}/></td>
+              <td><span>{item.createTime.slice(0,10)}</span><small className="cell-sub">{item.createTime.slice(11)}</small></td>
+            </tr>;})}</tbody>
+          </table>
+          {!filtered.length&&<div className="admin-empty"><AdminIcon name="Coin" size={28}/><b>没有匹配的积分流水</b><span>调整筛选条件后重试</span></div>}
+          <AdminPagination count={filtered.length}/>
+        </div>
+      </>:<>
+        <div className="admin-table-frame">
+          <table className="admin-table points-rule-table">
+            <thead><tr><th>规则名称</th><th>编码</th><th>计算方式</th><th className="numeric">规则值</th><th>说明</th><th>状态</th><th className="actions">操作</th></tr></thead>
+            <tbody>{rules.map((rule)=><tr key={rule.id}>
+              <td><b>{rule.name}</b></td>
+              <td className="mono">{rule.code}</td>
+              <td>{rule.calcType===1?'固定积分':'按金额比例'}</td>
+              <td className="numeric">{rule.calcType===1?`${rule.fixedPoints} 积分`:`每元 ${rule.pointsPerYuan} 积分`}</td>
+              <td>{rule.description}</td>
+              <td><StatusTicket tone={rule.enabled?'success':'neutral'}>{rule.enabled?'启用':'停用'}</StatusTicket></td>
+              <td className="actions"><button className="table-link" onClick={()=>setEditing({...rule})}>编辑</button></td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </>}
+
+      {editing&&<div className="dialog-mask" onClick={()=>setEditing(null)}><section className="admin-dialog points-rule-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">POINTS RULE</span><h2>编辑积分规则</h2></div><button onClick={()=>setEditing(null)}>×</button></div>
+        <label className="dialog-field"><span>规则名称</span><input value={editing.name} disabled/></label>
+        <label className="dialog-field"><span>规则编码</span><input value={editing.code} disabled/></label>
+        <label className="dialog-field"><span>{editing.calcType===1?'固定积分':'每元积分'}</span><input type="number" min="0" step={editing.calcType===1?'1':'0.1'} value={editing.calcType===1?editing.fixedPoints:editing.pointsPerYuan} onChange={(event)=>changeRuleValue(event.target.value)}/></label>
+        <label className="points-rule-enabled"><span>启用规则</span><input type="checkbox" checked={editing.enabled} onChange={(event)=>setEditing({...editing,enabled:event.target.checked})}/></label>
+        <label className="dialog-field"><span>规则说明</span><textarea rows="3" maxLength="255" value={editing.description} onChange={(event)=>setEditing({...editing,description:event.target.value})}/></label>
+        <div className="dialog-actions"><button onClick={()=>setEditing(null)}>取消</button><button className="primary" onClick={saveRule}>保存</button></div>
+      </section></div>}
     </section>
   );
 }
@@ -1938,11 +2179,11 @@ function MerchantProducts({ notify }) {
 function AdminOverview({ surface, navigate }) {
   const merchant = surface === 'merchant';
   const metrics = merchant
-    ? [['今日支付订单','38','较昨日 +12%'],['今日销售额','¥12,680.00','较昨日 +8.4%'],['待发货','12','需及时处理'],['退款待处理','3','最早等待 46 分钟']]
+    ? [['今日支付订单','38','较昨日 +12%'],['今日销售额','¥12,680.00','较昨日 +8.4%'],['待发货','12','需及时处理'],['退款待处理','3','申请中或处理中']]
     : [['今日支付订单','126','全平台'],['今日交易额','¥58,240.00','较昨日 +9.7%'],['活跃店铺','18','共 24 家'],['退款待处理','7','跨 5 家店铺']];
   const tasks = merchant
-    ? [['待发货订单','12','merchant/orders'],['低库存商品','4','merchant/products'],['待回复评价','6','merchant/reviews'],['拼团报名结果','2','merchant/groupbuy']]
-    : [['商家入驻待审','3','platform/merchants'],['秒杀报名待审','2','platform/seckill?tab=报名审核'],['待审核评价','8','platform/reviews'],['意见反馈待处理','5','platform/feedback']];
+    ? [['待发货订单','12','merchant/orders'],['低库存商品','4','merchant/products'],['待回复评价','6','merchant/reviews'],['拼团报名待审','2','merchant/groupbuy']]
+    : [['待启用商家','3','platform/merchants'],['秒杀报名待审','2','platform/seckill?tab=报名审核'],['已隐藏评价','8','platform/reviews'],['意见反馈待处理','5','platform/feedback']];
   return <section className="admin-page overview-page" data-screen-label={`${merchant?'商家':'平台'}经营概览`}><div className="overview-metrics">{metrics.map((item,index)=><article key={item[0]}><span>{item[0]}</span><b>{item[1]}</b><small className={index>1?'attention':''}>{item[2]}</small></article>)}</div><div className="overview-grid"><section className="overview-tasks"><div className="table-toolbar"><div><span className="shelf-mark"></span><b>待办事项</b></div><StatusTicket tone="warning">今日</StatusTicket></div>{tasks.map((task)=><button key={task[0]} onClick={()=>navigate(task[2])}><span><b>{task[0]}</b><small>点击进入对应业务列表</small></span><strong>{task[1]}</strong><AdminIcon name="chevron" size={16}/></button>)}</section><section className="trend-panel"><div className="table-toolbar"><div><span className="shelf-mark"></span><b>近 7 日交易趋势</b></div><span className="mini-legend"><i></i>支付金额</span></div><div className="fake-chart">{[42,55,48,68,61,78,72].map((value,index)=><span key={index} style={{height:`${value}%`}}><i>{['21','22','23','24','25','26','27'][index]}</i></span>)}</div></section></div></section>;
 }
 
@@ -1952,7 +2193,7 @@ function moduleDefinition(surface, page) {
       merchants: { title:'商家管理', desc:'维护商家登录账号和关联店铺', action:'新增商家', columns:['商家账号','店铺数量','账号状态','创建时间'], rows:[['mch001','2 家','启用','2026-10-18 09:20'],['mch002','1 家','启用','2026-10-20 14:32'],['mch003','0 家','停用','2026-10-24 11:05']] },
       shops: { title:'店铺管理', desc:'管理平台店铺、佣金、结算周期和平台状态', action:'新增店铺', columns:['店铺编号','店铺名称','所属商家','平台佣金','结算周期','平台状态','创建时间'], rows:[['SHAN-YE','山野生活店','mch001','5%','T+7','正常营业','2026-10-18'],['YEAH-DIGITAL','Yeah 数码生活馆','mch002','4%','T+7','正常营业','2026-10-20'],['WHITE-TEA','白茶生活馆','mch003','6%','T+15','暂停营业','2026-10-24']] },
       categories: { title:'平台分类', desc:'维护 App 分类页使用的平台三级分类树', action:'新增平台分类', columns:['分类图片','平台分类名称','分类编码','层级','排序','备注','更新时间'], rows:[['数','数码家电','digital','1','1','平台一级分类','2026-10-28 09:12'],['耳','耳机音响','audio','2','2','数码家电子分类','2026-10-28 09:16'],['机','头戴耳机','headphone','3','1','三级分类','2026-10-28 09:20']] },
-      reviews: { title:'评价管理', desc:'审核、屏蔽和查看商品评价及回复', tabs:['全部评价','待审核','已屏蔽'], columns:['商品','评价用户','评分','评价内容','状态'], rows:[['云感降噪头戴耳机','林可','5 星','佩戴舒适，降噪效果很好','已展示'],['白茶屏障修护精华','陈一禾','5 星','敏感肌使用没有刺激','已展示'],['山野拼配挂耳咖啡','周予安','3 星','包装有轻微压痕','待审核']] },
+      reviews: { title:'评价管理', desc:'查看、隐藏和恢复商品评价及回复', tabs:['全部评价','已隐藏'], columns:['商品','评价用户','评分','评价内容','状态'], rows:[['云感降噪头戴耳机','林可','5 星','佩戴舒适，降噪效果很好','公开'],['白茶屏障修护精华','陈一禾','5 星','敏感肌使用没有刺激','公开'],['山野拼配挂耳咖啡','周予安','3 星','包装有轻微压痕','已隐藏']] },
       points: { title:'积分管理', desc:'查询积分流水并维护积分获取规则', tabs:['积分流水','积分规则'], columns:['会员','业务类型','变动积分','变动前','变动后'], rows:[['林可','订单完成','+399','881','1,280'],['林可','完成评价','+10','871','881'],['陈一禾','平台调整','+500','3,000','3,500']] },
       'points-mall': { title:'积分商城', desc:'管理积分商品、分类和兑换订单', action:'新增积分商品', tabs:['商品分类','积分商品','兑换订单'], columns:['积分商品','类型','积分价格','库存','状态'], rows:[['品牌帆布袋','实物商品','600','36','已上架'],['全店 20 元券','优惠券','300','88','已上架'],['专属客服权益','虚拟权益','1,200','12','已下架']] },
       seckill: { title:'秒杀管理', desc:'管理活动、场次、报名审核、商品与成交数据', action:'新建活动', tabs:['活动管理','场次管理','报名审核','商品管理','实时监控','成交分析'], columns:['活动','报名时间','活动时间','商品数','状态'], rows:[['秋日数码秒杀','10/20–10/24','10/27 10:00–12:00','8','进行中'],['晚八点居家场','10/22–10/26','10/28 20:00–22:00','5','待开始']] },
@@ -1978,8 +2219,8 @@ function moduleDefinition(surface, page) {
 
 function moduleTabView(surface, page, tab, fallback) {
   const views = {
-    'platform:reviews:待审核': { columns:['商品','评价用户','评分','评价内容','状态'], rows:[['山野拼配挂耳咖啡','周予安','3 星','包装有轻微压痕','待审核']] },
-    'platform:reviews:已屏蔽': { columns:['商品','评价用户','屏蔽原因','处理时间','状态'], rows:[['便携蓝牙音箱','匿名会员','包含无关广告内容','10/25 16:20','已屏蔽']] },
+    'platform:reviews:已隐藏': { columns:['商品','评价用户','评分','评价内容','状态'], rows:[['山野拼配挂耳咖啡','周予安','3 星','包装有轻微压痕','已隐藏']] },
+    'platform:points:积分流水': { columns:['会员ID','会员','业务类型','变动积分','变动前','变动后','业务单号','创建时间'], rows:[['211386217001','林可','订单完成','+399','881','1,280','YM202611020018','2026-11-01 18:42'],['211386217001','林可','完成评价','+10','871','881','YM202611010086','2026-10-28 09:16'],['211386217004','陈一禾','积分兑换','-300','3,800','3,500','PX202610240012','2026-10-24 16:30'],['211386217002','周予安','平台调整','+500','3,000','3,500','ADJ202610200003','2026-10-20 10:12']] },
     'platform:points:积分规则': { columns:['规则名称','触发事件','积分值','每日上限','状态'], rows:[['订单完成赠送','订单完成','实付 1 元 = 1 积分','2,000','启用'],['评价奖励','首次发表评价','10 积分','10','启用'],['注册奖励','完成会员注册','50 积分','50','停用']] },
     'platform:points-mall:商品分类': { columns:['分类名称','分类编码','商品数','排序','状态'], rows:[['实物好礼','physical','6','1','启用'],['优惠券','coupon','4','2','启用'],['会员权益','benefit','3','3','启用']] },
     'platform:points-mall:兑换订单': { columns:['兑换单号','会员','兑换商品','消耗积分','状态'], rows:[['PX20261027001','林可','品牌帆布袋','600','待发货'],['PX20261020008','周予安','全店 20 元券','300','已完成']] },
@@ -2055,6 +2296,7 @@ function moduleFilterDefinition(surface,page,tab) {
     'platform:shops:':[{key:'merchant',label:'所属商家',placeholder:'商家账号或 ID'},{key:'keyword',label:'店铺名称',placeholder:'请输入店铺名称'},{key:'status',label:'平台状态',options:['全部状态','正常营业','暂停营业']}],
     'platform:categories:':[{key:'keyword',label:'分类名称',placeholder:'请输入分类名称'}],
     'platform:reviews:全部评价':[{key:'keyword',label:'商品或订单',placeholder:'SPU ID、商品名称或订单号'},{key:'rating',label:'评价等级',options:['全部等级','好评','中评','差评']},{key:'reply',label:'回复状态',options:['全部状态','已回复','未回复']},{key:'visible',label:'公开状态',options:['全部状态','公开','已隐藏']}],
+    'platform:reviews:已隐藏':[{key:'keyword',label:'商品或订单',placeholder:'SPU ID、商品名称或订单号'},{key:'rating',label:'评价等级',options:['全部等级','好评','中评','差评']},{key:'reply',label:'回复状态',options:['全部状态','已回复','未回复']}],
     'platform:points:积分流水':[{key:'keyword',label:'会员 ID',placeholder:'请输入会员 ID'},{key:'biz',label:'业务类型',options:['全部类型','订单完成','完成评价','平台调整']}],
     'platform:points-mall:积分商品':[{key:'keyword',label:'商品名称',placeholder:'请输入积分商品名称'},{key:'type',label:'商品类型',options:['全部类型','实物商品','优惠券','虚拟权益']},{key:'status',label:'状态',options:['全部状态','已上架','已下架']}],
     'platform:points-mall:兑换订单':[{key:'keyword',label:'订单或会员',placeholder:'兑换单号、会员 ID'},{key:'status',label:'订单状态',options:['全部状态','待履约','待发货','已完成','已取消']}],
@@ -2101,7 +2343,7 @@ function moduleFormDefinition(surface,page,tab) {
 }
 
 function moduleDetailMode(surface,page,tab) {
-  if(surface==='platform'&&(tab.includes('审核')||page==='reviews')) return 'audit';
+  if(surface==='platform'&&tab.includes('审核')) return 'audit';
   if(surface==='platform'&&page==='feedback') return 'feedback';
   if(surface==='merchant'&&page==='reviews') return 'reply';
   if(['merchants','shops','categories','points','points-mall','content','specs','banner','shipping','coupons'].includes(page)) return 'edit';
@@ -2123,12 +2365,19 @@ function ModuleField({ field }) {
 function AdminModulePage({ surface, page, route, navigate, notify }) {
   const config = moduleDefinition(surface,page);
   const requestedTab = routeParam(route,'tab');
+  const routeMemberId = page === 'points' ? routeParam(route,'memberId') : '';
   const [tab,setTab] = useState(requestedTab || config?.tabs?.[0] || '');
   const [filters,setFilters] = useState({});
   const [selected,setSelected] = useState(null);
   const [creating,setCreating] = useState(false);
   const [rowMenu,setRowMenu] = useState(null);
-  useEffect(()=>{ setTab(requestedTab || config?.tabs?.[0] || ''); setFilters({}); setSelected(null); setCreating(false); setRowMenu(null); },[surface,page,requestedTab]);
+  useEffect(()=>{
+    setTab(requestedTab || config?.tabs?.[0] || '');
+    setFilters(requestedTab === '积分流水' && routeMemberId ? { keyword: routeMemberId } : {});
+    setSelected(null);
+    setCreating(false);
+    setRowMenu(null);
+  },[surface,page,requestedTab,routeMemberId]);
   if (!config) return null;
   const view = moduleTabView(surface,page,tab,{columns:config.columns,rows:config.rows});
   const filterDefinitions=moduleFilterDefinition(surface,page,tab);
@@ -2149,6 +2398,146 @@ function AdminModulePage({ surface, page, route, navigate, notify }) {
     <div className="admin-table-frame"><table className="admin-table"><thead><tr>{view.columns.map((col)=><th key={col}>{col}</th>)}<th className="actions">操作</th></tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((cell,cellIndex)=>{const value=String(cell);const column=view.columns[cellIndex];const amount=value.includes('¥')||value.startsWith('+')||value.startsWith('-');const content=isStatusCell(cell)?<StatusTicket tone={semanticStatusTone(value)}>{cell}</StatusTicket>:isCopyableAdminColumn(column)?<CopyableText value={value} label={column} notify={notify}/>:cell;return <td className={amount?'amount-cell':''} key={cellIndex}>{content}</td>;})}<td className="actions"><button className="table-link" onClick={()=>setSelected(row)}>{rowAction}</button><RowActionMenu open={rowMenu===index} onToggle={()=>setRowMenu(rowMenu===index?null:index)}><button onClick={()=>{setSelected(row);setRowMenu(null);}}>{rowAction}记录</button>{detailMode==='edit'&&<button onClick={()=>{setSelected(row);setRowMenu(null);}}>编辑配置</button>}{detailMode==='audit'&&<button onClick={()=>{setSelected(row);setRowMenu(null);}}>进入审核</button>}<button onClick={()=>{setRowMenu(null);notify('操作日志抽屉已打开');}}>查看操作记录</button></RowActionMenu></td></tr>)}</tbody></table>{!rows.length&&<div className="admin-empty"><AdminIcon name="filter" size={28}/><b>没有匹配的数据</b><span>调整筛选条件后重试</span></div>}<AdminPagination count={rows.length}/></div>
     {selected&&<div className="drawer-mask" onClick={()=>setSelected(null)}><aside className="admin-drawer module-detail-drawer" onClick={(e)=>e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">{detailMode==='audit'?'AUDIT':'DETAIL'}</span><h2>{tab||config.title}{rowAction}</h2></div><button onClick={()=>setSelected(null)}>×</button></div><div className="description-grid">{view.columns.map((col,index)=><div className={index===0?'wide':''} key={col}><span>{col}</span><b>{selected[index]}</b></div>)}</div>{detailMode==='edit'&&<div className="module-edit-grid">{formFields.map((field)=><ModuleField key={field.label} field={field}/>)}</div>}{detailMode==='audit'&&<label className="dialog-field"><span>审核备注 <small>驳回时必填</small></span><textarea placeholder="填写本次审核说明"></textarea></label>}{detailMode==='feedback'&&<><label className="dialog-field"><span>处理状态</span><select defaultValue="处理中"><option>处理中</option><option>已解决</option></select></label><label className="dialog-field"><span>平台回复</span><textarea placeholder="填写给会员的处理回复"></textarea></label></>}{detailMode==='reply'&&<label className="dialog-field"><span>回复内容</span><textarea placeholder="输入对会员的回复"></textarea></label>}<div className="drawer-actions"><button onClick={()=>setSelected(null)}>关闭</button>{detailMode==='audit'&&<><button className="danger" onClick={()=>finishDetail('申请已驳回')}>驳回</button><button className="primary" onClick={()=>finishDetail('审核已通过')}>通过</button></>}{detailMode==='feedback'&&<button className="primary" onClick={()=>finishDetail('反馈处理结果已保存')}>保存处理结果</button>}{detailMode==='reply'&&<button className="primary" onClick={()=>finishDetail('回复已发表')}>发表回复</button>}{detailMode==='edit'&&<button className="primary" onClick={()=>finishDetail('修改已保存')}>保存修改</button>}</div></aside></div>}
     {creating&&<div className="dialog-mask" onClick={()=>setCreating(false)}><section className="admin-dialog module-form-dialog" onClick={(e)=>e.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">CREATE</span><h2>{action}</h2></div><button onClick={()=>setCreating(false)}>×</button></div><div className="module-form-grid">{formFields.map((field)=><ModuleField key={field.label} field={field}/>)}</div><div className="dialog-actions"><button onClick={()=>setCreating(false)}>取消</button><button className="primary" onClick={()=>{setCreating(false);notify(`${action}已保存`);}}>确认保存</button></div></section></div>}
+  </section>;
+}
+
+const PLATFORM_CATEGORY_TREE = [
+  { id:'cat-digital', name:'数码家电', code:'digital', level:1, sort:1, remark:'平台一级分类', time:'2026-10-28 09:12', children:[
+    { id:'cat-audio', name:'耳机音响', code:'audio', level:2, sort:1, remark:'数码家电子分类', time:'2026-10-28 09:16', children:[
+      { id:'cat-headphone', name:'头戴耳机', code:'headphone', level:3, sort:1, remark:'三级分类', time:'2026-10-28 09:20' },
+      { id:'cat-in-ear', name:'入耳耳机', code:'in-ear', level:3, sort:2, remark:'', time:'2026-10-28 09:22' }
+    ] },
+    { id:'cat-phone', name:'手机通讯', code:'phone', level:2, sort:2, remark:'', time:'2026-10-28 09:26', children:[
+      { id:'cat-smartphone', name:'智能手机', code:'smartphone', level:3, sort:1, remark:'', time:'2026-10-28 09:28' },
+      { id:'cat-feature-phone', name:'老人手机', code:'feature-phone', level:3, sort:2, remark:'仅保留大字大声机型', time:'2026-10-28 09:30' }
+    ] },
+    { id:'cat-smarthome', name:'智能家居', code:'smarthome', level:2, sort:3, remark:'', time:'2026-10-28 09:34' }
+  ] },
+  { id:'cat-fashion', name:'服饰鞋包', code:'fashion', level:1, sort:2, remark:'', time:'2026-10-28 10:02', children:[
+    { id:'cat-men', name:'男装', code:'men', level:2, sort:1, remark:'', time:'2026-10-28 10:05' },
+    { id:'cat-women', name:'女装', code:'women', level:2, sort:2, remark:'', time:'2026-10-28 10:07' },
+    { id:'cat-shoes', name:'鞋靴', code:'shoes', level:2, sort:3, remark:'', time:'2026-10-28 10:09' }
+  ] },
+  { id:'cat-food', name:'食品生鲜', code:'food', level:1, sort:3, remark:'需冷链配送', time:'2026-10-28 10:20', children:[
+    { id:'cat-snack', name:'休闲零食', code:'snack', level:2, sort:1, remark:'', time:'2026-10-28 10:22' },
+    { id:'cat-fresh', name:'生鲜果蔬', code:'fresh', level:2, sort:2, remark:'48 小时内发货', time:'2026-10-28 10:24' }
+  ] },
+  { id:'cat-home', name:'家居日用', code:'home', level:1, sort:4, remark:'', time:'2026-10-28 10:40', children:[
+    { id:'cat-bedding', name:'家纺床品', code:'bedding', level:2, sort:1, remark:'', time:'2026-10-28 10:42' },
+    { id:'cat-kitchen', name:'厨房用品', code:'kitchen', level:2, sort:2, remark:'', time:'2026-10-28 10:44' }
+  ] }
+];
+
+const platformCategoryTotal = (nodes) => nodes.reduce((total,node)=>total+1+(node.children?platformCategoryTotal(node.children):0),0);
+
+const platformCategoryIds = (nodes,ids=[]) => { nodes.forEach((node)=>{ ids.push(node.id); if(node.children) platformCategoryIds(node.children,ids); }); return ids; };
+
+const filterPlatformCategoryTree = (nodes,keyword) => {
+  if (!keyword) return nodes;
+  const matched = [];
+  nodes.forEach((node)=>{
+    const hit = `${node.name}${node.code}`.toLowerCase().includes(keyword);
+    const children = node.children ? filterPlatformCategoryTree(node.children,keyword) : [];
+    if (hit) matched.push({...node});
+    else if (children.length) matched.push({...node,children});
+  });
+  return matched;
+};
+
+const platformCategoryParentName = (nodes,id,parent=null) => {
+  for (const node of nodes) {
+    if (node.id===id) return parent ? parent.name : '一级分类';
+    if (node.children) {
+      const found = platformCategoryParentName(node.children,id,node);
+      if (found) return found;
+    }
+  }
+  return '';
+};
+
+function AdminPlatformCategories({ notify }) {
+  const [expanded,setExpanded] = useState(()=>new Set(PLATFORM_CATEGORY_TREE.map((node)=>node.id)));
+  const [draftKeyword,setDraftKeyword] = useState('');
+  const [keyword,setKeyword] = useState('');
+  const [selected,setSelected] = useState([]);
+  const [dialog,setDialog] = useState(null);
+  const total = useMemo(()=>platformCategoryTotal(PLATFORM_CATEGORY_TREE),[]);
+  const tree = useMemo(()=>filterPlatformCategoryTree(PLATFORM_CATEGORY_TREE,keyword),[keyword]);
+  const searching = Boolean(keyword);
+  const rows = [];
+  const collect = (nodes,depth)=>nodes.forEach((node)=>{
+    const hasChildren = Boolean(node.children&&node.children.length);
+    const open = searching || expanded.has(node.id);
+    rows.push({node,depth,hasChildren,open});
+    if (hasChildren&&open) collect(node.children,depth+1);
+  });
+  collect(tree,0);
+  const visibleIds = rows.map((row)=>row.node.id);
+  const allSelected = visibleIds.length>0 && visibleIds.every((id)=>selected.includes(id));
+  const toggle = (id)=>setExpanded((current)=>{ const next=new Set(current); if(next.has(id)) next.delete(id); else next.add(id); return next; });
+  const toggleRow = (id)=>setSelected((current)=>current.includes(id)?current.filter((item)=>item!==id):[...current,id]);
+  const rootCount = PLATFORM_CATEGORY_TREE.length;
+  const dialogTitle = !dialog ? '' : dialog.mode==='edit' ? '编辑平台分类' : dialog.mode==='child' ? `新增「${dialog.node.name}」的子分类` : '新增平台分类';
+  const dialogParent = !dialog ? '' : dialog.mode==='child' ? dialog.node.name : dialog.mode==='edit' ? platformCategoryParentName(PLATFORM_CATEGORY_TREE,dialog.node.id) : '一级分类';
+  return <section className="admin-page platform-category-page" data-screen-label="平台后台-平台分类">
+    <FilterBar onReset={()=>{setDraftKeyword('');setKeyword('');setSelected([]);}} onSearch={()=>{setKeyword(draftKeyword.trim().toLowerCase());setSelected([]);}} actions={<>
+      <button className="business-danger" disabled={!selected.length} onClick={()=>{notify(`已删除 ${selected.length} 个平台分类`);setSelected([]);}}>{selected.length?`批量删除 (${selected.length})`:'批量删除'}</button>
+      <button className="business-primary" onClick={()=>setDialog({mode:'create'})}><AdminIcon name="plus" size={17}/>新增平台分类</button>
+    </>}>
+      <label><span>分类名称</span><input value={draftKeyword} onChange={(event)=>setDraftKeyword(event.target.value)} placeholder="请输入平台分类名称或编码"/></label>
+    </FilterBar>
+    <div className="admin-table-frame">
+      <div className="table-toolbar">
+        <div><span className="shelf-mark"></span><b>平台分类树</b><small className="ptc-count">共 {total} 个分类 · 一级 {rootCount} 个{searching?` · 命中 ${tree.length} 个一级节点`:''}</small></div>
+        <div className="ptc-tools">
+          <button onClick={()=>setExpanded(new Set(platformCategoryIds(PLATFORM_CATEGORY_TREE)))}>展开全部</button>
+          <button onClick={()=>setExpanded(new Set())}>折叠全部</button>
+        </div>
+      </div>
+      <table className="admin-table ptc-table">
+        <thead><tr>
+          <th className="ptc-check"><input type="checkbox" checked={allSelected} onChange={()=>setSelected(allSelected?[]:visibleIds)}/></th>
+          <th className="ptc-name-head">平台分类名称</th>
+          <th>分类图片</th>
+          <th>分类编码</th>
+          <th>排序</th>
+          <th>备注</th>
+          <th>更新时间</th>
+          <th className="actions">操作</th>
+        </tr></thead>
+        <tbody>{rows.map(({node,depth,hasChildren,open})=><tr key={node.id}>
+          <td className="ptc-check"><input type="checkbox" checked={selected.includes(node.id)} onChange={()=>toggleRow(node.id)}/></td>
+          <td className="ptc-name-cell"><div className="ptc-cell" style={{paddingLeft:depth*18}}>
+            <button className={`ptc-caret${open?' open':''}${hasChildren?'':' leaf'}`} aria-label="展开或折叠" onClick={()=>hasChildren&&toggle(node.id)}></button>
+            <span className={`ptc-name${node.level===1?' is-root':''}`}>{node.name}</span>
+            {hasChildren&&<em className="ptc-chip">{node.children.length}</em>}
+          </div></td>
+          <td><span className={`ptc-thumb t${node.level}`}>{node.name.slice(0,1)}</span></td>
+          <td>{node.code}</td>
+          <td>{node.sort}</td>
+          <td className="ptc-muted">{node.remark||'—'}</td>
+          <td className="ptc-muted">{node.time}</td>
+          <td className="actions ptc-actions">
+            <button className="table-link" onClick={()=>setDialog({mode:'edit',node})}>编辑</button>
+            <button className="table-link" onClick={()=>setDialog({mode:'child',node})}>新增子分类</button>
+            <button className="table-link danger" onClick={()=>notify(`已删除「${node.name}」`)}>删除</button>
+          </td>
+        </tr>)}</tbody>
+      </table>
+      {!rows.length&&<div className="admin-empty"><AdminIcon name="filter" size={28}/><b>没有匹配的平台分类</b><span>调整分类名称或编码后重试</span></div>}
+    </div>
+    {dialog&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog" onClick={(event)=>event.stopPropagation()}>
+      <div className="dialog-head"><div><span className="drawer-kicker">{dialog.mode==='edit'?'EDIT':'CREATE'}</span><h2>{dialogTitle}</h2></div><button onClick={()=>setDialog(null)}>×</button></div>
+      <div className="module-form-grid">
+        <label className="dialog-field"><span>上级分类</span><input value={dialogParent} disabled/></label>
+        <label className="dialog-field"><span>分类名称</span><input defaultValue={dialog.mode==='edit'?dialog.node.name:''} placeholder="请输入平台分类名称"/></label>
+        <label className="dialog-field"><span>分类编码</span><input defaultValue={dialog.mode==='edit'?dialog.node.code:''} placeholder="请输入分类编码"/></label>
+        <label className="dialog-field"><span>排序</span><input type="number" defaultValue={dialog.mode==='edit'?dialog.node.sort:1}/></label>
+      </div>
+      <label className="dialog-field ptc-remark"><span>备注</span><textarea rows="2" defaultValue={dialog.mode==='edit'?dialog.node.remark:''} placeholder="选填，最多 255 字"></textarea></label>
+      <p className="ptc-dialog-tip">树形一次展示全量分类，不提供分页；默认折叠，展开状态按层级维护。</p>
+      <div className="dialog-actions"><button onClick={()=>setDialog(null)}>取消</button><button className="primary" onClick={()=>{setDialog(null);notify('平台分类已保存');}}>保存</button></div>
+    </section></div>}
   </section>;
 }
 
@@ -2262,12 +2651,15 @@ function AdminPrototype({ surface, route, navigate, notify }) {
   if (page === 'overview') content = <AdminOverview surface={surface} navigate={navigate}/>;
   else if (surface === 'platform' && page === 'merchants') content = <PlatformMerchants notify={notify}/>;
   else if (surface === 'platform' && page === 'shops') content = <PlatformShops notify={notify}/>;
-  else if (surface === 'platform' && page === 'members') content = <AdminMembers members={members} setMembers={setMembers} notify={notify}/>;
+  else if (surface === 'platform' && page === 'members') content = <AdminMembers members={members} setMembers={setMembers} notify={notify} navigate={navigate}/>;
+  else if (surface === 'platform' && page === 'reviews') content = <AdminReviews notify={notify}/>;
+  else if (surface === 'platform' && page === 'points') content = <AdminPoints route={route} notify={notify}/>;
   else if (surface === 'merchant' && page === 'orders') content = <AdminOrders orders={orders} setOrders={setOrders} notify={notify}/>;
   else if (surface === 'merchant' && page === 'products') content = <MerchantProducts notify={notify}/>;
   else if (surface === 'merchant' && page === 'service') content = <AdminServicePage notify={notify}/>;
   else if (surface === 'merchant' && page === 'settings') content = <MerchantSettingsPage notify={notify}/>;
   else if (page === 'settlement') content = <AdminSettlementPage surface={surface} route={route} navigate={navigate} notify={notify}/>;
+  else if (surface === 'platform' && page === 'categories') content = <AdminPlatformCategories notify={notify}/>;
   else if (surface === 'platform' && page === 'system') content = <FrameworkReferencePage route={route} notify={notify}/>;
   else content = <AdminModulePage surface={surface} page={page} route={route} navigate={navigate} notify={notify}/>;
   return (

@@ -18,8 +18,11 @@ public class AdminMemberService {
     /**
      * 分页查询会员管理列表
      */
-    public IPage<AdminMemberVo> query(Page<AdminMemberVo> page, Long memberId, String keyword) {
+    public IPage<AdminMemberVo> query(Page<AdminMemberVo> page, Long memberId, String keyword,
+                                      Integer pointsMin, Integer pointsMax,
+                                      String registerStart, String registerEnd) {
         // 会员资料与积分账户联表返回，零积分会员也应出现在平台会员管理中。
-        return memberRepo.queryAdminMembers(page, memberId, keyword == null ? null : keyword.trim());
+        return memberRepo.queryAdminMembers(page, memberId, keyword == null ? null : keyword.trim(),
+                pointsMin, pointsMax, registerStart, registerEnd);
     }
 }

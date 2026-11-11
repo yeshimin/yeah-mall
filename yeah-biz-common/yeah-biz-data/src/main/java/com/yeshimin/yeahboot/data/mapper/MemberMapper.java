@@ -24,5 +24,9 @@ public interface MemberMapper extends BaseMapper<MemberEntity> {
      */
     IPage<AdminMemberVo> queryAdminMembers(Page<AdminMemberVo> page,
                                            @Param("memberId") Long memberId,
-                                           @Param("keyword") String keyword);
+                                           @Param("keyword") String keyword,
+                                           @Param("pointsMin") Integer pointsMin,
+                                           @Param("pointsMax") Integer pointsMax,
+                                           @Param("registerStart") String registerStart,
+                                           @Param("registerEnd") String registerEnd);
 }

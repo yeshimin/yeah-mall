@@ -146,6 +146,8 @@ Merchant navigation follows this structure:
 - Keyboard focus is visible and reduced-motion preferences are respected.
 - Ordinary admin list pages rely on the existing sidebar and breadcrumb, so they do not repeat a large page title and description block.
 - Dashboards and editors also rely on the breadcrumb for page identity; necessary context belongs inside the relevant metric, section or form card rather than in a repeated page heading.
+- Admin breadcrumbs start at the sidebar group (for example 商城管理 → 会员管理), not at the surface label 平台后台 / 商家后台.
+- Member points ledger opens 积分管理 → 积分流水 with the member ID applied as a filter; it is not shown as a modal.
 - List-page create, export and batch actions live in the filter area's right action group; they never occupy a standalone row.
 - Filter fields, reset and query form one continuous query group. Business actions follow as a separate right-aligned group and never interrupt the query sequence.
 - Mall data tables contain only column headers, rows and pagination. Duplicate table titles, record-count headers and default refresh buttons are omitted.

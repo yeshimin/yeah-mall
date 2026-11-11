@@ -41,7 +41,11 @@ public class AdminMemberController extends CrudController<MemberMapper, MemberEn
     @GetMapping("/query")
     public R<IPage<AdminMemberVo>> query(Page<AdminMemberVo> page,
                                          @RequestParam(required = false) Long memberId,
-                                         @RequestParam(required = false) String keyword) {
-        return R.ok(service.query(page, memberId, keyword));
+                                         @RequestParam(required = false) String keyword,
+                                         @RequestParam(required = false) Integer pointsMin,
+                                         @RequestParam(required = false) Integer pointsMax,
+                                         @RequestParam(required = false) String registerStart,
+                                         @RequestParam(required = false) String registerEnd) {
+        return R.ok(service.query(page, memberId, keyword, pointsMin, pointsMax, registerStart, registerEnd));
     }
 }
