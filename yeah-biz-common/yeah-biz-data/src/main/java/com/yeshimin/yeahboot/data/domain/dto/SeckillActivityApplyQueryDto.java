@@ -28,4 +28,9 @@ public class SeckillActivityApplyQueryDto extends BaseQueryDto {
      */
     @EnumValue(enumClass = SeckillActivityApplyAuditStatusEnum.class)
     private Integer auditStatus;
+
+    /**
+     * 商家名称或店铺名称
+     */
+    private String mchName;
 }

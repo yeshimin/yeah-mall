@@ -7,6 +7,7 @@ import com.yeshimin.yeahboot.data.common.enums.SeckillActivityApplyAuditStatusEn
 import com.yeshimin.yeahboot.data.domain.dto.SeckillActivityApplyQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityApplyEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSpuEntity;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyStatsVo;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyVo;
 import com.yeshimin.yeahboot.data.mapper.SeckillActivityApplyMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,13 @@ public class SeckillActivityApplyRepo extends BaseRepo<SeckillActivityApplyMappe
     public IPage<SeckillActivityApplyVo> query(Page<SeckillActivityApplyEntity> page,
                                                SeckillActivityApplyQueryDto query, Long mchId) {
         return getBaseMapper().query(page, query, mchId);
+    }
+
+    /**
+     * 统计
+     */
+    public SeckillActivityApplyStatsVo queryStats(SeckillActivityApplyQueryDto query) {
+        return getBaseMapper().queryStats(query);
     }
 
     /**

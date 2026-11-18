@@ -10,6 +10,7 @@ import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityApplyEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSkuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSpuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSpuImageEntity;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyStatsVo;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyVo;
 import com.yeshimin.yeahboot.data.repository.SeckillActivityApplyRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSkuRepo;
@@ -40,6 +41,33 @@ public class AdminSeckillActivityApplyService {
     public IPage<SeckillActivityApplyVo> query(Page<SeckillActivityApplyEntity> page,
                                                SeckillActivityApplyQueryDto query) {
         return seckillActivityApplyRepo.query(page, query, null);
+    }
+
+    /**
+     * 统计
+     */
+    public SeckillActivityApplyStatsVo stats(SeckillActivityApplyQueryDto query) {
+        SeckillActivityApplyStatsVo stats = seckillActivityApplyRepo.queryStats(query);
+        if (stats == null) {
+            stats = new SeckillActivityApplyStatsVo();
+            stats.setTotal(0L);
+            stats.setPending(0L);
+            stats.setPassed(0L);
+            stats.setRejected(0L);
+        }
+
+        if (query.getActivityId() == null) {
+            stats.setActivityTotal(stats.getTotal());
+            stats.setActivityPending(stats.getPending());
+            return stats;
+        }
+
+        SeckillActivityApplyQueryDto activityQuery = new SeckillActivityApplyQueryDto();
+        activityQuery.setActivityId(query.getActivityId());
+        SeckillActivityApplyStatsVo activityStats = seckillActivityApplyRepo.queryStats(activityQuery);
+        stats.setActivityTotal(activityStats == null ? 0L : activityStats.getTotal());
+        stats.setActivityPending(activityStats == null ? 0L : activityStats.getPending());
+        return stats;
     }
 
     /**

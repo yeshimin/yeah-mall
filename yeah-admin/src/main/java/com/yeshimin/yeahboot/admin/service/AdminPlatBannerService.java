@@ -65,6 +65,8 @@ public class AdminPlatBannerService extends BaseService {
         PlatBannerEntity banner = new PlatBannerEntity();
         banner.setImageUrl(result.getFileKey());
         banner.setTarget(dto.getTarget());
+        banner.setSort(dto.getSort() == null ? 1 : dto.getSort());
+        banner.setIsEnabled(dto.getIsEnabled() == null ? Boolean.TRUE : dto.getIsEnabled());
         boolean r = banner.insert();
         log.info("banner.create.result: {}", r);
 
@@ -101,6 +103,12 @@ public class AdminPlatBannerService extends BaseService {
             banner.setImageUrl(result.getFileKey());
         }
         banner.setTarget(dto.getTarget());
+        if (dto.getSort() != null) {
+            banner.setSort(dto.getSort());
+        }
+        if (dto.getIsEnabled() != null) {
+            banner.setIsEnabled(dto.getIsEnabled());
+        }
 
         // 更新Banner记录
         boolean r = banner.updateById();

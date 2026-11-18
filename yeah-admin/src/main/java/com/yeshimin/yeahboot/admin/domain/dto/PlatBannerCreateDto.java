@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -20,4 +21,15 @@ public class PlatBannerCreateDto extends BaseDomain {
      */
     @Pattern(regexp = "^$|^/pages/.*", message = "跳转目标必须是/pages/开头的站内路径")
     private String target;
+
+    /**
+     * 排序
+     */
+    @Min(value = 1, message = "排序必须大于等于1")
+    private Integer sort = 1;
+
+    /**
+     * 是否启用
+     */
+    private Boolean isEnabled = Boolean.TRUE;
 }

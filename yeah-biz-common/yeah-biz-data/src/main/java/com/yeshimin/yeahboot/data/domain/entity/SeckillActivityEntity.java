@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.data.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
 import lombok.Data;
@@ -69,4 +70,10 @@ public class SeckillActivityEntity extends ConditionBaseEntity<SeckillActivityEn
      * 备注
      */
     private String remark;
+
+    /**
+     * 活动场次数量（非表字段，列表查询时填充）
+     */
+    @TableField(exist = false)
+    private Long sessionCount;
 }

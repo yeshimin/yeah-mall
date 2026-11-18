@@ -20,7 +20,9 @@
             spu.detail_desc as detailDesc,
             apply.audit_status as auditStatus,
             apply.apply_remark as applyRemark,
-            apply.audit_remark as auditRemark
+            apply.audit_remark as auditRemark,
+            apply.create_time as applyTime,
+            apply.update_time as auditTime
         from s_seckill_activity_apply apply
             left join s_merchant mch on apply.mch_id = mch.id and mch.deleted = 0
             left join s_shop shop on apply.shop_id = shop.id and shop.deleted = 0
@@ -43,6 +45,38 @@
             <!-- auditStatus -->
             <if test="query.auditStatus != null">
                 and apply.audit_status = #{query.auditStatus}
+            </if>
+            <!-- mchName -->
+            <if test="query.mchName != null and query.mchName != ''">
+                and (mch.nickname like concat('%', #{query.mchName}, '%')
+                    or shop.shop_name like concat('%', #{query.mchName}, '%'))
+            </if>
+        order by apply.create_time desc, apply.id desc
+    </select>
+
+    <!-- 统计 -->
+    <select id="queryStats" resultType="com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyStatsVo">
+        select
+            count(*) as total,
+            count(case when apply.audit_status = 1 then 1 end) as pending,
+            count(case when apply.audit_status = 2 then 1 end) as passed,
+            count(case when apply.audit_status = 3 then 1 end) as rejected
+        from s_seckill_activity_apply apply
+            left join s_merchant mch on apply.mch_id = mch.id and mch.deleted = 0
+            left join s_shop shop on apply.shop_id = shop.id and shop.deleted = 0
+        where apply.deleted = 0
+            <!-- activityId -->
+            <if test="query.activityId != null">
+                and apply.activity_id = #{query.activityId}
+            </if>
+            <!-- sessionId -->
+            <if test="query.sessionId != null">
+                and apply.session_id = #{query.sessionId}
+            </if>
+            <!-- mchName -->
+            <if test="query.mchName != null and query.mchName != ''">
+                and (mch.nickname like concat('%', #{query.mchName}, '%')
+                    or shop.shop_name like concat('%', #{query.mchName}, '%'))
             </if>
     </select>
 

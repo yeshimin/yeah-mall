@@ -1,11 +1,15 @@
 package com.yeshimin.yeahboot.admin.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.admin.domain.dto.FeedbackHandleDto;
 import com.yeshimin.yeahboot.admin.service.AdminFeedbackService;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.entity.MemberFeedbackEntity;
+import com.yeshimin.yeahboot.data.domain.vo.AdminFeedbackVo;
 import com.yeshimin.yeahboot.data.domain.vo.FeedbackDetailVo;
+import com.yeshimin.yeahboot.data.domain.vo.FeedbackStatsVo;
 import com.yeshimin.yeahboot.data.mapper.MemberFeedbackMapper;
 import com.yeshimin.yeahboot.data.repository.MemberFeedbackRepo;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,10 +34,38 @@ public class AdminFeedbackController extends CrudController<MemberFeedbackMapper
         super(repo);
         this.service = service;
         super.setModule("api:admin:feedback")
+                .disableQuery()
                 .disableCreate()
                 .disableDetail()
                 .disableUpdate()
                 .disableDelete();
+    }
+
+    /**
+     * 分页查询反馈列表
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
+    @GetMapping("/query")
+    public R<IPage<AdminFeedbackVo>> query(Page<AdminFeedbackVo> page,
+                                           @RequestParam(required = false) String keyword,
+                                           @RequestParam(required = false) String status,
+                                           @RequestParam(required = false) Boolean hasImage,
+                                           @RequestParam(required = false) Boolean overdue,
+                                           @RequestParam(required = false) String createStart,
+                                           @RequestParam(required = false) String createEnd) {
+        return R.ok(service.query(page, keyword, status, hasImage, overdue, createStart, createEnd));
+    }
+
+    /**
+     * 查询反馈状态统计
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
+    @GetMapping("/stats")
+    public R<FeedbackStatsVo> stats(@RequestParam(required = false) String keyword,
+                                    @RequestParam(required = false) Boolean hasImage,
+                                    @RequestParam(required = false) String createStart,
+                                    @RequestParam(required = false) String createEnd) {
+        return R.ok(service.stats(keyword, hasImage, createStart, createEnd));
     }
 
     /**

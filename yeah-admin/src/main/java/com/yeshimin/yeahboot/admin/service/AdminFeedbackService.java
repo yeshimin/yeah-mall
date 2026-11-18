@@ -1,11 +1,15 @@
 package com.yeshimin.yeahboot.admin.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.admin.domain.dto.FeedbackHandleDto;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.common.enums.FeedbackStatusEnum;
 import com.yeshimin.yeahboot.data.domain.entity.MemberFeedbackEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MemberFeedbackImageEntity;
+import com.yeshimin.yeahboot.data.domain.vo.AdminFeedbackVo;
 import com.yeshimin.yeahboot.data.domain.vo.FeedbackDetailVo;
+import com.yeshimin.yeahboot.data.domain.vo.FeedbackStatsVo;
 import com.yeshimin.yeahboot.data.repository.MemberFeedbackImageRepo;
 import com.yeshimin.yeahboot.data.repository.MemberFeedbackRepo;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +30,25 @@ public class AdminFeedbackService {
 
     private final MemberFeedbackRepo memberFeedbackRepo;
     private final MemberFeedbackImageRepo memberFeedbackImageRepo;
+
+    /**
+     * 分页查询平台反馈列表
+     */
+    public IPage<AdminFeedbackVo> query(Page<AdminFeedbackVo> page, String keyword, String status,
+                                        Boolean hasImage, Boolean overdue,
+                                        String createStart, String createEnd) {
+        return memberFeedbackRepo.queryAdminFeedbackPage(page, trimToNull(keyword), trimToNull(status),
+                hasImage, Boolean.TRUE.equals(overdue), trimToNull(createStart), trimToNull(createEnd),
+                overdueThreshold());
+    }
+
+    /**
+     * 查询反馈状态统计
+     */
+    public FeedbackStatsVo stats(String keyword, Boolean hasImage, String createStart, String createEnd) {
+        return memberFeedbackRepo.queryAdminFeedbackStats(trimToNull(keyword), hasImage,
+                trimToNull(createStart), trimToNull(createEnd), overdueThreshold());
+    }
 
     /**
      * 查询反馈详情
@@ -60,5 +83,17 @@ public class AdminFeedbackService {
         feedback.setReplyContent(replyContent);
         feedback.setReplyTime(replyContent.isEmpty() ? null : LocalDateTime.now());
         feedback.updateById();
+    }
+
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private LocalDateTime overdueThreshold() {
+        return LocalDateTime.now().minusHours(24);
     }
 }

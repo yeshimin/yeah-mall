@@ -1,8 +1,10 @@
 package com.yeshimin.yeahboot.admin.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivityEnabledUpdateDto;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivitySaveDto;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivityStatusUpdateDto;
+import com.yeshimin.yeahboot.admin.domain.vo.AdminSeckillActivityStatsVo;
 import com.yeshimin.yeahboot.admin.service.AdminSeckillActivityService;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
@@ -13,9 +15,11 @@ import com.yeshimin.yeahboot.data.repository.SeckillActivityRepo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
@@ -37,6 +41,28 @@ public class AdminSeckillActivityController extends CrudController<SeckillActivi
     }
 
     // ================================================================================
+
+    /**
+     * 分页查询活动列表（含场次数量）
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
+    @GetMapping("/query")
+    public R<Page<SeckillActivityEntity>> query(Page<SeckillActivityEntity> page,
+                                                @RequestParam(required = false) String keyword,
+                                                @RequestParam(required = false) String status,
+                                                @RequestParam(required = false) Boolean isEnabled) {
+        return R.ok(service.query(page, keyword, status, isEnabled));
+    }
+
+    /**
+     * 查询活动状态统计
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
+    @GetMapping("/stats")
+    public R<AdminSeckillActivityStatsVo> stats(@RequestParam(required = false) String keyword,
+                                                @RequestParam(required = false) Boolean isEnabled) {
+        return R.ok(service.stats(keyword, isEnabled));
+    }
 
     /**
      * 创建

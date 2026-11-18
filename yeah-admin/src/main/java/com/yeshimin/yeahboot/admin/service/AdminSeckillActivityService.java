@@ -3,9 +3,12 @@ package com.yeshimin.yeahboot.admin.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivityEnabledUpdateDto;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivitySaveDto;
 import com.yeshimin.yeahboot.admin.domain.dto.SeckillActivityStatusUpdateDto;
+import com.yeshimin.yeahboot.admin.domain.vo.AdminSeckillActivityStatsVo;
 import com.yeshimin.yeahboot.common.service.CacheService;
 import com.yeshimin.yeahboot.data.common.consts.BizConsts;
 import com.yeshimin.yeahboot.data.common.enums.SeckillActivityApplyAuditStatusEnum;
@@ -58,6 +61,15 @@ public class AdminSeckillActivityService {
         storageManager.markUse(dto.getCoverImage());
 
         SeckillActivityEntity entity = BeanUtil.copyProperties(dto, SeckillActivityEntity.class);
+        if (entity.getStatus() == null) {
+            entity.setStatus(SeckillActivityStatusEnum.CREATED.getValue());
+        }
+        if (entity.getIsEnabled() == null) {
+            entity.setIsEnabled(Boolean.TRUE);
+        }
+        if (entity.getSort() == null) {
+            entity.setSort(1);
+        }
         boolean r = entity.insert();
         log.info("创建秒杀活动，结果：{}", r);
     }
@@ -237,6 +249,67 @@ public class AdminSeckillActivityService {
             this.writeActivityCache(entity);
         }
         log.info("更新【是否启用】，结果：{}", r);
+    }
+
+    /**
+     * 分页查询活动列表（含场次数量）
+     */
+    public Page<SeckillActivityEntity> query(Page<SeckillActivityEntity> page, String keyword, String status, Boolean isEnabled) {
+        LambdaQueryWrapper<SeckillActivityEntity> wrapper = this.buildQueryWrapper(keyword, status, isEnabled);
+        wrapper.orderByAsc(SeckillActivityEntity::getSort).orderByAsc(SeckillActivityEntity::getId);
+        Page<SeckillActivityEntity> result = seckillActivityRepo.page(page, wrapper);
+        List<SeckillActivityEntity> records = result.getRecords();
+        if (!records.isEmpty()) {
+            Map<Long, Long> sessionCounts = seckillSessionRepo.countMapByActivityIds(
+                    records.stream().map(SeckillActivityEntity::getId).collect(Collectors.toList()));
+            records.forEach(item -> item.setSessionCount(sessionCounts.getOrDefault(item.getId(), 0L)));
+        }
+        return result;
+    }
+
+    /**
+     * 活动状态统计（关键词、启用状态过滤；待配置场次按全量新建活动计算）
+     */
+    public AdminSeckillActivityStatsVo stats(String keyword, Boolean isEnabled) {
+        List<SeckillActivityEntity> list = seckillActivityRepo.list(buildQueryWrapper(keyword, null, isEnabled));
+        AdminSeckillActivityStatsVo vo = new AdminSeckillActivityStatsVo();
+        vo.setTotal((long) list.size());
+        vo.setCreated(this.countByStatus(list, SeckillActivityStatusEnum.CREATED.getValue()));
+        vo.setPublished(this.countByStatus(list, SeckillActivityStatusEnum.PUBLISHED.getValue()));
+        vo.setApplyStarted(this.countByStatus(list, SeckillActivityStatusEnum.APPLY_STARTED.getValue()));
+        vo.setApplyFinished(this.countByStatus(list, SeckillActivityStatusEnum.APPLY_FINISHED.getValue()));
+        vo.setActivityStarted(this.countByStatus(list, SeckillActivityStatusEnum.ACTIVITY_STARTED.getValue()));
+        vo.setActivityFinished(this.countByStatus(list, SeckillActivityStatusEnum.ACTIVITY_FINISHED.getValue()));
+        vo.setActivityDown(this.countByStatus(list, SeckillActivityStatusEnum.ACTIVITY_DOWN.getValue()));
+
+        List<Long> createdIds = seckillActivityRepo.lambdaQuery()
+                .select(SeckillActivityEntity::getId)
+                .eq(SeckillActivityEntity::getStatus, SeckillActivityStatusEnum.CREATED.getValue())
+                .list().stream().map(SeckillActivityEntity::getId).collect(Collectors.toList());
+        Map<Long, Long> sessionCounts = seckillSessionRepo.countMapByActivityIds(createdIds);
+        vo.setPendingSetup(createdIds.stream().filter(id -> sessionCounts.getOrDefault(id, 0L) == 0L).count());
+        return vo;
+    }
+
+    private LambdaQueryWrapper<SeckillActivityEntity> buildQueryWrapper(String keyword, String status, Boolean isEnabled) {
+        LambdaQueryWrapper<SeckillActivityEntity> wrapper = new LambdaQueryWrapper<>();
+        if (StrUtil.isNotBlank(keyword)) {
+            String value = keyword.trim();
+            wrapper.and(item -> item.like(SeckillActivityEntity::getName, value)
+                    .or().like(SeckillActivityEntity::getDescription, value)
+                    .or().like(SeckillActivityEntity::getRemark, value));
+        }
+        if (StrUtil.isNotBlank(status)) {
+            wrapper.eq(SeckillActivityEntity::getStatus, status);
+        }
+        if (isEnabled != null) {
+            wrapper.eq(SeckillActivityEntity::getIsEnabled, isEnabled);
+        }
+        return wrapper;
+    }
+
+    private Long countByStatus(List<SeckillActivityEntity> list, String status) {
+        return list.stream().filter(item -> Objects.equals(item.getStatus(), status)).count();
     }
 
     // ================================================================================

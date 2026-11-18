@@ -4,6 +4,8 @@ import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * 秒杀活动报名申请VO
  */
@@ -90,4 +92,14 @@ public class SeckillActivityApplyVo extends BaseDomain {
      * 审核备注
      */
     private String auditRemark;
+
+    /**
+     * 报名时间
+     */
+    private LocalDateTime applyTime;
+
+    /**
+     * 审核时间
+     */
+    private LocalDateTime auditTime;
 }

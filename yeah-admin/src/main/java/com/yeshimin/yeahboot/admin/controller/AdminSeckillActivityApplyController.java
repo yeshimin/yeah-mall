@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.common.controller.base.BaseController;
 import com.yeshimin.yeahboot.common.domain.base.R;
 import com.yeshimin.yeahboot.data.domain.dto.SeckillActivityApplyQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityApplyEntity;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyStatsVo;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +34,15 @@ public class AdminSeckillActivityApplyController extends BaseController {
     public R<IPage<SeckillActivityApplyVo>> query(Page<SeckillActivityApplyEntity> page,
                                                   @Validated SeckillActivityApplyQueryDto query) {
         return R.ok(service.query(page, query));
+    }
+
+    /**
+     * 统计
+     */
+    @PreAuthorize("@pms.hasPermission('admin:seckillActivityApply:query')")
+    @GetMapping("/stats")
+    public R<SeckillActivityApplyStatsVo> stats(@Validated SeckillActivityApplyQueryDto query) {
+        return R.ok(service.stats(query));
     }
 
     /**

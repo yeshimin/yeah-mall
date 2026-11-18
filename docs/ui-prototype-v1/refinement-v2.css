@@ -468,7 +468,7 @@
 .table-toolbar button { height: 32px; font-size: 12px !important; }
 .admin-table th { height: 46px; font-size: 13px !important; }
 .admin-table td { height: 62px; font-size: 13px !important; }
-.member-table-cell b, .admin-table td > b { font-size: 13px !important; }
+.member-table-cell b, .admin-table td b { font-size: 13px !important; }
 .member-table-cell small, .cell-sub { font-size: 11px !important; }
 .admin-pagination { min-height: 52px; }
 .admin-pagination button, .admin-pagination select { min-height: 32px; font-size: 12px !important; }

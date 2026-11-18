@@ -1,0 +1,51 @@
+/* 表格对齐总规则：
+   多元素列（图片+文本、名称+描述上下堆叠、多操作按钮）→ 同列容器等宽 + 容器列内居中 + 内容左对齐；
+   单元素列（整列每格只有一个视觉原子：纯文本/数字/单标签/单图/开关）→ 纯居中，超长截断省略号 + hover 完整内容。
+   容器宽度与单/多分类由 table-align-runtime.js 运行时按真实内容计算，此处不写死宽度。 */
+[data-align-table] th { text-align: center !important; }
+[data-align-table] td { text-align: left !important; }
+[data-align-table] td.selection-cell { text-align: center !important; }
+[data-align-table] td > .cb {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 auto !important;
+  overflow-wrap: anywhere;
+  text-align: left !important;
+}
+[data-align-table] td > .cb > * {
+  min-width: 0 !important;
+  max-width: 100%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+[data-align-table] td > .cb[data-ym-align="center"] {
+  width: auto !important;
+  margin: 0 !important;
+  text-align: center !important;
+  overflow-wrap: normal;
+}
+[data-align-table] td > .cb[data-ym-align="center"] > * {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+[data-align-table] td > .cb[data-ym-align="trunc"] {
+  margin: 0 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  overflow-wrap: normal !important;
+}
+[data-align-table] td > .cb[data-ym-align="trunc"] > * {
+  white-space: nowrap !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+

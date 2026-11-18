@@ -1,6 +1,7 @@
 package com.yeshimin.yeahboot.app.service;
 
 import com.yeshimin.yeahboot.app.domain.vo.PlatBannerVo;
+import com.yeshimin.yeahboot.data.domain.entity.PlatBannerEntity;
 import com.yeshimin.yeahboot.data.repository.PlatBannerRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,11 @@ public class AppPlatBannerService {
      * 查询平台Banner
      */
     public List<PlatBannerVo> query() {
-        return platBannerRepo.list().stream().map(e -> {
+        return platBannerRepo.lambdaQuery()
+                .eq(PlatBannerEntity::getIsEnabled, true)
+                .orderByAsc(PlatBannerEntity::getSort)
+                .orderByAsc(PlatBannerEntity::getId)
+                .list().stream().map(e -> {
             PlatBannerVo vo = new PlatBannerVo();
             vo.setImageUrl(e.getImageUrl());
             vo.setTarget(e.getTarget());

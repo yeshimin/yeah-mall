@@ -1756,8 +1756,8 @@ function PlatformMerchants({ notify }) {
       <label><span>商家账号</span><input value={keyword} onChange={(event)=>setKeyword(event.target.value)} onKeyDown={(event)=>event.key==='Enter'&&notify(`找到 ${filtered.length} 个商家`)} placeholder="账号、昵称或 ID"/></label>
       <label><span>账号状态</span><select value={status} onChange={(event)=>setStatus(event.target.value)}><option value="all">全部状态</option><option value="true">启用</option><option value="false">停用</option></select></label>
     </FilterBar>
-    <div className="admin-table-frame"><table className="admin-table merchant-admin-table"><thead><tr><th className="selection-cell"><input type="checkbox" checked={allSelected} onChange={()=>setSelected(allSelected?selected.filter((id)=>!filtered.some((item)=>item.id===id)):[...new Set([...selected,...filtered.map((item)=>item.id)])])}/></th><th>商家账号</th><th>店铺数量</th><th>账号状态</th><th>创建时间</th><th className="actions">操作</th></tr></thead><tbody>{filtered.map((merchant)=><tr key={merchant.id}><td className="selection-cell"><input type="checkbox" checked={selected.includes(merchant.id)} onChange={()=>setSelected(selected.includes(merchant.id)?selected.filter((id)=>id!==merchant.id):[...selected,merchant.id])}/></td><td><div className="merchant-account-cell"><Avatar name={merchant.nickname||merchant.account} size={36}/><span><b><CopyableText value={merchant.account} label="商家账号" notify={notify}/></b><small><CopyableText value={merchant.nickname} label="商家名称" notify={notify}/> · ID {merchant.id}</small></span></div></td><td><button className="merchant-shop-count" onClick={()=>setDetail(merchant)}><b>{merchant.shopCount}</b><span>家店铺</span></button></td><td><span className={`merchant-account-status ${merchant.enabled?'is-enabled':'is-disabled'}`}><i></i>{merchant.enabled?'启用':'停用'}</span></td><td>{merchant.createdAt}</td><td className="actions"><button className="table-link" onClick={()=>setDetail(merchant)}>查看</button><button className="table-link" onClick={()=>openEdit(merchant)}>编辑</button><RowActionMenu open={menu===merchant.id} onToggle={()=>setMenu(menu===merchant.id?null:merchant.id)}><button onClick={()=>openReset(merchant)}>重置密码</button><button onClick={()=>toggleEnabled(merchant)}>{merchant.enabled?'停用账号':'启用账号'}</button><button className="danger-link" onClick={()=>{setMenu(null);setDeleting({ids:[merchant.id],accounts:[merchant.account]});}}>删除商家</button></RowActionMenu></td></tr>)}</tbody></table>{!filtered.length&&<div className="admin-empty"><AdminIcon name="Avatar" size={28}/><b>没有匹配的商家</b><span>修改筛选条件后重新查询</span></div>}<AdminPagination count={filtered.length}/></div>
-    {detail&&<div className="drawer-mask" onClick={()=>setDetail(null)}><aside className="admin-drawer merchant-detail-drawer" onClick={(event)=>event.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">MERCHANT DETAIL</span><h2>商家详情</h2></div><button onClick={()=>setDetail(null)}>×</button></div><div className="merchant-detail-profile"><Avatar name={detail.nickname||detail.account} size={54}/><div><h3><CopyableText value={detail.nickname} label="商家名称" notify={notify}/></h3><span><CopyableText value={detail.account} label="商家账号" notify={notify}/> · ID {detail.id}</span></div><span className={`merchant-account-status ${detail.enabled?'is-enabled':'is-disabled'}`}><i></i>{detail.enabled?'账号启用':'账号停用'}</span></div><div className="description-grid"><div><span>登录账号</span><b><CopyableText value={detail.account} label="登录账号" notify={notify}/></b></div><div><span>关联店铺</span><b>{detail.shopCount} 家，其中 {detail.enabledShopCount} 家启用</b></div><div><span>创建时间</span><b>{detail.createdAt}</b></div><div><span>更新时间</span><b>{detail.updatedAt}</b></div></div><section className="drawer-section merchant-shop-section"><div className="merchant-detail-section-title"><h3>关联店铺</h3><button onClick={()=>notify(`正在进入 ${detail.account} 的店铺列表`)}>进入店铺管理</button></div>{detail.shops.length?<table className="merchant-shop-table"><thead><tr><th>店铺编号</th><th>店铺名称</th><th>平台状态</th><th>营业状态</th></tr></thead><tbody>{detail.shops.map((shop)=><tr key={shop.no}><td className="mono"><CopyableText value={shop.no} label="店铺编号" notify={notify}/></td><td><CopyableText value={shop.name} label="店铺名称" notify={notify}/></td><td><StatusTicket tone={shop.enabled?'success':'danger'} small>{shop.enabled?'启用':'停用'}</StatusTicket></td><td>{shop.open?'营业中':'休息中'}</td></tr>)}</tbody></table>:<div className="merchant-shop-empty"><AdminIcon name="Shop" size={22}/><span>该商家暂未创建店铺</span></div>}</section><div className="drawer-actions"><button onClick={()=>openReset(detail)}>重置密码</button><button onClick={()=>toggleEnabled(detail)}>{detail.enabled?'停用账号':'启用账号'}</button><button className="primary" onClick={()=>{setDetail(null);openEdit(detail);}}>编辑商家</button></div></aside></div>}
+    <div className="admin-table-frame"><table data-align-table="t1" className="admin-table merchant-admin-table"><thead><tr><th className="selection-cell"><input type="checkbox" checked={allSelected} onChange={()=>setSelected(allSelected?selected.filter((id)=>!filtered.some((item)=>item.id===id)):[...new Set([...selected,...filtered.map((item)=>item.id)])])}/></th><th>商家账号</th><th>店铺数量</th><th>账号状态</th><th>创建时间</th><th className="actions">操作</th></tr></thead><tbody>{filtered.map((merchant)=><tr key={merchant.id}><td className="selection-cell"><input type="checkbox" checked={selected.includes(merchant.id)} onChange={()=>setSelected(selected.includes(merchant.id)?selected.filter((id)=>id!==merchant.id):[...selected,merchant.id])}/></td><td><div className="cb"><div className="merchant-account-cell"><Avatar name={merchant.nickname||merchant.account} size={36}/><span><b><CopyableText value={merchant.account} label="商家账号" notify={notify}/></b><small><CopyableText value={merchant.nickname} label="商家名称" notify={notify}/> · ID {merchant.id}</small></span></div></div></td><td><div className="cb"><button className="merchant-shop-count" onClick={()=>setDetail(merchant)}><b>{merchant.shopCount}</b><span>家店铺</span></button></div></td><td><div className="cb"><span className={`merchant-account-status ${merchant.enabled?'is-enabled':'is-disabled'}`}><i></i>{merchant.enabled?'启用':'停用'}</span></div></td><td><div className="cb">{merchant.createdAt}</div></td><td className="actions"><div className="cb"><button className="table-link" onClick={()=>setDetail(merchant)}>查看</button><button className="table-link" onClick={()=>openEdit(merchant)}>编辑</button><RowActionMenu open={menu===merchant.id} onToggle={()=>setMenu(menu===merchant.id?null:merchant.id)}><button onClick={()=>openReset(merchant)}>重置密码</button><button onClick={()=>toggleEnabled(merchant)}>{merchant.enabled?'停用账号':'启用账号'}</button><button className="danger-link" onClick={()=>{setMenu(null);setDeleting({ids:[merchant.id],accounts:[merchant.account]});}}>删除商家</button></RowActionMenu></div></td></tr>)}</tbody></table>{!filtered.length&&<div className="admin-empty"><AdminIcon name="Avatar" size={28}/><b>没有匹配的商家</b><span>修改筛选条件后重新查询</span></div>}<AdminPagination count={filtered.length}/></div>
+    {detail&&<div className="drawer-mask" onClick={()=>setDetail(null)}><aside className="admin-drawer merchant-detail-drawer" onClick={(event)=>event.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">MERCHANT DETAIL</span><h2>商家详情</h2></div><button onClick={()=>setDetail(null)}>×</button></div><div className="merchant-detail-profile"><Avatar name={detail.nickname||detail.account} size={54}/><div><h3><CopyableText value={detail.nickname} label="商家名称" notify={notify}/></h3><span><CopyableText value={detail.account} label="商家账号" notify={notify}/> · ID {detail.id}</span></div><span className={`merchant-account-status ${detail.enabled?'is-enabled':'is-disabled'}`}><i></i>{detail.enabled?'账号启用':'账号停用'}</span></div><div className="description-grid"><div><span>登录账号</span><b><CopyableText value={detail.account} label="登录账号" notify={notify}/></b></div><div><span>关联店铺</span><b>{detail.shopCount} 家，其中 {detail.enabledShopCount} 家启用</b></div><div><span>创建时间</span><b>{detail.createdAt}</b></div><div><span>更新时间</span><b>{detail.updatedAt}</b></div></div><section className="drawer-section merchant-shop-section"><div className="merchant-detail-section-title"><h3>关联店铺</h3><button onClick={()=>notify(`正在进入 ${detail.account} 的店铺列表`)}>进入店铺管理</button></div>{detail.shops.length?<table data-align-table="t2" className="merchant-shop-table"><thead><tr><th>店铺编号</th><th>店铺名称</th><th>平台状态</th><th>营业状态</th></tr></thead><tbody>{detail.shops.map((shop)=><tr key={shop.no}><td className="mono"><div className="cb"><CopyableText value={shop.no} label="店铺编号" notify={notify}/></div></td><td><div className="cb"><CopyableText value={shop.name} label="店铺名称" notify={notify}/></div></td><td><div className="cb"><StatusTicket tone={shop.enabled?'success':'danger'} small>{shop.enabled?'启用':'停用'}</StatusTicket></div></td><td><div className="cb">{shop.open?'营业中':'休息中'}</div></td></tr>)}</tbody></table>:<div className="merchant-shop-empty"><AdminIcon name="Shop" size={22}/><span>该商家暂未创建店铺</span></div>}</section><div className="drawer-actions"><button onClick={()=>openReset(detail)}>重置密码</button><button onClick={()=>toggleEnabled(detail)}>{detail.enabled?'停用账号':'启用账号'}</button><button className="primary" onClick={()=>{setDetail(null);openEdit(detail);}}>编辑商家</button></div></aside></div>}
     {editing&&<div className="dialog-mask" onClick={()=>setEditing(null)}><section className="admin-dialog merchant-account-form" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">MERCHANT ACCOUNT</span><h2>{editing.id?'编辑商家':'新增商家'}</h2></div><button onClick={()=>setEditing(null)}>×</button></div><label className="dialog-field"><span>商家账号</span><input value={account} onChange={(event)=>setAccount(event.target.value)} placeholder="请输入商家账号"/></label>{!editing.id&&<label className="dialog-field"><span>登录密码 <small>必填</small></span><input type="password" value={password} onChange={(event)=>setPassword(event.target.value)} placeholder="请输入初始登录密码"/></label>}<div className="dialog-hint"><AdminIcon name="Setting" size={16}/><span>{editing.id?'账号状态和密码请通过“更多”操作单独维护。':'保存前将按系统密码规则进行加密处理。'}</span></div><div className="dialog-actions"><button onClick={()=>setEditing(null)}>取消</button><button className="primary" onClick={save}>保存</button></div></section></div>}
     {resetting&&<div className="dialog-mask" onClick={()=>setResetting(null)}><section className="admin-dialog merchant-password-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">RESET PASSWORD</span><h2>重置登录密码</h2></div><button onClick={()=>setResetting(null)}>×</button></div><div className="dialog-member"><Avatar name={resetting.nickname||resetting.account} size={38}/><div><b>{resetting.account}</b><span>{resetting.nickname}</span></div></div><label className="dialog-field"><span>新密码</span><input type="password" value={password} onChange={(event)=>setPassword(event.target.value)} placeholder="请输入新密码"/></label><label className="dialog-field"><span>确认密码</span><input type="password" value={confirmPassword} onChange={(event)=>setConfirmPassword(event.target.value)} placeholder="请再次输入新密码"/></label><div className="dialog-actions"><button onClick={()=>setResetting(null)}>取消</button><button className="primary" onClick={savePassword}>确认重置</button></div></section></div>}
     {deleting&&<div className="dialog-mask" onClick={()=>setDeleting(null)}><section className="admin-dialog merchant-delete-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker danger-kicker">DELETE MERCHANT</span><h2>删除商家</h2></div><button onClick={()=>setDeleting(null)}>×</button></div><div className="danger-confirm"><AdminIcon name="warning" size={22}/><div><b>确认删除选中的 {deleting.ids.length} 个商家吗？</b><span>{deleting.accounts.join('、')}</span><small>若商家仍关联店铺或业务数据，实际系统应由后端拒绝删除。</small></div></div><div className="dialog-actions"><button onClick={()=>setDeleting(null)}>取消</button><button className="danger" onClick={confirmDelete}>确认删除</button></div></section></div>}
@@ -1816,16 +1816,16 @@ function PlatformShops({ notify }) {
       <label><span>状态</span><select value={status} onChange={(event)=>setStatus(event.target.value)}><option value="all">全部状态</option><option value="platform-enabled">平台已启用</option><option value="platform-disabled">平台已停用</option><option value="open">营业中</option><option value="closed">已停业</option></select></label>
     </FilterBar>
     <div className="admin-table-frame">
-      <table className="admin-table platform-shop-table">
+      <table data-align-table="t3" className="admin-table platform-shop-table">
         <thead><tr><th className="selection-cell"><input type="checkbox" checked={allSelected} onChange={()=>setSelected(allSelected?selected.filter((id)=>!filtered.some((shop)=>shop.id===id)):[...new Set([...selected,...filtered.map((shop)=>shop.id)])])}/></th><th>店铺</th><th>所属商家</th><th>平台状态</th><th>营业状态</th><th>平台佣金</th><th>结算周期</th><th>创建时间</th><th className="actions">操作</th></tr></thead>
         <tbody>{filtered.map((shop)=><tr key={shop.id}>
           <td className="selection-cell"><input type="checkbox" checked={selected.includes(shop.id)} onChange={()=>setSelected(selected.includes(shop.id)?selected.filter((id)=>id!==shop.id):[...selected,shop.id])}/></td>
-          <td><div className="platform-shop-cell"><span className={`platform-shop-logo tone-${shop.tone}`}>{shop.shopName.slice(0,1)}</span><span><b><CopyableText value={shop.shopName} label="店铺名称" notify={notify}/></b><small className="platform-shop-identity"><CopyableText className="platform-shop-no" value={shop.shopNo} label="店铺编号" notify={notify}/><span>· ID</span><CopyableText className="platform-shop-id" value={shop.id} label="店铺 ID" notify={notify}/></small></span></div></td>
-          <td><CopyableText value={shop.mchName} label="商家账号" notify={notify}/></td>
-          <td><ReadOnlyStatus tone={shop.enabled?'success':'neutral'}>{shop.enabled?'已启用':'已停用'}</ReadOnlyStatus></td>
-          <td><ReadOnlyStatus tone={shop.open?'success':'warning'}>{shop.open?'营业中':'已停业'}</ReadOnlyStatus></td>
-          <td>{shop.commission}%</td><td>T+{shop.delay}</td><td>{shop.createdAt}</td>
-          <td className="actions"><button className="table-link" onClick={()=>setDetail(shop)}>查看</button><button className="table-link" onClick={()=>openEdit(shop)}>编辑</button><button className="table-link danger-link" onClick={()=>setDeleting({ids:[shop.id],names:[shop.shopName]})}>删除</button></td>
+          <td><div className="cb"><div className="platform-shop-cell"><span className={`platform-shop-logo tone-${shop.tone}`}>{shop.shopName.slice(0,1)}</span><span><b><CopyableText value={shop.shopName} label="店铺名称" notify={notify}/></b><small className="platform-shop-identity"><CopyableText className="platform-shop-no" value={shop.shopNo} label="店铺编号" notify={notify}/><span>· ID</span><CopyableText className="platform-shop-id" value={shop.id} label="店铺 ID" notify={notify}/></small></span></div></div></td>
+          <td><div className="cb"><CopyableText value={shop.mchName} label="商家账号" notify={notify}/></div></td>
+          <td><div className="cb"><ReadOnlyStatus tone={shop.enabled?'success':'neutral'}>{shop.enabled?'已启用':'已停用'}</ReadOnlyStatus></div></td>
+          <td><div className="cb"><ReadOnlyStatus tone={shop.open?'success':'warning'}>{shop.open?'营业中':'已停业'}</ReadOnlyStatus></div></td>
+          <td><div className="cb">{shop.commission}%</div></td><td><div className="cb">T+{shop.delay}</div></td><td><div className="cb">{shop.createdAt}</div></td>
+          <td className="actions"><div className="cb"><button className="table-link" onClick={()=>setDetail(shop)}>查看</button><button className="table-link" onClick={()=>openEdit(shop)}>编辑</button><button className="table-link danger-link" onClick={()=>setDeleting({ids:[shop.id],names:[shop.shopName]})}>删除</button></div></td>
         </tr>)}</tbody>
       </table>
       {!filtered.length&&<div className="admin-empty"><AdminIcon name="Shop" size={28}/><b>没有匹配的店铺</b><span>调整筛选条件后重新查询</span></div>}
@@ -1882,8 +1882,8 @@ function AdminMembers({ members, setMembers, notify, navigate }) {
         <label className="member-date-range"><span>注册时间</span><span className="filter-date-range"><input type="date" value={registeredFrom} onChange={(e)=>setRegisteredFrom(e.target.value)}/><i>至</i><input type="date" value={registeredTo} onChange={(e)=>setRegisteredTo(e.target.value)}/></span></label>
       </FilterBar>
       <div className="admin-table-frame">
-        <table className="admin-table"><thead><tr><th>会员</th><th>账号</th><th>手机号</th><th className="numeric">可用积分</th><th className="numeric">累计获得</th><th className="numeric">累计使用</th><th>注册时间</th><th className="actions">操作</th></tr></thead>
-          <tbody>{filtered.map((member) => <tr key={member.id}><td><div className="member-table-cell"><Avatar name={member.nickname} tone={member.tone}/><div><b><CopyableText value={member.nickname} label="会员名称" notify={notify}/></b><small>ID <CopyableText value={member.id} label="会员ID" notify={notify}/></small></div></div></td><td><CopyableText value={member.account} label="会员账号" notify={notify}/></td><td className="mono"><CopyableText value={member.mobile} label="手机号" notify={notify}/></td><td className="numeric points-number">{member.points.toLocaleString()}</td><td className="numeric">{member.earned.toLocaleString()}</td><td className="numeric">{member.used.toLocaleString()}</td><td><span>{member.createdAt.slice(0,10)}</span><small className="cell-sub">{member.createdAt.slice(11)}</small></td><td className="actions"><button className="table-link" onClick={() => setDrawer(member)}>查看</button><span className="row-menu-wrap"><button className="table-more" onClick={() => setMenu(menu === member.id ? null : member.id)}>更多 <AdminIcon name="down" size={14}/></button>{menu === member.id && <span className="row-menu"><button onClick={() => { setAdjust({ type:'increase', member }); setMenu(null); }}>增加积分</button><button onClick={() => { setAdjust({ type:'decrease', member }); setMenu(null); }}>扣减积分</button><button onClick={() => { setMenu(null); navigate(`platform/points?tab=${encodeURIComponent('积分流水')}&memberId=${member.id}`); }}>积分流水</button></span>}</span></td></tr>)}</tbody>
+        <table data-align-table="t4" className="admin-table"><thead><tr><th>会员</th><th>账号</th><th>手机号</th><th className="numeric">可用积分</th><th className="numeric">累计获得</th><th className="numeric">累计使用</th><th>注册时间</th><th className="actions">操作</th></tr></thead>
+          <tbody>{filtered.map((member) => <tr key={member.id}><td><div className="cb"><div className="member-table-cell"><Avatar name={member.nickname} tone={member.tone}/><div><b><CopyableText value={member.nickname} label="会员名称" notify={notify}/></b><small>ID <CopyableText value={member.id} label="会员ID" notify={notify}/></small></div></div></div></td><td><div className="cb"><CopyableText value={member.account} label="会员账号" notify={notify}/></div></td><td className="mono"><div className="cb"><CopyableText value={member.mobile} label="手机号" notify={notify}/></div></td><td className="numeric points-number"><div className="cb">{member.points.toLocaleString()}</div></td><td className="numeric"><div className="cb">{member.earned.toLocaleString()}</div></td><td className="numeric"><div className="cb">{member.used.toLocaleString()}</div></td><td><div className="cb"><span>{member.createdAt.slice(0,10)}</span><small className="cell-sub">{member.createdAt.slice(11)}</small></div></td><td className="actions"><div className="cb"><button className="table-link" onClick={() => setDrawer(member)}>查看</button><span className="row-menu-wrap"><button className="table-more" onClick={() => setMenu(menu === member.id ? null : member.id)}>更多 <AdminIcon name="down" size={14}/></button>{menu === member.id && <span className="row-menu"><button onClick={() => { setAdjust({ type:'increase', member }); setMenu(null); }}>增加积分</button><button onClick={() => { setAdjust({ type:'decrease', member }); setMenu(null); }}>扣减积分</button><button onClick={() => { setMenu(null); navigate(`platform/points?tab=${encodeURIComponent('积分流水')}&memberId=${member.id}`); }}>积分流水</button></span>}</span></div></td></tr>)}</tbody>
         </table>
         {!filtered.length && <div className="admin-empty"><AdminIcon name="members" size={30}/><b>没有匹配的会员</b><span>修改筛选条件后重试</span></div>}
         <AdminPagination count={filtered.length || 0}/>
@@ -1974,19 +1974,19 @@ function AdminReviews({ notify }) {
         <label className="review-date-range"><span>评价时间</span><span className="filter-date-range"><input type="date" value={filters.from} onChange={(e)=>updateFilter('from',e.target.value)}/><i>至</i><input type="date" value={filters.to} onChange={(e)=>updateFilter('to',e.target.value)}/></span></label>
       </FilterBar>
       <div className="admin-table-frame">
-        <table className="admin-table review-admin-table">
+        <table data-align-table="t5" className="admin-table review-admin-table">
           <thead><tr><th>商品</th><th>规格</th><th>订单编号</th><th>用户</th><th className="numeric">评分</th><th>评价内容</th><th>回复</th><th>状态</th><th>评价时间</th><th className="actions">操作</th></tr></thead>
           <tbody>{filtered.map((row)=><tr key={row.id}>
-            <td><div className="admin-product-cell review-product-cell"><ProductArt type={row.art}/><div><b><CopyableText value={row.product} label="商品名称" notify={notify}/></b><small>SPU {row.spuId}</small></div></div></td>
-            <td>{row.spec}</td>
-            <td className="mono"><CopyableText value={row.orderNo} label="订单编号" notify={notify}/></td>
-            <td>{row.user}</td>
-            <td className="numeric">{row.rating} 星</td>
-            <td><span className="review-content-text">{row.content}</span></td>
-            <td><StatusTicket tone={replyTone(row)}>{replyLabel(row)}</StatusTicket></td>
-            <td><StatusTicket tone={row.visible?'success':'neutral'}>{row.visible?'公开':'已隐藏'}</StatusTicket></td>
-            <td><span>{row.time.slice(0,10)}</span><small className="cell-sub">{row.time.slice(11)}</small></td>
-            <td className="actions"><button className="table-link" onClick={()=>setDetail(row)}>详情</button><button className={`table-link ${row.visible?'danger-link':''}`} onClick={()=>toggleVisibility(row)}>{row.visible?'隐藏':'恢复'}</button></td>
+            <td><div className="cb"><div className="admin-product-cell review-product-cell"><ProductArt type={row.art}/><div><b><CopyableText value={row.product} label="商品名称" notify={notify}/></b><small>SPU {row.spuId}</small></div></div></div></td>
+            <td><div className="cb">{row.spec}</div></td>
+            <td className="mono"><div className="cb"><CopyableText value={row.orderNo} label="订单编号" notify={notify}/></div></td>
+            <td><div className="cb">{row.user}</div></td>
+            <td className="numeric"><div className="cb">{row.rating} 星</div></td>
+            <td><div className="cb"><span className="review-content-text">{row.content}</span></div></td>
+            <td><div className="cb"><StatusTicket tone={replyTone(row)}>{replyLabel(row)}</StatusTicket></div></td>
+            <td><div className="cb"><StatusTicket tone={row.visible?'success':'neutral'}>{row.visible?'公开':'已隐藏'}</StatusTicket></div></td>
+            <td><div className="cb"><span>{row.time.slice(0,10)}</span><small className="cell-sub">{row.time.slice(11)}</small></div></td>
+            <td className="actions"><div className="cb"><button className="table-link" onClick={()=>setDetail(row)}>详情</button><button className={`table-link ${row.visible?'danger-link':''}`} onClick={()=>toggleVisibility(row)}>{row.visible?'隐藏':'恢复'}</button></div></td>
           </tr>)}</tbody>
         </table>
         {!filtered.length&&<div className="admin-empty"><AdminIcon name="ChatDotRound" size={28}/><b>没有匹配的评价</b><span>调整筛选条件后重试</span></div>}
@@ -2002,6 +2002,854 @@ function AdminReviews({ notify }) {
       </aside></div>}
     </section>
   );
+}
+
+const FEEDBACK_NOW = new Date('2026/11/16 12:30:00').getTime();
+const FEEDBACK_STATUS_META = {
+  '1': { label:'待处理', tone:'warning' },
+  '2': { label:'处理中', tone:'info' },
+  '3': { label:'已解决', tone:'success' }
+};
+const FEEDBACK_TABS = [
+  { key:'all', label:'全部' },
+  { key:'1', label:'待处理' },
+  { key:'2', label:'处理中' },
+  { key:'3', label:'已解决' }
+];
+const FEEDBACK_IMAGE_META = {
+  order:{ label:'订单页截图', icon:'order', tone:'sage' },
+  points:{ label:'积分商城截图', icon:'points', tone:'amber' },
+  dark:{ label:'深色模式截图', icon:'image', tone:'ink' },
+  detail:{ label:'商品详情截图', icon:'image', tone:'blue' },
+  search:{ label:'搜索页截图', icon:'search', tone:'blue' },
+  chair:{ label:'商品照片', icon:'image', tone:'clay' },
+  manual:{ label:'说明书照片', icon:'file', tone:'clay' }
+};
+const FEEDBACK_REPLY_PRESETS = [
+  '感谢反馈，我们已记录并安排排查。',
+  '问题已处理完成，请更新至最新版本后重试。',
+  '该建议已纳入后续迭代计划，感谢你的建议。'
+];
+const FEEDBACK_ROWS_INITIAL = [
+  { id:'2117483241846421008', memberId:'211386217002', nickname:'周予安', account:'zhouyuan', mobile:'186****3048', tone:'amber', content:'App 夜间模式下部分商品详情文字对比度太低，看久了有点吃力，希望能优化一下配色。', contact:'186****3048', status:'1', createTime:'2026-11-16 10:02:55', updateTime:'2026-11-16 10:02:55', replyContent:'', replyTime:'', images:['dark','detail'] },
+  { id:'2117483241846421001', memberId:'211386217001', nickname:'林可', account:'linke', mobile:'138****7621', tone:'sage', content:'希望优化订单页面的信息层级，每次查物流都要往下滑很久，建议把物流状态放到更醒目的位置。', contact:'138****7621', status:'1', createTime:'2026-11-16 09:12:36', updateTime:'2026-11-16 09:12:36', replyContent:'', replyTime:'', images:['order'] },
+  { id:'2117483241846421005', memberId:'211386217005', nickname:'木棉', account:'mumin', mobile:'135****2287', tone:'violet', content:'拼团订单成团后物流一直没有更新，麻烦帮忙看下是不是卡在中转了。', contact:'微信：mumin_88', status:'2', createTime:'2026-11-16 08:26:11', updateTime:'2026-11-16 09:02:40', replyContent:'', replyTime:'', images:[] },
+  { id:'2117483241846421002', memberId:'211386217002', nickname:'周予安', account:'zhouyuan', mobile:'186****3048', tone:'amber', content:'商品图片加载偶尔比较慢，切换分类后要等两三秒，Wi-Fi 下也会出现，希望排查一下。', contact:'', status:'1', createTime:'2026-11-15 18:40:09', updateTime:'2026-11-15 18:40:09', replyContent:'', replyTime:'', images:[] },
+  { id:'2117483241846421004', memberId:'211386217003', nickname:'海盐气泡', account:'sea_soda', mobile:'152****9156', tone:'blue', content:'收到的休闲椅安装说明书不够清晰，螺丝包没有标注对应步骤，希望补充图示说明。', contact:'152****9156', status:'2', createTime:'2026-11-14 20:05:44', updateTime:'2026-11-15 09:30:12', replyContent:'已反馈给商家核实说明书版本，确认后会同步处理结果。', replyTime:'2026-11-15 09:30:12', images:['chair','manual'] },
+  { id:'2117483241846421003', memberId:'211386217004', nickname:'陈一禾', account:'chenyihe', mobile:'177****4403', tone:'red', content:'建议增加积分兑换的实物商品，现在可选的品类偏少，希望上一些家居用品。', contact:'177****4403', status:'3', createTime:'2026-11-13 15:22:41', updateTime:'2026-11-14 10:06:18', replyContent:'感谢建议，积分商城已新增居家好物分类，后续会持续补充实物商品。', replyTime:'2026-11-14 10:06:18', images:['points'] },
+  { id:'2117483241846421007', memberId:'211386217004', nickname:'陈一禾', account:'chenyihe', mobile:'177****4403', tone:'red', content:'优惠券到期前希望能收到提醒，最近错过了一张满减券，有点可惜。', contact:'177****4403', status:'1', createTime:'2026-11-12 16:18:03', updateTime:'2026-11-12 16:18:03', replyContent:'', replyTime:'', images:[] },
+  { id:'2117483241846421006', memberId:'211386217001', nickname:'林可', account:'linke', mobile:'138****7621', tone:'sage', content:'搜索框输入关键词后没有历史记录，想重复搜索上次的商品不太方便。', contact:'', status:'3', createTime:'2026-11-10 11:04:27', updateTime:'2026-11-11 09:12:40', replyContent:'搜索历史功能已在规划中，本期先上线了热门搜索词，感谢反馈。', replyTime:'2026-11-11 09:12:40', images:[] },
+  { id:'2117483241846421009', memberId:'211386217003', nickname:'海盐气泡', account:'sea_soda', mobile:'152****9156', tone:'blue', content:'积分兑换的优惠券到账有点慢，兑换后大约十分钟才在券包里看到。', contact:'微信：sea_soda', status:'3', createTime:'2026-11-08 09:40:18', updateTime:'2026-11-08 14:22:36', replyContent:'兑换券由系统自动发放，到账可能存在短暂延迟，已记录并评估优化。', replyTime:'2026-11-08 14:22:36', images:[] }
+];
+
+const feedbackHours = (time) => Math.max(0, Math.floor((FEEDBACK_NOW - new Date(String(time).replace(/-/g,'/')).getTime()) / 36e5));
+const feedbackOverdue = (row) => row.status === '1' && feedbackHours(row.createTime) >= 24;
+
+function FeedbackShot({ type, size = 44, className = '' }) {
+  const meta = FEEDBACK_IMAGE_META[type] || { label:'反馈图片', icon:'image', tone:'sage' };
+  return <span className={`fb-shot tone-${meta.tone} ${className}`.trim()} style={{ width:size, height:size }} title={meta.label}>
+    <AdminIcon name={meta.icon} size={Math.max(14, Math.round(size * .34))}/>
+  </span>;
+}
+
+function AdminFeedback({ notify }) {
+  const [rows,setRows] = useState(FEEDBACK_ROWS_INITIAL);
+  const [tab,setTab] = useState('all');
+  const [onlyOverdue,setOnlyOverdue] = useState(false);
+  const [filters,setFilters] = useState({ keyword:'', image:'全部图片', from:'', to:'' });
+  const [applied,setApplied] = useState({ keyword:'', image:'全部图片', from:'', to:'' });
+  const [detail,setDetail] = useState(null);
+  const [handling,setHandling] = useState(null);
+  const [handleStatus,setHandleStatus] = useState('2');
+  const [reply,setReply] = useState('');
+
+  const overdueCount = rows.filter(feedbackOverdue).length;
+  const baseRows = rows.filter((row) => {
+    const keyword = applied.keyword.trim().toLowerCase();
+    const textMatch = !keyword || `${row.nickname}${row.memberId}${row.content}${row.contact}`.toLowerCase().includes(keyword);
+    const imageMatch = applied.image === '全部图片' || (applied.image === '有图' ? row.images.length > 0 : row.images.length === 0);
+    const day = row.createTime.slice(0,10);
+    return textMatch && imageMatch && (!applied.from || day >= applied.from) && (!applied.to || day <= applied.to);
+  });
+  const counts = { all:baseRows.length, '1':0, '2':0, '3':0 };
+  baseRows.forEach((row) => { counts[row.status] += 1; });
+  const filtered = baseRows.filter((row) => (tab === 'all' || row.status === tab) && (!onlyOverdue || feedbackOverdue(row)));
+  const search = () => setApplied({ ...filters });
+  const reset = () => {
+    const empty = { keyword:'', image:'全部图片', from:'', to:'' };
+    setFilters(empty);
+    setApplied(empty);
+    setTab('all');
+    setOnlyOverdue(false);
+  };
+  const toggleOverdue = () => {
+    if (!onlyOverdue) setTab('1');
+    setOnlyOverdue(!onlyOverdue);
+  };
+  const openHandle = (row) => {
+    setHandling(row);
+    setHandleStatus(row.status === '3' ? '3' : '2');
+    setReply(row.replyContent || '');
+    setDetail(null);
+  };
+  const saveHandle = () => {
+    if (!handling) return;
+    const content = reply.trim();
+    if (handleStatus === '3' && !content) return;
+    const stamp = '2026-11-16 12:30';
+    setRows(rows.map((row) => row.id === handling.id ? { ...row, status:handleStatus, replyContent:content, replyTime:content ? stamp : '', updateTime:stamp } : row));
+    notify(handleStatus === '3' ? '反馈已标记为已解决' : '反馈已更新为处理中');
+    setHandling(null);
+  };
+
+  const detailMeta = detail ? FEEDBACK_STATUS_META[detail.status] : null;
+  const detailRecent = detail && detail.status !== '1' ? (detail.replyTime || detail.updateTime) : '';
+
+  return (
+    <section className="admin-page feedback-admin-page" data-screen-label="平台后台意见反馈">
+      <div className="fb-queue">
+        <div className="fb-tabs">
+          {FEEDBACK_TABS.map((item)=><button key={item.key} data-status={item.key} className={tab===item.key?'active':''} onClick={()=>setTab(item.key)}>{item.label}<span className="fb-tab-count">{counts[item.key]}</span></button>)}
+        </div>
+        {overdueCount>0 && <button className={`fb-overdue-toggle${onlyOverdue?' active':''}`} onClick={toggleOverdue}><AdminIcon name="clock" size={14}/>超 24 小时待处理 {overdueCount}</button>}
+      </div>
+      <FilterBar onReset={reset} onSearch={search}>
+        <label><span>关键词</span><input value={filters.keyword} onChange={(event)=>setFilters({...filters,keyword:event.target.value})} placeholder="反馈内容、联系方式或会员" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+        <label><span>反馈图片</span><select value={filters.image} onChange={(event)=>setFilters({...filters,image:event.target.value})}>{['全部图片','有图','无图'].map((item)=><option key={item}>{item}</option>)}</select></label>
+        <label className="fb-date-range"><span>提交时间</span><span className="filter-date-range"><input type="date" value={filters.from} onChange={(event)=>setFilters({...filters,from:event.target.value})}/><i>至</i><input type="date" value={filters.to} onChange={(event)=>setFilters({...filters,to:event.target.value})}/></span></label>
+      </FilterBar>
+      <div className="admin-table-frame">
+        <div className="fb-table-intro">
+          <span><AdminIcon name="message" size={15}/>标记已解决时必须填写平台回复，回复内容会展示在 App「我的反馈」中。</span>
+          <b>当前 {filtered.length} 条</b>
+        </div>
+        <table data-align-table="t6" className="admin-table feedback-admin-table">
+          <thead><tr><th>会员</th><th>反馈内容</th><th>联系方式</th><th>提交时间</th><th>状态</th><th>最近处理</th><th className="actions">操作</th></tr></thead>
+          <tbody>{filtered.map((row)=>{
+            const meta = FEEDBACK_STATUS_META[row.status];
+            const overdue = feedbackOverdue(row);
+            const recent = row.status === '1' ? '' : (row.replyTime || row.updateTime);
+            return <tr key={row.id}>
+              <td><div className="cb"><div className="fb-member-cell"><Avatar name={row.nickname} tone={row.tone} size={36}/><div><b><CopyableText value={row.nickname} label="会员昵称" notify={notify}/></b><small>ID <CopyableText value={row.memberId} label="会员 ID" notify={notify}/></small></div></div></div></td>
+              <td><div className="cb"><div className="fb-content-cell"><b className="fb-content-text" title={row.content}>{row.content}</b><span className="fb-content-meta">{row.images.length>0&&<span className="fb-image-chip"><AdminIcon name="image" size={11}/>{row.images.length} 张图片</span>}{overdue&&<span className="fb-overdue-tag"><AdminIcon name="clock" size={11}/>超 24 小时</span>}</span></div></div></td>
+              <td><div className="cb">{row.contact?<div className="fb-contact-cell"><CopyableText value={row.contact} label="联系方式" notify={notify}/></div>:<span className="fb-contact-empty">未留联系方式</span>}</div></td>
+              <td><div className="cb"><div className="fb-time-cell"><span>{row.createTime.slice(0,10)}</span><small className="cell-sub">{row.createTime.slice(11)}</small></div></div></td>
+              <td><div className="cb"><StatusTicket tone={meta.tone}>{meta.label}</StatusTicket></div></td>
+              <td><div className="cb">{recent?<div className="fb-time-cell"><span>{recent.slice(0,10)}</span><small className="cell-sub">{recent.slice(11)}</small></div>:<span className="fb-contact-empty">—</span>}</div></td>
+              <td className="actions"><div className="cb"><button className="table-link" onClick={()=>setDetail(row)}>详情</button><button className="table-link" onClick={()=>openHandle(row)}>{row.status==='3'?'更新':'处理'}</button></div></td>
+            </tr>;
+          })}</tbody>
+        </table>
+        {!filtered.length&&<div className="admin-empty"><AdminIcon name="ChatDotRound" size={28}/><b>{onlyOverdue?'没有超时未处理的反馈':'没有匹配的反馈'}</b><span>{onlyOverdue?'当前没有超过 24 小时仍未处理的反馈':'调整筛选条件后重试'}</span></div>}
+        <AdminPagination count={filtered.length}/>
+      </div>
+
+      {detail&&<div className="drawer-mask" onClick={()=>setDetail(null)}><aside className="admin-drawer fb-detail-drawer" onClick={(event)=>event.stopPropagation()}>
+        <div className="drawer-head"><div><span className="drawer-kicker">FEEDBACK DETAIL</span><h2>反馈详情</h2></div><button onClick={()=>setDetail(null)}>×</button></div>
+        <div className="fb-member-summary">
+          <Avatar name={detail.nickname} tone={detail.tone} size={48}/>
+          <div><h3>{detail.nickname}<StatusTicket tone={detailMeta.tone} small>{detailMeta.label}</StatusTicket></h3><span>会员 ID <CopyableText value={detail.memberId} label="会员 ID" notify={notify}/></span><span>{detail.account} · {detail.mobile}</span></div>
+        </div>
+        <div className="fb-meta-grid">
+          <div><span>反馈编号</span><b className="mono"><CopyableText value={detail.id} label="反馈编号" notify={notify}/></b></div>
+          <div><span>提交时间</span><b>{detail.createTime}</b></div>
+          <div><span>联系方式</span><b>{detail.contact||'未留联系方式'}</b></div>
+          <div><span>最近处理</span><b>{detailRecent||'尚未处理'}</b></div>
+        </div>
+        {feedbackOverdue(detail)&&<div className="fb-overdue-note"><AdminIcon name="warning" size={16}/><span>该反馈已提交 {feedbackHours(detail.createTime)} 小时仍未处理，建议尽快跟进。</span></div>}
+        <div className="drawer-section"><h3>反馈内容</h3><p className="fb-detail-content">{detail.content}</p></div>
+        {detail.images.length>0&&<div className="drawer-section"><h3>反馈图片 <small className="fb-section-note">共 {detail.images.length} 张</small></h3><div className="fb-detail-images">{detail.images.map((image,index)=><FeedbackShot key={index} type={image} size={92}/>)}</div></div>}
+        <div className="drawer-section"><h3>平台回复</h3>{detail.replyContent?<div className="fb-reply-card"><b>平台运营团队</b><p>{detail.replyContent}</p><span>{detail.replyTime||detail.updateTime}</span></div>:<p className="fb-no-reply">尚未回复用户。标记已解决前必须填写平台回复，用户可在 App「我的反馈」中查看。</p>}</div>
+        <div className="drawer-actions"><button onClick={()=>setDetail(null)}>关闭</button><button className="primary" onClick={()=>openHandle(detail)}>{detail.status==='3'?'更新处理':'处理反馈'}</button></div>
+      </aside></div>}
+
+      {handling&&<div className="dialog-mask" onClick={()=>setHandling(null)}><section className="admin-dialog fb-handle-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">FEEDBACK HANDLE</span><h2>{handling.status==='3'?'更新处理':'处理反馈'}</h2></div><button onClick={()=>setHandling(null)}>×</button></div>
+        <div className="fb-handle-context">
+          <Avatar name={handling.nickname} tone={handling.tone} size={38}/>
+          <div><b>{handling.nickname}</b><p>{handling.content}</p><small>提交于 {handling.createTime}</small></div>
+          <StatusTicket tone={FEEDBACK_STATUS_META[handling.status].tone}>{FEEDBACK_STATUS_META[handling.status].label}</StatusTicket>
+        </div>
+        {feedbackOverdue(handling)&&<div className="fb-overdue-note"><AdminIcon name="warning" size={16}/><span>该反馈已超过 24 小时未处理，建议优先跟进。</span></div>}
+        <div className="fb-status-choice">
+          <button type="button" className={handleStatus==='2'?'selected':''} onClick={()=>setHandleStatus('2')}><i className="fb-choice-dot"></i><span><b>处理中</b><small>已受理该反馈，可稍后补充平台回复</small></span></button>
+          <button type="button" className={handleStatus==='3'?'selected':''} onClick={()=>setHandleStatus('3')}><i className="fb-choice-dot"></i><span><b>已解决</b><small>需填写回复，用户可在 App 查看处理结果</small></span></button>
+        </div>
+        <label className="dialog-field">
+          <span>平台回复 {handleStatus==='3'?<em className="fb-required">必填</em>:<em className="fb-optional">选填</em>}</span>
+          <textarea maxLength="500" value={reply} onChange={(event)=>setReply(event.target.value)} placeholder="填写处理结论或给用户的建议，最多 500 字"></textarea>
+          <small className="fb-counter">{reply.length}/500</small>
+        </label>
+        <div className="fb-reply-presets"><span>快捷回复</span>{FEEDBACK_REPLY_PRESETS.map((preset)=><button type="button" key={preset} onClick={()=>setReply(preset)}>{preset}</button>)}</div>
+        <p className={`fb-handle-tip${handleStatus==='3'&&!reply.trim()?' is-warn':''}`}>{handleStatus==='3'?(reply.trim()?'保存后该反馈将标记为已解决，回复内容同步展示给用户。':'标记已解决时必须填写平台回复。'):'保存后反馈进入处理中，用户可先了解到平台已受理。'}</p>
+        <div className="dialog-actions"><button onClick={()=>setHandling(null)}>取消</button><button className="primary" disabled={handleStatus==='3'&&!reply.trim()} onClick={saveHandle}>保存处理</button></div>
+      </section></div>}
+    </section>
+  );
+}
+
+const SECKILL_SESSION_NOW = '2026-11-17 20:30:00';
+const SECKILL_SESSION_TABS = [
+  { key:'all', label:'全部' },
+  { key:'upcoming', label:'未开始' },
+  { key:'ongoing', label:'进行中' },
+  { key:'ended', label:'已结束' }
+];
+const SECKILL_SESSION_PRESETS = [
+  { label:'10:00 – 12:00', begin:'10:00', end:'12:00' },
+  { label:'14:00 – 16:00', begin:'14:00', end:'16:00' },
+  { label:'20:00 – 22:00', begin:'20:00', end:'22:00' }
+];
+const SECKILL_SESSIONS_INITIAL = [
+  { id:'ss-1', activityId:'sa-1', name:'早鸟场', beginTime:'2026-10-27 10:00:00', endTime:'2026-10-27 10:40:00', sort:1, enabled:true, productCount:3, remark:'开抢前 40 分钟', updatedAt:'2026-10-26 18:20' },
+  { id:'ss-2', activityId:'sa-1', name:'主会场', beginTime:'2026-10-27 10:40:00', endTime:'2026-10-27 11:20:00', sort:2, enabled:true, productCount:5, remark:'主推降噪耳机', updatedAt:'2026-10-26 18:26' },
+  { id:'ss-3', activityId:'sa-1', name:'收尾场', beginTime:'2026-10-27 11:20:00', endTime:'2026-10-27 12:00:00', sort:3, enabled:true, productCount:2, remark:'', updatedAt:'2026-10-26 18:30' },
+  { id:'ss-4', activityId:'sa-2', name:'晚八点场', beginTime:'2026-11-22 20:00:00', endTime:'2026-11-22 21:00:00', sort:1, enabled:true, productCount:3, remark:'', updatedAt:'2026-11-16 19:12' },
+  { id:'ss-5', activityId:'sa-2', name:'加场', beginTime:'2026-11-22 21:00:00', endTime:'2026-11-22 22:00:00', sort:2, enabled:false, productCount:0, remark:'商品待补充', updatedAt:'2026-11-16 19:18' },
+  { id:'ss-6', activityId:'sa-3', name:'日间场', beginTime:'2026-11-25 10:00:00', endTime:'2026-11-25 14:00:00', sort:1, enabled:true, productCount:4, remark:'', updatedAt:'2026-11-17 09:24' },
+  { id:'ss-7', activityId:'sa-3', name:'晚间场', beginTime:'2026-11-25 18:00:00', endTime:'2026-11-25 22:00:00', sort:2, enabled:true, productCount:3, remark:'', updatedAt:'2026-11-17 09:26' },
+  { id:'ss-8', activityId:'sa-5', name:'日间场', beginTime:'2026-11-18 10:00:00', endTime:'2026-11-18 14:00:00', sort:1, enabled:true, productCount:2, remark:'', updatedAt:'2026-11-16 15:02' },
+  { id:'ss-9', activityId:'sa-5', name:'夜间场', beginTime:'2026-11-18 18:00:00', endTime:'2026-11-18 22:00:00', sort:2, enabled:true, productCount:1, remark:'', updatedAt:'2026-11-16 15:04' },
+  { id:'ss-10', activityId:'sa-6', name:'上午场', beginTime:'2026-11-03 10:00:00', endTime:'2026-11-03 13:00:00', sort:1, enabled:true, productCount:3, remark:'返场保留数据', updatedAt:'2026-11-04 08:10' },
+  { id:'ss-11', activityId:'sa-6', name:'下午场', beginTime:'2026-11-03 14:00:00', endTime:'2026-11-03 18:00:00', sort:2, enabled:true, productCount:2, remark:'', updatedAt:'2026-11-04 08:10' },
+  { id:'ss-12', activityId:'sa-6', name:'晚间场', beginTime:'2026-11-03 19:00:00', endTime:'2026-11-03 22:00:00', sort:3, enabled:true, productCount:1, remark:'', updatedAt:'2026-11-04 08:10' },
+  { id:'ss-13', activityId:'sa-7', name:'全天场', beginTime:'2026-08-08 10:00:00', endTime:'2026-08-08 22:00:00', sort:1, enabled:true, productCount:2, remark:'', updatedAt:'2026-08-09 10:05' },
+  { id:'ss-14', activityId:'sa-8', name:'会员首场', beginTime:'2026-11-17 20:00:00', endTime:'2026-11-17 21:00:00', sort:1, enabled:true, productCount:3, remark:'限量降噪耳机', updatedAt:'2026-11-17 12:08' },
+  { id:'ss-15', activityId:'sa-8', name:'会员加场', beginTime:'2026-11-17 21:00:00', endTime:'2026-11-17 22:00:00', sort:2, enabled:true, productCount:0, remark:'音箱返场，商品待补充', updatedAt:'2026-11-17 12:10' }
+];
+const SECKILL_WEEKDAYS = ['周日','周一','周二','周三','周四','周五','周六'];
+
+function seckillSessionLocal(value) {
+  return String(value || '').slice(0,16).replace(' ','T');
+}
+
+function seckillWeekday(value) {
+  const date = new Date(`${String(value).slice(0,10)}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? '' : SECKILL_WEEKDAYS[date.getDay()];
+}
+
+function seckillSessionDuration(begin,end) {
+  const start = new Date(String(begin).replace(' ','T')).getTime();
+  const finish = new Date(String(end).replace(' ','T')).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(finish) || finish <= start) return '';
+  const minutes = Math.round((finish - start) / 60000);
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (!hours) return `${rest} 分钟`;
+  return rest ? `${hours} 小时 ${rest} 分钟` : `${hours} 小时`;
+}
+
+function seckillSessionState(session) {
+  if (SECKILL_SESSION_NOW < session.beginTime) return { key:'upcoming', label:'未开始', tone:'info' };
+  if (SECKILL_SESSION_NOW < session.endTime) return { key:'ongoing', label:'进行中', tone:'success' };
+  return { key:'ended', label:'已结束', tone:'neutral' };
+}
+
+function seckillActivityState(activity) {
+  if (SECKILL_SESSION_NOW < activity.activityBeginTime) return { key:'upcoming', label:'活动未开始', tone:'info' };
+  if (SECKILL_SESSION_NOW < activity.activityEndTime) return { key:'ongoing', label:'活动进行中', tone:'success' };
+  return { key:'ended', label:'活动已结束', tone:'neutral' };
+}
+
+function seckillShiftDay(value,days) {
+  const date = new Date(`${String(value).slice(0,10)}T${String(value).slice(11,16)}:00`);
+  date.setDate(date.getDate() + days);
+  const pad = (part)=>String(part).padStart(2,'0');
+  return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+}
+
+function validateSeckillDraft(draft, activity, sessions, editingId) {
+  const errors = [];
+  const name = String(draft.name || '').trim();
+  const begin = draft.beginTime;
+  const end = draft.endTime;
+  const sort = Number(draft.sort);
+  const sortValid = Number.isInteger(sort) && sort >= 1 && sort <= 999;
+  if (draft.sort !== '' && !sortValid) errors.push('排序需为 1 至 999 的整数');
+  if (begin && end) {
+    if (end <= begin) {
+      errors.push('结束时间需晚于开始时间');
+    } else {
+      const activityBegin = seckillSessionLocal(activity.activityBeginTime);
+      const activityEnd = seckillSessionLocal(activity.activityEndTime);
+      if (begin < activityBegin || end > activityEnd) {
+        errors.push(`场次时间需位于活动时间 ${activity.activityBeginTime.slice(0,16)} 至 ${activity.activityEndTime.slice(0,16)} 内`);
+      } else {
+        const conflict = sessions.find((session)=>session.id !== editingId
+          && begin < seckillSessionLocal(session.endTime)
+          && end > seckillSessionLocal(session.beginTime));
+        if (conflict) errors.push(`与「${conflict.name}」(${conflict.beginTime.slice(5,16)} – ${conflict.endTime.slice(11,16)}) 时间重叠`);
+      }
+    }
+  }
+  return {
+    errors,
+    ready: Boolean(name && begin && end && sortValid),
+    duration: begin && end && end > begin ? seckillSessionDuration(begin,end) : ''
+  };
+}
+
+function AdminSeckillSessions({ activities, setActivities, sessionsByActivity, setSessionsByActivity, route, navigate, notify }) {
+  const routeActivityId = routeParam(route,'activityId');
+  const defaultActivityId = ()=>{
+    const ongoing = activities.find((item)=>item.activityBeginTime <= SECKILL_SESSION_NOW && SECKILL_SESSION_NOW < item.activityEndTime);
+    if (ongoing) return ongoing.id;
+    const upcoming = activities.filter((item)=>item.activityBeginTime > SECKILL_SESSION_NOW).sort((a,b)=>a.activityBeginTime.localeCompare(b.activityBeginTime))[0];
+    return (upcoming || activities[0] || {}).id || '';
+  };
+  const [activityId,setActivityId] = useState(()=>activities.some((item)=>item.id===routeActivityId)?routeActivityId:defaultActivityId());
+  const [tab,setTab] = useState('all');
+  const [filters,setFilters] = useState({ name:'', enabled:'全部状态', date:'' });
+  const [applied,setApplied] = useState({ name:'', enabled:'全部状态', date:'' });
+  const [editor,setEditor] = useState(null);
+  const [deleting,setDeleting] = useState(null);
+  useEffect(()=>{
+    if (routeActivityId && activities.some((item)=>item.id===routeActivityId)) setActivityId(routeActivityId);
+  },[routeActivityId]);
+  useEffect(()=>{
+    setTab('all');
+    setFilters({ name:'', enabled:'全部状态', date:'' });
+    setApplied({ name:'', enabled:'全部状态', date:'' });
+  },[activityId]);
+  const activity = activities.find((item)=>item.id===activityId) || activities.find((item)=>item.id===defaultActivityId()) || activities[0];
+  const activityState = seckillActivityState(activity);
+  const activitySessions = sessionsByActivity[activity.id] || [];
+  const sortedSessions = useMemo(()=>[...activitySessions].sort((a,b)=>a.beginTime.localeCompare(b.beginTime)||a.sort-b.sort),[activitySessions]);
+  const baseRows = sortedSessions.filter((row)=>{
+    const keyword = applied.name.trim().toLowerCase();
+    const nameMatch = !keyword || `${row.name}${row.remark||''}`.toLowerCase().includes(keyword);
+    const enabledMatch = applied.enabled === '全部状态' || (applied.enabled === '已启用' ? row.enabled : !row.enabled);
+    const dateMatch = !applied.date || row.beginTime.slice(0,10) === applied.date;
+    return nameMatch && enabledMatch && dateMatch;
+  });
+  const counts = { all:baseRows.length, upcoming:0, ongoing:0, ended:0 };
+  baseRows.forEach((row)=>{ counts[seckillSessionState(row).key] += 1; });
+  const filtered = baseRows.filter((row)=>tab === 'all' || seckillSessionState(row).key === tab);
+  const enabledCount = activitySessions.filter((row)=>row.enabled).length;
+  const productTotal = activitySessions.reduce((total,row)=>total+row.productCount,0);
+  const nextSort = activitySessions.reduce((max,row)=>Math.max(max,row.sort),0) + 1;
+  const validation = useMemo(()=>editor?validateSeckillDraft(editor,activity,sortedSessions,editor.id):null,[editor,activity,sortedSessions]);
+  const updateEditor = (patch)=>setEditor((current)=>({...current,...patch}));
+  const search = ()=>setApplied({...filters});
+  const reset = ()=>{
+    const empty = { name:'', enabled:'全部状态', date:'' };
+    setFilters(empty);
+    setApplied(empty);
+    setTab('all');
+  };
+  const openEditor = (row,mode)=>{
+    if (mode === 'create') {
+      setEditor({ mode:'create', id:null, name:'', beginTime:'', endTime:'', sort:String(nextSort), enabled:true, remark:'' });
+      return;
+    }
+    if (mode === 'copy') {
+      setEditor({
+        mode:'copy', id:null, name:`${row.name}（副本）`,
+        beginTime:seckillSessionLocal(seckillShiftDay(row.beginTime,1)),
+        endTime:seckillSessionLocal(seckillShiftDay(row.endTime,1)),
+        sort:String(nextSort), enabled:row.enabled, remark:row.remark
+      });
+      return;
+    }
+    setEditor({ mode:'edit', id:row.id, name:row.name, beginTime:seckillSessionLocal(row.beginTime), endTime:seckillSessionLocal(row.endTime), sort:String(row.sort), enabled:row.enabled, remark:row.remark });
+  };
+  const applyPreset = (preset)=>{
+    const today = SECKILL_SESSION_NOW.slice(0,10);
+    const date = editor.beginTime
+      ? editor.beginTime.slice(0,10)
+      : (today >= activity.activityBeginTime.slice(0,10) && today <= activity.activityEndTime.slice(0,10) ? today : activity.activityBeginTime.slice(0,10));
+    updateEditor({ beginTime:`${date}T${preset.begin}`, endTime:`${date}T${preset.end}` });
+  };
+  const saveSession = ()=>{
+    if (!editor || !validation || !validation.ready || validation.errors.length) return;
+    const payload = {
+      name:editor.name.trim(),
+      beginTime:`${editor.beginTime.slice(0,16).replace('T',' ')}:00`,
+      endTime:`${editor.endTime.slice(0,16).replace('T',' ')}:00`,
+      sort:Number(editor.sort),
+      enabled:editor.enabled,
+      remark:editor.remark.trim(),
+      updatedAt:SECKILL_SESSION_NOW.slice(0,16)
+    };
+    const list = sessionsByActivity[activity.id] || [];
+    const nextList = editor.mode === 'edit'
+      ? list.map((item)=>item.id === editor.id ? { ...item, ...payload } : item)
+      : [...list, { ...payload, id:`ss-${Date.now()}`, productCount:0 }];
+    setSessionsByActivity({ ...sessionsByActivity, [activity.id]:nextList });
+    if (editor.mode !== 'edit') setActivities(activities.map((item)=>item.id === activity.id ? { ...item, sessionCount:nextList.length } : item));
+    notify(editor.mode === 'edit' ? '场次已更新' : editor.mode === 'copy' ? '场次副本已创建，请确认时间' : '场次已新增');
+    setEditor(null);
+  };
+  const toggleEnabled = (row)=>{
+    setSessionsByActivity((current)=>({
+      ...current,
+      [activity.id]:(current[activity.id] || []).map((item)=>item.id === row.id ? { ...item, enabled:!item.enabled, updatedAt:SECKILL_SESSION_NOW.slice(0,16) } : item)
+    }));
+    notify(row.enabled ? '场次已停用，App 端将不再展示' : '场次已启用');
+  };
+  const confirmDelete = ()=>{
+    if (!deleting || deleting.productCount > 0) return;
+    const nextList = (sessionsByActivity[activity.id] || []).filter((item)=>item.id !== deleting.id);
+    setSessionsByActivity({ ...sessionsByActivity, [activity.id]:nextList });
+    setActivities(activities.map((item)=>item.id === activity.id ? { ...item, sessionCount:nextList.length } : item));
+    notify('场次已删除');
+    setDeleting(null);
+  };
+  const hintText = !validation ? '' : validation.errors.length
+    ? validation.errors.join('；')
+    : validation.ready
+      ? `场次时长 ${validation.duration}，时间范围校验通过。`
+      : editor.beginTime && editor.endTime
+        ? '时间未发现冲突；请填写场次名称后保存。'
+        : '场次时间需位于活动时间内，且不能与其他场次重叠（可首尾相接）。';
+
+  return <section className="admin-page seckill-session-page" data-screen-label="平台后台-秒杀场次管理">
+    <div className="ss-activity-bar">
+      <span className="ss-activity-icon"><AdminIcon name="bolt" size={22}/></span>
+      <div className="ss-activity-copy">
+        <div className="ss-activity-title"><h2>{activity.name}</h2><StatusTicket tone={activityState.tone}>{activityState.label}</StatusTicket></div>
+        <div className="ss-activity-meta">
+          <span><AdminIcon name="Calendar" size={13}/>活动时间 {activity.activityBeginTime.slice(0,16)} 至 {activity.activityEndTime.slice(0,16)}</span>
+          <span><AdminIcon name="clock" size={13}/>共 {activitySessions.length} 个场次</span>
+          <span><AdminIcon name="Goods" size={13}/>参与商品 {productTotal} 件</span>
+        </div>
+      </div>
+      <div className="ss-activity-controls">
+        <label className="ss-activity-switch"><span>切换活动</span><select value={activity.id} onChange={(event)=>setActivityId(event.target.value)}>{activities.map((item)=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <button className="ss-back-link" onClick={()=>navigate('platform/seckill?tab=活动管理')}><AdminIcon name="back" size={15}/>返回活动管理</button>
+      </div>
+    </div>
+    <div className="ss-queue">
+      <div className="ss-tabs">{SECKILL_SESSION_TABS.map((item)=><button key={item.key} data-status={item.key} className={tab===item.key?'active':''} onClick={()=>setTab(item.key)}>{item.label}<span className="ss-tab-count">{counts[item.key]}</span></button>)}</div>
+      <div className="ss-queue-summary">
+        <span><i className="ss-live-dot"></i>已启用 <b>{enabledCount}</b> 场</span>
+        <span><AdminIcon name="Goods" size={13}/>参与商品 <b>{productTotal}</b> 件</span>
+      </div>
+    </div>
+    <FilterBar onReset={reset} onSearch={search} actions={<button className="business-primary" onClick={()=>openEditor(null,'create')}><AdminIcon name="plus" size={17}/>新增场次</button>}>
+      <label><span>场次名称</span><input value={filters.name} onChange={(event)=>setFilters({...filters,name:event.target.value})} placeholder="场次名称或备注" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+      <label><span>启用状态</span><select value={filters.enabled} onChange={(event)=>setFilters({...filters,enabled:event.target.value})}>{['全部状态','已启用','已停用'].map((item)=><option key={item}>{item}</option>)}</select></label>
+      <label><span>场次日期</span><input type="date" value={filters.date} onChange={(event)=>setFilters({...filters,date:event.target.value})}/></label>
+    </FilterBar>
+    <div className="admin-table-frame">
+      <div className="ss-table-intro">
+        <span><AdminIcon name="warning" size={15}/>启用后的场次会展示在 App 秒杀页；场次时间需位于活动时间内且不可重叠，停用后 App 端不再展示。</span>
+        <b>当前 {filtered.length} 场</b>
+      </div>
+      <table data-align-table="t7" className="admin-table seckill-session-table">
+        <thead><tr><th>场次</th><th>场次时间</th><th>时间状态</th><th>启用</th><th>商品数</th><th>最近更新</th><th className="actions">操作</th></tr></thead>
+        <tbody>{filtered.map((row)=>{
+          const state = seckillSessionState(row);
+          return <tr key={row.id} className={row.enabled?'':'is-off'}>
+            <td><div className="cb"><div className="ss-session-cell"><span className="ss-sort-chip">{String(row.sort).padStart(2,'0')}</span><div><b title={row.name}>{row.name}</b><small>{row.remark||'未填写备注'} · 排序 {row.sort}</small></div></div></div></td>
+            <td><div className="cb"><div className="ss-time-cell"><span className="ss-date-line">{row.beginTime.slice(5,10)}<em>{seckillWeekday(row.beginTime)}</em></span><b>{row.beginTime.slice(11,16)} – {row.endTime.slice(11,16)}</b><small>时长 {seckillSessionDuration(row.beginTime,row.endTime)}</small></div></div></td>
+            <td><div className="cb"><StatusTicket tone={state.tone}><span className="ss-status-live">{state.key==='ongoing'&&<i className="ss-live-dot"></i>}{state.label}</span></StatusTicket></div></td>
+            <td><div className="cb"><button type="button" className={`ss-toggle${row.enabled?' is-on':''}`} role="switch" aria-checked={row.enabled} title={row.enabled?'点击停用：App 端将不再展示该场次':'点击启用：App 端将展示该场次'} onClick={()=>toggleEnabled(row)}><span className="ss-toggle-track"><i></i></span>{row.enabled?'已启用':'已停用'}</button></div></td>
+            <td><div className="cb"><span className={`ss-product-count${row.productCount?'':' is-zero'}`}><b>{row.productCount}</b>件</span></div></td>
+            <td><div className="cb"><div className="ss-time-stamp"><span>{row.updatedAt.slice(0,10)}</span><small>{row.updatedAt.slice(11)}</small></div></div></td>
+            <td className="actions"><div className="cb"><button className="table-link" onClick={()=>openEditor(row,'edit')}>编辑</button><button className="table-link" onClick={()=>openEditor(row,'copy')}>复制</button><button className="table-link ss-danger-link" onClick={()=>setDeleting(row)}>删除</button></div></td>
+          </tr>;
+        })}</tbody>
+      </table>
+      {!filtered.length&&<div className="admin-empty"><AdminIcon name="Clock" size={28}/><b>{activitySessions.length?'没有匹配的场次':'当前活动还没有场次'}</b><span>{activitySessions.length?'调整筛选条件后重试':'点击「新增场次」创建第一场秒杀'}</span></div>}
+      <AdminPagination count={filtered.length}/>
+    </div>
+    {editor&&<div className="dialog-mask" onClick={()=>setEditor(null)}>
+      <section className="admin-dialog ss-session-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">{editor.mode==='edit'?'EDIT SESSION':editor.mode==='copy'?'COPY SESSION':'NEW SESSION'}</span><h2>{editor.mode==='edit'?'编辑场次':editor.mode==='copy'?'复制场次':'新增场次'}</h2></div><button onClick={()=>setEditor(null)}>×</button></div>
+        <div className="ss-dialog-context">
+          <span className="ss-context-icon"><AdminIcon name="bolt" size={16}/></span>
+          <div><b>{activity.name}</b><small>活动时间 {activity.activityBeginTime.slice(0,16)} 至 {activity.activityEndTime.slice(0,16)}</small></div>
+          <StatusTicket tone={activityState.tone}>{activityState.label}</StatusTicket>
+        </div>
+        {editor.mode==='copy'&&<div className="ss-form-hint"><AdminIcon name="warning" size={15}/><span>副本时间已顺延 1 天，请确认仍在活动时间内且不与其他场次重叠后再保存。</span></div>}
+        <div className="ss-form-grid">
+          <label className="wide"><span>场次名称<em>*</em></span><input value={editor.name} maxLength={32} onChange={(event)=>updateEditor({name:event.target.value})} placeholder="例如：晚八点场"/></label>
+          <label><span>开始时间<em>*</em></span><input type="datetime-local" step="60" value={editor.beginTime} onChange={(event)=>updateEditor({beginTime:event.target.value})}/></label>
+          <label><span>结束时间<em>*</em></span><input type="datetime-local" step="60" value={editor.endTime} onChange={(event)=>updateEditor({endTime:event.target.value})}/></label>
+          <div className="ss-presets wide"><span>快捷时段</span>{SECKILL_SESSION_PRESETS.map((preset)=><button type="button" key={preset.label} onClick={()=>applyPreset(preset)}>{preset.label}</button>)}<small>按开始日期填充</small></div>
+          <label><span>排序</span><input type="number" min="1" max="999" value={editor.sort} onChange={(event)=>updateEditor({sort:event.target.value})}/></label>
+          <label><span>启用状态</span><select value={editor.enabled?'启用':'停用'} onChange={(event)=>updateEditor({enabled:event.target.value==='启用'})}><option>启用</option><option>停用</option></select></label>
+          <label className="wide"><span>备注</span><textarea value={editor.remark} maxLength={100} onChange={(event)=>updateEditor({remark:event.target.value})} placeholder="选填，用于说明场次用途或运营策略"></textarea></label>
+        </div>
+        <div className={`ss-form-hint${validation.errors.length?' is-error':validation.ready?' is-ok':''}`}>
+          <AdminIcon name={validation.errors.length?'warning':validation.ready?'check':'clock'} size={15}/>
+          <span>{hintText}</span>
+        </div>
+        <div className="dialog-actions"><button onClick={()=>setEditor(null)}>取消</button><button className="primary" disabled={!validation.ready||validation.errors.length>0} onClick={saveSession}>保存场次</button></div>
+      </section>
+    </div>}
+    {deleting&&<div className="dialog-mask" onClick={()=>setDeleting(null)}>
+      <section className="admin-dialog ss-delete-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">DELETE SESSION</span><h2>{deleting.productCount?'无法删除场次':'删除场次'}</h2></div><button onClick={()=>setDeleting(null)}>×</button></div>
+        <div className={`ss-delete-warning${deleting.productCount?'':' is-plain'}`}>
+          <AdminIcon name={deleting.productCount?'warning':'clock'} size={18}/>
+          <div>{deleting.productCount
+            ? <><b>该场次下仍关联 {deleting.productCount} 件秒杀商品</b><p>请先在「商品管理」中移除或调整这些商品的场次后再删除，避免商品数据失去关联。</p></>
+            : <><b>确定删除「{deleting.name}」？</b><p>删除后不可恢复；若只是暂停展示，可在列表中直接停用该场次。</p></>}</div>
+        </div>
+        <div className="ss-delete-meta">
+          <span>场次时间</span><b>{deleting.beginTime.slice(0,16)} 至 {deleting.endTime.slice(0,16)}</b>
+          <span>商品数</span><b>{deleting.productCount} 件</b>
+        </div>
+        <div className="dialog-actions"><button onClick={()=>setDeleting(null)}>{deleting.productCount?'关闭':'取消'}</button>{deleting.productCount
+          ? <button className="primary" onClick={()=>{setDeleting(null);navigate('platform/seckill?tab=商品管理');}}>去商品管理</button>
+          : <button className="danger" onClick={confirmDelete}>确认删除</button>}</div>
+      </section>
+    </div>}
+  </section>;
+}
+
+const SECKILL_APPLY_TABS = [
+  { key:'all', label:'全部' },
+  { key:'pending', label:'待审核' },
+  { key:'passed', label:'审核通过' },
+  { key:'rejected', label:'审核驳回' }
+];
+const SECKILL_APPLY_STATUS = {
+  1: { key:'pending', label:'待审核', tone:'warning' },
+  2: { key:'passed', label:'审核通过', tone:'success' },
+  3: { key:'rejected', label:'审核驳回', tone:'danger' }
+};
+const SECKILL_AUDIT_NOW = '2026-11-17 20:30:00';
+const seckillApplySku = (name,specCode,originPrice,seckillPrice,stock)=>({ name,specCode,originPrice,seckillPrice,stock });
+const seckillRichPlain = (html)=>{ if(!html) return ''; const div=document.createElement('div'); div.innerHTML=html; return (div.textContent||'').replace(/\s+/g,' ').trim(); };
+const seckillRichHasContent = (html)=> !!html && (!!seckillRichPlain(html) || /<img|<iframe/i.test(html));
+const SECKILL_APPLIES_INITIAL = [
+  {
+    id:'ap-1', activityId:'sa-2', sessionId:'ss-5', mchName:'山野生活', shopName:'山野生活店',
+    spuName:'轻量露营折叠桌', art:'chair', detailDesc:'<p>铝合金折叠结构，桌面承重 30kg，附收纳袋。</p><h3>产品亮点</h3><ul><li><strong>一秒开合</strong>：免安装折叠骨架，收纳厚度仅 8cm</li><li>阳极氧化铝桌面，<span style="color:#e6a23c">耐刮耐高温</span>，可直接放置卡式炉</li><li>附 600D 牛津布收纳袋，肩背手提两用</li></ul><p><img src="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27560%27 height=%27220%27%3E%3Crect width=%27560%27 height=%27220%27 rx=%2712%27 fill=%27%23e8efe9%27/%3E%3Ctext x=%27280%27 y=%27118%27 text-anchor=%27middle%27 font-size=%2718%27 fill=%27%2365726a%27%3EFOLDING TABLE · 120×60cm%3C/text%3E%3C/svg%3E" alt="折叠桌展开示意"/></p><blockquote>露营实测：四人围坐不晃动，桌面可同时放炉具与餐具。</blockquote>',
+    auditStatus:1, applyTime:'2026-11-17 10:24:00', auditTime:'', applyRemark:'加场首推，计划限量 80 件。', auditRemark:'',
+    skus:[seckillApplySku('原木色 · 中号','CAMP-TABLE-M',459,269,50),seckillApplySku('曜石黑 · 中号','CAMP-TABLE-BK',459,269,30)]
+  },
+  {
+    id:'ap-2', activityId:'sa-2', sessionId:'ss-4', mchName:'日常咖啡', shopName:'日常咖啡研究所',
+    spuName:'便携手冲咖啡壶', art:'coffee', detailDesc:'<p>304 不锈钢细口壶，600ml，适配 1–2 人份手冲。</p><p><strong>鹤嘴壶口</strong>断水利落，新手也能稳定控流；壶身一体拉伸，无焊缝死角。</p><ul><li>容量 600ml，约 2 杯手冲水量</li><li>适配电磁炉 / 明火 / 电陶炉</li><li><span style="color:#67c23a">随单赠滤纸 50 张</span>（首发限定）</li></ul>',
+    auditStatus:1, applyTime:'2026-11-17 09:08:00', auditTime:'', applyRemark:'新品首发，随单赠滤纸 50 张。', auditRemark:'',
+    skus:[seckillApplySku('雾银 · 600ml','KETTLE-600-SV',199,109,60),seckillApplySku('哑黑 · 600ml','KETTLE-600-BK',209,119,40)]
+  },
+  {
+    id:'ap-3', activityId:'sa-2', sessionId:'ss-4', mchName:'山野生活', shopName:'山野生活店',
+    spuName:'弧光人体工学休闲椅', art:'chair', detailDesc:'<p>高回弹海绵与弧形靠背，适配客厅阅读角。</p><h3>坐感说明</h3><ol><li>45D 高回弹海绵，久坐不塌陷</li><li>弧形靠背贴合腰椎曲线，倾角 105°</li><li>实木框架 + 蛇形弹簧，承重 150kg</li></ol><blockquote>面料可选棉麻 / 科技布，秒杀场次默认发棉麻款。</blockquote>',
+    auditStatus:2, applyTime:'2026-11-15 16:40:00', auditTime:'2026-11-16 09:30:00', applyRemark:'主推款，参与晚八点场。', auditRemark:'资料完整，秒杀价符合活动要求。',
+    skus:[seckillApplySku('暖棕 · 标准款','ARC-CHAIR-BR',1299,699,60),seckillApplySku('雾灰 · 标准款','ARC-CHAIR-GY',1299,699,60)]
+  },
+  {
+    id:'ap-4', activityId:'sa-2', sessionId:'ss-4', mchName:'日常咖啡', shopName:'日常咖啡研究所',
+    spuName:'便携手摇磨豆机', art:'coffee', detailDesc:'<p>CNC 不锈钢磨芯，外置调节环，支持 36 档研磨。</p><ul><li>420 不锈钢刀盘，<em>意式 / 手冲通用</em></li><li>外置刻度环，换豆无需拆机调档</li><li>双轴承固定，研磨均匀度提升约 30%</li></ul>',
+    auditStatus:3, applyTime:'2026-11-15 11:18:00', auditTime:'2026-11-16 10:12:00', applyRemark:'希望进入晚八点场，库存 100 件。', auditRemark:'秒杀价高于近 30 天最低成交价，请调整价格后重新报名。',
+    skus:[seckillApplySku('银色 · 标准版','GRINDER-S',329,239,50),seckillApplySku('黑色 · 标准版','GRINDER-BK',329,239,50)]
+  },
+  {
+    id:'ap-5', activityId:'sa-2', sessionId:'ss-5', mchName:'森屿香氛', shopName:'森屿香氛店',
+    spuName:'无火香薰礼盒', art:'serum', detailDesc:'<p>雪松与白茶香调，含藤条与 200ml 香薰液。</p><p>礼盒内含：<strong>香薰液 200ml × 1</strong>、纤维藤条 × 6、贺卡 × 1。</p><ul><li>前调白茶 / 中调雪松 / 尾调琥珀</li><li><span style="background-color:#fdf6ec">扩香约 8–10㎡，持香 60 天</span></li></ul>',
+    auditStatus:2, applyTime:'2026-11-14 14:05:00', auditTime:'2026-11-15 09:22:00', applyRemark:'加场新品，礼盒装。', auditRemark:'通过，礼盒信息与主图一致。',
+    skus:[seckillApplySku('雪松白茶 · 200ml','DIFFUSER-200',259,139,80),seckillApplySku('无花果 · 200ml','DIFFUSER-FIG',259,139,60)]
+  },
+  {
+    id:'ap-6', activityId:'sa-8', sessionId:'ss-14', mchName:'Yeah 数码', shopName:'Yeah 数码生活馆',
+    spuName:'主动降噪真无线耳机', art:'headphone', detailDesc:'<p>42dB 主动降噪，双设备连接，单次续航 8 小时。</p><h3>核心参数</h3><ul><li><strong>42dB 混合降噪</strong>，地铁 / 机舱场景实测</li><li>蓝牙 5.4，双设备无缝切换</li><li>单次 8h，含仓 32h，支持快充</li></ul>',
+    auditStatus:1, applyTime:'2026-11-05 21:40:00', auditTime:'', applyRemark:'会员专享场，计划报名 200 件。', auditRemark:'',
+    skus:[seckillApplySku('曜石黑 · 标准版','TWS-ANC-BK',399,299,100),seckillApplySku('雾银 · 标准版','TWS-ANC-SV',399,299,100)]
+  },
+  {
+    id:'ap-7', activityId:'sa-8', sessionId:'ss-14', mchName:'Yeah 数码', shopName:'Yeah 数码生活馆',
+    spuName:'云感降噪头戴耳机', art:'headphone', detailDesc:'<p>40mm 动圈单元，佩戴轻量，支持有线模式。</p><p>整机 <strong>248g</strong>，蛋白皮耳罩 + 减压头梁，长时间佩戴不夹头。</p><ul><li>有线 / 蓝牙双模，没电也能听</li><li>折叠收纳，附硬壳收纳包</li></ul>',
+    auditStatus:2, applyTime:'2026-11-03 10:15:00', auditTime:'2026-11-04 09:30:00', applyRemark:'主推款，备货 120 件。', auditRemark:'品牌授权与质检资料已核对，通过。',
+    skus:[seckillApplySku('曜石黑 · 标准版','HEAD-ANC-BK',999,599,60),seckillApplySku('雾银 · 标准版','HEAD-ANC-SV',999,599,60)]
+  },
+  {
+    id:'ap-8', activityId:'sa-8', sessionId:'ss-15', mchName:'声屿音频', shopName:'声屿音频店',
+    spuName:'开放式运动耳机', art:'headphone', detailDesc:'<p><br></p>',
+    auditStatus:3, applyTime:'2026-11-04 16:22:00', auditTime:'2026-11-05 11:10:00', applyRemark:'加场报名 60 件。', auditRemark:'秒杀价与近期活动价差不足，请调整后再报。',
+    skus:[seckillApplySku('曜石黑 · 运动版','OPEN-SPORT-BK',299,229,60)]
+  },
+  {
+    id:'ap-9', activityId:'sa-8', sessionId:'ss-15', mchName:'山野生活', shopName:'山野生活店',
+    spuName:'户外便携音箱', art:'headphone', detailDesc:'<p>双单元立体声，IPX7 防水，续航 12 小时。</p><ul><li>20W 双单元 + 被动振膜，低频下潜 60Hz</li><li>IPX7 防水，雨天 / 泳池边可用</li><li>支持 TWS 串联，两台组立体声</li></ul><blockquote>挂绳孔位兼容主流登山扣，徒步可外挂背包。</blockquote>',
+    auditStatus:2, applyTime:'2026-11-03 14:08:00', auditTime:'2026-11-04 10:02:00', applyRemark:'户外场景主推，库存 80 件。', auditRemark:'资料齐全，通过。',
+    skus:[seckillApplySku('松针绿 · 标准版','SPK-OUT-GN',499,329,50),seckillApplySku('岩石灰 · 标准版','SPK-OUT-GY',499,329,30)]
+  },
+  {
+    id:'ap-10', activityId:'sa-5', sessionId:'ss-8', mchName:'山野生活', shopName:'山野生活店',
+    spuName:'轻量露营折叠椅', art:'chair', detailDesc:'<p>铝合金支架，收纳体积小，承重 120kg。</p><ul><li>7075 铝合金杖杆，整椅仅 980g</li><li>收纳后约雨伞大小，侧袋可放</li><li>牛津布坐面，透气耐磨</li></ul>',
+    auditStatus:2, applyTime:'2026-11-13 09:16:00', auditTime:'2026-11-14 10:05:00', applyRemark:'日间场主推，备货 80 件。', auditRemark:'通过，库存与价格符合要求。',
+    skus:[seckillApplySku('沙丘色 · 标准款','CAMP-CHAIR-SD',329,199,40),seckillApplySku('墨绿色 · 标准款','CAMP-CHAIR-GN',329,199,40)]
+  },
+  {
+    id:'ap-11', activityId:'sa-5', sessionId:'ss-8', mchName:'户外星球', shopName:'户外星球装备店',
+    spuName:'钛合金户外水杯', art:'coffee', detailDesc:'<p>双层真空结构，轻量钛合金杯体，容量 450ml。</p><p><strong>纯钛内胆</strong>无金属味，盛茶 / 咖啡不串味；双层真空保温约 6 小时。</p><ul><li>整杯 186g，含折叠钛勺</li><li>杯盖可作小杯使用</li></ul>',
+    auditStatus:3, applyTime:'2026-11-14 18:30:00', auditTime:'2026-11-15 09:12:00', applyRemark:'新品首发，报名夜间场。', auditRemark:'缺少质检报告，请在报名截止前补充后重新提交。',
+    skus:[seckillApplySku('钛本色 · 450ml','CUP-TI-450',399,259,60)]
+  },
+  {
+    id:'ap-12', activityId:'sa-1', sessionId:'ss-1', mchName:'Yeah 数码', shopName:'Yeah 数码生活馆',
+    spuName:'头戴式降噪耳机 Pro', art:'headphone', detailDesc:'<p>自适应降噪与空间音频，支持多设备切换。</p><h3>Pro 升级点</h3><ul><li><strong>自适应降噪</strong>：随环境噪声实时调节深度</li><li>空间音频 + 头部追踪，观影更沉浸</li><li><span style="color:#409eff">三设备同时连接</span>，会议 / 手机 / 平板秒切</li></ul>',
+    auditStatus:2, applyTime:'2026-10-20 10:22:00', auditTime:'2026-10-21 09:18:00', applyRemark:'早鸟场主推款。', auditRemark:'通过，资料与价格均符合要求。',
+    skus:[seckillApplySku('曜石黑 · Pro','HEAD-PRO-BK',1299,799,40),seckillApplySku('雾银 · Pro','HEAD-PRO-SV',1299,799,40)]
+  },
+  {
+    id:'ap-13', activityId:'sa-6', sessionId:'ss-10', mchName:'声屿音频', shopName:'声屿音频店',
+    spuName:'便携蓝牙音箱', art:'headphone', detailDesc:'织物网罩与金属提手，支持立体声串联。',
+    auditStatus:3, applyTime:'2026-10-29 15:40:00', auditTime:'2026-10-30 10:05:00', applyRemark:'返场活动报名。', auditRemark:'同款近 30 天存在更低成交价，驳回。',
+    skus:[seckillApplySku('砂岩灰 · 标准版','SPK-GRAY',399,279,40)]
+  },
+  {
+    id:'ap-14', activityId:'sa-7', sessionId:'ss-13', mchName:'日常咖啡', shopName:'日常咖啡研究所',
+    spuName:'夏日冷萃咖啡壶', art:'coffee', detailDesc:'耐热玻璃壶身，配不锈钢滤网，容量 1L。',
+    auditStatus:2, applyTime:'2026-08-02 09:50:00', auditTime:'2026-08-03 09:10:00', applyRemark:'夏季清凉节报名。', auditRemark:'通过，历史活动资料完整。',
+    skus:[seckillApplySku('透明 · 1L','COLD-BREW-1L',159,89,50)]
+  }
+];
+
+function seckillApplyStatus(status) {
+  return SECKILL_APPLY_STATUS[Number(status)] || SECKILL_APPLY_STATUS[1];
+}
+
+function seckillApplyWindowState(activity) {
+  if (!activity?.applyBeginTime || !activity?.applyEndTime) return { key:'none', label:'报名未开放', tone:'neutral' };
+  if (SECKILL_SESSION_NOW < activity.applyBeginTime) return { key:'upcoming', label:'报名未开始', tone:'info' };
+  if (SECKILL_SESSION_NOW < activity.applyEndTime) return { key:'open', label:'报名中', tone:'success' };
+  return { key:'closed', label:'报名已结束', tone:'neutral' };
+}
+
+function seckillApplySummary(apply) {
+  const skus = apply.skus || [];
+  const seckillPrices = skus.map((sku)=>Number(sku.seckillPrice)).filter((value)=>Number.isFinite(value));
+  const originPrices = skus.map((sku)=>Number(sku.originPrice)).filter((value)=>Number.isFinite(value));
+  return {
+    skuCount:skus.length,
+    stock:skus.reduce((total,sku)=>total+Number(sku.stock||0),0),
+    minSeckill:seckillPrices.length?Math.min(...seckillPrices):0,
+    maxSeckill:seckillPrices.length?Math.max(...seckillPrices):0,
+    minOrigin:originPrices.length?Math.min(...originPrices):0,
+    maxOrigin:originPrices.length?Math.max(...originPrices):0
+  };
+}
+
+const seckillApplyMoney = (value)=>`¥${Number(value||0).toFixed(2)}`;
+const seckillApplyRange = (min,max)=>min===max?seckillApplyMoney(min):`${seckillApplyMoney(min)} – ${seckillApplyMoney(max)}`;
+
+function AdminSeckillAudits({ activities, applies, setApplies, sessionsByActivity, route, navigate, notify }) {
+  const routeActivityId = routeParam(route,'activityId');
+  const defaultActivityId = ()=>{
+    const open = activities.find((item)=>item.applyBeginTime <= SECKILL_SESSION_NOW && SECKILL_SESSION_NOW < item.applyEndTime);
+    if (open) return open.id;
+    const withPending = activities.find((item)=>applies.some((apply)=>apply.activityId===item.id && Number(apply.auditStatus)===1));
+    if (withPending) return withPending.id;
+    return (activities[0]||{}).id || '';
+  };
+  const [activityId,setActivityId] = useState(()=>activities.some((item)=>item.id===routeActivityId)?routeActivityId:defaultActivityId());
+  const [tab,setTab] = useState('all');
+  const [filters,setFilters] = useState({ merchant:'', sessionId:'' });
+  const [applied,setApplied] = useState({ merchant:'', sessionId:'' });
+  const [reviewing,setReviewing] = useState(null);
+  const [auditStatus,setAuditStatus] = useState('');
+  const [auditRemark,setAuditRemark] = useState('');
+  useEffect(()=>{
+    if (routeActivityId && activities.some((item)=>item.id===routeActivityId)) setActivityId(routeActivityId);
+  },[routeActivityId]);
+  useEffect(()=>{
+    setTab('all');
+    setFilters({ merchant:'', sessionId:'' });
+    setApplied({ merchant:'', sessionId:'' });
+  },[activityId]);
+
+  const activity = activities.find((item)=>item.id===activityId) || activities.find((item)=>item.id===defaultActivityId()) || activities[0] || { id:'', name:'暂无活动' };
+  const applyState = seckillApplyWindowState(activity);
+  const activitySessions = sessionsByActivity[activity.id] || [];
+  const sortedSessions = useMemo(()=>[...activitySessions].sort((a,b)=>a.beginTime.localeCompare(b.beginTime)||a.sort-b.sort),[activity.id,sessionsByActivity]);
+  const activityApplies = useMemo(()=>applies.filter((row)=>row.activityId===activity.id),[applies,activity.id]);
+  const baseRows = useMemo(()=>activityApplies.filter((row)=>{
+    const keyword = applied.merchant.trim().toLowerCase();
+    const merchantMatch = !keyword || `${row.mchName}${row.shopName}`.toLowerCase().includes(keyword);
+    const sessionMatch = !applied.sessionId || row.sessionId === applied.sessionId;
+    return merchantMatch && sessionMatch;
+  }).sort((a,b)=>b.applyTime.localeCompare(a.applyTime)),[activityApplies,applied]);
+  const counts = { all:baseRows.length, pending:0, passed:0, rejected:0 };
+  baseRows.forEach((row)=>{ counts[seckillApplyStatus(row.auditStatus).key] += 1; });
+  const filtered = baseRows.filter((row)=>tab==='all'||seckillApplyStatus(row.auditStatus).key===tab);
+  const pendingInActivity = activityApplies.filter((row)=>Number(row.auditStatus)===1).length;
+  const processed = counts.passed + counts.rejected;
+  const passRate = processed ? Math.round((counts.passed / processed) * 100) : null;
+  const search = ()=>setApplied({ ...filters });
+  const reset = ()=>{
+    const empty = { merchant:'', sessionId:'' };
+    setFilters(empty);
+    setApplied(empty);
+    setTab('all');
+  };
+  const openReview = (row)=>{
+    setReviewing(row);
+    setAuditStatus('');
+    setAuditRemark('');
+  };
+  const closeReview = ()=>{
+    setReviewing(null);
+    setAuditStatus('');
+    setAuditRemark('');
+  };
+  const submitAudit = ()=>{
+    if (!reviewing || !auditStatus) return;
+    const nextStatus = Number(auditStatus);
+    setApplies((current)=>current.map((item)=>item.id===reviewing.id
+      ? { ...item, auditStatus:nextStatus, auditRemark:auditRemark.trim(), auditTime:SECKILL_AUDIT_NOW }
+      : item));
+    notify(nextStatus===2?'报名已审核通过':'报名已审核驳回');
+    closeReview();
+  };
+  const tableIntroTone = applyState.key==='closed'&&pendingInActivity ? 'is-warning' : applyState.key==='open' ? 'is-open' : '';
+  const tableIntroText = applyState.key==='open'
+    ? `报名进行中，截止 ${activity.applyEndTime.slice(0,16)}；仅待审核记录可执行审核。`
+    : applyState.key==='upcoming'
+      ? `报名将于 ${activity.applyBeginTime.slice(0,16)} 开始；当前可提前核对活动与场次。`
+      : pendingInActivity
+        ? `报名已于 ${activity.applyEndTime.slice(0,16)} 结束，仍有 ${pendingInActivity} 条待审核；未通过的报名不会进入秒杀商品池。`
+        : `报名已于 ${activity.applyEndTime.slice(0,16)} 结束；历史审核记录仅可查看。`;
+  const reviewingApply = reviewing ? applies.find((item)=>item.id===reviewing.id) || reviewing : null;
+  const reviewSummary = reviewingApply ? seckillApplySummary(reviewingApply) : null;
+  const reviewMeta = reviewingApply ? seckillApplyStatus(reviewingApply.auditStatus) : null;
+  const reviewPending = Boolean(reviewingApply && Number(reviewingApply.auditStatus)===1);
+  const reviewSession = reviewingApply ? sortedSessions.find((item)=>item.id===reviewingApply.sessionId) : null;
+  const reviewPriceText = reviewSummary ? seckillApplyRange(reviewSummary.minSeckill,reviewSummary.maxSeckill) : '';
+  const reviewOriginText = reviewSummary ? seckillApplyRange(reviewSummary.minOrigin,reviewSummary.maxOrigin) : '';
+
+  return <section className="admin-page seckill-audit-page" data-screen-label="平台后台-秒杀报名审核">
+    <div className="ss-activity-bar">
+      <span className="ss-activity-icon"><AdminIcon name="DocumentChecked" size={22}/></span>
+      <div className="ss-activity-copy">
+        <div className="ss-activity-title"><h2>{activity.name}</h2><StatusTicket tone={applyState.tone}><span className="ss-status-live">{applyState.key==='open'&&<i className="ss-live-dot"></i>}{applyState.label}</span></StatusTicket></div>
+        <div className="ss-activity-meta">
+          <span><AdminIcon name="Calendar" size={13}/>报名 {activity.applyBeginTime&&activity.applyEndTime?`${activity.applyBeginTime.slice(0,16)} 至 ${activity.applyEndTime.slice(0,16)}`:'待设置'}</span>
+          <span><AdminIcon name="Lightning" size={13}/>活动 {activity.activityBeginTime&&activity.activityEndTime?`${activity.activityBeginTime.slice(0,16)} 至 ${activity.activityEndTime.slice(0,16)}`:'待设置'}</span>
+          <span><AdminIcon name="Clock" size={13}/>共 {sortedSessions.length} 个场次</span>
+          <span><AdminIcon name="DocumentChecked" size={13}/>报名 {activityApplies.length} 条</span>
+        </div>
+      </div>
+      <div className="ss-activity-controls">
+        <label className="ss-activity-switch"><span>切换活动</span><select value={activity.id} onChange={(event)=>setActivityId(event.target.value)}>{activities.map((item)=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <button className="ss-back-link" onClick={()=>navigate('platform/seckill?tab=活动管理')}><AdminIcon name="back" size={15}/>返回活动管理</button>
+      </div>
+    </div>
+    <div className="ss-queue">
+      <div className="ss-tabs">{SECKILL_APPLY_TABS.map((item)=><button key={item.key} data-status={item.key} className={tab===item.key?'active':''} onClick={()=>setTab(item.key)}>{item.label}<span className="ss-tab-count">{counts[item.key]}</span></button>)}</div>
+      <div className="ss-queue-summary">
+        <span className={counts.pending?'is-warning':''}>{counts.pending>0&&<i className="ss-live-dot"></i>}待审核 <b>{counts.pending}</b> 条</span>
+        <span><AdminIcon name="check" size={13}/>通过率 <b>{passRate===null?'—':`${passRate}%`}</b></span>
+      </div>
+    </div>
+    <FilterBar onReset={reset} onSearch={search}>
+      <label><span>申请商家</span><input value={filters.merchant} onChange={(event)=>setFilters({...filters,merchant:event.target.value})} placeholder="商家名称或店铺名称" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+      <label><span>报名场次</span><select value={filters.sessionId} onChange={(event)=>setFilters({...filters,sessionId:event.target.value})}><option value="">全部场次</option>{sortedSessions.map((item)=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+    </FilterBar>
+    <div className="admin-table-frame">
+      <div className={`ss-table-intro sa-table-intro${tableIntroTone?` ${tableIntroTone}`:''}`}>
+        <span><AdminIcon name={tableIntroTone==='is-warning'?'warning':applyState.key==='open'?'clock':'DocumentChecked'} size={15}/>{tableIntroText}</span>
+        <div className="sa-intro-right"><b>筛选 {filtered.length} 条</b>{counts.pending>0&&<span className="sa-pending-chip">待审 {counts.pending}</span>}</div>
+      </div>
+      <table data-align-table="t8" className="admin-table seckill-audit-table">
+        <thead><tr><th>报名商品</th><th>商家 / 店铺</th><th>场次</th><th>报名时间</th><th>审核状态</th><th>申请备注</th><th>审核备注</th><th className="actions">操作</th></tr></thead>
+        <tbody>{filtered.map((row)=>{
+          const meta = seckillApplyStatus(row.auditStatus);
+          const session = sortedSessions.find((item)=>item.id===row.sessionId);
+          return <tr key={row.id}>
+            <td><div className="cb"><div className="sa-product-cell">
+              <span className="sa-product-art"><ProductArt type={row.art}/></span>
+              <div className="sa-product-copy"><b title={row.spuName}>{row.spuName}</b><small title={seckillRichPlain(row.detailDesc)||'暂无商品描述'}>{seckillRichPlain(row.detailDesc)||'暂无商品描述'}</small></div>
+            </div></div></td>
+            <td><div className="cb"><div className="sa-party-cell"><b title={row.mchName}>{row.mchName}</b><small title={row.shopName}>{row.shopName}</small></div></div></td>
+            <td><div className="cb"><div className="sa-session-cell"><b title={session?.name}>{session?.name||'—'}</b><small>{session?`${session.beginTime.slice(5,16)} – ${session.endTime.slice(11,16)}`:'场次待确认'}</small></div></div></td>
+            <td><div className="cb"><div className="sa-time-cell"><b>{row.applyTime.slice(0,10)}</b><small>{row.applyTime.slice(11,16)}</small></div></div></td>
+            <td><div className="cb"><StatusTicket tone={meta.tone}>{meta.label}</StatusTicket></div></td>
+            <td><div className="cb"><span className={`sa-remark${row.applyRemark?'':' is-empty'}`} title={row.applyRemark||'未填写申请备注'}>{row.applyRemark||'未填写'}</span></div></td>
+            <td><div className="cb"><span className={`sa-remark${row.auditRemark?'':' is-empty'}`} title={row.auditRemark||(meta.key==='pending'?'待审核':'未填写审核备注')}>{row.auditRemark||(meta.key==='pending'?'—':'未填写')}</span></div></td>
+            <td className="actions"><div className="cb"><button className={`table-link${meta.key==='pending'?' sa-review-link':''}`} onClick={()=>openReview(row)}>{meta.key==='pending'?'审核':'查看'}</button></div></td>
+          </tr>;
+        })}</tbody>
+      </table>
+      {!filtered.length&&<div className="admin-empty"><AdminIcon name="DocumentChecked" size={28}/><b>{activityApplies.length?'没有匹配的报名记录':'当前活动还没有报名记录'}</b><span>{activityApplies.length?'调整申请商家或报名场次筛选后重试':applyState.key==='upcoming'?'报名开始后，商家提交的记录会出现在这里':'商家提交报名后，记录会出现在这里'}</span></div>}
+      <AdminPagination count={filtered.length}/>
+    </div>
+
+    {reviewingApply&&reviewMeta&&reviewSummary&&<div className="dialog-mask" onClick={closeReview}>
+      <section className="admin-dialog sa-audit-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head">
+          <div><span className="drawer-kicker">{reviewPending?'APPLY REVIEW':'APPLY DETAIL'}</span><h2>{reviewPending?'报名审核':'报名详情'}</h2></div>
+          <button onClick={closeReview}>×</button>
+        </div>
+        <div className="sa-dialog-scroll">
+          <div className="sa-apply-context">
+            <div className="sa-context-item"><span>商家 / 店铺</span><b title={reviewingApply.mchName}>{reviewingApply.mchName}</b><small title={reviewingApply.shopName}>{reviewingApply.shopName}</small></div>
+            <div className="sa-context-item"><span>活动 / 场次</span><b title={activity.name}>{activity.name}</b><small title={reviewSession?.name}>{reviewSession?.name||'场次待确认'}</small></div>
+            <div className="sa-context-item"><span>报名时间</span><b>{reviewingApply.applyTime.slice(0,16)}</b><small>{reviewingApply.auditTime?`审核 ${reviewingApply.auditTime.slice(0,16)}`:'等待平台审核'}</small></div>
+            <div className="sa-context-item"><span>审核状态</span><StatusTicket tone={reviewMeta.tone}>{reviewMeta.label}</StatusTicket><small>{reviewPending?'当前可提交审核结果':reviewingApply.auditRemark?'已填写审核备注':'未填写审核备注'}</small></div>
+          </div>
+          <div className="sa-product-panel">
+            <span className="sa-product-art large"><ProductArt type={reviewingApply.art}/></span>
+            <div className="sa-product-info">
+              <h3>{reviewingApply.spuName}</h3>
+              <p>{seckillRichPlain(reviewingApply.detailDesc)||'暂无商品描述'}</p>
+              <div className="sa-product-tags"><span><AdminIcon name="Goods" size={13}/>{reviewSummary.skuCount} 个 SKU</span><span><AdminIcon name="Tickets" size={13}/>报名库存 {reviewSummary.stock} 件</span></div>
+            </div>
+            <div className="sa-price-panel"><span>秒杀价</span><b>{reviewPriceText}</b><small>原价 {reviewOriginText}</small></div>
+          </div>
+          <div className="sa-apply-note"><AdminIcon name="message" size={15}/><div><b>商家报名备注</b><p>{reviewingApply.applyRemark||'未填写报名备注'}</p></div></div>
+          <div className="sa-section">
+            <div className="sa-section-head"><b>SKU 信息</b><small>共 {reviewSummary.skuCount} 个规格 · 报名库存 {reviewSummary.stock} 件</small></div>
+            {reviewSummary.skuCount?<table data-align-table="t9" className="sa-sku-table">
+              <thead><tr><th>SKU 名称</th><th>规格编码</th><th>原价</th><th>秒杀价</th><th>库存</th><th>SKU 图片</th></tr></thead>
+              <tbody>{reviewingApply.skus.map((sku,index)=><tr key={`${sku.specCode}-${index}`}>
+                <td><div className="cb"><b className="sa-sku-name" title={sku.name}>{sku.name}</b></div></td>
+                <td><div className="cb"><span className="mono">{sku.specCode}</span></div></td>
+                <td><div className="cb"><span className="sa-sku-origin">{seckillApplyMoney(sku.originPrice)}</span></div></td>
+                <td><div className="cb"><span className="sa-sku-price">{seckillApplyMoney(sku.seckillPrice)}</span></div></td>
+                <td><div className="cb">{sku.stock} 件</div></td>
+                <td><div className="cb"><span className="sa-sku-art"><ProductArt type={reviewingApply.art}/></span></div></td>
+              </tr>)}</tbody>
+            </table>:<div className="sa-empty-sku">暂无 SKU 信息</div>}
+          </div>
+          <div className="sa-section">
+            <div className="sa-section-head"><b>商品详情</b><small>商家提交的富文本内容 · 只读预览</small></div>
+            {seckillRichHasContent(reviewingApply.detailDesc)
+              ?<div className="sa-richtext" dangerouslySetInnerHTML={{__html:reviewingApply.detailDesc}}/>
+              :<div className="sa-empty-sku">商家未提交商品详情</div>}
+          </div>
+          <div className="sa-section sa-review-section">
+            <div className="sa-section-head"><b>{reviewPending?'审核操作':'审核结果'}</b><small>{reviewPending?'审核结果将同步至秒杀商品':'审核记录仅供查看，不可再次提交'}</small></div>
+            {reviewPending?<>
+              <div className="sa-result-options" role="radiogroup" aria-label="审核结果">
+                <label className={`sa-result-option is-pass${auditStatus==='2'?' is-active':''}`}>
+                  <input type="radio" name="sa-audit-result" value="2" checked={auditStatus==='2'} onChange={()=>setAuditStatus('2')}/>
+                  <span className="sa-result-check"><AdminIcon name="check" size={16}/></span>
+                  <span className="sa-result-copy"><b>审核通过</b><small>商品资料与价格符合要求，进入对应场次的秒杀商品池。</small></span>
+                </label>
+                <label className={`sa-result-option is-reject${auditStatus==='3'?' is-active':''}`}>
+                  <input type="radio" name="sa-audit-result" value="3" checked={auditStatus==='3'} onChange={()=>setAuditStatus('3')}/>
+                  <span className="sa-result-check"><AdminIcon name="close" size={16}/></span>
+                  <span className="sa-result-copy"><b>审核驳回</b><small>商品资料或价格不符合要求，商家可调整后重新报名。</small></span>
+                </label>
+              </div>
+              <label className="sa-remark-field">
+                <span>审核备注<small>选填，审核结果与备注将同步给商家</small></span>
+                <textarea maxLength={200} value={auditRemark} onChange={(event)=>setAuditRemark(event.target.value)} placeholder={auditStatus==='3'?'建议说明驳回原因，便于商家调整后重新报名':'可补充审核说明，最多 200 字'}></textarea>
+                <div className="sa-remark-meta"><small>{auditRemark.length}/200</small>{auditStatus==='3'&&<small className="is-warning">驳回时建议填写原因</small>}</div>
+              </label>
+              <div className="sa-audit-tip"><AdminIcon name="warning" size={14}/>审核结果提交后不可修改，请先核对商品、价格与库存信息。</div>
+            </>:<div className={`sa-audit-result is-${reviewMeta.key}`}>
+              <div className="sa-result-head"><StatusTicket tone={reviewMeta.tone}>{reviewMeta.label}</StatusTicket><span>审核时间 <b>{reviewingApply.auditTime?reviewingApply.auditTime.slice(0,16):'—'}</b></span></div>
+              <div className="sa-result-note"><span>审核备注</span><p>{reviewingApply.auditRemark||'未填写审核备注'}</p></div>
+            </div>}
+          </div>
+        </div>
+        <div className="dialog-actions">
+          {reviewPending?<>
+            <button onClick={closeReview}>取消</button>
+            <button className="primary" disabled={!auditStatus} onClick={submitAudit}>提交审核</button>
+          </>:<button onClick={closeReview}>关闭</button>}
+        </div>
+      </section>
+    </div>}
+  </section>;
 }
 
 const POINTS_BIZ_TYPES = [
@@ -2059,7 +2907,7 @@ function AdminPoints({ route, notify }) {
   };
   const changeRuleValue=(value)=>setEditing({...editing,[editing.calcType===1?'fixedPoints':'pointsPerYuan']:Number(value)});
   return (
-    <section className="admin-page points-admin-page" data-screen-label="平台后台积分管理">
+    <section className="admin-page points-admin-page" data-screen-label={`平台后台积分管理-${tab}`}>
       <div className="module-tabs">
         <button className={tab==='ledger'?'active':''} onClick={()=>setTab('ledger')}>积分流水</button>
         <button className={tab==='rule'?'active':''} onClick={()=>setTab('rule')}>积分规则</button>
@@ -2071,17 +2919,17 @@ function AdminPoints({ route, notify }) {
           <label><span>业务类型</span><select value={filters.bizType} onChange={(e)=>setFilters({...filters,bizType:e.target.value})}><option>全部类型</option>{POINTS_BIZ_TYPES.map((item)=><option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
         </FilterBar>
         <div className="admin-table-frame">
-          <table className="admin-table points-ledger-table">
+          <table data-align-table="t10" className="admin-table points-ledger-table">
             <thead><tr><th>会员ID</th><th>业务类型</th><th>说明</th><th className="numeric">变动</th><th className="numeric">变动前</th><th className="numeric">变动后</th><th>业务单号</th><th>创建时间</th></tr></thead>
             <tbody>{filtered.map((item)=>{const biz=bizOption(item.bizType);return <tr key={item.id}>
-              <td className="mono"><CopyableText value={item.memberId} label="会员 ID" notify={notify}/></td>
-              <td><StatusTicket tone={biz?.tone||'neutral'}>{biz?.label||item.bizType}</StatusTicket></td>
-              <td>{item.description}</td>
-              <td className={`numeric ${item.changePoints>=0?'positive-amount':'negative-amount'}`}>{item.changePoints>=0?'+':''}{item.changePoints.toLocaleString()}</td>
-              <td className="numeric">{item.balanceBefore.toLocaleString()}</td>
-              <td className="numeric">{item.balanceAfter.toLocaleString()}</td>
-              <td className="mono"><CopyableText value={item.bizNo} label="业务单号" notify={notify}/></td>
-              <td><span>{item.createTime.slice(0,10)}</span><small className="cell-sub">{item.createTime.slice(11)}</small></td>
+              <td className="mono"><div className="cb"><CopyableText value={item.memberId} label="会员 ID" notify={notify}/></div></td>
+              <td><div className="cb"><StatusTicket tone={biz?.tone||'neutral'}>{biz?.label||item.bizType}</StatusTicket></div></td>
+              <td><div className="cb">{item.description}</div></td>
+              <td className={`numeric ${item.changePoints>=0?'positive-amount':'negative-amount'}`}><div className="cb">{item.changePoints>=0?'+':''}{item.changePoints.toLocaleString()}</div></td>
+              <td className="numeric"><div className="cb">{item.balanceBefore.toLocaleString()}</div></td>
+              <td className="numeric"><div className="cb">{item.balanceAfter.toLocaleString()}</div></td>
+              <td className="mono"><div className="cb"><CopyableText value={item.bizNo} label="业务单号" notify={notify}/></div></td>
+              <td><div className="cb"><span>{item.createTime.slice(0,10)}</span><small className="cell-sub">{item.createTime.slice(11)}</small></div></td>
             </tr>;})}</tbody>
           </table>
           {!filtered.length&&<div className="admin-empty"><AdminIcon name="Coin" size={28}/><b>没有匹配的积分流水</b><span>调整筛选条件后重试</span></div>}
@@ -2089,16 +2937,16 @@ function AdminPoints({ route, notify }) {
         </div>
       </>:<>
         <div className="admin-table-frame">
-          <table className="admin-table points-rule-table">
+          <table data-align-table="t11" className="admin-table points-rule-table">
             <thead><tr><th>规则名称</th><th>编码</th><th>计算方式</th><th className="numeric">规则值</th><th>说明</th><th>状态</th><th className="actions">操作</th></tr></thead>
             <tbody>{rules.map((rule)=><tr key={rule.id}>
-              <td><b>{rule.name}</b></td>
-              <td className="mono">{rule.code}</td>
-              <td>{rule.calcType===1?'固定积分':'按金额比例'}</td>
-              <td className="numeric">{rule.calcType===1?`${rule.fixedPoints} 积分`:`每元 ${rule.pointsPerYuan} 积分`}</td>
-              <td>{rule.description}</td>
-              <td><StatusTicket tone={rule.enabled?'success':'neutral'}>{rule.enabled?'启用':'停用'}</StatusTicket></td>
-              <td className="actions"><button className="table-link" onClick={()=>setEditing({...rule})}>编辑</button></td>
+              <td><div className="cb"><b>{rule.name}</b></div></td>
+              <td className="mono"><div className="cb">{rule.code}</div></td>
+              <td><div className="cb">{rule.calcType===1?'固定积分':'按金额比例'}</div></td>
+              <td className="numeric"><div className="cb">{rule.calcType===1?`${rule.fixedPoints} 积分`:`每元 ${rule.pointsPerYuan} 积分`}</div></td>
+              <td><div className="cb">{rule.description}</div></td>
+              <td><div className="cb"><StatusTicket tone={rule.enabled?'success':'neutral'}>{rule.enabled?'启用':'停用'}</StatusTicket></div></td>
+              <td className="actions"><div className="cb"><button className="table-link" onClick={()=>setEditing({...rule})}>编辑</button></div></td>
             </tr>)}</tbody>
           </table>
         </div>
@@ -2112,6 +2960,307 @@ function AdminPoints({ route, notify }) {
         <label className="points-rule-enabled"><span>启用规则</span><input type="checkbox" checked={editing.enabled} onChange={(event)=>setEditing({...editing,enabled:event.target.checked})}/></label>
         <label className="dialog-field"><span>规则说明</span><textarea rows="3" maxLength="255" value={editing.description} onChange={(event)=>setEditing({...editing,description:event.target.value})}/></label>
         <div className="dialog-actions"><button onClick={()=>setEditing(null)}>取消</button><button className="primary" onClick={saveRule}>保存</button></div>
+      </section></div>}
+    </section>
+  );
+}
+
+const POINTS_MALL_CATEGORIES_INITIAL = [
+  { id:'pc-1', name:'实物好礼', parentId:0, art:'coffee', sort:1, enabled:true, createTime:'2026-10-01 09:12:10' },
+  { id:'pc-2', name:'优惠券', parentId:0, art:'serum', sort:2, enabled:true, createTime:'2026-10-01 09:16:32' },
+  { id:'pc-3', name:'会员权益', parentId:0, art:'headphone', sort:3, enabled:true, createTime:'2026-10-01 09:20:48' },
+  { id:'pc-4', name:'居家好物', parentId:'pc-1', art:'chair', sort:1, enabled:true, createTime:'2026-10-02 10:08:20' },
+  { id:'pc-5', name:'数码周边', parentId:'pc-1', art:'headphone', sort:2, enabled:false, createTime:'2026-10-02 10:12:36' }
+];
+
+const POINTS_MALL_PRODUCTS_INITIAL = [
+  { id:'pp-1', name:'品牌帆布袋', subtitle:'环保棉帆布，通勤百搭', categoryId:'pc-1', productType:'PHYSICAL', fulfillmentType:'LOGISTICS', beginTime:'2026-10-01 00:00:00', endTime:'2026-12-31 23:59:59', perMemberLimit:1, enabled:true, art:'coffee', detailDesc:'环保棉帆布，适合日常通勤与购物。', sort:1, skus:[{id:'sku-1',name:'标准款',pointsPrice:600,stock:36,totalStock:60,enabled:true},{id:'sku-2',name:'加厚款',pointsPrice:880,stock:12,totalStock:30,enabled:true}] },
+  { id:'pp-2', name:'全店 20 元券', subtitle:'满 100 元可用', categoryId:'pc-2', productType:'COUPON', fulfillmentType:'AUTO_COUPON', beginTime:'2026-10-01 00:00:00', endTime:'2026-12-31 23:59:59', perMemberLimit:0, enabled:true, art:'serum', detailDesc:'兑换后自动发放至会员优惠券账户。', sort:2, skus:[{id:'sku-3',name:'20 元券',pointsPrice:300,stock:88,totalStock:200,enabled:true}] },
+  { id:'pp-3', name:'专属客服权益', subtitle:'30 天专属服务通道', categoryId:'pc-3', productType:'BENEFIT', fulfillmentType:'MANUAL', beginTime:'2026-10-01 00:00:00', endTime:'2026-12-31 23:59:59', perMemberLimit:1, enabled:false, art:'headphone', detailDesc:'兑换后由平台客服人工开通。', sort:3, skus:[{id:'sku-4',name:'30 天权益',pointsPrice:1200,stock:12,totalStock:20,enabled:true}] }
+];
+
+const POINTS_MALL_ORDERS_INITIAL = [
+  { id:'po-1', orderNo:'PX20261027001', memberId:'211386217001', productId:'pp-1', productName:'品牌帆布袋', skuName:'标准款', art:'coffee', pointsPrice:600, quantity:1, totalPoints:600, fulfillmentType:'LOGISTICS', status:'1', createTime:'2026-10-27 10:18:22', receiverName:'林可', receiverContact:'138****7621', receiverAddress:'浙江省杭州市西湖区文三路 88 号', providerCode:'', trackingNo:'', fulfillmentRemark:'', cancelReason:'', logs:[{time:'2026-10-27 10:18:22',text:'会员提交兑换'}] },
+  { id:'po-2', orderNo:'PX20261026006', memberId:'211386217004', productId:'pp-3', productName:'专属客服权益', skuName:'30 天权益', art:'headphone', pointsPrice:1200, quantity:1, totalPoints:1200, fulfillmentType:'MANUAL', status:'1', createTime:'2026-10-26 16:42:08', receiverName:'陈一禾', receiverContact:'177****4403', receiverAddress:'', providerCode:'', trackingNo:'', fulfillmentRemark:'', cancelReason:'', logs:[{time:'2026-10-26 16:42:08',text:'会员提交兑换'}] },
+  { id:'po-3', orderNo:'PX20261020008', memberId:'211386217002', productId:'pp-2', productName:'全店 20 元券', skuName:'20 元券', art:'serum', pointsPrice:300, quantity:1, totalPoints:300, fulfillmentType:'AUTO_COUPON', status:'3', createTime:'2026-10-20 09:35:40', receiverName:'周予安', receiverContact:'186****3048', receiverAddress:'', providerCode:'', trackingNo:'', fulfillmentRemark:'优惠券已自动发放', cancelReason:'', logs:[{time:'2026-10-20 09:35:40',text:'会员提交兑换'},{time:'2026-10-20 09:35:42',text:'系统自动发放优惠券，兑换完成'}] },
+  { id:'po-4', orderNo:'PX20261018003', memberId:'211386217005', productId:'pp-1', productName:'品牌帆布袋', skuName:'加厚款', art:'coffee', pointsPrice:880, quantity:1, totalPoints:880, fulfillmentType:'LOGISTICS', status:'4', createTime:'2026-10-18 14:06:18', receiverName:'木棉', receiverContact:'135****2287', receiverAddress:'浙江省杭州市滨江区江南大道 66 号', providerCode:'', trackingNo:'', fulfillmentRemark:'', cancelReason:'会员主动取消', logs:[{time:'2026-10-18 14:06:18',text:'会员提交兑换'},{time:'2026-10-18 14:20:05',text:'会员取消兑换'}] }
+];
+
+const pointsProductTypeText = (type) => ({ PHYSICAL:'实物商品', COUPON:'优惠券', BENEFIT:'虚拟权益' }[type] || '-');
+const pointsFulfillmentText = (type) => ({ LOGISTICS:'物流发货', AUTO_COUPON:'自动发券', MANUAL:'人工履约' }[type] || '-');
+const pointsOrderStatusText = (status) => ({ '1':'待履约', '2':'已发货', '3':'已完成', '4':'已取消' }[status] || '-');
+const pointsOrderTone = (status) => ({ '1':'warning', '2':'info', '3':'success', '4':'neutral' }[status] || 'neutral');
+
+function AdminPointsMall({ route, notify }) {
+  const requestedTab=routeParam(route,'tab');
+  const toTab=(value)=>value==='积分商品'?'product':value==='兑换订单'?'order':'category';
+  const [tab,setTab] = useState(toTab(requestedTab));
+  useEffect(()=>setTab(toTab(requestedTab)),[requestedTab]);
+  const [categories,setCategories] = useState(POINTS_MALL_CATEGORIES_INITIAL);
+  const [products,setProducts] = useState(POINTS_MALL_PRODUCTS_INITIAL);
+  const [orders,setOrders] = useState(POINTS_MALL_ORDERS_INITIAL);
+  const [categoryEditing,setCategoryEditing] = useState(null);
+  const [productEditing,setProductEditing] = useState(null);
+  const [skuDialog,setSkuDialog] = useState(null);
+  const [orderDetail,setOrderDetail] = useState(null);
+  const [orderAction,setOrderAction] = useState(null);
+  const [productFilters,setProductFilters] = useState({ keyword:'', categoryId:'全部', status:'全部状态' });
+  const [appliedProductFilters,setAppliedProductFilters] = useState({ keyword:'', categoryId:'全部', status:'全部状态' });
+  const [orderFilters,setOrderFilters] = useState({ orderNo:'', memberId:'', status:'全部状态' });
+  const [appliedOrderFilters,setAppliedOrderFilters] = useState({ orderNo:'', memberId:'', status:'全部状态' });
+  const categoryName = (id) => categories.find((item)=>item.id===id)?.name || (id===0?'一级分类':'-');
+  const productTypeText = (type) => pointsProductTypeText(type);
+  const fulfillmentText = (type) => pointsFulfillmentText(type);
+  const filteredProducts = products.filter((item) => {
+    const keyword=appliedProductFilters.keyword.trim();
+    const matchKeyword=!keyword || item.name.includes(keyword);
+    const matchCategory=appliedProductFilters.categoryId==='全部' || item.categoryId===appliedProductFilters.categoryId;
+    const matchStatus=appliedProductFilters.status==='全部状态' || item.enabled===(appliedProductFilters.status==='已上架');
+    return matchKeyword && matchCategory && matchStatus;
+  });
+  const filteredOrders = orders.filter((item) => {
+    const matchNo=!appliedOrderFilters.orderNo.trim() || item.orderNo.includes(appliedOrderFilters.orderNo.trim());
+    const matchMember=!appliedOrderFilters.memberId.trim() || item.memberId.includes(appliedOrderFilters.memberId.trim());
+    const matchStatus=appliedOrderFilters.status==='全部状态' || item.status===appliedOrderFilters.status;
+    return matchNo && matchMember && matchStatus;
+  });
+  const toggleProduct = (product) => {
+    setProducts(products.map((item)=>item.id===product.id?{...item,enabled:!item.enabled}:item));
+    notify(`积分商品已${product.enabled?'下架':'上架'}`);
+  };
+  const openCategory = (category) => setCategoryEditing(category ? {...category} : { id:'', name:'', parentId:0, art:'coffee', sort:1, enabled:true });
+  const saveCategory = () => {
+    if (!categoryEditing.name.trim()) return notify('请输入分类名称');
+    if (categoryEditing.id) {
+      setCategories(categories.map((item)=>item.id===categoryEditing.id?{...categoryEditing,createTime:item.createTime}:item));
+    } else {
+      setCategories([...categories,{...categoryEditing,id:`pc-${Date.now()}`,createTime:'2026-11-11 10:00:00'}]);
+    }
+    setCategoryEditing(null);
+    notify('积分商城分类已保存');
+  };
+  const removeCategory = (category) => {
+    if (categories.some((item)=>item.parentId===category.id) || products.some((item)=>item.categoryId===category.id)) {
+      notify('该分类下仍有子分类或商品，暂不可删除');
+      return;
+    }
+    setCategories(categories.filter((item)=>item.id!==category.id));
+    notify('积分商城分类已删除');
+  };
+  const openProduct = (product) => setProductEditing(product ? {...product} : { id:'', name:'', subtitle:'', categoryId:'pc-1', productType:'PHYSICAL', fulfillmentType:'LOGISTICS', beginTime:'2026-11-01 00:00:00', endTime:'2026-12-31 23:59:59', perMemberLimit:0, enabled:false, art:'coffee', detailDesc:'', sort:1, skus:[] });
+  const saveProduct = () => {
+    if (!productEditing.name.trim()) return notify('请输入商品名称');
+    const fulfillmentType=productEditing.productType==='COUPON'?'AUTO_COUPON':productEditing.productType==='BENEFIT'?'MANUAL':'LOGISTICS';
+    const art=({ 'pc-1':'coffee','pc-2':'serum','pc-3':'headphone','pc-4':'chair','pc-5':'headphone' })[productEditing.categoryId]||'coffee';
+    if (productEditing.id) {
+      setProducts(products.map((item)=>item.id===productEditing.id?{...productEditing,fulfillmentType,art}:item));
+    } else {
+      setProducts([...products,{...productEditing,id:`pp-${Date.now()}`,fulfillmentType,art,skus:productEditing.skus||[]}]);
+    }
+    setProductEditing(null);
+    notify('积分商品已保存');
+  };
+  const openSku = (product) => setSkuDialog({ product, rows:(product.skus||[]).map((item)=>({...item})), draft:{ name:'', pointsPrice:100, stock:10, imageUrl:'' }, editingId:'' });
+  const addSku = () => {
+    if (!skuDialog.draft.name.trim()) return notify('请输入 SKU 名称');
+    const values={ name:skuDialog.draft.name.trim(),pointsPrice:Number(skuDialog.draft.pointsPrice)||0,stock:Number(skuDialog.draft.stock)||0,imageUrl:skuDialog.draft.imageUrl||'' };
+    if (skuDialog.editingId) {
+      setSkuDialog({...skuDialog,rows:skuDialog.rows.map((item)=>item.id===skuDialog.editingId?{...item,...values}:item),draft:{ name:'', pointsPrice:100, stock:10, imageUrl:'' },editingId:''});
+      notify('SKU 已更新');
+    } else {
+      const next={ id:`sku-${Date.now()}`,...values,totalStock:values.stock,enabled:true };
+      setSkuDialog({...skuDialog,rows:[...skuDialog.rows,next],draft:{ name:'', pointsPrice:100, stock:10, imageUrl:'' }});
+      notify('SKU 已添加');
+    }
+  };
+  const editSku = (sku) => setSkuDialog({...skuDialog,editingId:sku.id,draft:{ name:sku.name, pointsPrice:sku.pointsPrice, stock:sku.stock, imageUrl:sku.imageUrl||'' }});
+  const setSkuImage = (file) => {
+    if (!file) return;
+    const imageUrl = URL.createObjectURL(file);
+    setSkuDialog({...skuDialog,draft:{...skuDialog.draft,imageUrl}});
+  };
+  const removeSku = (sku) => setSkuDialog({...skuDialog,rows:skuDialog.rows.filter((item)=>item.id!==sku.id)});
+  const saveSku = () => {
+    setProducts(products.map((item)=>item.id===skuDialog.product.id?{...item,skus:skuDialog.rows}:item));
+    setSkuDialog(null);
+    notify('SKU 配置已保存');
+  };
+  const canShip = (order) => order.status==='1' && order.fulfillmentType==='LOGISTICS';
+  const canFulfill = (order) => order.status==='1' && order.fulfillmentType==='MANUAL';
+  const canCancel = (order) => order.status==='1';
+  const openOrderAction = (order,type) => setOrderAction({ order,type,providerCode:'SF',trackingNo:'',remark:'' });
+  const submitOrderAction = () => {
+    const { order,type,providerCode,trackingNo,remark }=orderAction;
+    if (type==='ship' && !trackingNo.trim()) return notify('请输入物流单号');
+    if (type!=='ship' && !remark.trim()) return notify(type==='fulfill'?'请输入履约说明':'请输入取消原因');
+    const status=type==='ship'?'2':type==='fulfill'?'3':'4';
+    const logText=type==='ship'?`订单发货，物流单号 ${trackingNo}`:type==='fulfill'?`完成人工履约：${remark}`:`订单取消：${remark}`;
+    setOrders(orders.map((item)=>item.id===order.id?{...item,status,providerCode:type==='ship'?providerCode:item.providerCode,trackingNo:type==='ship'?trackingNo:item.trackingNo,fulfillmentRemark:type==='fulfill'?remark:item.fulfillmentRemark,cancelReason:type==='cancel'?remark:item.cancelReason,logs:[...item.logs,{time:'2026-11-11 10:30:00',text:logText}]}:item));
+    if (orderDetail?.id===order.id) setOrderDetail({...order,status,logs:[...order.logs,{time:'2026-11-11 10:30:00',text:logText}]});
+    setOrderAction(null);
+    notify(type==='ship'?'积分订单已发货':type==='fulfill'?'积分订单已完成履约':'积分订单已取消');
+  };
+  return (
+    <section className="admin-page points-mall-admin-page" data-screen-label={`平台后台积分商城-${tab}`}>
+      <div className="module-tabs">
+        <button className={tab==='category'?'active':''} onClick={()=>setTab('category')}>商品分类</button>
+        <button className={tab==='product'?'active':''} onClick={()=>setTab('product')}>积分商品</button>
+        <button className={tab==='order'?'active':''} onClick={()=>setTab('order')}>兑换订单</button>
+      </div>
+
+      {tab==='category'&&<>
+        <div className="points-mall-toolbar"><button className="business-primary" onClick={()=>openCategory()}><AdminIcon name="plus" size={17}/>新增分类</button></div>
+        <div className="admin-table-frame">
+          <table data-align-table="t12" className="admin-table points-category-table">
+            <thead><tr><th>分类名称</th><th>父分类</th><th>图标</th><th className="numeric">排序</th><th>状态</th><th>创建时间</th><th className="actions">操作</th></tr></thead>
+            <tbody>{categories.map((item)=><tr key={item.id}>
+              <td><div className="cb"><b>{item.name}</b></div></td>
+              <td><div className="cb">{categoryName(item.parentId)}</div></td>
+              <td><div className="cb"><ProductArt type={item.art} className="points-category-art"/></div></td>
+              <td className="numeric"><div className="cb">{item.sort}</div></td>
+              <td><div className="cb"><StatusTicket tone={item.enabled?'success':'neutral'}>{item.enabled?'启用':'停用'}</StatusTicket></div></td>
+              <td><div className="cb">{item.createTime}</div></td>
+              <td className="actions"><div className="cb"><button className="table-link" onClick={()=>openCategory(item)}>编辑</button><button className="table-link danger-link" onClick={()=>removeCategory(item)}>删除</button></div></td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </>}
+
+      {tab==='product'&&<>
+        <FilterBar
+          onReset={()=>{const empty={ keyword:'',categoryId:'全部',status:'全部状态' };setProductFilters(empty);setAppliedProductFilters(empty);}}
+          onSearch={()=>setAppliedProductFilters({...productFilters})}
+          actions={<button className="business-primary" onClick={()=>openProduct()}><AdminIcon name="plus" size={17}/>新增商品</button>}
+        >
+          <label><span>商品名称</span><input value={productFilters.keyword} onChange={(e)=>setProductFilters({...productFilters,keyword:e.target.value})} placeholder="搜索积分商品"/></label>
+          <label><span>分类</span><select value={productFilters.categoryId} onChange={(e)=>setProductFilters({...productFilters,categoryId:e.target.value})}><option>全部</option>{categories.filter((item)=>item.enabled).map((item)=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label><span>状态</span><select value={productFilters.status} onChange={(e)=>setProductFilters({...productFilters,status:e.target.value})}><option>全部状态</option><option>已上架</option><option>已下架</option></select></label>
+        </FilterBar>
+        <div className="admin-table-frame">
+          <table data-align-table="t13" className="admin-table points-product-table">
+            <thead><tr><th>商品</th><th>分类</th><th>类型 / 履约</th><th>兑换时间</th><th className="numeric">每人限兑</th><th>状态</th><th className="actions">操作</th></tr></thead>
+            <tbody>{filteredProducts.map((item)=><tr key={item.id}>
+              <td><div className="cb"><div className="points-mall-product-cell"><ProductArt type={item.art}/><div><b>{item.name}</b><small>{item.subtitle||'暂无副标题'}</small></div></div></div></td>
+              <td><div className="cb">{categoryName(item.categoryId)}</div></td>
+              <td><div className="cb"><div>{productTypeText(item.productType)}</div><small className="cell-sub">{fulfillmentText(item.fulfillmentType)}</small></div></td>
+              <td><div className="cb"><span>{item.beginTime.slice(0,10)}</span><small className="cell-sub">至 {item.endTime.slice(0,10)}</small></div></td>
+              <td className="numeric"><div className="cb">{item.perMemberLimit>0?item.perMemberLimit:'不限'}</div></td>
+              <td><div className="cb"><label className="points-switch"><input type="checkbox" checked={item.enabled} onChange={()=>toggleProduct(item)}/><i></i><span>{item.enabled?'已上架':'已下架'}</span></label></div></td>
+              <td className="actions"><div className="cb"><button className="table-link" onClick={()=>openProduct(item)}>编辑</button><button className="table-link" onClick={()=>openSku(item)}>SKU管理</button><button className="table-link danger-link" onClick={()=>{setProducts(products.filter((product)=>product.id!==item.id));notify('积分商品已删除');}}>删除</button></div></td>
+            </tr>)}</tbody>
+          </table>
+          {!filteredProducts.length&&<div className="admin-empty"><AdminIcon name="Goods" size={28}/><b>没有匹配的积分商品</b><span>调整筛选条件后重试</span></div>}
+          <AdminPagination count={filteredProducts.length}/>
+        </div>
+      </>}
+
+      {tab==='order'&&<>
+        <FilterBar
+          onReset={()=>{const empty={ orderNo:'',memberId:'',status:'全部状态' };setOrderFilters(empty);setAppliedOrderFilters(empty);}}
+          onSearch={()=>setAppliedOrderFilters({...orderFilters})}
+        >
+          <label><span>订单编号</span><input value={orderFilters.orderNo} onChange={(e)=>setOrderFilters({...orderFilters,orderNo:e.target.value})} placeholder="兑换订单编号"/></label>
+          <label><span>会员 ID</span><input value={orderFilters.memberId} onChange={(e)=>setOrderFilters({...orderFilters,memberId:e.target.value})} placeholder="会员 ID"/></label>
+          <label><span>订单状态</span><select value={orderFilters.status} onChange={(e)=>setOrderFilters({...orderFilters,status:e.target.value})}><option>全部状态</option><option value="1">待履约</option><option value="2">已发货</option><option value="3">已完成</option><option value="4">已取消</option></select></label>
+        </FilterBar>
+        <div className="admin-table-frame">
+          <table data-align-table="t14" className="admin-table points-order-table">
+            <thead><tr><th>订单编号</th><th>会员ID</th><th>商品</th><th className="numeric">兑换</th><th>履约方式</th><th>状态</th><th>兑换时间</th><th className="actions">操作</th></tr></thead>
+            <tbody>{filteredOrders.map((item)=><tr key={item.id}>
+              <td className="mono"><div className="cb"><CopyableText value={item.orderNo} label="订单编号" notify={notify}/></div></td>
+              <td className="mono"><div className="cb"><CopyableText value={item.memberId} label="会员 ID" notify={notify}/></div></td>
+              <td><div className="cb"><div className="points-mall-product-cell compact"><ProductArt type={item.art}/><div><b>{item.productName}</b><small>{item.skuName}</small></div></div></div></td>
+              <td className="numeric"><div className="cb"><div>{item.pointsPrice} 积分 × {item.quantity}</div><small className="cell-sub">合计 {item.totalPoints} 积分</small></div></td>
+              <td><div className="cb">{fulfillmentText(item.fulfillmentType)}</div></td>
+              <td><div className="cb"><StatusTicket tone={pointsOrderTone(item.status)}>{pointsOrderStatusText(item.status)}</StatusTicket></div></td>
+              <td><div className="cb"><span>{item.createTime.slice(0,10)}</span><small className="cell-sub">{item.createTime.slice(11)}</small></div></td>
+              <td className="actions"><div className="cb"><button className="table-link" onClick={()=>setOrderDetail(item)}>详情</button>{canShip(item)&&<button className="table-link" onClick={()=>openOrderAction(item,'ship')}>发货</button>}{canFulfill(item)&&<button className="table-link" onClick={()=>openOrderAction(item,'fulfill')}>完成履约</button>}{canCancel(item)&&<button className="table-link danger-link" onClick={()=>openOrderAction(item,'cancel')}>取消</button>}</div></td>
+            </tr>)}</tbody>
+          </table>
+          {!filteredOrders.length&&<div className="admin-empty"><AdminIcon name="Tickets" size={28}/><b>没有匹配的兑换订单</b><span>调整筛选条件后重试</span></div>}
+          <AdminPagination count={filteredOrders.length}/>
+        </div>
+      </>}
+
+      {categoryEditing&&<div className="dialog-mask" onClick={()=>setCategoryEditing(null)}><section className="admin-dialog points-mall-dialog" onClick={(e)=>e.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">POINTS CATEGORY</span><h2>{categoryEditing.id?'编辑分类':'新增分类'}</h2></div><button onClick={()=>setCategoryEditing(null)}>×</button></div>
+        <label className="dialog-field"><span>父分类</span><select value={categoryEditing.parentId} onChange={(e)=>setCategoryEditing({...categoryEditing,parentId:e.target.value==='0'?0:e.target.value})}><option value="0">一级分类</option>{categories.filter((item)=>item.id!==categoryEditing.id).map((item)=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <label className="dialog-field"><span>分类名称</span><input value={categoryEditing.name} onChange={(e)=>setCategoryEditing({...categoryEditing,name:e.target.value})} placeholder="请输入分类名称"/></label>
+        <label className="dialog-field"><span>分类图标</span><select value={categoryEditing.art} onChange={(e)=>setCategoryEditing({...categoryEditing,art:e.target.value})}><option value="coffee">咖啡生活</option><option value="serum">美妆护理</option><option value="headphone">数码周边</option><option value="chair">居家好物</option></select></label>
+        <label className="dialog-field"><span>排序</span><input type="number" min="0" value={categoryEditing.sort} onChange={(e)=>setCategoryEditing({...categoryEditing,sort:Number(e.target.value)})}/></label>
+        <label className="points-rule-enabled"><span>启用分类</span><input type="checkbox" checked={categoryEditing.enabled} onChange={(e)=>setCategoryEditing({...categoryEditing,enabled:e.target.checked})}/></label>
+        <div className="dialog-actions"><button onClick={()=>setCategoryEditing(null)}>取消</button><button className="primary" onClick={saveCategory}>保存</button></div>
+      </section></div>}
+
+      {productEditing&&<div className="dialog-mask" onClick={()=>setProductEditing(null)}><section className="admin-dialog points-mall-dialog points-product-dialog" onClick={(e)=>e.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">POINTS PRODUCT</span><h2>{productEditing.id?'编辑积分商品':'新增积分商品'}</h2></div><button onClick={()=>setProductEditing(null)}>×</button></div>
+        <div className="points-form-grid">
+          <label className="dialog-field"><span>商品分类</span><select value={productEditing.categoryId} onChange={(e)=>setProductEditing({...productEditing,categoryId:e.target.value})}>{categories.filter((item)=>item.enabled).map((item)=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label className="dialog-field"><span>商品名称</span><input value={productEditing.name} onChange={(e)=>setProductEditing({...productEditing,name:e.target.value})} maxLength="64" placeholder="请输入商品名称"/></label>
+          <label className="dialog-field wide"><span>商品副标题</span><input value={productEditing.subtitle} onChange={(e)=>setProductEditing({...productEditing,subtitle:e.target.value})} maxLength="128" placeholder="选填"/></label>
+          <label className="dialog-field wide"><span>商品主图</span><button type="button" className="upload-placeholder" onClick={()=>notify('商品主图上传入口')}><AdminIcon name="image" size={17}/>上传商品主图</button></label>
+          <label className="dialog-field"><span>商品类型</span><select value={productEditing.productType} onChange={(e)=>setProductEditing({...productEditing,productType:e.target.value})}><option value="PHYSICAL">实物商品</option><option value="COUPON">优惠券</option><option value="BENEFIT">虚拟权益</option></select></label>
+          <label className="dialog-field"><span>履约方式</span><input value={productEditing.productType==='COUPON'?'自动发券':productEditing.productType==='BENEFIT'?'人工履约':'物流发货'} disabled/></label>
+          {productEditing.productType==='COUPON'&&<label className="dialog-field wide"><span>兑换优惠券</span><select defaultValue="coupon-1"><option value="coupon-1">全店 20 元券</option><option value="coupon-2">满 100 减 20 券</option></select></label>}
+          <label className="dialog-field"><span>开始时间</span><input type="date" value={productEditing.beginTime.slice(0,10)} onChange={(e)=>setProductEditing({...productEditing,beginTime:`${e.target.value} 00:00:00`})}/></label>
+          <label className="dialog-field"><span>结束时间</span><input type="date" value={productEditing.endTime.slice(0,10)} onChange={(e)=>setProductEditing({...productEditing,endTime:`${e.target.value} 23:59:59`})}/></label>
+          <label className="dialog-field"><span>每人限兑</span><input type="number" min="0" value={productEditing.perMemberLimit} onChange={(e)=>setProductEditing({...productEditing,perMemberLimit:Number(e.target.value)})}/></label>
+          <label className="dialog-field"><span>排序</span><input type="number" min="0" value={productEditing.sort} onChange={(e)=>setProductEditing({...productEditing,sort:Number(e.target.value)})}/></label>
+          <label className="dialog-field wide"><span>商品详情</span><textarea rows="3" value={productEditing.detailDesc} onChange={(e)=>setProductEditing({...productEditing,detailDesc:e.target.value})}/></label>
+          <label className="points-rule-enabled wide"><span>上架商品</span><input type="checkbox" checked={productEditing.enabled} onChange={(e)=>setProductEditing({...productEditing,enabled:e.target.checked})}/></label>
+        </div>
+        <div className="dialog-actions"><button onClick={()=>setProductEditing(null)}>取消</button><button className="primary" onClick={saveProduct}>保存</button></div>
+      </section></div>}
+
+      {skuDialog&&<div className="dialog-mask" onClick={()=>setSkuDialog(null)}><section className="admin-dialog points-mall-dialog points-sku-dialog" onClick={(e)=>e.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">POINTS SKU</span><h2>{skuDialog.product.name} · SKU 管理</h2></div><button onClick={()=>setSkuDialog(null)}>×</button></div>
+        <div className="points-sku-add">
+          <label className="points-sku-field"><span>SKU 名称</span><input value={skuDialog.draft.name} onChange={(e)=>setSkuDialog({...skuDialog,draft:{...skuDialog.draft,name:e.target.value}})} placeholder="请输入 SKU 名称"/></label>
+          <label className="points-sku-field"><span>积分价格</span><input type="number" min="1" value={skuDialog.draft.pointsPrice} onChange={(e)=>setSkuDialog({...skuDialog,draft:{...skuDialog.draft,pointsPrice:e.target.value}})} placeholder="请输入积分价格"/></label>
+          <label className="points-sku-field"><span>可用库存</span><input type="number" min="0" value={skuDialog.draft.stock} onChange={(e)=>setSkuDialog({...skuDialog,draft:{...skuDialog.draft,stock:e.target.value}})} placeholder="请输入库存"/></label>
+          <div className="points-sku-field points-sku-image-field">
+            <span>SKU 图片 <small>可选，为空使用商品主图</small></span>
+            <div className="points-sku-image-control">
+              <span className="points-sku-image-preview">
+                {skuDialog.draft.imageUrl
+                  ? <img src={skuDialog.draft.imageUrl} alt="SKU 图片"/>
+                  : <ProductArt type={skuDialog.product.art} bare/>}
+              </span>
+              <label className="points-sku-image-upload">选择图片<input type="file" accept="image/*" onChange={(e)=>{setSkuImage(e.target.files?.[0]);e.target.value='';}}/></label>
+              {skuDialog.draft.imageUrl&&<button type="button" className="table-link" onClick={()=>setSkuDialog({...skuDialog,draft:{...skuDialog.draft,imageUrl:''}})}>清除</button>}
+            </div>
+          </div>
+          <button className="business-primary points-sku-add-button" onClick={addSku}>{skuDialog.editingId?'保存 SKU':'新增 SKU'}</button>
+        </div>
+        <table data-align-table="t15" className="mini-data-table"><thead><tr><th>SKU 名称</th><th>图片</th><th>积分价格</th><th>可用库存</th><th>累计库存</th><th>状态</th><th className="actions">操作</th></tr></thead><tbody>{skuDialog.rows.map((sku)=><tr key={sku.id}><td><div className="cb">{sku.name}</div></td><td><div className="cb"><span className="points-sku-table-image">{sku.imageUrl?<img src={sku.imageUrl} alt={sku.name}/>:<ProductArt type={skuDialog.product.art} bare/>}</span></div></td><td><div className="cb">{sku.pointsPrice}</div></td><td><div className="cb">{sku.stock}</div></td><td><div className="cb">{sku.totalStock}</div></td><td><div className="cb"><StatusTicket tone={sku.enabled?'success':'neutral'}>{sku.enabled?'启用':'停用'}</StatusTicket></div></td><td className="actions"><div className="cb"><button className="table-link" onClick={()=>editSku(sku)}>编辑</button><button className="table-link danger-link" onClick={()=>removeSku(sku)}>删除</button></div></td></tr>)}</tbody></table>
+        <div className="dialog-actions"><button onClick={()=>setSkuDialog(null)}>取消</button><button className="primary" onClick={saveSku}>保存 SKU</button></div>
+      </section></div>}
+
+      {orderDetail&&<div className="drawer-mask" onClick={()=>setOrderDetail(null)}><aside className="admin-drawer points-order-detail" onClick={(e)=>e.stopPropagation()}>
+        <div className="drawer-head"><div><span className="drawer-kicker">POINTS ORDER</span><h2>兑换订单详情</h2></div><button onClick={()=>setOrderDetail(null)}>×</button></div>
+        <div className="points-order-detail-head"><div><span>订单编号</span><b className="mono">{orderDetail.orderNo}</b></div><StatusTicket tone={pointsOrderTone(orderDetail.status)}>{pointsOrderStatusText(orderDetail.status)}</StatusTicket></div>
+        <div className="points-mall-product-cell"><ProductArt type={orderDetail.art}/><div><b>{orderDetail.productName}</b><small>{orderDetail.skuName} × {orderDetail.quantity}</small><small>合计 {orderDetail.totalPoints} 积分</small></div></div>
+        <div className="description-grid">
+          <div><span>会员 ID</span><b className="mono">{orderDetail.memberId}</b></div>
+          <div><span>履约方式</span><b>{fulfillmentText(orderDetail.fulfillmentType)}</b></div>
+          <div><span>兑换时间</span><b>{orderDetail.createTime}</b></div>
+          <div><span>收货人</span><b>{orderDetail.receiverName} {orderDetail.receiverContact}</b></div>
+          {orderDetail.receiverAddress&&<div className="wide"><span>收货地址</span><b>{orderDetail.receiverAddress}</b></div>}
+          {orderDetail.trackingNo&&<div className="wide"><span>物流信息</span><b>{orderDetail.providerCode} / {orderDetail.trackingNo}</b></div>}
+          {orderDetail.fulfillmentRemark&&<div className="wide"><span>履约说明</span><b>{orderDetail.fulfillmentRemark}</b></div>}
+          {orderDetail.cancelReason&&<div className="wide"><span>取消原因</span><b>{orderDetail.cancelReason}</b></div>}
+        </div>
+        <div className="drawer-section"><h3>状态记录</h3><div className="points-order-logs">{orderDetail.logs.map((log,index)=><div key={index}><i></i><span><b>{log.text}</b><small>{log.time}</small></span></div>)}</div></div>
+        <div className="drawer-actions"><button onClick={()=>setOrderDetail(null)}>关闭</button>{canShip(orderDetail)&&<button className="primary" onClick={()=>{setOrderAction({order:orderDetail,type:'ship',providerCode:'SF',trackingNo:'',remark:''});setOrderDetail(null);}}>发货</button>}{canFulfill(orderDetail)&&<button className="primary" onClick={()=>{setOrderAction({order:orderDetail,type:'fulfill',providerCode:'SF',trackingNo:'',remark:''});setOrderDetail(null);}}>完成履约</button>}{canCancel(orderDetail)&&<button onClick={()=>{setOrderAction({order:orderDetail,type:'cancel',providerCode:'SF',trackingNo:'',remark:''});setOrderDetail(null);}}>取消订单</button>}</div>
+      </aside></div>}
+
+      {orderAction&&<div className="dialog-mask" onClick={()=>setOrderAction(null)}><section className="admin-dialog points-mall-dialog" onClick={(e)=>e.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">ORDER ACTION</span><h2>{orderAction.type==='ship'?'订单发货':orderAction.type==='fulfill'?'完成人工履约':'取消积分订单'}</h2></div><button onClick={()=>setOrderAction(null)}>×</button></div>
+        {orderAction.type==='ship'?<>
+          <label className="dialog-field"><span>物流公司</span><select value={orderAction.providerCode} onChange={(e)=>setOrderAction({...orderAction,providerCode:e.target.value})}><option value="SF">顺丰速运</option><option value="ZTO">中通快递</option><option value="YTO">圆通速递</option></select></label>
+          <label className="dialog-field"><span>物流单号</span><input value={orderAction.trackingNo} onChange={(e)=>setOrderAction({...orderAction,trackingNo:e.target.value})} placeholder="请输入物流单号"/></label>
+        </>:<label className="dialog-field"><span>{orderAction.type==='fulfill'?'履约说明':'取消原因'}</span><textarea rows="4" value={orderAction.remark} onChange={(e)=>setOrderAction({...orderAction,remark:e.target.value})} placeholder="请填写说明"/></label>}
+        <div className="dialog-actions"><button onClick={()=>setOrderAction(null)}>取消</button><button className="primary" onClick={submitOrderAction}>确认</button></div>
       </section></div>}
     </section>
   );
@@ -2146,7 +3295,7 @@ function AdminOrders({ orders, setOrders, notify }) {
         <label><span>下单时间</span><input type="date" defaultValue="2026-10-27"/></label>
       </FilterBar>
       <div className="admin-table-frame">
-        <table className="admin-table orders-table"><thead><tr><th>订单编号 / 时间</th><th>买家</th><th>订单类型</th><th className="numeric">商品总额</th><th className="numeric">优惠</th><th className="numeric">应付</th><th>状态</th><th className="actions">操作</th></tr></thead><tbody>{filtered.map((order) => <tr key={order.id}><td><b className="mono order-number"><CopyableText value={order.orderNo} label="订单编号" notify={notify}/></b><small className="cell-sub">{order.createdAt}</small></td><td><b><CopyableText value={order.buyer} label="买家名称" notify={notify}/></b><small className="cell-sub mono"><CopyableText value={order.mobile} label="买家手机号" notify={notify}/></small></td><td><StatusTicket tone={order.type === '秒杀订单' ? 'danger' : order.type === '拼团订单' ? 'success' : 'neutral'} small>{order.type}</StatusTicket></td><td className="numeric">¥{order.amount.toFixed(2)}</td><td className="numeric saving">-¥{order.discount.toFixed(2)}</td><td className="numeric amount-strong">¥{order.finalAmount.toFixed(2)}</td><td><StatusTicket tone={statusTone(order.status)}>{order.status}</StatusTicket></td><td className="actions"><button className="table-link" onClick={() => setDetail(order)}>详情</button>{order.status === '待发货' && <button className="table-primary" onClick={() => setShip(order)}>发货</button>}<RowActionMenu open={menu===order.id} onToggle={()=>setMenu(menu===order.id?null:order.id)}><button onClick={()=>{setDetail(order);setMenu(null);}}>查看完整详情</button>{order.status==='待发货'&&<button onClick={()=>{setShip(order);setMenu(null);}}>订单发货</button>}<button onClick={()=>{setRefundOrder(order);setMenu(null);}}>退款/售后记录</button></RowActionMenu></td></tr>)}</tbody></table>
+        <table data-align-table="t16" className="admin-table orders-table"><thead><tr><th>订单编号 / 时间</th><th>买家</th><th>订单类型</th><th className="numeric">商品总额</th><th className="numeric">优惠</th><th className="numeric">应付</th><th>状态</th><th className="actions">操作</th></tr></thead><tbody>{filtered.map((order) => <tr key={order.id}><td><div className="cb"><b className="mono order-number"><CopyableText value={order.orderNo} label="订单编号" notify={notify}/></b><small className="cell-sub">{order.createdAt}</small></div></td><td><div className="cb"><b><CopyableText value={order.buyer} label="买家名称" notify={notify}/></b><small className="cell-sub mono"><CopyableText value={order.mobile} label="买家手机号" notify={notify}/></small></div></td><td><div className="cb"><StatusTicket tone={order.type === '秒杀订单' ? 'danger' : order.type === '拼团订单' ? 'success' : 'neutral'} small>{order.type}</StatusTicket></div></td><td className="numeric"><div className="cb">¥{order.amount.toFixed(2)}</div></td><td className="numeric saving"><div className="cb">-¥{order.discount.toFixed(2)}</div></td><td className="numeric amount-strong"><div className="cb">¥{order.finalAmount.toFixed(2)}</div></td><td><div className="cb"><StatusTicket tone={statusTone(order.status)}>{order.status}</StatusTicket></div></td><td className="actions"><div className="cb"><button className="table-link" onClick={() => setDetail(order)}>详情</button>{order.status === '待发货' && <button className="table-primary" onClick={() => setShip(order)}>发货</button>}<RowActionMenu open={menu===order.id} onToggle={()=>setMenu(menu===order.id?null:order.id)}><button onClick={()=>{setDetail(order);setMenu(null);}}>查看完整详情</button>{order.status==='待发货'&&<button onClick={()=>{setShip(order);setMenu(null);}}>订单发货</button>}<button onClick={()=>{setRefundOrder(order);setMenu(null);}}>退款/售后记录</button></RowActionMenu></div></td></tr>)}</tbody></table>
         <AdminPagination count={filtered.length}/>
       </div>
       {detail && <div className="drawer-mask" onClick={() => setDetail(null)}><aside className="admin-drawer order-drawer" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">ORDER DETAIL</span><h2>订单详情</h2></div><button onClick={() => setDetail(null)}>×</button></div><div className="order-detail-heading"><div><span>订单编号</span><b className="mono">{detail.orderNo}</b></div><StatusTicket tone={statusTone(detail.status)}>{detail.status}</StatusTicket></div><div className="drawer-section"><h3>商品信息</h3><div className="drawer-product"><ProductArt type={detail.product.includes('耳机') ? 'headphone' : detail.product.includes('精华') ? 'serum' : detail.product.includes('咖啡') ? 'coffee' : 'chair'}/><div><b>{detail.product}</b><span>数量 × {detail.quantity}</span><strong>¥{detail.finalAmount.toFixed(2)}</strong></div></div></div><div className="drawer-section"><h3>收货信息</h3><div className="description-grid"><div><span>收货人</span><b>{detail.buyer} {detail.mobile}</b></div><div className="wide"><span>收货地址</span><b>{detail.address}</b></div></div></div><div className="drawer-section"><h3>金额信息</h3><div className="order-money"><span>商品总额<b>¥{detail.amount.toFixed(2)}</b></span><span>优惠金额<b>-¥{detail.discount.toFixed(2)}</b></span><span className="total">优惠后应付<b>¥{detail.finalAmount.toFixed(2)}</b></span></div></div></aside></div>}
@@ -2170,8 +3319,8 @@ function MerchantProducts({ notify }) {
   return (
     <section className="admin-page" data-screen-label="商家后台商品管理">
       <FilterBar onReset={() => setKeyword('')} onSearch={() => notify(`找到 ${filtered.length} 个商品`)} actions={<><button onClick={()=>notify('请选择商品后执行批量操作')}><AdminIcon name="filter" size={17}/>批量操作</button><button className="business-primary" onClick={() => setEdit({id:null,name:'',category:'数码影音',skuCount:1,price:'',stock:0,art:'headphone'})}><AdminIcon name="plus" size={17}/>新增商品</button></>}><label><span>商品名称</span><input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="输入商品名称"/></label><label><span>商品分类</span><select defaultValue="全部分类"><option>全部分类</option><option>数码影音</option><option>家具家居</option><option>美容护肤</option></select></label><label><span>销售状态</span><select defaultValue="全部状态"><option>全部状态</option><option>销售中</option><option>已下架</option><option>已售罄</option></select></label></FilterBar>
-      <div className="admin-table-frame"><table className="admin-table product-admin-table"><thead><tr><th>商品</th><th>分类</th><th className="numeric">售价</th><th className="numeric">库存</th><th className="numeric">销量</th><th>状态</th><th className="actions">操作</th></tr></thead><tbody>{filtered.map((product) => <tr key={product.id}><td><div className="admin-product-cell"><ProductArt type={product.art}/><div><b><CopyableText value={product.name} label="商品名称" notify={notify}/></b><small>{product.skuCount} 个 SKU · ID {product.id}</small></div></div></td><td><CopyableText value={product.category} label="分类名称" notify={notify}/></td><td className="numeric amount-strong">¥{product.price}</td><td className={`numeric ${product.stock <= 12 ? 'low-stock' : ''}`}>{product.stock}</td><td className="numeric">{product.sales.toLocaleString()}</td><td><StatusTicket tone={product.status === '销售中' ? 'success' : product.status === '已售罄' ? 'danger' : 'neutral'}>{product.status}</StatusTicket></td><td className="actions"><button className="table-link" onClick={() => setEdit(product)}>编辑</button><button className="table-link" onClick={() => toggle(product)}>{product.status === '销售中' ? '下架' : '上架'}</button><RowActionMenu open={menu===product.id} onToggle={()=>setMenu(menu===product.id?null:product.id)}><button onClick={()=>{setEdit(product);setMenu(null);}}>编辑商品</button><button onClick={()=>{setMenu(null);notify(`已打开 ${product.name} 的 SKU 管理`);}}>SKU 管理</button><button onClick={()=>{setMenu(null);notify('图片管理抽屉已打开');}}>图片管理</button><button onClick={()=>{setMenu(null);notify('已复制为新的商品草稿');}}>复制商品</button></RowActionMenu></td></tr>)}</tbody></table><AdminPagination count={filtered.length}/></div>
-      {edit && <div className="drawer-mask" onClick={() => setEdit(null)}><aside className="admin-drawer product-edit-drawer" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">PRODUCT EDITOR</span><h2>{edit.id?'编辑商品':'新增商品'}</h2></div><button onClick={() => setEdit(null)}>×</button></div><div className="edit-product-preview"><ProductArt type={edit.art}/><div><b>{edit.name||'待填写商品名称'}</b><span>{edit.category} · {edit.skuCount} 个 SKU</span></div><StatusTicket tone={edit.id?'success':'neutral'}>{edit.id?'已保存':'新建中'}</StatusTicket></div><section className="product-editor-section"><h3>基础资料</h3><div className="edit-form-grid"><label><span>商品名称</span><input defaultValue={edit.name} placeholder="请输入商品名称"/></label><label><span>店铺分类</span><select defaultValue={edit.category}><option>数码影音</option><option>家具家居</option><option>美容护肤</option></select></label><label className="wide"><span>商品卖点</span><textarea defaultValue={edit.id?'轻量设计，稳定连接，适合通勤与居家使用。':''} placeholder="概括商品核心卖点"></textarea></label></div></section><section className="product-editor-section"><h3>商品图片</h3><div className="product-media-row"><button className="product-main-image"><ProductArt type={edit.art}/><span>更换主图</span></button><button className="product-media-add" onClick={()=>notify('请选择轮播图片')}><AdminIcon name="plus" size={20}/><span>添加轮播图</span></button><small>已配置 3 张轮播图，支持拖动排序</small></div></section><section className="product-editor-section"><h3>规格与 SKU</h3><div className="spec-chip-row"><button className="active">颜色</button><button className="active">版本</button><button onClick={()=>notify('规格选择器已打开')}><AdminIcon name="plus" size={14}/>选择规格</button></div><table className="sku-editor-table"><thead><tr><th>规格组合</th><th>销售价</th><th>库存</th><th>SKU 编码</th></tr></thead><tbody><tr><td>雾银 / 标准版</td><td><input defaultValue="299.00"/></td><td><input defaultValue="18"/></td><td><input defaultValue="HEAD-S-01"/></td></tr><tr><td>曜石黑 / 长续航</td><td><input defaultValue="369.00"/></td><td><input defaultValue="12"/></td><td><input defaultValue="HEAD-B-02"/></td></tr></tbody></table></section><section className="product-editor-section"><h3>商品详情</h3><div className="richtext-placeholder"><div><b>B</b><span>标题</span><span>图片</span><span>链接</span></div><p>输入商品详情说明，可插入图片并进行基础排版。</p></div></section><div className="drawer-actions sticky-actions"><button onClick={() => setEdit(null)}>取消</button><button className="primary" onClick={() => {setEdit(null);notify(edit.id?'商品信息已保存':'商品已创建');}}>{edit.id?'保存修改':'创建商品'}</button></div></aside></div>}
+      <div className="admin-table-frame"><table data-align-table="t17" className="admin-table product-admin-table"><thead><tr><th>商品</th><th>分类</th><th className="numeric">售价</th><th className="numeric">库存</th><th className="numeric">销量</th><th>状态</th><th className="actions">操作</th></tr></thead><tbody>{filtered.map((product) => <tr key={product.id}><td><div className="cb"><div className="admin-product-cell"><ProductArt type={product.art}/><div><b><CopyableText value={product.name} label="商品名称" notify={notify}/></b><small>{product.skuCount} 个 SKU · ID {product.id}</small></div></div></div></td><td><div className="cb"><CopyableText value={product.category} label="分类名称" notify={notify}/></div></td><td className="numeric amount-strong"><div className="cb">¥{product.price}</div></td><td className={`numeric ${product.stock <= 12 ? 'low-stock' : ''}`}><div className="cb">{product.stock}</div></td><td className="numeric"><div className="cb">{product.sales.toLocaleString()}</div></td><td><div className="cb"><StatusTicket tone={product.status === '销售中' ? 'success' : product.status === '已售罄' ? 'danger' : 'neutral'}>{product.status}</StatusTicket></div></td><td className="actions"><div className="cb"><button className="table-link" onClick={() => setEdit(product)}>编辑</button><button className="table-link" onClick={() => toggle(product)}>{product.status === '销售中' ? '下架' : '上架'}</button><RowActionMenu open={menu===product.id} onToggle={()=>setMenu(menu===product.id?null:product.id)}><button onClick={()=>{setEdit(product);setMenu(null);}}>编辑商品</button><button onClick={()=>{setMenu(null);notify(`已打开 ${product.name} 的 SKU 管理`);}}>SKU 管理</button><button onClick={()=>{setMenu(null);notify('图片管理抽屉已打开');}}>图片管理</button><button onClick={()=>{setMenu(null);notify('已复制为新的商品草稿');}}>复制商品</button></RowActionMenu></div></td></tr>)}</tbody></table><AdminPagination count={filtered.length}/></div>
+      {edit && <div className="drawer-mask" onClick={() => setEdit(null)}><aside className="admin-drawer product-edit-drawer" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">PRODUCT EDITOR</span><h2>{edit.id?'编辑商品':'新增商品'}</h2></div><button onClick={() => setEdit(null)}>×</button></div><div className="edit-product-preview"><ProductArt type={edit.art}/><div><b>{edit.name||'待填写商品名称'}</b><span>{edit.category} · {edit.skuCount} 个 SKU</span></div><StatusTicket tone={edit.id?'success':'neutral'}>{edit.id?'已保存':'新建中'}</StatusTicket></div><section className="product-editor-section"><h3>基础资料</h3><div className="edit-form-grid"><label><span>商品名称</span><input defaultValue={edit.name} placeholder="请输入商品名称"/></label><label><span>店铺分类</span><select defaultValue={edit.category}><option>数码影音</option><option>家具家居</option><option>美容护肤</option></select></label><label className="wide"><span>商品卖点</span><textarea defaultValue={edit.id?'轻量设计，稳定连接，适合通勤与居家使用。':''} placeholder="概括商品核心卖点"></textarea></label></div></section><section className="product-editor-section"><h3>商品图片</h3><div className="product-media-row"><button className="product-main-image"><ProductArt type={edit.art}/><span>更换主图</span></button><button className="product-media-add" onClick={()=>notify('请选择轮播图片')}><AdminIcon name="plus" size={20}/><span>添加轮播图</span></button><small>已配置 3 张轮播图，支持拖动排序</small></div></section><section className="product-editor-section"><h3>规格与 SKU</h3><div className="spec-chip-row"><button className="active">颜色</button><button className="active">版本</button><button onClick={()=>notify('规格选择器已打开')}><AdminIcon name="plus" size={14}/>选择规格</button></div><table data-align-table="t18" className="sku-editor-table"><thead><tr><th>规格组合</th><th>销售价</th><th>库存</th><th>SKU 编码</th></tr></thead><tbody><tr><td><div className="cb">雾银 / 标准版</div></td><td><div className="cb"><input defaultValue="299.00"/></div></td><td><div className="cb"><input defaultValue="18"/></div></td><td><div className="cb"><input defaultValue="HEAD-S-01"/></div></td></tr><tr><td><div className="cb">曜石黑 / 长续航</div></td><td><div className="cb"><input defaultValue="369.00"/></div></td><td><div className="cb"><input defaultValue="12"/></div></td><td><div className="cb"><input defaultValue="HEAD-B-02"/></div></td></tr></tbody></table></section><section className="product-editor-section"><h3>商品详情</h3><div className="richtext-placeholder"><div><b>B</b><span>标题</span><span>图片</span><span>链接</span></div><p>输入商品详情说明，可插入图片并进行基础排版。</p></div></section><div className="drawer-actions sticky-actions"><button onClick={() => setEdit(null)}>取消</button><button className="primary" onClick={() => {setEdit(null);notify(edit.id?'商品信息已保存':'商品已创建');}}>{edit.id?'保存修改':'创建商品'}</button></div></aside></div>}
     </section>
   );
 }
@@ -2395,7 +3544,7 @@ function AdminModulePage({ surface, page, route, navigate, notify }) {
     <FilterBar onReset={()=>setFilters({})} onSearch={()=>notify(`找到 ${rows.length} 条记录`)} actions={action&&<button className="business-primary" onClick={()=>setCreating(true)}><AdminIcon name="plus" size={17}/>{action}</button>}>
       {filterDefinitions.map((field)=><label key={field.key}><span>{field.label}</span>{field.options?<select value={filters[field.key]||field.options[0]} onChange={(event)=>updateFilter(field.key,event.target.value)}>{field.options.map((option)=><option key={option}>{option}</option>)}</select>:<input value={filters[field.key]||''} onChange={(event)=>updateFilter(field.key,event.target.value)} placeholder={field.placeholder}/>}</label>)}
     </FilterBar>
-    <div className="admin-table-frame"><table className="admin-table"><thead><tr>{view.columns.map((col)=><th key={col}>{col}</th>)}<th className="actions">操作</th></tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((cell,cellIndex)=>{const value=String(cell);const column=view.columns[cellIndex];const amount=value.includes('¥')||value.startsWith('+')||value.startsWith('-');const content=isStatusCell(cell)?<StatusTicket tone={semanticStatusTone(value)}>{cell}</StatusTicket>:isCopyableAdminColumn(column)?<CopyableText value={value} label={column} notify={notify}/>:cell;return <td className={amount?'amount-cell':''} key={cellIndex}>{content}</td>;})}<td className="actions"><button className="table-link" onClick={()=>setSelected(row)}>{rowAction}</button><RowActionMenu open={rowMenu===index} onToggle={()=>setRowMenu(rowMenu===index?null:index)}><button onClick={()=>{setSelected(row);setRowMenu(null);}}>{rowAction}记录</button>{detailMode==='edit'&&<button onClick={()=>{setSelected(row);setRowMenu(null);}}>编辑配置</button>}{detailMode==='audit'&&<button onClick={()=>{setSelected(row);setRowMenu(null);}}>进入审核</button>}<button onClick={()=>{setRowMenu(null);notify('操作日志抽屉已打开');}}>查看操作记录</button></RowActionMenu></td></tr>)}</tbody></table>{!rows.length&&<div className="admin-empty"><AdminIcon name="filter" size={28}/><b>没有匹配的数据</b><span>调整筛选条件后重试</span></div>}<AdminPagination count={rows.length}/></div>
+    <div className="admin-table-frame"><table data-align-table="t19" className="admin-table"><thead><tr>{view.columns.map((col)=><th key={col}>{col}</th>)}<th className="actions">操作</th></tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((cell,cellIndex)=>{const value=String(cell);const column=view.columns[cellIndex];const amount=value.includes('¥')||value.startsWith('+')||value.startsWith('-');const content=isStatusCell(cell)?<StatusTicket tone={semanticStatusTone(value)}>{cell}</StatusTicket>:isCopyableAdminColumn(column)?<CopyableText value={value} label={column} notify={notify}/>:cell;return <td className={amount?'amount-cell':''} key={cellIndex}><div className="cb">{content}</div></td>;})}<td className="actions"><div className="cb"><button className="table-link" onClick={()=>setSelected(row)}>{rowAction}</button><RowActionMenu open={rowMenu===index} onToggle={()=>setRowMenu(rowMenu===index?null:index)}>{detailMode!=='edit'&&<button onClick={()=>{setSelected(row);setRowMenu(null);}}>{rowAction}记录</button>}{detailMode==='audit'&&<button onClick={()=>{setSelected(row);setRowMenu(null);}}>进入审核</button>}<button onClick={()=>{setRowMenu(null);notify('操作日志抽屉已打开');}}>查看操作记录</button></RowActionMenu></div></td></tr>)}</tbody></table>{!rows.length&&<div className="admin-empty"><AdminIcon name="filter" size={28}/><b>没有匹配的数据</b><span>调整筛选条件后重试</span></div>}<AdminPagination count={rows.length}/></div>
     {selected&&<div className="drawer-mask" onClick={()=>setSelected(null)}><aside className="admin-drawer module-detail-drawer" onClick={(e)=>e.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">{detailMode==='audit'?'AUDIT':'DETAIL'}</span><h2>{tab||config.title}{rowAction}</h2></div><button onClick={()=>setSelected(null)}>×</button></div><div className="description-grid">{view.columns.map((col,index)=><div className={index===0?'wide':''} key={col}><span>{col}</span><b>{selected[index]}</b></div>)}</div>{detailMode==='edit'&&<div className="module-edit-grid">{formFields.map((field)=><ModuleField key={field.label} field={field}/>)}</div>}{detailMode==='audit'&&<label className="dialog-field"><span>审核备注 <small>驳回时必填</small></span><textarea placeholder="填写本次审核说明"></textarea></label>}{detailMode==='feedback'&&<><label className="dialog-field"><span>处理状态</span><select defaultValue="处理中"><option>处理中</option><option>已解决</option></select></label><label className="dialog-field"><span>平台回复</span><textarea placeholder="填写给会员的处理回复"></textarea></label></>}{detailMode==='reply'&&<label className="dialog-field"><span>回复内容</span><textarea placeholder="输入对会员的回复"></textarea></label>}<div className="drawer-actions"><button onClick={()=>setSelected(null)}>关闭</button>{detailMode==='audit'&&<><button className="danger" onClick={()=>finishDetail('申请已驳回')}>驳回</button><button className="primary" onClick={()=>finishDetail('审核已通过')}>通过</button></>}{detailMode==='feedback'&&<button className="primary" onClick={()=>finishDetail('反馈处理结果已保存')}>保存处理结果</button>}{detailMode==='reply'&&<button className="primary" onClick={()=>finishDetail('回复已发表')}>发表回复</button>}{detailMode==='edit'&&<button className="primary" onClick={()=>finishDetail('修改已保存')}>保存修改</button>}</div></aside></div>}
     {creating&&<div className="dialog-mask" onClick={()=>setCreating(false)}><section className="admin-dialog module-form-dialog" onClick={(e)=>e.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">CREATE</span><h2>{action}</h2></div><button onClick={()=>setCreating(false)}>×</button></div><div className="module-form-grid">{formFields.map((field)=><ModuleField key={field.label} field={field}/>)}</div><div className="dialog-actions"><button onClick={()=>setCreating(false)}>取消</button><button className="primary" onClick={()=>{setCreating(false);notify(`${action}已保存`);}}>确认保存</button></div></section></div>}
   </section>;
@@ -2494,7 +3643,7 @@ function AdminPlatformCategories({ notify }) {
           <button onClick={()=>setExpanded(new Set())}>折叠全部</button>
         </div>
       </div>
-      <table className="admin-table ptc-table">
+      <table data-align-table="t20" className="admin-table ptc-table">
         <thead><tr>
           <th className="ptc-check"><input type="checkbox" checked={allSelected} onChange={()=>setSelected(allSelected?[]:visibleIds)}/></th>
           <th className="ptc-name-head">平台分类名称</th>
@@ -2506,22 +3655,22 @@ function AdminPlatformCategories({ notify }) {
           <th className="actions">操作</th>
         </tr></thead>
         <tbody>{rows.map(({node,depth,hasChildren,open})=><tr key={node.id}>
-          <td className="ptc-check"><input type="checkbox" checked={selected.includes(node.id)} onChange={()=>toggleRow(node.id)}/></td>
-          <td className="ptc-name-cell"><div className="ptc-cell" style={{paddingLeft:depth*18}}>
+          <td className="ptc-check"><div className="cb"><input type="checkbox" checked={selected.includes(node.id)} onChange={()=>toggleRow(node.id)}/></div></td>
+          <td className="ptc-name-cell"><div className="cb"><div className="ptc-cell" style={{paddingLeft:depth*18}}>
             <button className={`ptc-caret${open?' open':''}${hasChildren?'':' leaf'}`} aria-label="展开或折叠" onClick={()=>hasChildren&&toggle(node.id)}></button>
             <span className={`ptc-name${node.level===1?' is-root':''}`}>{node.name}</span>
             {hasChildren&&<em className="ptc-chip">{node.children.length}</em>}
-          </div></td>
-          <td><span className={`ptc-thumb t${node.level}`}>{node.name.slice(0,1)}</span></td>
-          <td>{node.code}</td>
-          <td>{node.sort}</td>
-          <td className="ptc-muted">{node.remark||'—'}</td>
-          <td className="ptc-muted">{node.time}</td>
-          <td className="actions ptc-actions">
+          </div></div></td>
+          <td><div className="cb"><span className={`ptc-thumb t${node.level}`}>{node.name.slice(0,1)}</span></div></td>
+          <td><div className="cb">{node.code}</div></td>
+          <td><div className="cb">{node.sort}</div></td>
+          <td className="ptc-muted"><div className="cb">{node.remark||'—'}</div></td>
+          <td className="ptc-muted"><div className="cb">{node.time}</div></td>
+          <td className="actions ptc-actions"><div className="cb">
             <button className="table-link" onClick={()=>setDialog({mode:'edit',node})}>编辑</button>
             <button className="table-link" onClick={()=>setDialog({mode:'child',node})}>新增子分类</button>
             <button className="table-link danger" onClick={()=>notify(`已删除「${node.name}」`)}>删除</button>
-          </td>
+          </div></td>
         </tr>)}</tbody>
       </table>
       {!rows.length&&<div className="admin-empty"><AdminIcon name="filter" size={28}/><b>没有匹配的平台分类</b><span>调整分类名称或编码后重试</span></div>}
@@ -2539,6 +3688,745 @@ function AdminPlatformCategories({ notify }) {
       <div className="dialog-actions"><button onClick={()=>setDialog(null)}>取消</button><button className="primary" onClick={()=>{setDialog(null);notify('平台分类已保存');}}>保存</button></div>
     </section></div>}
   </section>;
+}
+
+const HOME_BANNERS_INITIAL = [
+  { id:'hb-1', art:'headphone', tone:'forest', kicker:'本周精选', caption:'秋日声学上新', title:'安静，留给喜欢的声音', target:'/pages/product/list?scene=new', sort:1, isEnabled:true, createdAt:'2026-11-01 09:12:08', updatedAt:'2026-11-02 10:18:32' },
+  { id:'hb-2', art:'chair', tone:'clay', kicker:'居家焕新', caption:'居家生活专场', title:'把松弛感，搬进日常每个角落', target:'/pages/product/list?category=home', sort:2, isEnabled:true, createdAt:'2026-10-28 14:20:11', updatedAt:'2026-10-30 09:05:24' },
+  { id:'hb-3', art:'serum', tone:'ocean', kicker:'积分有礼', caption:'积分商城上新', title:'积分商城好礼上新', target:'/pages/points-mall/list', sort:3, isEnabled:true, createdAt:'2026-10-24 16:02:45', updatedAt:'2026-10-24 16:02:45' },
+  { id:'hb-4', art:'coffee', tone:'ink', kicker:'周末市集', caption:'周末好物折扣', title:'山野咖啡限时折扣', target:'', sort:4, isEnabled:false, createdAt:'2026-10-20 11:40:16', updatedAt:'2026-10-20 11:40:16' }
+];
+
+const HOME_QUICK_ACTIONS = {
+  seckill:{ icon:'bolt', color:'#be412b', bg:'#f9ebe7' },
+  group:{ icon:'users', color:'#24634f', bg:'#e8f2ed' },
+  couponCenter:{ icon:'ticket', color:'#986019', bg:'#fbf0de' },
+  coupons:{ icon:'ticket', color:'#986019', bg:'#fbf0de' },
+  pointsMall:{ icon:'points', color:'#5b4a86', bg:'#efecf7' },
+  shops:{ icon:'store', color:'#315c67', bg:'#e8eff2' },
+  products:{ icon:'grid', color:'#65726a', bg:'#eef2ef' }
+};
+
+const HOME_QUICK_TARGET_ACTIONS = {
+  '/pages/seckill/list':'seckill',
+  '/pages/group-buy/list':'group',
+  '/pages/coupons/center':'couponCenter',
+  '/pages/coupons/list':'coupons',
+  '/pages/points-mall/list':'pointsMall',
+  '/pages/shop/list':'shops',
+  '/pages/product/list':'products'
+};
+
+const HOME_QUICK_ICON_PRESETS = [
+  { id:'qi-bolt', icon:'bolt', bg:'linear-gradient(135deg,#f0a05a,#c25532)' },
+  { id:'qi-ticket', icon:'ticket', bg:'linear-gradient(135deg,#d8ae62,#a6742c)' },
+  { id:'qi-points', icon:'points', bg:'linear-gradient(135deg,#9a86c8,#64518e)' },
+  { id:'qi-store', icon:'store', bg:'linear-gradient(135deg,#6fa3b2,#376672)' },
+  { id:'qi-users', icon:'users', bg:'linear-gradient(135deg,#6ea98e,#2d6b52)' },
+  { id:'qi-spark', icon:'spark', bg:'linear-gradient(135deg,#93a196,#4c5f54)' }
+];
+
+const HOME_QUICK_ENTRIES_INITIAL = [
+  { id:'qe-1', name:'限时秒杀', type:1, icon:'', target:'', sort:1, isEnabled:true, remark:'每天 10:00 开抢', updatedAt:'2026-10-28 09:12:10' },
+  { id:'qe-2', name:'拼团活动', type:1, icon:'', target:'/pages/group-buy/list', sort:2, isEnabled:true, remark:'两人成团，好物更省', updatedAt:'2026-10-28 09:14:26' },
+  { id:'qe-3', name:'积分商城', type:1, icon:'', target:'/pages/points-mall/list', sort:3, isEnabled:true, remark:'积分兑好礼', updatedAt:'2026-10-28 09:16:42' },
+  { id:'qe-4', name:'领券中心', type:1, icon:'', target:'/pages/coupons/center', sort:4, isEnabled:true, remark:'', updatedAt:'2026-10-28 09:18:08' },
+  { id:'qe-5', name:'店铺列表', type:1, icon:'qi-store', target:'/pages/shop/list', sort:5, isEnabled:true, remark:'精选店铺合集', updatedAt:'2026-10-29 15:40:22' },
+  { id:'qe-6', name:'优惠券列表', type:1, icon:'', target:'/pages/coupons/list', sort:6, isEnabled:false, remark:'双 11 后开启', updatedAt:'2026-10-30 10:02:36' }
+];
+
+const homeOperationNow = () => {
+  const date = new Date();
+  const pad = (value) => String(value).padStart(2,'0');
+  return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
+const isAppPagePath = (value) => {
+  const path = String(value||'').trim();
+  return !path || path.startsWith('/pages/');
+};
+
+const homeQuickAction = (entry) => HOME_QUICK_TARGET_ACTIONS[String(entry.target||'').trim()] || (Number(entry.type)===2?'group':'seckill');
+
+const homeQuickActionMeta = (entry) => HOME_QUICK_ACTIONS[homeQuickAction(entry)] || HOME_QUICK_ACTIONS.seckill;
+
+const homeQuickPreset = (icon) => HOME_QUICK_ICON_PRESETS.find((preset)=>preset.id===icon) || null;
+
+function HomeBannerArt({ banner }) {
+  const alt = banner.caption||banner.title||'Banner 图片';
+  return <span className={`ho-banner-art tone-${banner.tone||'forest'}${banner.imageUrl?' has-image':''}`}>
+    {banner.imageUrl ? <img src={banner.imageUrl} alt={alt}/> : <>
+      <span className="ho-banner-mark"></span>
+      <span className="ho-banner-kicker">{banner.kicker||'首页 Banner'}</span>
+      <b>{alt}</b>
+      <ProductArt type={banner.art||'headphone'} bare/>
+    </>}
+  </span>;
+}
+
+function HomeQuickIcon({ entry, size = 38 }) {
+  const preset = homeQuickPreset(entry.icon);
+  if (preset) {
+    return <span className="ho-quick-icon" style={{width:size,height:size,color:'#fff',background:preset.bg}}><AdminIcon name={preset.icon} size={Math.round(size*0.5)}/></span>;
+  }
+  const meta = homeQuickActionMeta(entry);
+  return <span className="ho-quick-icon" style={{width:size,height:size,color:meta.color,background:meta.bg}}><AdminIcon name={meta.icon} size={Math.round(size*0.5)}/></span>;
+}
+
+function HomeRemoveConfirm({ title, description, count, onCancel, onConfirm }) {
+  return <div className="dialog-mask" onClick={onCancel}><section className="admin-dialog ho-confirm-dialog" onClick={(event)=>event.stopPropagation()}>
+    <div className="dialog-head"><div><span className="drawer-kicker">DELETE</span><h2>{title}</h2></div><button onClick={onCancel}>×</button></div>
+    <div className="ho-danger-confirm"><AdminIcon name="warning" size={18}/><div><b>{count>1?`将删除选中的 ${count} 项内容`:'将删除这项内容'}</b><span>{description}</span><small>删除后不可恢复，App 首页将立即停止展示。</small></div></div>
+    <div className="dialog-actions"><button onClick={onCancel}>取消</button><button className="danger" onClick={onConfirm}>确认删除</button></div>
+  </section></div>;
+}
+
+function HomeBannerPanel({ banners, setBanners, notify, onPreview }) {
+  const [draftKeyword,setDraftKeyword] = useState('');
+  const [keyword,setKeyword] = useState('');
+  const [draftStatus,setDraftStatus] = useState('全部状态');
+  const [status,setStatus] = useState('全部状态');
+  const [selected,setSelected] = useState([]);
+  const [dialog,setDialog] = useState(null);
+  const [removing,setRemoving] = useState(null);
+  const fileInputRef = useRef(null);
+  const enabledCount = banners.filter((banner)=>banner.isEnabled).length;
+  const filtered = banners.filter((banner)=>(!keyword || String(banner.target||'').toLowerCase().includes(keyword)) && (status==='全部状态' || (status==='启用')===banner.isEnabled)).sort((a,b)=>Number(a.sort)-Number(b.sort)||String(b.id).localeCompare(String(a.id)));
+  const visibleIds = filtered.map((banner)=>banner.id);
+  const allSelected = visibleIds.length>0 && visibleIds.every((id)=>selected.includes(id));
+  const toggleRow = (id)=>setSelected((current)=>current.includes(id)?current.filter((item)=>item!==id):[...current,id]);
+  const openCreate = ()=>setDialog({ mode:'create', art:'', imageUrl:'', tone:'forest', kicker:'', caption:'', title:'', target:'', sort:Math.max(0,...banners.map((banner)=>Number(banner.sort)||0))+1, isEnabled:true, error:'' });
+  const openEdit = (banner)=>setDialog({ mode:'edit', id:banner.id, art:banner.art, imageUrl:banner.imageUrl||'', tone:banner.tone, kicker:banner.kicker, caption:banner.caption, title:banner.title, target:banner.target||'', sort:banner.sort, isEnabled:banner.isEnabled, error:'' });
+  const chooseImage = ()=>fileInputRef.current?.click();
+  const handleImageFile = (event)=>{
+    const file = event.target.files&&event.target.files[0];
+    event.target.value = '';
+    if (!file) return;
+    if (!file.type||!file.type.startsWith('image/')) return notify('请选择图片文件');
+    if (file.size>5*1024*1024) return notify('图片大小不能超过 5MB');
+    const reader = new FileReader();
+    reader.onload = ()=>setDialog((current)=>current?{...current,imageUrl:String(reader.result||''),error:''}:current);
+    reader.readAsDataURL(file);
+  };
+  const applySearch = ()=>{
+    const next = draftKeyword.trim().toLowerCase();
+    const count = banners.filter((banner)=>(!next || String(banner.target||'').toLowerCase().includes(next)) && (draftStatus==='全部状态' || (draftStatus==='启用')===banner.isEnabled)).length;
+    setKeyword(next);
+    setStatus(draftStatus);
+    setSelected([]);
+    notify(`找到 ${count} 个 Banner`);
+  };
+  const resetSearch = ()=>{ setDraftKeyword(''); setKeyword(''); setDraftStatus('全部状态'); setStatus('全部状态'); setSelected([]); };
+  const saveBanner = ()=>{
+    const target = dialog.target.trim();
+    const sort = Number(dialog.sort);
+    if (dialog.mode==='create' && !dialog.art && !dialog.imageUrl) return setDialog({...dialog,error:'请选择一张 Banner 图片'});
+    if (!sort || sort<1) return setDialog({...dialog,error:'排序必须大于等于 1'});
+    if (!isAppPagePath(target)) return setDialog({...dialog,error:'跳转目标必须是 /pages/ 开头的 App 站内路径，留空表示不跳转'});
+    const now = homeOperationNow();
+    const payload = { art:dialog.art, imageUrl:dialog.imageUrl||'', tone:dialog.tone, kicker:dialog.kicker, caption:dialog.caption, title:dialog.title, target, sort, isEnabled:dialog.isEnabled, updatedAt:now };
+    if (dialog.mode==='edit') {
+      setBanners(banners.map((banner)=>banner.id===dialog.id?{...banner,...payload}:banner));
+      notify('Banner 已保存');
+    } else {
+      setBanners([...banners,{ id:`hb-${Date.now()}`, ...payload, createdAt:now }]);
+      notify('Banner 已新增');
+    }
+    setDialog(null);
+  };
+  const toggleStatus = (banner)=>{
+    setBanners(banners.map((item)=>item.id===banner.id?{...item,isEnabled:!item.isEnabled,updatedAt:homeOperationNow()}:item));
+    notify(`Banner 已${banner.isEnabled?'禁用':'启用'}`);
+  };
+  const removeBanners = ()=>{
+    const ids = removing?.ids || [];
+    if (!ids.length) return;
+    setBanners(banners.filter((banner)=>!ids.includes(banner.id)));
+    setSelected((current)=>current.filter((id)=>!ids.includes(id)));
+    setRemoving(null);
+    notify(`已删除 ${ids.length} 个 Banner`);
+  };
+  return <>
+    <FilterBar onReset={resetSearch} onSearch={applySearch} actions={<>
+      <button onClick={onPreview}><AdminIcon name="eye" size={16}/>预览效果</button>
+      <button className="business-danger" disabled={!selected.length} onClick={()=>setRemoving({ids:selected})}>{selected.length?`批量删除 (${selected.length})`:'批量删除'}</button>
+      <button className="business-primary" onClick={openCreate}><AdminIcon name="plus" size={17}/>新增 Banner</button>
+    </>}>
+      <label><span>跳转目标</span><input value={draftKeyword} onChange={(event)=>setDraftKeyword(event.target.value)} placeholder="搜索 /pages/ 站内路径" onKeyDown={(event)=>event.key==='Enter'&&applySearch()}/></label>
+      <label><span>状态</span><select value={draftStatus} onChange={(event)=>setDraftStatus(event.target.value)}><option>全部状态</option><option>启用</option><option>禁用</option></select></label>
+    </FilterBar>
+    <div className="admin-table-frame">
+      <div className="ho-table-intro">
+        <span><AdminIcon name="eye" size={14}/>App 首屏全宽轮播已启用 Banner，按排序从小到大展示；建议保持 3–5 张，图片比例为 15:8。</span>
+        <b>已启用 {enabledCount} / {banners.length}</b>
+      </div>
+      <table data-align-table="t21" className="admin-table ho-banner-table">
+        <thead><tr>
+          <th className="ho-check"><input type="checkbox" checked={allSelected} onChange={()=>setSelected(allSelected?[]:visibleIds)} aria-label="全选 Banner"/></th>
+          <th>Banner 图片</th>
+          <th>跳转目标</th>
+          <th>排序</th>
+          <th>状态</th>
+          <th>创建时间</th>
+          <th>更新时间</th>
+          <th className="actions">操作</th>
+        </tr></thead>
+        <tbody>{filtered.map((banner)=><tr key={banner.id}>
+          <td className="ho-check"><div className="cb"><input type="checkbox" checked={selected.includes(banner.id)} onChange={()=>toggleRow(banner.id)} aria-label={`选择 ${banner.caption}`}/></div></td>
+          <td><div className="cb"><div className="ho-banner-cell"><HomeBannerArt banner={banner}/></div></div></td>
+          <td><div className="cb">{banner.target?<span className="ho-target"><i></i><span className="mono">{banner.target}</span></span>:<span className="ho-target-empty">不跳转</span>}</div></td>
+          <td className="numeric"><div className="cb">{banner.sort}</div></td>
+          <td><div className="cb"><span className={`ho-switch-cell${banner.isEnabled?' on':''}`}><button type="button" role="switch" aria-checked={banner.isEnabled} aria-label={`${banner.isEnabled?'禁用':'启用'}第 ${banner.sort} 张 Banner`} className={`ho-switch${banner.isEnabled?' on':''}`} onClick={()=>toggleStatus(banner)}><i></i></button><em>{banner.isEnabled?'启用':'禁用'}</em></span></div></td>
+          <td><div className="cb"><div className="ho-time-cell">{banner.createdAt}</div></div></td>
+          <td><div className="cb"><div className="ho-time-cell">{banner.updatedAt}</div></div></td>
+          <td className="actions"><div className="cb"><button className="table-link" onClick={()=>openEdit(banner)}>编辑</button><button className="table-link danger-link" onClick={()=>setRemoving({ids:[banner.id]})}>删除</button></div></td>
+        </tr>)}</tbody>
+      </table>
+      {!filtered.length&&<div className="admin-empty"><AdminIcon name="image" size={28}/><b>没有匹配的 Banner</b><span>调整跳转目标或状态后重试</span></div>}
+      <AdminPagination count={filtered.length}/>
+    </div>
+    {dialog&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog ho-banner-dialog" onClick={(event)=>event.stopPropagation()}>
+      <div className="dialog-head"><div><span className="drawer-kicker">HOME BANNER</span><h2>{dialog.mode==='edit'?'编辑 Banner':'新增 Banner'}</h2></div><button onClick={()=>setDialog(null)}>×</button></div>
+      <div className="ho-banner-dialog-grid">
+        <div>
+          <span className="ho-field-label">Banner 图片</span>
+          {dialog.art||dialog.imageUrl
+            ? <><HomeBannerArt banner={dialog}/><div className="ho-banner-upload-actions"><button type="button" className="ho-upload-btn" onClick={chooseImage}><AdminIcon name="image" size={15}/>{dialog.id?'选择新图片（可选）':'重新选择图片'}</button><small>{dialog.imageUrl?'已选择本地图片':'当前图片'}</small></div></>
+            : <button type="button" className="ho-upload-empty" onClick={chooseImage}><AdminIcon name="image" size={22}/><b>点击选择 Banner 图片</b><small>建议 750 × 400（15:8），单张不超过 5MB</small></button>}
+          <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleImageFile}/>
+          <small className="ho-field-tip">支持 JPG / PNG / GIF / BMP / WebP / SVG，建议 750 × 400（15:8），单张不超过 5MB；原型仅在本机预览，不会上传服务器。</small>
+        </div>
+        <div className="ho-banner-form">
+          <label className="dialog-field"><span>跳转目标</span><input value={dialog.target} onChange={(event)=>setDialog({...dialog,target:event.target.value,error:''})} maxLength="500" placeholder="/pages/product/list"/></label>
+          <small className="ho-field-tip">直接填写 App 实际页面路径（如 /pages/product/list，可带查询参数）；留空时点击 Banner 不跳转。</small>
+          <div className="ho-banner-form-grid">
+            <label className="dialog-field"><span>排序</span><input type="number" min="1" max="999" value={dialog.sort} onChange={(event)=>setDialog({...dialog,sort:event.target.value,error:''})}/><small className="ho-field-tip">数值越小越靠前，App 按此顺序轮播。</small></label>
+            <div className="dialog-field"><span>状态</span><span className="ho-dialog-switch"><button type="button" role="switch" aria-checked={dialog.isEnabled} aria-label={dialog.isEnabled?'禁用 Banner':'启用 Banner'} className={`ho-switch${dialog.isEnabled?' on':''}`} onClick={()=>setDialog({...dialog,isEnabled:!dialog.isEnabled})}><i></i></button><em>{dialog.isEnabled?'启用':'禁用'}</em></span><small className="ho-field-tip">启用后才会在 App 首屏展示。</small></div>
+          </div>
+          {dialog.error&&<p className="ho-field-error">{dialog.error}</p>}
+        </div>
+      </div>
+      <div className="dialog-actions"><button onClick={()=>setDialog(null)}>取消</button><button className="primary" onClick={saveBanner}>保存</button></div>
+    </section></div>}
+    {removing&&<HomeRemoveConfirm title="删除 Banner" description={removing.ids.length>1?`将删除 ${removing.ids.length} 张轮播图。`:'删除后该图片将从 App 首页轮播中移除。'} count={removing.ids.length} onCancel={()=>setRemoving(null)} onConfirm={removeBanners}/>}
+  </>;
+}
+
+function HomeQuickEntryPanel({ entries, setEntries, notify, onPreview }) {
+  const [draftName,setDraftName] = useState('');
+  const [draftStatus,setDraftStatus] = useState('全部状态');
+  const [filters,setFilters] = useState({ name:'', status:'全部状态' });
+  const [selected,setSelected] = useState([]);
+  const [dialog,setDialog] = useState(null);
+  const [removing,setRemoving] = useState(null);
+  const enabledCount = entries.filter((entry)=>entry.isEnabled).length;
+  const filtered = entries.filter((entry)=>`${entry.name}`.toLowerCase().includes(filters.name.toLowerCase())&&(filters.status==='全部状态'||(filters.status==='启用')===entry.isEnabled)).sort((a,b)=>Number(a.sort)-Number(b.sort));
+  const visibleIds = filtered.map((entry)=>entry.id);
+  const allSelected = visibleIds.length>0 && visibleIds.every((id)=>selected.includes(id));
+  const toggleRow = (id)=>setSelected((current)=>current.includes(id)?current.filter((item)=>item!==id):[...current,id]);
+  const openCreate = ()=>setDialog({ mode:'create', name:'', type:1, icon:'', target:'', sort:Math.max(0,...entries.map((entry)=>Number(entry.sort)||0))+1, isEnabled:true, remark:'', error:'' });
+  const openEdit = (entry)=>setDialog({ mode:'edit', id:entry.id, name:entry.name, type:entry.type, icon:entry.icon||'', target:entry.target||'', sort:entry.sort, isEnabled:entry.isEnabled, remark:entry.remark||'', error:'' });
+  const applySearch = ()=>{
+    const name = draftName.trim().toLowerCase();
+    setFilters({ name, status:draftStatus });
+    setSelected([]);
+    notify(`找到 ${entries.filter((entry)=>`${entry.name}`.toLowerCase().includes(name)&&(draftStatus==='全部状态'||(draftStatus==='启用')===entry.isEnabled)).length} 个快捷入口`);
+  };
+  const resetSearch = ()=>{ setDraftName(''); setDraftStatus('全部状态'); setFilters({ name:'', status:'全部状态' }); setSelected([]); };
+  const saveEntry = ()=>{
+    const name = dialog.name.trim();
+    const target = dialog.target.trim();
+    if (!name) return setDialog({...dialog,error:'请输入入口名称'});
+    if (!Number(dialog.sort) || Number(dialog.sort)<1) return setDialog({...dialog,error:'排序必须大于等于 1'});
+    if (!isAppPagePath(target)) return setDialog({...dialog,error:'跳转目标必须是 /pages/ 开头的 App 站内路径，留空表示按内置动作跳转'});
+    const now = homeOperationNow();
+    const payload = { name, type:Number(dialog.type), icon:dialog.icon, target, sort:Number(dialog.sort), isEnabled:dialog.isEnabled, remark:dialog.remark.trim(), updatedAt:now };
+    if (dialog.mode==='edit') {
+      setEntries(entries.map((entry)=>entry.id===dialog.id?{...entry,...payload}:entry));
+      notify('快捷入口已保存');
+    } else {
+      setEntries([...entries,{ id:`qe-${Date.now()}`, ...payload }]);
+      notify('快捷入口已新增');
+    }
+    setDialog(null);
+  };
+  const toggleStatus = (entry)=>{
+    setEntries(entries.map((item)=>item.id===entry.id?{...item,isEnabled:!item.isEnabled,updatedAt:homeOperationNow()}:item));
+    notify(`入口「${entry.name}」已${entry.isEnabled?'禁用':'启用'}`);
+  };
+  const removeEntries = ()=>{
+    const ids = removing?.ids || [];
+    if (!ids.length) return;
+    setEntries(entries.filter((entry)=>!ids.includes(entry.id)));
+    setSelected((current)=>current.filter((id)=>!ids.includes(id)));
+    setRemoving(null);
+    notify(`已删除 ${ids.length} 个快捷入口`);
+  };
+  return <>
+    <FilterBar onReset={resetSearch} onSearch={applySearch} actions={<>
+      <button onClick={onPreview}><AdminIcon name="eye" size={16}/>预览效果</button>
+      <button className="business-danger" disabled={!selected.length} onClick={()=>setRemoving({ids:selected})}>{selected.length?`批量删除 (${selected.length})`:'批量删除'}</button>
+      <button className="business-primary" onClick={openCreate}><AdminIcon name="plus" size={17}/>新增入口</button>
+    </>}>
+      <label><span>入口名称</span><input value={draftName} onChange={(event)=>setDraftName(event.target.value)} placeholder="请输入入口名称" onKeyDown={(event)=>event.key==='Enter'&&applySearch()}/></label>
+      <label><span>状态</span><select value={draftStatus} onChange={(event)=>setDraftStatus(event.target.value)}><option>全部状态</option><option>启用</option><option>禁用</option></select></label>
+    </FilterBar>
+    <div className="admin-table-frame">
+      <div className={`ho-table-intro${enabledCount>10?' is-warn':''}`}>
+        <span><AdminIcon name="grid" size={14}/>App 首页最多展示前 10 个已启用入口，超出部分不会展示；排序数值越小越靠前。</span>
+        <b>{enabledCount>10?`已启用 ${enabledCount} · 超出 ${enabledCount-10}`:`已启用 ${enabledCount} / 10`}</b>
+      </div>
+      <table data-align-table="t22" className="admin-table ho-quick-table">
+        <thead><tr>
+          <th className="ho-check"><input type="checkbox" checked={allSelected} onChange={()=>setSelected(allSelected?[]:visibleIds)} aria-label="全选快捷入口"/></th>
+          <th>入口</th>
+          <th>跳转目标</th>
+          <th>排序</th>
+          <th>状态</th>
+          <th>备注</th>
+          <th>更新时间</th>
+          <th className="actions">操作</th>
+        </tr></thead>
+        <tbody>{filtered.map((entry)=><tr key={entry.id}>
+          <td className="ho-check"><div className="cb"><input type="checkbox" checked={selected.includes(entry.id)} onChange={()=>toggleRow(entry.id)} aria-label={`选择 ${entry.name}`}/></div></td>
+          <td><div className="cb"><div className="ho-entry-cell"><HomeQuickIcon entry={entry}/><div><b>{entry.name}</b><small>{entry.icon?'自定义图标':'默认图标'}</small></div></div></div></td>
+          <td><div className="cb">{entry.target?<span className="ho-target"><i></i><span className="mono">{entry.target}</span></span>:<span className="ho-target-empty">按内置动作跳转</span>}</div></td>
+          <td className="numeric"><div className="cb">{entry.sort}</div></td>
+          <td><div className="cb"><span className={`ho-switch-cell${entry.isEnabled?' on':''}`}><button type="button" role="switch" aria-checked={entry.isEnabled} aria-label={`${entry.isEnabled?'禁用':'启用'}${entry.name}`} className={`ho-switch${entry.isEnabled?' on':''}`} onClick={()=>toggleStatus(entry)}><i></i></button><em>{entry.isEnabled?'启用':'禁用'}</em></span></div></td>
+          <td><div className="cb"><span className="ho-remark">{entry.remark||'—'}</span></div></td>
+          <td><div className="cb"><div className="ho-time-cell">{entry.updatedAt}</div></div></td>
+          <td className="actions"><div className="cb"><button className="table-link" onClick={()=>openEdit(entry)}>编辑</button><button className="table-link danger-link" onClick={()=>setRemoving({ids:[entry.id]})}>删除</button></div></td>
+        </tr>)}</tbody>
+      </table>
+      {!filtered.length&&<div className="admin-empty"><AdminIcon name="grid" size={28}/><b>没有匹配的快捷入口</b><span>调整名称或状态后重试</span></div>}
+      <AdminPagination count={filtered.length}/>
+    </div>
+    {dialog&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog ho-quick-dialog" onClick={(event)=>event.stopPropagation()}>
+      <div className="dialog-head"><div><span className="drawer-kicker">QUICK ENTRY</span><h2>{dialog.mode==='edit'?'编辑快捷入口':'新增快捷入口'}</h2></div><button onClick={()=>setDialog(null)}>×</button></div>
+      <label className="dialog-field"><span>入口名称</span><input value={dialog.name} onChange={(event)=>setDialog({...dialog,name:event.target.value,error:''})} maxLength="32" placeholder="请输入入口名称"/></label>
+      <div className="dialog-field"><span>入口图标 <small>选填</small></span>
+        {dialog.icon&&<div className="ho-icon-field">
+          <HomeQuickIcon entry={dialog} size={44}/>
+          <div className="ho-icon-copy">
+            <button type="button" onClick={()=>setDialog({...dialog,icon:'',error:''})}>移除图标</button>
+            <small>已选择自定义图标</small>
+          </div>
+        </div>}
+        <div className="ho-icon-picker" aria-label="预置图标，模拟上传">
+          {HOME_QUICK_ICON_PRESETS.map((preset)=><button type="button" key={preset.id} className={`ho-icon-preset${dialog.icon===preset.id?' selected':''}`} style={{background:preset.bg}} onClick={()=>setDialog({...dialog,icon:preset.id,error:''})} aria-label={`选择预置图标 ${preset.id}`}><AdminIcon name={preset.icon} size={17}/></button>)}
+        </div>
+        <small className="ho-field-tip">原型以预置图标模拟图片上传；支持 JPG / PNG / GIF / BMP / WebP / SVG，单张不超过 2MB。</small>
+      </div>
+      <label className="dialog-field"><span>跳转目标 <small>选填</small></span><input value={dialog.target} onChange={(event)=>setDialog({...dialog,target:event.target.value,error:''})} maxLength="255" placeholder="/pages/product/list"/></label>
+      <small className="ho-field-tip">直接填写 App 实际页面路径（如 /pages/product/list，可带查询参数）；需以 /pages/ 开头，留空时按内置动作跳转。</small>
+      <div className="ho-quick-form-grid">
+        <label className="dialog-field"><span>排序</span><input type="number" min="1" max="999" value={dialog.sort} onChange={(event)=>setDialog({...dialog,sort:event.target.value,error:''})}/><small className="ho-field-tip">数值越小越靠前，App 首页最多展示 10 个已启用入口。</small></label>
+        <div className="dialog-field"><span>状态</span><span className="ho-dialog-switch"><button type="button" role="switch" aria-checked={dialog.isEnabled} aria-label={dialog.isEnabled?'禁用快捷入口':'启用快捷入口'} className={`ho-switch${dialog.isEnabled?' on':''}`} onClick={()=>setDialog({...dialog,isEnabled:!dialog.isEnabled})}><i></i></button><em>{dialog.isEnabled?'启用':'禁用'}</em></span></div>
+      </div>
+      <label className="dialog-field"><span>备注 <small>选填</small></span><textarea rows="3" maxLength="255" value={dialog.remark} onChange={(event)=>setDialog({...dialog,remark:event.target.value})} placeholder="补充入口用途或上线说明"/><small className="ho-counter">{dialog.remark.length}/255</small></label>
+      {dialog.error&&<p className="ho-field-error">{dialog.error}</p>}
+      <div className="dialog-actions"><button onClick={()=>setDialog(null)}>取消</button><button className="primary" onClick={saveEntry}>保存</button></div>
+    </section></div>}
+    {removing&&<HomeRemoveConfirm title="删除快捷入口" description={removing.ids.length>1?`将删除 ${removing.ids.length} 个首页入口。`:'删除后该入口将从 App 首页快捷区移除。'} count={removing.ids.length} onCancel={()=>setRemoving(null)} onConfirm={removeEntries}/>}
+  </>;
+}
+
+function HomePreviewDrawer({ banners, entries, notify, onClose, onJumpTab }) {
+  const [index,setIndex] = useState(0);
+  const enabledBanners = banners.filter((banner)=>banner.isEnabled).sort((a,b)=>Number(a.sort)-Number(b.sort)||String(b.id).localeCompare(String(a.id)));
+  const allEnabledEntries = entries.filter((entry)=>entry.isEnabled).sort((a,b)=>Number(a.sort)-Number(b.sort));
+  const enabledEntries = allEnabledEntries.slice(0,10);
+  const overflowCount = Math.max(allEnabledEntries.length-10,0);
+  const rows = enabledEntries.length<=4
+    ? [{ items:enabledEntries, maxCount:Math.max(enabledEntries.length,1) }]
+    : (()=>{ const first = Math.ceil(enabledEntries.length/2); return [{ items:enabledEntries.slice(0,first), maxCount:first },{ items:enabledEntries.slice(first), maxCount:first }]; })();
+  const activeBanner = enabledBanners[index] || enabledBanners[0] || null;
+  useEffect(()=>{ if(index>=enabledBanners.length) setIndex(0); },[index,enabledBanners.length]);
+  return <div className="drawer-mask" onClick={onClose}><aside className="admin-drawer ho-preview-drawer" onClick={(event)=>event.stopPropagation()}>
+    <div className="drawer-head"><div><span className="drawer-kicker">APP HOME PREVIEW</span><h2>App 首屏预览</h2></div><button onClick={onClose}>×</button></div>
+    <div className="ho-preview-note"><AdminIcon name="eye" size={16}/><span>当前展示 <b>{enabledBanners.length}</b> 张已启用 Banner（15:8 全宽轮播）和 <b>{enabledEntries.length}</b> 个快捷入口；Banner 与入口均按排序从小到大展示{overflowCount>0?`，另有 ${overflowCount} 个已启用入口超出前 10 个展示位`:''}。</span></div>
+    <div className="ho-preview-phone">
+      <div className="ho-phone-status"><span>9:41</span><span>···</span></div>
+      <div className="ho-phone-topbar"><b>YEAH<span>MALL</span></b><span className="ho-phone-search"><AdminIcon name="search" size={14}/>搜索商品</span></div>
+      {activeBanner?<div className="ho-phone-banner-wrap">
+        <button type="button" className={`ho-phone-banner tone-${activeBanner.tone||'forest'}${activeBanner.imageUrl?' has-image':''}`} onClick={()=>activeBanner.target?notify(`Banner 将跳转至 ${activeBanner.target}`):notify('该 Banner 未配置跳转')}>
+          {activeBanner.imageUrl
+            ? <img className="ho-phone-banner-img" src={activeBanner.imageUrl} alt={activeBanner.caption||activeBanner.title||'Banner 图片'}/>
+            : <><span className="ho-phone-banner-copy"><em>{activeBanner.kicker||'首页 Banner'}</em><strong>{activeBanner.title}</strong><span>查看详情 <AdminIcon name="chevron" size={12}/></span></span><ProductArt type={activeBanner.art||'headphone'} bare/></>}
+        </button>
+        <span className="ho-phone-dots">{enabledBanners.map((banner,dotIndex)=><button type="button" key={banner.id} className={dotIndex===index?'active':''} aria-label={`切换到第 ${dotIndex+1} 张 Banner`} onClick={(event)=>{event.stopPropagation();setIndex(dotIndex);}}></button>)}</span>
+      </div>:<div className="ho-phone-banner-empty">暂无已启用 Banner</div>}
+      {rows.length?<div className="ho-phone-quick">{rows.map((row,rowIndex)=><div className="ho-phone-quick-row" style={{gridTemplateColumns:`repeat(${row.maxCount},minmax(0,1fr))`}} key={rowIndex}>{row.items.map((entry)=><button type="button" key={entry.id} onClick={()=>notify(entry.target?`「${entry.name}」将跳转至 ${entry.target}`:`「${entry.name}」按内置动作跳转`)}><span className="ho-phone-quick-icon"><HomeQuickIcon entry={entry} size={20}/></span><span>{entry.name}</span></button>)}</div>)}</div>:<div className="ho-phone-quick-empty">暂无已启用的快捷入口</div>}
+      <div className="ho-phone-placeholder"><i className="ho-phone-line"></i><b>精选好物</b><small>商品推荐不受首页运营配置影响</small></div>
+    </div>
+    <div className="drawer-actions ho-preview-actions"><button onClick={onClose}>关闭</button><button onClick={()=>onJumpTab('banner')}>配置 Banner</button><button className="primary" onClick={()=>onJumpTab('quick')}>配置快捷入口</button></div>
+  </aside></div>;
+}
+
+function AdminHomeOperation({ route, notify }) {
+  const requestedTab = routeParam(route,'tab');
+  const [tab,setTab] = useState(requestedTab==='快捷入口'?'quick':'banner');
+  const [banners,setBanners] = useState(HOME_BANNERS_INITIAL);
+  const [entries,setEntries] = useState(HOME_QUICK_ENTRIES_INITIAL);
+  const [preview,setPreview] = useState(false);
+  useEffect(()=>{ setTab(requestedTab==='快捷入口'?'quick':'banner'); },[requestedTab]);
+  const jumpTab = (next)=>{ setTab(next); setPreview(false); };
+  return <section className="admin-page home-operation-page" data-screen-label={`平台后台首页运营-${tab}`}>
+    <div className="module-tabs">
+      <button className={tab==='banner'?'active':''} onClick={()=>setTab('banner')}>Banner</button>
+      <button className={tab==='quick'?'active':''} onClick={()=>setTab('quick')}>快捷入口</button>
+    </div>
+    {tab==='banner'
+      ? <HomeBannerPanel banners={banners} setBanners={setBanners} notify={notify} onPreview={()=>setPreview(true)}/>
+      : <HomeQuickEntryPanel entries={entries} setEntries={setEntries} notify={notify} onPreview={()=>setPreview(true)}/>}
+    {preview&&<HomePreviewDrawer banners={banners} entries={entries} notify={notify} onClose={()=>setPreview(false)} onJumpTab={jumpTab}/>}
+  </section>;
+}
+
+const SECKILL_STATUS_ORDER = ['1','2','3','4','5','6','7'];
+const SECKILL_STATUS_META = {
+  '1': { label:'新建', tone:'neutral', action:'发布', next:'2', hint:'发布前会校验报名与活动时间段、场次时间范围及场次重叠情况。' },
+  '2': { label:'已发布', tone:'info', action:'开始报名', next:'3', hint:'开始报名后，商家可在报名时间段内提交商品报名。' },
+  '3': { label:'报名中', tone:'warning', action:'结束报名', next:'4', hint:'结束报名后活动进入等待开始状态，请确认场次与报名商品后开始活动。' },
+  '4': { label:'报名结束', tone:'info', action:'开始活动', next:'5', hint:'开始活动后系统会准备秒杀库存与活动缓存，并校验审核通过的秒杀商品。' },
+  '5': { label:'进行中', tone:'success', action:'结束活动', next:'6', hint:'结束活动后系统会写入活动状态并清理活动缓存，活动进入结束阶段。' },
+  '6': { label:'已结束', tone:'neutral', action:'活动下架', next:'7', hint:'活动下架后会从进行中集合移除，App 端不再作为进行中活动展示。' },
+  '7': { label:'已下架', tone:'neutral', action:'', next:'', hint:'' }
+};
+const SECKILL_FLOW = [
+  { value:'1', label:'新建' },
+  { value:'2', label:'发布' },
+  { value:'3', label:'报名中' },
+  { value:'4', label:'报名结束' },
+  { value:'5', label:'进行中' },
+  { value:'6', label:'结束' },
+  { value:'7', label:'下架' }
+];
+const SECKILL_ACTIVITIES_INITIAL = [
+  { id:'sa-1', name:'秋日数码秒杀', description:'耳机、音箱与智能穿戴限时直降，主推降噪耳机。', art:'headphone', applyBeginTime:'2026-10-20 10:00:00', applyEndTime:'2026-10-24 22:00:00', activityBeginTime:'2026-10-27 10:00:00', activityEndTime:'2026-10-27 12:00:00', status:'5', sort:1, enabled:true, sessionCount:3, remark:'活动缓存已准备，库存按审核通过商品锁定。', createTime:'2026-10-15 09:20:00', updateTime:'2026-10-27 09:58:12' },
+  { id:'sa-2', name:'晚八点居家场', description:'居家好物晚八点场，覆盖休闲椅、香薰与床品。', art:'chair', applyBeginTime:'2026-11-14 10:00:00', applyEndTime:'2026-11-20 18:00:00', activityBeginTime:'2026-11-22 20:00:00', activityEndTime:'2026-11-22 22:00:00', status:'3', sort:2, enabled:true, sessionCount:2, remark:'', createTime:'2026-11-10 14:30:00', updateTime:'2026-11-16 18:06:40' },
+  { id:'sa-3', name:'深秋护肤专场', description:'精华、面霜与身体护理组合，面向秋冬敏感肌。', art:'serum', applyBeginTime:'2026-11-19 10:00:00', applyEndTime:'2026-11-23 22:00:00', activityBeginTime:'2026-11-25 10:00:00', activityEndTime:'2026-11-25 22:00:00', status:'2', sort:3, enabled:true, sessionCount:2, remark:'', createTime:'2026-11-12 10:12:00', updateTime:'2026-11-17 09:20:05' },
+  { id:'sa-4', name:'周末咖啡闪购', description:'挂耳咖啡与手冲器具周末限时组合。', art:'coffee', applyBeginTime:'2026-11-18 10:00:00', applyEndTime:'2026-11-20 22:00:00', activityBeginTime:'2026-11-22 10:00:00', activityEndTime:'2026-11-22 14:00:00', status:'1', sort:4, enabled:true, sessionCount:0, remark:'场次待配置，发布前需补充场次时间。', createTime:'2026-11-17 11:42:18', updateTime:'2026-11-17 11:42:18' },
+  { id:'sa-5', name:'户外生活装备节', description:'户外休闲椅、便携家居与露营周边限时好价。', art:'chair', applyBeginTime:'2026-11-10 10:00:00', applyEndTime:'2026-11-15 22:00:00', activityBeginTime:'2026-11-18 10:00:00', activityEndTime:'2026-11-18 22:00:00', status:'4', sort:5, enabled:true, sessionCount:2, remark:'', createTime:'2026-11-05 09:08:00', updateTime:'2026-11-16 14:30:22' },
+  { id:'sa-6', name:'双十一返场秒杀', description:'大促返场，保留活动历史数据用于复盘。', art:'headphone', applyBeginTime:'2026-10-28 10:00:00', applyEndTime:'2026-11-01 22:00:00', activityBeginTime:'2026-11-03 10:00:00', activityEndTime:'2026-11-03 22:00:00', status:'6', sort:6, enabled:false, sessionCount:3, remark:'', createTime:'2026-10-24 16:40:00', updateTime:'2026-11-04 08:10:02' },
+  { id:'sa-7', name:'夏日清凉节', description:'夏季冰饮与清凉家居专题，已下架归档。', art:'coffee', applyBeginTime:'2026-08-01 10:00:00', applyEndTime:'2026-08-05 22:00:00', activityBeginTime:'2026-08-08 10:00:00', activityEndTime:'2026-08-08 22:00:00', status:'7', sort:7, enabled:false, sessionCount:1, remark:'', createTime:'2026-07-28 09:30:00', updateTime:'2026-08-09 10:05:36' },
+  { id:'sa-8', name:'会员耳机专享场', description:'会员专属降噪耳机与音箱限量秒杀。', art:'headphone', applyBeginTime:'2026-11-01 10:00:00', applyEndTime:'2026-11-05 22:00:00', activityBeginTime:'2026-11-17 20:00:00', activityEndTime:'2026-11-17 22:00:00', status:'5', sort:8, enabled:true, sessionCount:2, remark:'', createTime:'2026-10-28 10:16:00', updateTime:'2026-11-17 12:08:52' }
+];
+const seckillShortTime = (value) => value ? `${value.slice(5,10)} ${value.slice(11,16)}` : '—';
+const seckillFullRange = (start, end) => start && end ? `${start.slice(0,16)} 至 ${end.slice(0,16)}` : '待设置';
+const seckillToInput = (value) => value ? value.slice(0,16).replace(' ','T') : '';
+const seckillFromInput = (value) => value ? `${value.replace('T',' ')}:00`.slice(0,19) : '';
+const seckillPublishIssues = (row) => {
+  const issues = [];
+  if (!row.applyBeginTime || !row.applyEndTime || !row.activityBeginTime || !row.activityEndTime) {
+    issues.push('报名与活动时间段未完整设置');
+  } else {
+    if (row.applyBeginTime >= row.applyEndTime) issues.push('报名开始时间需早于结束时间');
+    if (row.activityBeginTime >= row.activityEndTime) issues.push('活动开始时间需早于结束时间');
+    if (row.applyEndTime > row.activityBeginTime) issues.push('报名截止时间需早于活动开始时间');
+  }
+  if (!row.sessionCount) issues.push('尚未配置活动场次');
+  return issues;
+};
+
+function AdminSeckillActivity({ activities: rows, setActivities: setRows, navigate, notify }) {
+  const [tab,setTab] = useState('all');
+  const [filters,setFilters] = useState({ keyword:'', enabled:'全部状态' });
+  const [applied,setApplied] = useState({ keyword:'', enabled:'全部状态' });
+  const [detail,setDetail] = useState(null);
+  const [editing,setEditing] = useState(null);
+  const [errors,setErrors] = useState({});
+  const [coverPreview,setCoverPreview] = useState('');
+  const [menu,setMenu] = useState(null);
+  const [transition,setTransition] = useState(null);
+  const [deleting,setDeleting] = useState(null);
+  const baseRows = [...rows].sort((a,b)=>a.sort-b.sort||String(a.id).localeCompare(String(b.id))).filter((row)=>{
+    const keyword = applied.keyword.trim().toLowerCase();
+    const keywordMatch = !keyword || `${row.name}${row.description}${row.remark}`.toLowerCase().includes(keyword);
+    const enabledMatch = applied.enabled==='全部状态' || (applied.enabled==='启用' ? row.enabled : !row.enabled);
+    return keywordMatch && enabledMatch;
+  });
+  const counts = { all: baseRows.length };
+  SECKILL_STATUS_ORDER.forEach((status)=>{ counts[status] = baseRows.filter((row)=>row.status===status).length; });
+  const filtered = baseRows.filter((row)=>tab==='all'||row.status===tab);
+  const setupCount = rows.filter((row)=>row.status==='1'&&!row.sessionCount).length;
+  const search = () => setApplied({ ...filters });
+  const reset = () => {
+    const empty = { keyword:'', enabled:'全部状态' };
+    setFilters(empty);
+    setApplied(empty);
+    setTab('all');
+  };
+  const goSessions = (row) => {
+    setMenu(null);
+    setDetail(null);
+    navigate(`platform/seckill?tab=${encodeURIComponent('场次管理')}&activityId=${row.id}`);
+  };
+  const goAudit = (row) => {
+    setMenu(null);
+    setDetail(null);
+    navigate(`platform/seckill?tab=${encodeURIComponent('报名审核')}&activityId=${row.id}`);
+  };
+  const openCreate = () => {
+    setMenu(null);
+    setDetail(null);
+    setErrors({});
+    setCoverPreview('');
+    setEditing({ id:'', name:'', description:'', coverImage:'', art:'coffee', applyBeginTime:'', applyEndTime:'', activityBeginTime:'', activityEndTime:'', sort:1, remark:'', status:'1', enabled:true, sessionCount:0, createTime:'', updateTime:'' });
+  };
+  const openEdit = (row) => {
+    setMenu(null);
+    setDetail(null);
+    setErrors({});
+    setCoverPreview(row.coverPreview || '');
+    setEditing({ ...row });
+  };
+  const setField = (key,value) => setEditing((current)=>current ? { ...current,[key]:value } : current);
+  const pickCover = (file) => {
+    if (!file) return;
+    setCoverPreview(URL.createObjectURL(file));
+  };
+  const save = () => {
+    const nextErrors = {};
+    if (!editing.name.trim()) nextErrors.name = '请输入活动名称';
+    if (!editing.description.trim()) nextErrors.description = '请输入活动描述';
+    if (!editing.sort || Number(editing.sort)<1) nextErrors.sort = '排序需大于等于 1';
+    if (!editing.applyBeginTime || !editing.applyEndTime) nextErrors.applyTime = '请选择完整的报名开始和结束时间';
+    else if (editing.applyBeginTime >= editing.applyEndTime) nextErrors.applyTime = '报名开始时间需早于结束时间';
+    if (!editing.activityBeginTime || !editing.activityEndTime) nextErrors.activityTime = '请选择完整的活动开始和结束时间';
+    else if (editing.activityBeginTime >= editing.activityEndTime) nextErrors.activityTime = '活动开始时间需早于结束时间';
+    if (!nextErrors.applyTime && !nextErrors.activityTime && editing.applyEndTime > editing.activityBeginTime) {
+      nextErrors.sequence = '报名截止时间需早于活动开始时间，请调整后再保存。';
+    }
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors);
+      return;
+    }
+    const stamp = '2026-11-17 15:36:20';
+    if (editing.id) {
+      const next = { ...editing, coverImage:editing.coverImage||'sample-cover', coverPreview:coverPreview||editing.coverPreview||'', updateTime:stamp };
+      setRows(rows.map((row)=>row.id===editing.id?next:row));
+      if (detail?.id===editing.id) setDetail(next);
+      notify('活动信息已保存');
+    } else {
+      const next = { ...editing, id:`sa-${Date.now()}`, status:'1', enabled:true, sessionCount:0, coverImage:editing.coverImage||'sample-cover', coverPreview:coverPreview||'', createTime:stamp, updateTime:stamp };
+      setRows([...rows,next]);
+      notify('活动已创建，请配置场次后发布');
+    }
+    setEditing(null);
+    setErrors({});
+  };
+  const toggleEnabled = (row) => {
+    const nextEnabled = !row.enabled;
+    const stamp = '2026-11-17 15:38:00';
+    setRows(rows.map((item)=>item.id===row.id?{ ...item, enabled:nextEnabled, updateTime:stamp }:item));
+    if (detail?.id===row.id) setDetail({ ...detail, enabled:nextEnabled, updateTime:stamp });
+    notify(`活动已${nextEnabled?'启用':'停用'}`);
+  };
+  const openTransition = (row) => {
+    const meta = SECKILL_STATUS_META[row.status];
+    if (!meta?.action) return;
+    setMenu(null);
+    setTransition({ row, meta, issues:meta.next==='2' ? seckillPublishIssues(row) : [] });
+  };
+  const confirmTransition = () => {
+    if (!transition || transition.issues.length) return;
+    const stamp = '2026-11-17 15:40:12';
+    const nextRow = { ...transition.row, status:transition.meta.next, updateTime:stamp };
+    setRows(rows.map((item)=>item.id===nextRow.id?nextRow:item));
+    if (detail?.id===nextRow.id) setDetail(nextRow);
+    notify(`活动已${transition.meta.action}`);
+    setTransition(null);
+  };
+  const confirmDelete = () => {
+    if (!deleting) return;
+    setRows(rows.filter((row)=>row.id!==deleting.id));
+    if (detail?.id===deleting.id) setDetail(null);
+    setDeleting(null);
+    notify('活动已删除');
+  };
+  return (
+    <section className="admin-page seckill-admin-page" data-screen-label="平台后台秒杀活动管理">
+      <div className="sk-status-tabs">
+        <button data-status="all" className={tab==='all'?'active':''} onClick={()=>setTab('all')}>全部<span className="sk-tab-count">{counts.all}</span></button>
+        {SECKILL_STATUS_ORDER.map((status)=><button key={status} data-status={status} className={tab===status?'active':''} onClick={()=>setTab(status)}>{SECKILL_STATUS_META[status].label}<span className="sk-tab-count">{counts[status]}</span></button>)}
+      </div>
+
+      <FilterBar
+        onReset={reset}
+        onSearch={search}
+        actions={<button className="business-primary" onClick={openCreate}><AdminIcon name="plus" size={17}/>新建活动</button>}
+      >
+        <label><span>活动名称</span><input value={filters.keyword} onChange={(event)=>setFilters({ ...filters,keyword:event.target.value })} onKeyDown={(event)=>event.key==='Enter'&&search()} placeholder="搜索活动名称或描述"/></label>
+        <label><span>启用状态</span><select value={filters.enabled} onChange={(event)=>setFilters({ ...filters,enabled:event.target.value })}><option>全部状态</option><option>启用</option><option>停用</option></select></label>
+      </FilterBar>
+
+      <div className="admin-table-frame">
+        <div className="sk-table-intro">
+          <span><AdminIcon name="clock" size={15}/>发布前需配置至少 1 个场次；报名截止时间需早于活动开始时间。</span>
+          <div className="sk-intro-right">
+            {setupCount>0&&<span className="sk-setup-chip"><AdminIcon name="warning" size={12}/>{setupCount} 个待配置场次</span>}
+            <b>共 {filtered.length} 个活动</b>
+          </div>
+        </div>
+        <table data-align-table="t23" className="admin-table sk-activity-table">
+          <thead><tr><th>活动信息</th><th>报名时间</th><th>活动时间</th><th>场次</th><th>状态</th><th className="numeric">排序</th><th>启用</th><th className="actions">操作</th></tr></thead>
+          <tbody>{filtered.map((row)=>{
+            const meta = SECKILL_STATUS_META[row.status] || SECKILL_STATUS_META['1'];
+            return <tr key={row.id}>
+              <td><div className="cb"><div className="sk-activity-cell">
+                <span className="sk-cover-art">{row.coverPreview?<img src={row.coverPreview} alt="活动封面"/>:<ProductArt type={row.art||'coffee'}/>}</span>
+                <span className="sk-activity-copy">
+                  <button className="sk-name-link" title={row.name} onClick={()=>setDetail(row)}>{row.name}</button>
+                  <small title={row.description}>{row.description||'暂无活动描述'}</small>
+                </span>
+              </div></div></td>
+              <td><div className="cb"><div className="sk-when-cell" title={`${row.applyBeginTime} 至 ${row.applyEndTime}`}>
+                {row.applyBeginTime&&row.applyEndTime?<><span>{seckillShortTime(row.applyBeginTime)}</span><i>→</i><span>{seckillShortTime(row.applyEndTime)}</span></>:<span className="sk-when-empty">待设置</span>}
+              </div></div></td>
+              <td><div className="cb"><div className="sk-when-cell" title={`${row.activityBeginTime} 至 ${row.activityEndTime}`}>
+                {row.activityBeginTime&&row.activityEndTime?<><span>{seckillShortTime(row.activityBeginTime)}</span><i>→</i><span>{seckillShortTime(row.activityEndTime)}</span></>:<span className="sk-when-empty">待设置</span>}
+              </div></div></td>
+              <td><div className="cb"><button className={`sk-session-link${row.sessionCount?'':' is-empty'}`} onClick={()=>goSessions(row)}>{row.sessionCount?`${row.sessionCount} 场`:'未配置'}</button></div></td>
+              <td><div className="cb"><StatusTicket tone={meta.tone}>{meta.label}</StatusTicket></div></td>
+              <td className="numeric"><div className="cb">{row.sort}</div></td>
+              <td><div className="cb"><label className="sk-switch"><input type="checkbox" checked={row.enabled} onChange={()=>toggleEnabled(row)}/><i></i><span>{row.enabled?'启用':'停用'}</span></label></div></td>
+              <td className="actions"><div className="cb">
+                {meta.action?<button className="table-link sk-next-link" onClick={()=>openTransition(row)}>{meta.action}</button>:<button className="table-link" onClick={()=>setDetail(row)}>详情</button>}
+                <button className="table-link" onClick={()=>openEdit(row)}>编辑</button>
+                <RowActionMenu open={menu===row.id} onToggle={()=>setMenu(menu===row.id?null:row.id)}>
+                  <button onClick={()=>{setDetail(row);setMenu(null);}}>查看详情</button>
+                  <button onClick={()=>goSessions(row)}>场次管理</button>
+                  <button onClick={()=>goAudit(row)}>报名审核</button>
+                  <button className="sk-danger-action" disabled={row.status!=='1'} title={row.status!=='1'?'仅新建状态的活动可删除':''} onClick={()=>{setMenu(null);setDeleting(row);}}>删除</button>
+                </RowActionMenu>
+              </div></td>
+            </tr>;
+          })}</tbody>
+        </table>
+        {!filtered.length&&<div className="admin-empty"><AdminIcon name="Calendar" size={28}/><b>没有匹配的秒杀活动</b><span>调整筛选条件，或新建一个活动</span></div>}
+        <AdminPagination count={filtered.length}/>
+      </div>
+
+      {detail&&(()=>{
+        const meta = SECKILL_STATUS_META[detail.status] || SECKILL_STATUS_META['1'];
+        const currentIndex = SECKILL_FLOW.findIndex((step)=>step.value===detail.status);
+        return <div className="drawer-mask" onClick={()=>setDetail(null)}><aside className="admin-drawer sk-detail-drawer" onClick={(event)=>event.stopPropagation()}>
+          <div className="drawer-head"><div><span className="drawer-kicker">SECKILL ACTIVITY</span><h2>活动详情</h2></div><button onClick={()=>setDetail(null)}>×</button></div>
+          <div className="sk-detail-hero">
+            <span className="sk-detail-cover">{detail.coverPreview?<img src={detail.coverPreview} alt="活动封面"/>:<ProductArt type={detail.art||'coffee'}/>}</span>
+            <div className="sk-detail-copy"><h3>{detail.name}</h3><StatusTicket tone={meta.tone}>{meta.label}</StatusTicket><p>{detail.description||'暂无活动描述'}</p></div>
+          </div>
+          <div className="sk-detail-times">
+            <div><span>报名时间</span><b>{seckillFullRange(detail.applyBeginTime,detail.applyEndTime)}</b></div>
+            <div><span>活动时间</span><b>{seckillFullRange(detail.activityBeginTime,detail.activityEndTime)}</b></div>
+          </div>
+          <div className="sk-detail-meta">
+            <div><span>活动场次</span><b>{detail.sessionCount?`${detail.sessionCount} 个`:'未配置'}</b></div>
+            <div><span>排序</span><b>{detail.sort}</b></div>
+            <div><span>启用状态</span><b>{detail.enabled?'启用':'停用'}</b></div>
+            <div><span>最近更新</span><b>{detail.updateTime?detail.updateTime.slice(0,19):'—'}</b></div>
+          </div>
+          <div className="drawer-section"><h3>活动进度</h3><div className="sk-flow">
+            {SECKILL_FLOW.map((step,index)=><span key={step.value} className={`sk-flow-step${index<=currentIndex?' is-done':''}${index===currentIndex?' is-current':''}`}><i></i><small>{step.label}</small></span>)}
+          </div></div>
+          <div className="drawer-section"><h3>备注</h3><p className="sk-detail-remark">{detail.remark||'暂无备注'}</p></div>
+          <div className="drawer-actions"><button onClick={()=>setDetail(null)}>关闭</button><button onClick={()=>goSessions(detail)}>场次管理</button><button className="primary" onClick={()=>openEdit(detail)}>编辑活动</button></div>
+        </aside></div>;
+      })()}
+
+      {editing&&<div className="dialog-mask" onClick={()=>setEditing(null)}><section className="admin-dialog sk-activity-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">SECKILL ACTIVITY</span><h2>{editing.id?'编辑活动':'新建活动'}</h2></div><button onClick={()=>setEditing(null)}>×</button></div>
+        <div className="sk-dialog-note"><AdminIcon name="Lightning" size={16}/><span>发布前需配置活动场次，并确保报名截止时间早于活动开始时间；保存后可在列表按阶段推进活动状态。</span></div>
+        <div className="sk-form-grid">
+          <label className={`dialog-field${errors.name?' is-invalid':''}`}><span>活动名称 <em className="sk-required">*</em></span><input value={editing.name} maxLength="64" onChange={(event)=>setField('name',event.target.value)} placeholder="例如：秋日数码秒杀"/>{errors.name&&<small className="sk-field-error">{errors.name}</small>}</label>
+          <label className={`dialog-field${errors.sort?' is-invalid':''}`}><span>排序 <em className="sk-required">*</em></span><input type="number" min="1" value={editing.sort} onChange={(event)=>setField('sort',Number(event.target.value))}/>{errors.sort&&<small className="sk-field-error">{errors.sort}</small>}</label>
+          <label className={`dialog-field wide${errors.description?' is-invalid':''}`}><span>活动描述 <em className="sk-required">*</em></span><textarea rows="3" maxLength="500" value={editing.description} onChange={(event)=>setField('description',event.target.value)} placeholder="简要说明活动商品与玩法"/>{errors.description&&<small className="sk-field-error">{errors.description}</small>}</label>
+          <div className="dialog-field wide"><span>活动封面 <em className="sk-required">*</em></span>
+            <div className="sk-cover-editor">
+              <span className="sk-cover-preview">{coverPreview?<img src={coverPreview} alt="活动封面预览"/>:<ProductArt type={editing.art||'coffee'}/>}</span>
+              <span className="sk-cover-copy">
+                <label className="sk-upload-btn"><AdminIcon name="image" size={16}/>{coverPreview?'更换封面':'选择封面'}<input type="file" accept="image/*" onChange={(event)=>{pickCover(event.target.files?.[0]);event.target.value='';}}/></label>
+                <small>{coverPreview?'已选择本地图片，保存后用于活动列表与 App 展示。':'建议 640×320（2:1），支持 JPG / PNG / WebP，单张不超过 2MB；未上传时使用示意封面。'}</small>
+              </span>
+            </div>
+          </div>
+          <div className={`dialog-field wide${errors.applyTime?' is-invalid':''}`}><span>报名时间 <em className="sk-required">*</em></span>
+            <div className="sk-time-inputs">
+              <label><small>开始</small><input type="datetime-local" value={seckillToInput(editing.applyBeginTime)} onChange={(event)=>setField('applyBeginTime',seckillFromInput(event.target.value))}/></label>
+              <i>→</i>
+              <label><small>结束</small><input type="datetime-local" value={seckillToInput(editing.applyEndTime)} onChange={(event)=>setField('applyEndTime',seckillFromInput(event.target.value))}/></label>
+            </div>
+            {errors.applyTime&&<small className="sk-field-error">{errors.applyTime}</small>}
+          </div>
+          <div className={`dialog-field wide${errors.activityTime?' is-invalid':''}`}><span>活动时间 <em className="sk-required">*</em></span>
+            <div className="sk-time-inputs">
+              <label><small>开始</small><input type="datetime-local" value={seckillToInput(editing.activityBeginTime)} onChange={(event)=>setField('activityBeginTime',seckillFromInput(event.target.value))}/></label>
+              <i>→</i>
+              <label><small>结束</small><input type="datetime-local" value={seckillToInput(editing.activityEndTime)} onChange={(event)=>setField('activityEndTime',seckillFromInput(event.target.value))}/></label>
+            </div>
+            {errors.activityTime&&<small className="sk-field-error">{errors.activityTime}</small>}
+          </div>
+          <label className="dialog-field wide"><span>备注 <small>选填</small></span><textarea rows="2" maxLength="255" value={editing.remark} onChange={(event)=>setField('remark',event.target.value)} placeholder="补充运营说明或发布注意事项"/></label>
+        </div>
+        {errors.sequence&&<p className="sk-sequence-error"><AdminIcon name="warning" size={14}/>{errors.sequence}</p>}
+        <div className="dialog-actions"><button onClick={()=>setEditing(null)}>取消</button><button className="primary" onClick={save}>{editing.id?'保存修改':'创建活动'}</button></div>
+      </section></div>}
+
+      {transition&&(()=>{
+        const current = SECKILL_STATUS_META[transition.row.status] || SECKILL_STATUS_META['1'];
+        const next = SECKILL_STATUS_META[transition.meta.next] || current;
+        const isPublish = transition.meta.next==='2';
+        const fail = transition.issues.length>0;
+        const timeConfigured = Boolean(transition.row.applyBeginTime&&transition.row.applyEndTime&&transition.row.activityBeginTime&&transition.row.activityEndTime);
+        const orderOk = timeConfigured && transition.row.applyBeginTime<transition.row.applyEndTime && transition.row.activityBeginTime<transition.row.activityEndTime && transition.row.applyEndTime<=transition.row.activityBeginTime;
+        return <div className="dialog-mask" onClick={()=>setTransition(null)}><section className="admin-dialog sk-transition-dialog" onClick={(event)=>event.stopPropagation()}>
+          <div className="dialog-head"><div><span className="drawer-kicker">SECKILL WORKFLOW</span><h2>{transition.meta.action}活动</h2></div><button onClick={()=>setTransition(null)}>×</button></div>
+          <div className="sk-transition-context">
+            <span className="sk-cover-art small">{transition.row.coverPreview?<img src={transition.row.coverPreview} alt="活动封面"/>:<ProductArt type={transition.row.art||'coffee'}/>}</span>
+            <span className="sk-transition-copy"><b>{transition.row.name}</b><small>报名 {seckillShortTime(transition.row.applyBeginTime)} → {seckillShortTime(transition.row.applyEndTime)}</small><small>活动 {seckillShortTime(transition.row.activityBeginTime)} → {seckillShortTime(transition.row.activityEndTime)}</small></span>
+            <span className="sk-transition-shift"><StatusTicket tone={current.tone}>{current.label}</StatusTicket><AdminIcon name="ArrowRight" size={14}/><StatusTicket tone={next.tone}>{next.label}</StatusTicket></span>
+          </div>
+          {isPublish&&<div className={`sk-check ${fail?'is-fail':'is-pass'}`}>
+            <b><AdminIcon name={fail?'warning':'check'} size={14}/>{fail?'发布前检查未通过':'发布前检查通过'}</b>
+            <ul className="sk-check-list">
+              <li className={timeConfigured?'':'is-bad'}><i></i>报名与活动时间段已配置</li>
+              <li className={orderOk?'':'is-bad'}><i></i>报名截止时间早于活动开始时间</li>
+              <li className={transition.row.sessionCount?'':'is-bad'}><i></i>已配置活动场次{transition.row.sessionCount?`（${transition.row.sessionCount} 个）`:''}</li>
+            </ul>
+          </div>}
+          <p className="sk-transition-hint">{transition.meta.hint}</p>
+          <div className="dialog-actions">
+            <button onClick={()=>setTransition(null)}>取消</button>
+            {isPublish&&fail&&<button onClick={()=>goSessions(transition.row)}>前往场次管理</button>}
+            <button className="primary" disabled={fail} onClick={confirmTransition}>确认{transition.meta.action}</button>
+          </div>
+        </section></div>;
+      })()}
+
+      {deleting&&<div className="dialog-mask" onClick={()=>setDeleting(null)}><section className="admin-dialog sk-delete-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">DELETE ACTIVITY</span><h2>删除活动</h2></div><button onClick={()=>setDeleting(null)}>×</button></div>
+        <div className="danger-confirm"><AdminIcon name="warning" size={18}/><div><b>删除后不可恢复</b><span>仅【新建】状态的活动可以删除。删除后活动基础信息将被移除，后续需重新创建。</span><small>当前活动：{deleting.name}</small></div></div>
+        <p className="sk-delete-context">如需保留活动记录，请改为停用或推进至活动下架。</p>
+        <div className="dialog-actions"><button onClick={()=>setDeleting(null)}>取消</button><button className="danger" onClick={confirmDelete}>确认删除</button></div>
+      </section></div>}
+    </section>
+  );
+}
+
+function AdminSeckillPage({ route, navigate, notify }) {
+  const [activities,setActivities] = useState(SECKILL_ACTIVITIES_INITIAL);
+  const [sessionsByActivity,setSessionsByActivity] = useState(()=>{
+    const grouped = {};
+    SECKILL_SESSIONS_INITIAL.forEach((item)=>{ if (!grouped[item.activityId]) grouped[item.activityId] = []; grouped[item.activityId].push(item); });
+    return grouped;
+  });
+  const [applies,setApplies] = useState(SECKILL_APPLIES_INITIAL);
+  const tab = routeParam(route,'tab') || '活动管理';
+  if (tab === '场次管理') return <AdminSeckillSessions activities={activities} setActivities={setActivities} sessionsByActivity={sessionsByActivity} setSessionsByActivity={setSessionsByActivity} route={route} navigate={navigate} notify={notify}/>;
+  if (tab === '报名审核') return <AdminSeckillAudits activities={activities} applies={applies} setApplies={setApplies} sessionsByActivity={sessionsByActivity} route={route} navigate={navigate} notify={notify}/>;
+  if (tab !== '活动管理') return <AdminModulePage surface="platform" page="seckill" route={route} navigate={navigate} notify={notify}/>;
+  return <AdminSeckillActivity activities={activities} setActivities={setActivities} navigate={navigate} notify={notify}/>;
 }
 
 function MerchantSettingsPage({ notify }) {
@@ -2566,7 +4454,7 @@ function FrameworkReferencePage({ route, notify }) {
     ]
   };
   const [title,columns,rows] = definitions[view] || definitions.user;
-  return <section className="admin-page framework-reference-page" data-screen-label={`平台后台系统管理-${title}`}><div className="framework-preserved-note"><AdminIcon name="settings" size={18}/><span className="framework-note-copy"><b>{title}沿用 YeahBoot 页面能力</b><small>仅接入统一主题、紧凑密度和布局外壳，不改变框架接口、权限与交互契约。</small></span><StatusTicket>FRAMEWORK</StatusTicket></div><FilterBar onReset={()=>notify('筛选条件已重置')} onSearch={()=>notify(`找到 ${rows.length} 条记录`)}><label><span>关键词</span><input placeholder={`搜索${title}`}/></label><label><span>状态</span><select defaultValue="全部状态"><option>全部状态</option><option>正常</option><option>停用</option></select></label></FilterBar><div className="admin-table-frame"><table className="admin-table"><thead><tr>{columns.map((col)=><th key={col}>{col}</th>)}<th className="actions">操作</th></tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((cell,cellIndex)=><td key={`${cell}-${cellIndex}`}>{isCopyableAdminColumn(columns[cellIndex])?<CopyableText value={cell} label={columns[cellIndex]} notify={notify}/>:cell}</td>)}<td className="actions"><button className="table-link" onClick={()=>setSelected(row)}>查看</button></td></tr>)}</tbody></table><AdminPagination count={rows.length}/></div>{selected&&<div className="drawer-mask" onClick={()=>setSelected(null)}><aside className="admin-drawer framework-detail-drawer" onClick={(event)=>event.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">YEAHBOOT DETAIL</span><h2>{title}详情</h2></div><button onClick={()=>setSelected(null)}>×</button></div><div className="description-grid">{columns.map((column,index)=><div className={index===0?'wide':''} key={column}><span>{column}</span><b>{isCopyableAdminColumn(column)?<CopyableText value={selected[index]} label={column} notify={notify}/>:selected[index]}</b></div>)}</div><div className="drawer-section"><h3>维护说明</h3><p className="framework-detail-note">该页面沿用 YeahBoot 的权限和数据契约，YeahMall 仅统一视觉主题与内容密度。</p></div><div className="drawer-actions"><button onClick={()=>setSelected(null)}>关闭</button><button className="primary" onClick={()=>{setSelected(null);notify(`${title}记录已更新`);}}>编辑记录</button></div></aside></div>}</section>;
+  return <section className="admin-page framework-reference-page" data-screen-label={`平台后台系统管理-${title}`}><div className="framework-preserved-note"><AdminIcon name="settings" size={18}/><span className="framework-note-copy"><b>{title}沿用 YeahBoot 页面能力</b><small>仅接入统一主题、紧凑密度和布局外壳，不改变框架接口、权限与交互契约。</small></span><StatusTicket>FRAMEWORK</StatusTicket></div><FilterBar onReset={()=>notify('筛选条件已重置')} onSearch={()=>notify(`找到 ${rows.length} 条记录`)}><label><span>关键词</span><input placeholder={`搜索${title}`}/></label><label><span>状态</span><select defaultValue="全部状态"><option>全部状态</option><option>正常</option><option>停用</option></select></label></FilterBar><div className="admin-table-frame"><table data-align-table="t24" className="admin-table"><thead><tr>{columns.map((col)=><th key={col}>{col}</th>)}<th className="actions">操作</th></tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((cell,cellIndex)=><td key={`${cell}-${cellIndex}`}><div className="cb">{isCopyableAdminColumn(columns[cellIndex])?<CopyableText value={cell} label={columns[cellIndex]} notify={notify}/>:cell}</div></td>)}<td className="actions"><div className="cb"><button className="table-link" onClick={()=>setSelected(row)}>查看</button></div></td></tr>)}</tbody></table><AdminPagination count={rows.length}/></div>{selected&&<div className="drawer-mask" onClick={()=>setSelected(null)}><aside className="admin-drawer framework-detail-drawer" onClick={(event)=>event.stopPropagation()}><div className="drawer-head"><div><span className="drawer-kicker">YEAHBOOT DETAIL</span><h2>{title}详情</h2></div><button onClick={()=>setSelected(null)}>×</button></div><div className="description-grid">{columns.map((column,index)=><div className={index===0?'wide':''} key={column}><span>{column}</span><b>{isCopyableAdminColumn(column)?<CopyableText value={selected[index]} label={column} notify={notify}/>:selected[index]}</b></div>)}</div><div className="drawer-section"><h3>维护说明</h3><p className="framework-detail-note">该页面沿用 YeahBoot 的权限和数据契约，YeahMall 仅统一视觉主题与内容密度。</p></div><div className="drawer-actions"><button onClick={()=>setSelected(null)}>关闭</button><button className="primary" onClick={()=>{setSelected(null);notify(`${title}记录已更新`);}}>编辑记录</button></div></aside></div>}</section>;
 }
 
 function AdminSettlementPage({ surface, route, navigate, notify }) {
@@ -2588,11 +4476,11 @@ function AdminSettlementPage({ surface, route, navigate, notify }) {
   const accounts=[['1','山野生活店','银行卡','杭州山野生活有限公司','**** 8862','待审核','2026-11-01 15:20'],['2','Yeah 数码生活馆','支付宝','杭州悦数科技有限公司','pay***@mail.com','已通过','2026-10-28 09:36']];
   const channels=[['平台普通商户','平台主通道','平台普通商户直收','platform','启用'],['服务商主通道','平台主通道','服务商代子商户收款','platform','停用'],['山野独立 App','山野生活店','独立店铺普通商户直收','shop-app','启用']];
   const changeTab=(tab)=>navigate(`${surface}/settlement?tab=${encodeURIComponent(tab)}`);
-  const renderLedger=()=> <><FilterBar onReset={()=>{setKeyword('');setStatus('全部状态');}} onSearch={()=>notify(`找到 ${filteredLedger.length} 条结算记录`)} actions={platform&&<button className="business-primary" disabled={!selected.length} onClick={()=>setDialog({type:'settle'})}><AdminIcon name="check" size={16}/>确认线下打款</button>}><label><span>{platform?'店铺或订单':'订单编号'}</span><input value={keyword} onChange={(e)=>setKeyword(e.target.value)} placeholder={platform?'店铺 ID、名称或订单号':'请输入订单编号'}/></label><label><span>结算状态</span><select value={status} onChange={(e)=>setStatus(e.target.value)}><option>全部状态</option><option>待结算</option><option>已结算</option><option>已取消</option></select></label><label><span>结算批次</span><input placeholder="请输入结算批次编号"/></label></FilterBar><div className="admin-table-frame"><table className="admin-table"><thead><tr>{platform&&<th className="selection-cell"></th>}<th>订单编号</th>{platform&&<th>店铺</th>}<th>业务类型</th><th className="numeric">实际支付</th><th className="numeric">平台佣金</th><th className="numeric">结算变动</th><th>状态</th><th>结算批次</th></tr></thead><tbody>{filteredLedger.map((row,index)=><tr key={row[0]}>{platform&&<td className="selection-cell"><input type="checkbox" checked={selected.includes(index)} disabled={row[6]!=='待结算'} onChange={()=>setSelected(selected.includes(index)?selected.filter((item)=>item!==index):[...selected,index])}/></td>}<td><b className="mono"><CopyableText value={row[0]} label="订单编号" notify={notify}/></b><small className="cell-sub">可结算 2026-11-03</small></td>{platform&&<td><CopyableText value={row[1]} label="店铺名称" notify={notify}/></td>}<td>{row[2]}</td><td className="numeric">{row[3]}</td><td className="numeric">{row[4]}</td><td className={`numeric ${row[5].startsWith('-')?'negative-amount':'positive-amount'}`}>{row[5]}</td><td><StatusTicket tone={row[6]==='已结算'?'success':'warning'}>{row[6]}</StatusTicket></td><td className="mono">{row[7]==='-'?'-':<CopyableText value={row[7]} label="结算批次" notify={notify}/>}</td></tr>)}</tbody></table><AdminPagination count={filteredLedger.length}/></div></>;
-  const renderAccounts=()=> <><FilterBar onReset={()=>{setKeyword('');setStatus('全部状态');}} onSearch={()=>notify(`找到 ${accounts.length} 个账户`)}><label><span>店铺</span><input value={keyword} onChange={(event)=>setKeyword(event.target.value)} placeholder="店铺 ID 或名称"/></label><label><span>审核状态</span><select value={status} onChange={(event)=>setStatus(event.target.value)}><option>全部状态</option><option>待审核</option><option>已通过</option><option>已拒绝</option></select></label></FilterBar><div className="admin-table-frame"><table className="admin-table"><thead><tr><th>店铺</th><th>账户类型</th><th>收款名称</th><th>收款账号</th><th>审核状态</th><th>提交时间</th><th className="actions">操作</th></tr></thead><tbody>{accounts.filter((row)=>(status==='全部状态'||row[5]===status)&&(!keyword||row.join('').includes(keyword))).map((row)=><tr key={row[0]}><td><CopyableText value={row[1]} label="店铺名称" notify={notify}/></td><td>{row[2]}</td><td><CopyableText value={row[3]} label="收款名称" notify={notify}/></td><td className="mono"><CopyableText value={row[4]} label="收款账号" notify={notify}/></td><td><StatusTicket tone={row[5]==='已通过'?'success':'warning'}>{row[5]}</StatusTicket></td><td>{row[6]}</td><td className="actions"><button className="table-link" onClick={()=>setDialog({type:'audit',row})}>{row[5]==='待审核'?'审核':'查看'}</button></td></tr>)}</tbody></table><AdminPagination count={accounts.length}/></div></>;
-  const renderChannels=()=> <><div className="settlement-channel-actions"><button className="business-primary" onClick={()=>setDialog({type:'channel',mode:'平台普通商户直收'})}>新增平台普通商户通道</button><button onClick={()=>setDialog({type:'channel',mode:'服务商代子商户收款'})}>新增服务商主通道</button><button onClick={()=>setDialog({type:'channel',mode:'子商户路由'})}>新增子商户路由</button></div><div className="admin-table-frame"><table className="admin-table"><thead><tr><th>通道名称</th><th>适用范围</th><th>收款模式</th><th>App 目标</th><th>状态</th><th className="actions">操作</th></tr></thead><tbody>{channels.map((row)=><tr key={row[0]}>{row.map((cell,index)=><td key={index}>{index===4?<StatusTicket tone={cell==='启用'?'success':'neutral'}>{cell}</StatusTicket>:[0,1,3].includes(index)?<CopyableText value={cell} label={index===0?'通道名称':index===1?'适用范围':'App目标'} notify={notify}/>:cell}</td>)}<td className="actions"><button className="table-link" onClick={()=>setDialog({type:'channel',mode:row[2],editing:true})}>编辑</button></td></tr>)}</tbody></table><AdminPagination count={channels.length}/></div></>;
+  const renderLedger=()=> <><FilterBar onReset={()=>{setKeyword('');setStatus('全部状态');}} onSearch={()=>notify(`找到 ${filteredLedger.length} 条结算记录`)} actions={platform&&<button className="business-primary" disabled={!selected.length} onClick={()=>setDialog({type:'settle'})}><AdminIcon name="check" size={16}/>确认线下打款</button>}><label><span>{platform?'店铺或订单':'订单编号'}</span><input value={keyword} onChange={(e)=>setKeyword(e.target.value)} placeholder={platform?'店铺 ID、名称或订单号':'请输入订单编号'}/></label><label><span>结算状态</span><select value={status} onChange={(e)=>setStatus(e.target.value)}><option>全部状态</option><option>待结算</option><option>已结算</option><option>已取消</option></select></label><label><span>结算批次</span><input placeholder="请输入结算批次编号"/></label></FilterBar><div className="admin-table-frame"><table data-align-table="t25" className="admin-table"><thead><tr>{platform&&<th className="selection-cell"></th>}<th>订单编号</th>{platform&&<th>店铺</th>}<th>业务类型</th><th className="numeric">实际支付</th><th className="numeric">平台佣金</th><th className="numeric">结算变动</th><th>状态</th><th>结算批次</th></tr></thead><tbody>{filteredLedger.map((row,index)=><tr key={row[0]}>{platform&&<td className="selection-cell"><input type="checkbox" checked={selected.includes(index)} disabled={row[6]!=='待结算'} onChange={()=>setSelected(selected.includes(index)?selected.filter((item)=>item!==index):[...selected,index])}/></td>}<td><div className="cb"><b className="mono"><CopyableText value={row[0]} label="订单编号" notify={notify}/></b><small className="cell-sub">可结算 2026-11-03</small></div></td>{platform&&<td><div className="cb"><CopyableText value={row[1]} label="店铺名称" notify={notify}/></div></td>}<td><div className="cb">{row[2]}</div></td><td className="numeric"><div className="cb">{row[3]}</div></td><td className="numeric"><div className="cb">{row[4]}</div></td><td className={`numeric ${row[5].startsWith('-')?'negative-amount':'positive-amount'}`}><div className="cb">{row[5]}</div></td><td><div className="cb"><StatusTicket tone={row[6]==='已结算'?'success':'warning'}>{row[6]}</StatusTicket></div></td><td className="mono"><div className="cb">{row[7]==='-'?'-':<CopyableText value={row[7]} label="结算批次" notify={notify}/>}</div></td></tr>)}</tbody></table><AdminPagination count={filteredLedger.length}/></div></>;
+  const renderAccounts=()=> <><FilterBar onReset={()=>{setKeyword('');setStatus('全部状态');}} onSearch={()=>notify(`找到 ${accounts.length} 个账户`)}><label><span>店铺</span><input value={keyword} onChange={(event)=>setKeyword(event.target.value)} placeholder="店铺 ID 或名称"/></label><label><span>审核状态</span><select value={status} onChange={(event)=>setStatus(event.target.value)}><option>全部状态</option><option>待审核</option><option>已通过</option><option>已拒绝</option></select></label></FilterBar><div className="admin-table-frame"><table data-align-table="t26" className="admin-table"><thead><tr><th>店铺</th><th>账户类型</th><th>收款名称</th><th>收款账号</th><th>审核状态</th><th>提交时间</th><th className="actions">操作</th></tr></thead><tbody>{accounts.filter((row)=>(status==='全部状态'||row[5]===status)&&(!keyword||row.join('').includes(keyword))).map((row)=><tr key={row[0]}><td><div className="cb"><CopyableText value={row[1]} label="店铺名称" notify={notify}/></div></td><td><div className="cb">{row[2]}</div></td><td><div className="cb"><CopyableText value={row[3]} label="收款名称" notify={notify}/></div></td><td className="mono"><div className="cb"><CopyableText value={row[4]} label="收款账号" notify={notify}/></div></td><td><div className="cb"><StatusTicket tone={row[5]==='已通过'?'success':'warning'}>{row[5]}</StatusTicket></div></td><td><div className="cb">{row[6]}</div></td><td className="actions"><div className="cb"><button className="table-link" onClick={()=>setDialog({type:'audit',row})}>{row[5]==='待审核'?'审核':'查看'}</button></div></td></tr>)}</tbody></table><AdminPagination count={accounts.length}/></div></>;
+  const renderChannels=()=> <><div className="settlement-channel-actions"><button className="business-primary" onClick={()=>setDialog({type:'channel',mode:'平台普通商户直收'})}>新增平台普通商户通道</button><button onClick={()=>setDialog({type:'channel',mode:'服务商代子商户收款'})}>新增服务商主通道</button><button onClick={()=>setDialog({type:'channel',mode:'子商户路由'})}>新增子商户路由</button></div><div className="admin-table-frame"><table data-align-table="t27" className="admin-table"><thead><tr><th>通道名称</th><th>适用范围</th><th>收款模式</th><th>App 目标</th><th>状态</th><th className="actions">操作</th></tr></thead><tbody>{channels.map((row)=><tr key={row[0]}>{row.map((cell,index)=><td key={index}><div className="cb">{index===4?<StatusTicket tone={cell==='启用'?'success':'neutral'}>{cell}</StatusTicket>:[0,1,3].includes(index)?<CopyableText value={cell} label={index===0?'通道名称':index===1?'适用范围':'App目标'} notify={notify}/>:cell}</div></td>)}<td className="actions"><div className="cb"><button className="table-link" onClick={()=>setDialog({type:'channel',mode:row[2],editing:true})}>编辑</button></div></td></tr>)}</tbody></table><AdminPagination count={channels.length}/></div></>;
   const renderMerchantForm=(payment=false)=> <section className="settlement-editor"><div className="settlement-editor-head"><div><b>{payment?'独立 App 支付通道':'收款账户'}</b><span>{payment?'配置当前店铺独立 App 的微信支付信息':'平台线下结算将打款到审核通过的账户'}</span></div><StatusTicket tone={payment?'success':'warning'}>{payment?'已启用':'待审核'}</StatusTicket></div><div className="settlement-form-grid">{payment?<><label><span>通道名称</span><input defaultValue="山野独立 App 支付"/></label><label><span>App 目标</span><input defaultValue="shop-app"/></label><label><span>应用 AppID</span><input placeholder="请输入应用 AppID"/></label><label><span>商户号</span><input placeholder="请输入微信支付商户号"/></label><label><span>商户 API 证书序列号</span><input placeholder="请输入证书序列号"/></label><label><span>微信支付公钥 ID</span><input placeholder="请输入公钥 ID"/></label><label className="wide"><span>支付回调地址</span><input placeholder="请输入支付回调地址"/></label><label className="wide"><span>退款回调地址</span><input placeholder="请输入退款回调地址"/></label></>:<><label><span>账户类型</span><select defaultValue="银行卡"><option>银行卡</option><option>支付宝</option></select></label><label><span>收款名称</span><input defaultValue="杭州山野生活有限公司"/></label><label><span>收款账号</span><input defaultValue="6222 **** **** 8862"/></label><label><span>开户银行</span><input defaultValue="招商银行杭州分行"/></label></>}</div><div className="settlement-save-bar"><span>{payment?'敏感凭据仅在保存时提交，页面不回显明文':'审核通过前可继续修改账户信息'}</span><button onClick={()=>notify(payment?'支付配置已保存':'收款账户已提交审核')}>保存设置</button></div></section>;
-  return <section className="admin-page settlement-admin-page" data-screen-label={`${platform?'平台':'商家'}结算管理`}><div className="module-tabs">{tabs.map((tab)=><button className={active===tab?'active':''} key={tab} onClick={()=>changeTab(tab)}>{tab}</button>)}</div>{platform?(active==='结算台账'?renderLedger():active==='账户审核'?renderAccounts():renderChannels()):(active==='结算记录'?renderLedger():renderMerchantForm(active==='独立App支付'))}{dialog?.type==='settle'&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog settlement-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">OFFLINE SETTLEMENT</span><h2>确认线下打款</h2></div><button onClick={()=>setDialog(null)}>×</button></div><div className="settlement-summary"><span>本次结算 {selected.length} 条记录</span><b>净额 ¥284.06</b></div><div className="description-grid"><div><span>收款方式</span><b>银行卡</b></div><div><span>收款名称</span><b>杭州山野生活有限公司</b></div><div className="wide"><span>收款账号</span><b>6222 **** **** 8862</b></div></div><label className="dialog-field"><span>转账流水号</span><input placeholder="请输入银行或第三方转账流水号"/></label><label className="dialog-field"><span>打款凭证</span><button className="upload-placeholder"><AdminIcon name="image" size={18}/>上传图片</button></label><label className="dialog-field"><span>备注 <small>选填</small></span><textarea placeholder="补充本次结算说明"></textarea></label><div className="dialog-actions"><button onClick={()=>setDialog(null)}>取消</button><button className="primary" onClick={()=>{setDialog(null);notify('结算已确认');}}>确认已打款</button></div></section></div>}{dialog?.type==='audit'&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog settlement-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">ACCOUNT AUDIT</span><h2>结算账户审核</h2></div><button onClick={()=>setDialog(null)}>×</button></div><div className="description-grid">{[['店铺',dialog.row[1]],['账户类型',dialog.row[2]],['收款名称',dialog.row[3]],['收款账号',dialog.row[4]]].map(([label,value])=><div key={label}><span>{label}</span><b>{value}</b></div>)}</div><label className="dialog-field"><span>审核备注</span><textarea placeholder="拒绝时必须填写审核原因"></textarea></label><div className="dialog-actions"><button onClick={()=>setDialog(null)}>关闭</button><button className="danger" onClick={()=>{setDialog(null);notify('账户已拒绝');}}>拒绝</button><button className="primary" onClick={()=>{setDialog(null);notify('账户审核通过');}}>通过</button></div></section></div>}{dialog?.type==='channel'&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog channel-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">PAYMENT CHANNEL</span><h2>{dialog.editing?'编辑支付通道':'新增支付通道'}</h2></div><button onClick={()=>setDialog(null)}>×</button></div><div className="settlement-form-grid"><label><span>通道名称</span><input placeholder="请输入通道名称"/></label><label><span>收款模式</span><select defaultValue={dialog.mode}><option>平台普通商户直收</option><option>服务商代子商户收款</option><option>子商户路由</option></select></label><label><span>适用店铺</span><select><option>平台主通道</option><option>山野生活店</option></select></label><label><span>App 目标</span><input defaultValue="platform"/></label><label><span>应用 AppID</span><input placeholder="请输入应用 AppID"/></label><label><span>商户号</span><input placeholder="请输入商户号"/></label><label className="wide"><span>支付回调地址</span><input placeholder="请输入支付回调地址"/></label></div><div className="dialog-actions"><button onClick={()=>setDialog(null)}>取消</button><button className="primary" onClick={()=>{setDialog(null);notify('支付通道已保存');}}>保存</button></div></section></div>}</section>;
+  return <section className="admin-page settlement-admin-page" data-screen-label={`${platform?'平台':'商家'}结算管理-${active}`}><div className="module-tabs">{tabs.map((tab)=><button className={active===tab?'active':''} key={tab} onClick={()=>changeTab(tab)}>{tab}</button>)}</div>{platform?(active==='结算台账'?renderLedger():active==='账户审核'?renderAccounts():renderChannels()):(active==='结算记录'?renderLedger():renderMerchantForm(active==='独立App支付'))}{dialog?.type==='settle'&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog settlement-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">OFFLINE SETTLEMENT</span><h2>确认线下打款</h2></div><button onClick={()=>setDialog(null)}>×</button></div><div className="settlement-summary"><span>本次结算 {selected.length} 条记录</span><b>净额 ¥284.06</b></div><div className="description-grid"><div><span>收款方式</span><b>银行卡</b></div><div><span>收款名称</span><b>杭州山野生活有限公司</b></div><div className="wide"><span>收款账号</span><b>6222 **** **** 8862</b></div></div><label className="dialog-field"><span>转账流水号</span><input placeholder="请输入银行或第三方转账流水号"/></label><label className="dialog-field"><span>打款凭证</span><button className="upload-placeholder"><AdminIcon name="image" size={18}/>上传图片</button></label><label className="dialog-field"><span>备注 <small>选填</small></span><textarea placeholder="补充本次结算说明"></textarea></label><div className="dialog-actions"><button onClick={()=>setDialog(null)}>取消</button><button className="primary" onClick={()=>{setDialog(null);notify('结算已确认');}}>确认已打款</button></div></section></div>}{dialog?.type==='audit'&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog settlement-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">ACCOUNT AUDIT</span><h2>结算账户审核</h2></div><button onClick={()=>setDialog(null)}>×</button></div><div className="description-grid">{[['店铺',dialog.row[1]],['账户类型',dialog.row[2]],['收款名称',dialog.row[3]],['收款账号',dialog.row[4]]].map(([label,value])=><div key={label}><span>{label}</span><b>{value}</b></div>)}</div><label className="dialog-field"><span>审核备注</span><textarea placeholder="拒绝时必须填写审核原因"></textarea></label><div className="dialog-actions"><button onClick={()=>setDialog(null)}>关闭</button><button className="danger" onClick={()=>{setDialog(null);notify('账户已拒绝');}}>拒绝</button><button className="primary" onClick={()=>{setDialog(null);notify('账户审核通过');}}>通过</button></div></section></div>}{dialog?.type==='channel'&&<div className="dialog-mask" onClick={()=>setDialog(null)}><section className="admin-dialog channel-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">PAYMENT CHANNEL</span><h2>{dialog.editing?'编辑支付通道':'新增支付通道'}</h2></div><button onClick={()=>setDialog(null)}>×</button></div><div className="settlement-form-grid"><label><span>通道名称</span><input placeholder="请输入通道名称"/></label><label><span>收款模式</span><select defaultValue={dialog.mode}><option>平台普通商户直收</option><option>服务商代子商户收款</option><option>子商户路由</option></select></label><label><span>适用店铺</span><select><option>平台主通道</option><option>山野生活店</option></select></label><label><span>App 目标</span><input defaultValue="platform"/></label><label><span>应用 AppID</span><input placeholder="请输入应用 AppID"/></label><label><span>商户号</span><input placeholder="请输入商户号"/></label><label className="wide"><span>支付回调地址</span><input placeholder="请输入支付回调地址"/></label></div><div className="dialog-actions"><button onClick={()=>setDialog(null)}>取消</button><button className="primary" onClick={()=>{setDialog(null);notify('支付通道已保存');}}>保存</button></div></section></div>}</section>;
 }
 
 function AdminServicePage({ notify }) {
@@ -2654,6 +4542,10 @@ function AdminPrototype({ surface, route, navigate, notify }) {
   else if (surface === 'platform' && page === 'members') content = <AdminMembers members={members} setMembers={setMembers} notify={notify} navigate={navigate}/>;
   else if (surface === 'platform' && page === 'reviews') content = <AdminReviews notify={notify}/>;
   else if (surface === 'platform' && page === 'points') content = <AdminPoints route={route} notify={notify}/>;
+  else if (surface === 'platform' && page === 'points-mall') content = <AdminPointsMall route={route} notify={notify}/>;
+  else if (surface === 'platform' && page === 'content') content = <AdminHomeOperation route={route} notify={notify}/>;
+  else if (surface === 'platform' && page === 'seckill') content = <AdminSeckillPage route={route} navigate={navigate} notify={notify}/>;
+  else if (surface === 'platform' && page === 'feedback') content = <AdminFeedback notify={notify}/>;
   else if (surface === 'merchant' && page === 'orders') content = <AdminOrders orders={orders} setOrders={setOrders} notify={notify}/>;
   else if (surface === 'merchant' && page === 'products') content = <MerchantProducts notify={notify}/>;
   else if (surface === 'merchant' && page === 'service') content = <AdminServicePage notify={notify}/>;
@@ -2684,7 +4576,7 @@ function PrototypeUtilityDialog({ value, onClose, onFinish }) {
   const batch = value.includes('批量操作');
   const title = sku ? 'SKU 管理' : logo ? '选择店铺 Logo' : media ? '商品图片管理' : spec ? '选择商品规格' : log ? '操作记录' : batch ? '批量操作' : '业务操作';
   return <div className="dialog-mask" onClick={onClose}><section className="admin-dialog utility-dialog" onClick={(event)=>event.stopPropagation()}><div className="dialog-head"><div><span className="drawer-kicker">INTERACTIVE PROTOTYPE</span><h2>{title}</h2></div><button onClick={onClose}>×</button></div>
-    {sku&&<><div className="dialog-hint"><AdminIcon name="box" size={17}/><span>规格、售价和库存均可在此维护。</span></div><table className="mini-data-table"><thead><tr><th>规格组合</th><th>销售价</th><th>库存</th><th>状态</th></tr></thead><tbody><tr><td>雾银 / 标准版</td><td><input defaultValue="299.00"/></td><td><input defaultValue="18"/></td><td><StatusTicket tone="success">启用</StatusTicket></td></tr><tr><td>曜石黑 / 长续航</td><td><input defaultValue="369.00"/></td><td><input defaultValue="12"/></td><td><StatusTicket tone="success">启用</StatusTicket></td></tr></tbody></table></>}
+    {sku&&<><div className="dialog-hint"><AdminIcon name="box" size={17}/><span>规格、售价和库存均可在此维护。</span></div><table data-align-table="t28" className="mini-data-table"><thead><tr><th>规格组合</th><th>销售价</th><th>库存</th><th>状态</th></tr></thead><tbody><tr><td><div className="cb">雾银 / 标准版</div></td><td><div className="cb"><input defaultValue="299.00"/></div></td><td><div className="cb"><input defaultValue="18"/></div></td><td><div className="cb"><StatusTicket tone="success">启用</StatusTicket></div></td></tr><tr><td><div className="cb">曜石黑 / 长续航</div></td><td><div className="cb"><input defaultValue="369.00"/></div></td><td><div className="cb"><input defaultValue="12"/></div></td><td><div className="cb"><StatusTicket tone="success">启用</StatusTicket></div></td></tr></tbody></table></>}
     {media&&<><div className="asset-picker-grid">{['headphone','serum','coffee','chair'].map((art,index)=><button className={index===selectedAsset?'selected':''} key={art} onClick={()=>setSelectedAsset(index)}><ProductArt type={art}/><span>{index===0?'当前主图':`轮播图 ${index}`}</span>{index===selectedAsset&&<i><AdminIcon name="check" size={14}/></i>}</button>)}<button className="asset-upload-tile" onClick={()=>onFinish('新图片已加入资源列表')}><AdminIcon name="plus" size={22}/><span>上传新图片</span><small>JPG / PNG</small></button></div><p className="utility-tip">选择图片后可设置为主图，轮播图支持拖动排序。</p></>}
     {spec&&<><div className="spec-picker-list">{[['颜色',['雾银','曜石黑','奶油白']],['版本',['标准版','长续航版']],['容量',['128G','256G']]].map(([name,options])=><section key={name}><b>{name}</b><div>{options.map((option)=><button className={selectedSpecs.includes(option)?'selected':''} key={option} onClick={()=>setSelectedSpecs(selectedSpecs.includes(option)?selectedSpecs.filter((item)=>item!==option):[...selectedSpecs,option])}><i>{selectedSpecs.includes(option)?'✓':''}</i>{option}</button>)}</div></section>)}</div></>}
     {logo&&<><div className="logo-picker-grid">{['野','山','Y','店'].map((item,index)=><button className={index===selectedLogo?'selected':''} key={item} onClick={()=>setSelectedLogo(index)}><span>{item}</span><small>{index===0?'当前 Logo':'备选样式'}</small></button>)}<button className="logo-upload-tile" onClick={()=>onFinish('店铺 Logo 已上传')}><AdminIcon name="image" size={20}/><span>上传图片</span></button></div><p className="utility-tip">建议使用 200 × 200 的正方形图片。</p></>}

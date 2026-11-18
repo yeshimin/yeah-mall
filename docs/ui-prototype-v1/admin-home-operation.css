@@ -1,0 +1,161 @@
+/* 首页运营（原型）：Banner 与快捷入口配置 + App 首屏预览 */
+.home-operation-page .ho-check { width: 44px; }
+.home-operation-page .ho-check input { width: 15px; height: 15px; accent-color: var(--brand); }
+
+/* Banner 画面 */
+.ho-banner-art {
+  position: relative;
+  display: block;
+  width: 160px;
+  height: 85px;
+  overflow: hidden;
+  padding: 11px 12px;
+  color: #fff;
+  border-radius: 6px;
+  background: #1c4b3b;
+}
+.ho-banner-art.tone-forest { background: linear-gradient(118deg, #1c4b3b, #2f6b54); }
+.ho-banner-art.tone-clay { background: linear-gradient(118deg, #5e3a30, #8a5a49); }
+.ho-banner-art.tone-ocean { background: linear-gradient(118deg, #274b54, #3b6d78); }
+.ho-banner-art.tone-ink { background: linear-gradient(118deg, #20312a, #43564c); }
+.ho-banner-art::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 82% 18%, rgba(255,255,255,.2), transparent 40%); pointer-events: none; }
+.ho-banner-art .product-art { position: absolute; right: -16px; bottom: -14px; width: 126px; height: 102px; opacity: .9; }
+.ho-banner-mark { position: absolute; top: 11px; left: 12px; width: 15px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.62); }
+.ho-banner-kicker { position: relative; z-index: 1; display: block; margin-top: 7px; color: rgba(255,255,255,.72); font-size: 9px; letter-spacing: .08em; }
+.ho-banner-art b { position: relative; z-index: 1; display: block; max-width: 96px; margin-top: 3px; font-size: 11px; line-height: 1.35; }
+.ho-banner-art.has-image { padding: 0; background: #edf1ee; }
+.ho-banner-art.has-image::after { display: none; }
+.ho-banner-art > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+.ho-target { display: flex; width: max-content; max-width: 100%; min-width: 0; margin: 0 auto; align-items: center; justify-content: flex-start; gap: 6px; color: var(--ink-2); text-align: left; }
+.ho-target > i { flex: 0 0 5px; width: 5px; height: 5px; border-radius: 50%; background: var(--brand); }
+.ho-target .mono { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ho-target-empty { display: block; width: max-content; max-width: 100%; margin: 0 auto; color: var(--muted); font-size: 11px; text-align: left; }
+.ho-time-cell { display: flex; width: max-content; margin: 0 auto; align-items: center; text-align: left; white-space: nowrap; }
+
+/* 表格顶部说明 */
+.ho-table-intro { display: flex; min-height: 38px; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 14px; color: var(--muted); border-bottom: 1px solid var(--line); background: #fbfdfb; font-size: 11px; line-height: 1.5; }
+.ho-table-intro > span { display: flex; min-width: 0; align-items: center; gap: 6px; }
+.ho-table-intro .icon { flex: 0 0 auto; color: var(--brand); }
+.ho-table-intro > b { flex: 0 0 auto; color: var(--ink-2); font-size: 11px; font-weight: 600; }
+.ho-table-intro.is-warn { color: #8f4b40; background: var(--danger-soft, #f9e8e6); }
+.ho-table-intro.is-warn .icon,
+.ho-table-intro.is-warn > b { color: var(--danger); }
+
+/* Banner 表格 */
+.ho-banner-table td:nth-child(2) { width: 188px; }
+.ho-banner-cell { width: max-content; max-width: 100%; margin: 0 auto; padding: 6px 0; text-align: left; }
+.ho-banner-table .ho-target .mono { font-size: 11px; }
+.ho-banner-table th:nth-child(6), .ho-banner-table td:nth-child(6),
+.ho-banner-table th:nth-child(7), .ho-banner-table td:nth-child(7),
+.ho-quick-table th:nth-child(7), .ho-quick-table td:nth-child(7) { width: 190px; }
+
+/* Banner 弹窗 */
+.admin-shell-light .admin-dialog.ho-banner-dialog { width: 720px; }
+.ho-banner-dialog-grid { display: grid; grid-template-columns: minmax(0,1.08fr) minmax(0,1fr); gap: 20px; }
+.ho-field-label { display: block; margin-bottom: 7px; color: var(--ink-2); font-size: 12px; }
+.ho-banner-dialog-grid .ho-banner-art { width: 100%; height: auto; aspect-ratio: 15 / 8; }
+.ho-banner-dialog-grid .ho-banner-art .product-art { width: 170px; height: 138px; }
+.ho-banner-dialog-grid .ho-banner-art b { max-width: 190px; font-size: 13px; }
+.ho-upload-empty { display: grid; width: 100%; height: auto; aspect-ratio: 15 / 8; padding: 0; place-items: center; align-content: center; gap: 4px; color: var(--muted); border: 1px dashed var(--line-strong, #c8d4cc); border-radius: 6px; background: #fbfdfb; font: inherit; font-size: 11px; cursor: pointer; }
+.ho-upload-empty:hover { border-color: var(--brand); background: var(--brand-soft, #e8f2ed); }
+.ho-upload-empty .icon { color: var(--brand); }
+.ho-upload-empty b { color: var(--ink-2); font-size: 12px; }
+.ho-banner-upload-actions { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.ho-upload-btn { display: inline-flex; height: 30px; align-items: center; gap: 6px; padding: 0 11px; color: var(--brand); border: 1px solid var(--line); border-radius: 5px; background: #fff; font-size: 12px; cursor: pointer; }
+.ho-upload-btn:hover { border-color: var(--brand); background: var(--brand-soft, #e8f2ed); }
+.ho-banner-upload-actions small { color: var(--muted); font-size: 11px; }
+.ho-banner-form { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
+.ho-banner-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 0 16px; margin-top: 4px; }
+.ho-banner-form-grid > .dialog-field { margin-top: 4px; }
+.ho-field-tip { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.ho-field-error { margin: 6px 0 0; color: var(--danger); font-size: 11px; }
+
+/* 快捷入口 */
+.ho-quick-icon { display: inline-grid; flex: 0 0 auto; place-items: center; border-radius: 10px 3px 10px 3px; }
+.ho-entry-cell { display: flex; width: max-content; max-width: 100%; margin: 0 auto; align-items: center; justify-content: flex-start; gap: 10px; text-align: left; }
+.ho-entry-cell > div { min-width: 0; }
+.ho-entry-cell b { display: block; overflow: hidden; color: var(--ink); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.ho-entry-cell small { display: block; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.ho-remark { display: block; width: max-content; max-width: 180px; margin: 0 auto; overflow: hidden; color: var(--muted); font-size: 12px; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+
+.ho-switch-cell { display: flex; width: max-content; margin: 0 auto; align-items: center; justify-content: flex-start; gap: 7px; text-align: left; }
+.ho-switch-cell em { color: var(--muted); font-size: 11px; font-style: normal; }
+.ho-switch-cell.on em { color: var(--brand); }
+.ho-switch { position: relative; width: 34px; height: 19px; padding: 0; border: 0; border-radius: 10px; background: #cfd9d2; cursor: pointer; transition: background .16s ease; }
+.ho-switch i { position: absolute; top: 2px; left: 2px; width: 15px; height: 15px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(23,37,31,.25); transition: transform .16s ease; }
+.ho-switch.on { background: var(--brand); }
+.ho-switch.on i { transform: translateX(15px); }
+.ho-dialog-switch { display: inline-flex; align-items: center; gap: 8px; height: 32px; }
+.ho-dialog-switch em { color: var(--muted); font-size: 12px; font-style: normal; }
+
+/* 快捷入口弹窗 */
+.admin-shell-light .admin-dialog.ho-quick-dialog { width: 620px; }
+.ho-quick-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 0 16px; }
+.ho-quick-form-grid > .dialog-field { margin-top: 8px; }
+.ho-icon-field { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: #fbfdfb; }
+.ho-icon-copy { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.ho-icon-copy button { align-self: flex-start; padding: 0; color: var(--brand); border: 0; background: none; font-size: 11px; cursor: pointer; }
+.ho-icon-copy small { color: var(--muted); font-size: 10px; line-height: 1.4; }
+.ho-icon-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ho-icon-picker button { display: grid; width: 30px; height: 30px; padding: 0; place-items: center; color: var(--ink-2); border: 1px solid var(--line); border-radius: 5px; background: #fff; cursor: pointer; }
+.ho-icon-picker button:hover { border-color: var(--line-strong, #c8d4cc); }
+.ho-icon-picker button.selected { color: var(--brand); border-color: var(--brand); background: var(--brand-soft, #e8f2ed); }
+.ho-icon-picker button.ho-icon-preset { width: 32px; height: 32px; color: #fff; border-color: transparent; border-radius: 8px; }
+.ho-icon-picker button.ho-icon-preset:hover { border-color: rgba(20,37,29,.22); }
+.ho-icon-picker button.ho-icon-preset.selected { color: #fff; border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-soft, #e8f2ed); }
+.ho-counter { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; text-align: right; }
+.ho-quick-dialog .dialog-field .ho-field-tip { margin-top: 4px; }
+
+/* 删除确认 */
+.admin-shell-light .admin-dialog.ho-confirm-dialog { width: 440px; }
+.ho-danger-confirm { display: grid; grid-template-columns: 32px minmax(0,1fr); align-items: start; gap: 10px; padding: 13px 14px; color: var(--danger); border: 1px solid #ecc9c3; border-radius: 7px; background: var(--danger-soft, #f9e8e6); }
+.ho-danger-confirm > .icon { margin-top: 1px; }
+.ho-danger-confirm > div { display: flex; flex-direction: column; gap: 4px; }
+.ho-danger-confirm b { color: #82382d; font-size: 12px; }
+.ho-danger-confirm span { color: #8f4b40; font-size: 11px; line-height: 1.5; }
+.ho-danger-confirm small { color: #99645b; font-size: 10px; }
+
+/* App 首屏预览 */
+.admin-shell-light .admin-drawer.ho-preview-drawer { width: 500px; }
+.ho-preview-note { display: flex; align-items: flex-start; gap: 7px; margin: 2px 0 14px; padding: 9px 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; background: #fbfdfb; font-size: 11px; line-height: 1.5; }
+.ho-preview-note .icon { flex: 0 0 auto; margin-top: 1px; color: var(--brand); }
+.ho-preview-note b { color: var(--ink); font-weight: 600; }
+.ho-preview-phone { width: 330px; margin: 0 auto 16px; padding: 0 0 12px; overflow: hidden; border: 6px solid #14231c; border-radius: 26px; background: var(--paper, #f4f6f3); box-shadow: 0 18px 40px rgba(20,37,29,.18); }
+.ho-phone-status { display: flex; height: 24px; align-items: flex-end; justify-content: space-between; padding: 0 16px 2px; color: var(--ink); font: 600 9px var(--font-mono, monospace); }
+.ho-phone-topbar { display: flex; align-items: center; gap: 10px; padding: 6px 12px 8px; background: #fff; }
+.ho-phone-topbar > b { color: var(--brand); font-size: 13px; letter-spacing: .02em; }
+.ho-phone-topbar > b span { color: var(--ink); }
+.ho-phone-search { display: flex; flex: 1; height: 26px; align-items: center; gap: 5px; padding: 0 10px; color: var(--muted); border: 1px solid var(--line); border-radius: 13px; background: #fff; font-size: 10px; }
+.ho-phone-banner-wrap { position: relative; margin: 0 0 10px; }
+.ho-phone-banner { position: relative; display: block; width: 100%; height: auto; aspect-ratio: 15 / 8; overflow: hidden; padding: 0; color: #fff; border: 0; border-radius: 0; text-align: left; cursor: pointer; }
+.ho-phone-banner.tone-forest { background: linear-gradient(118deg, #1c4b3b, #2f6b54); }
+.ho-phone-banner.tone-clay { background: linear-gradient(118deg, #5e3a30, #8a5a49); }
+.ho-phone-banner.tone-ocean { background: linear-gradient(118deg, #274b54, #3b6d78); }
+.ho-phone-banner.tone-ink { background: linear-gradient(118deg, #20312a, #43564c); }
+.ho-phone-banner.has-image { padding: 0; background: #edf1ee; }
+.ho-phone-banner.has-image::after { display: none; }
+.ho-phone-banner-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ho-phone-banner::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 18%, rgba(255,255,255,.22), transparent 42%); pointer-events: none; }
+.ho-phone-banner .product-art { position: absolute; right: -24px; bottom: -19px; width: 208px; height: 168px; opacity: .92; }
+.ho-phone-banner-copy { position: relative; z-index: 1; display: flex; width: 68%; flex-direction: column; gap: 5px; padding: 21px 0 0 16px; }
+.ho-phone-banner-copy em { color: rgba(255,255,255,.75); font-size: 8px; font-style: normal; letter-spacing: .1em; }
+.ho-phone-banner-copy strong { font-size: 17px; line-height: 1.25; }
+.ho-phone-banner-copy span { display: inline-flex; width: max-content; align-items: center; gap: 2px; margin-top: 3px; padding: 3px 7px; color: var(--brand); border-radius: 4px; background: #f2f6f2; font-size: 9px; font-weight: 600; }
+.ho-phone-dots { position: absolute; right: 0; bottom: 10px; left: 0; display: flex; justify-content: center; gap: 4px; }
+.ho-phone-dots button { width: 5px; height: 5px; padding: 0; border: 0; border-radius: 3px; background: rgba(255,255,255,.45); cursor: pointer; }
+.ho-phone-dots button.active { width: 12px; background: #fff; }
+.ho-phone-banner-empty { display: grid; width: 100%; height: auto; aspect-ratio: 15 / 8; margin: 0 0 10px; place-items: center; color: var(--muted); border-top: 1px dashed var(--line-strong, #c8d4cc); border-bottom: 1px dashed var(--line-strong, #c8d4cc); background: #fff; font-size: 11px; }
+.ho-phone-quick { padding: 2px 8px 10px; }
+.ho-phone-quick-row { display: grid; gap: 2px; }
+.ho-phone-quick-row + .ho-phone-quick-row { margin-top: 8px; }
+.ho-phone-quick button { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: 4px; padding: 0; color: var(--ink-2); border: 0; background: none; font-size: 9px; cursor: pointer; }
+.ho-phone-quick button > span:last-child { overflow: hidden; max-width: 100%; text-overflow: ellipsis; white-space: nowrap; }
+.ho-phone-quick-icon { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 10px; background: var(--brand-soft, #e8f2ed); }
+.ho-phone-quick-icon .ho-quick-icon { border-radius: 7px 2px 7px 2px; }
+.ho-phone-quick-empty { margin: 0 10px 10px; padding: 10px; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; background: #fff; font-size: 10px; text-align: center; }
+.ho-phone-placeholder { display: flex; align-items: baseline; gap: 6px; margin: 2px 10px 0; padding-top: 10px; border-top: 1px solid var(--line); }
+.ho-phone-line { display: inline-block; width: 4px; height: 13px; border-radius: 2px; background: var(--brand); }
+.ho-phone-placeholder b { color: var(--ink); font-size: 12px; }
+.ho-phone-placeholder small { color: var(--muted); font-size: 9px; }
+.ho-preview-actions { margin-top: 4px; }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.data.domain.dto.SeckillActivityApplyQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityApplyEntity;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyStatsVo;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillActivityApplyVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -18,4 +19,9 @@ public interface SeckillActivityApplyMapper extends BaseMapper<SeckillActivityAp
     IPage<SeckillActivityApplyVo> query(Page<SeckillActivityApplyEntity> page,
                                         @Param("query") SeckillActivityApplyQueryDto query,
                                         @Param("mchId") Long mchId);
+
+    /**
+     * 统计
+     */
+    SeckillActivityApplyStatsVo queryStats(@Param("query") SeckillActivityApplyQueryDto query);
 }

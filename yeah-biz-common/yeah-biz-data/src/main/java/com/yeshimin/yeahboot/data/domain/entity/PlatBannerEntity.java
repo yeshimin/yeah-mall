@@ -22,4 +22,14 @@ public class PlatBannerEntity extends ConditionBaseEntity<PlatBannerEntity> {
      * 跳转目标，为空时不跳转
      */
     private String target;
+
+    /**
+     * 排序：大于等于1，越小越靠前
+     */
+    private Integer sort;
+
+    /**
+     * 是否启用
+     */
+    private Boolean isEnabled;
 }
