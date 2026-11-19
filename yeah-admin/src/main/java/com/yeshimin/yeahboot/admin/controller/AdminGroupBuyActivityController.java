@@ -1,8 +1,10 @@
 package com.yeshimin.yeahboot.admin.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yeshimin.yeahboot.admin.domain.dto.GroupBuyActivityEnabledUpdateDto;
 import com.yeshimin.yeahboot.admin.domain.dto.GroupBuyActivitySaveDto;
 import com.yeshimin.yeahboot.admin.domain.dto.GroupBuyActivityStatusUpdateDto;
+import com.yeshimin.yeahboot.admin.domain.vo.AdminGroupBuyActivityStatsVo;
 import com.yeshimin.yeahboot.admin.service.AdminGroupBuyActivityService;
 import com.yeshimin.yeahboot.common.common.utils.YsmUtils;
 import com.yeshimin.yeahboot.common.controller.base.CrudController;
@@ -12,9 +14,11 @@ import com.yeshimin.yeahboot.data.mapper.GroupBuyActivityMapper;
 import com.yeshimin.yeahboot.data.repository.GroupBuyActivityRepo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
@@ -31,7 +35,28 @@ public class AdminGroupBuyActivityController extends CrudController<GroupBuyActi
     public AdminGroupBuyActivityController(GroupBuyActivityRepo repo, AdminGroupBuyActivityService service) {
         super(repo);
         this.service = service;
-        super.setModule("admin:groupBuyActivity").disableCreate().disableUpdate().disableDelete();
+        super.setModule("admin:groupBuyActivity").disableCreate().disableUpdate().disableDelete().disableQuery();
+    }
+
+    /**
+     * 分页查询活动列表（含报名与通过商品数量）
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
+    @GetMapping("/query")
+    public R<Page<GroupBuyActivityEntity>> query(Page<GroupBuyActivityEntity> page,
+                                                 @RequestParam(required = false) String keyword,
+                                                 @RequestParam(required = false) Boolean isEnabled) {
+        return R.ok(service.query(page, keyword, isEnabled));
+    }
+
+    /**
+     * 查询活动状态统计
+     */
+    @PreAuthorize("@pms.hasPermission(this.getModule() + ':crud:query')")
+    @GetMapping("/stats")
+    public R<AdminGroupBuyActivityStatsVo> stats(@RequestParam(required = false) String keyword,
+                                                 @RequestParam(required = false) Boolean isEnabled) {
+        return R.ok(service.stats(keyword, isEnabled));
     }
 
     /**

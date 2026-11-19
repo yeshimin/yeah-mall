@@ -70,6 +70,11 @@ public class GroupBuyApplyVo extends BaseDomain {
     private String mainImage;
 
     /**
+     * 商品详情描述
+     */
+    private String detailDesc;
+
+    /**
      * 最低拼团价
      */
     private BigDecimal minGroupPrice;
@@ -78,6 +83,16 @@ public class GroupBuyApplyVo extends BaseDomain {
      * 最高拼团价
      */
     private BigDecimal maxGroupPrice;
+
+    /**
+     * 最低原价
+     */
+    private BigDecimal minOriginPrice;
+
+    /**
+     * 最高原价
+     */
+    private BigDecimal maxOriginPrice;
 
     /**
      * 拼团库存

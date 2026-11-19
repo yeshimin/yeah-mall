@@ -34,4 +34,29 @@ public class SeckillProductStatisticsVo {
      * 剩余库存
      */
     private Long remainingStock;
+
+    /**
+     * 秒杀场次ID
+     */
+    private Long sessionId;
+
+    /**
+     * 秒杀场次名称
+     */
+    private String sessionName;
+
+    /**
+     * 商家名称
+     */
+    private String mchName;
+
+    /**
+     * 主图
+     */
+    private String mainImage;
+
+    /**
+     * sku最低价-原价
+     */
+    private BigDecimal minOriginPrice;
 }

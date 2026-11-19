@@ -7,6 +7,7 @@ import com.yeshimin.yeahboot.data.domain.dto.SeckillSpuQueryDto;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSpuEntity;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillSpuVo;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillStatisticsVo;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillOrderEventVo;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillProductStatisticsVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -32,4 +33,10 @@ public interface SeckillSpuMapper extends BaseMapper<SeckillSpuEntity> {
      * 查询秒杀活动商品排行
      */
     List<SeckillProductStatisticsVo> queryActivityProductStatistics(@Param("activityId") Long activityId);
+
+    /**
+     * 查询秒杀活动最近成交动态
+     */
+    List<SeckillOrderEventVo> queryActivityRecentOrders(@Param("activityId") Long activityId,
+                                                        @Param("limit") int limit);
 }

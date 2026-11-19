@@ -55,6 +55,16 @@ public class GroupBuyOrderVo extends BaseDomain {
     private String memberName;
 
     /**
+     * 会员头像
+     */
+    private String memberAvatar;
+
+    /**
+     * 拼团活动ID
+     */
+    private Long activityId;
+
+    /**
      * 拼团活动名称
      */
     private String activityName;
@@ -63,6 +73,11 @@ public class GroupBuyOrderVo extends BaseDomain {
      * 拼团商品名称
      */
     private String productName;
+
+    /**
+     * 拼团商品主图
+     */
+    private String productImage;
 
     /**
      * 拼团价格
@@ -75,9 +90,29 @@ public class GroupBuyOrderVo extends BaseDomain {
     private BigDecimal actualAmount;
 
     /**
+     * 支付成功时间
+     */
+    private LocalDateTime payTime;
+
+    /**
      * 是否团长订单
      */
     private Boolean isLeader;
+
+    /**
+     * 所在团成团人数
+     */
+    private Integer groupMinPeople;
+
+    /**
+     * 所在团已支付成员数
+     */
+    private Integer groupMemberCount;
+
+    /**
+     * 所在团已占席成员数
+     */
+    private Integer groupReservedMemberCount;
 
     /**
      * 创建时间

@@ -107,4 +107,39 @@ public class SeckillSpuVo extends BaseDomain {
      * 审核状态，见枚举：SeckillActivityApplyAuditStatusEnum
      */
     private Integer auditStatus;
+
+    /**
+     * SKU数量
+     */
+    private Long skuCount;
+
+    /**
+     * 总库存（剩余库存+销量）
+     */
+    private Long stock;
+
+    /**
+     * 成交金额（已支付且未关闭、未退款、未售后）
+     */
+    private BigDecimal salesAmount;
+
+    /**
+     * 场次开始时间
+     */
+    private String sessionBeginTime;
+
+    /**
+     * 场次结束时间
+     */
+    private String sessionEndTime;
+
+    /**
+     * 报名时间
+     */
+    private String applyTime;
+
+    /**
+     * 审核时间（待审核时为空）
+     */
+    private String auditTime;
 }

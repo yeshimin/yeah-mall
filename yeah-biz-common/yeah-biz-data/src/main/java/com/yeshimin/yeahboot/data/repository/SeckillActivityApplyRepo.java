@@ -75,4 +75,14 @@ public class SeckillActivityApplyRepo extends BaseRepo<SeckillActivityApplyMappe
         return lambdaQuery().eq(SeckillActivityApplyEntity::getMchId, mchId)
                 .orderByDesc(SeckillActivityApplyEntity::getCreateTime).list();
     }
+
+    /**
+     * findOneBySeckillSpuId
+     */
+    public SeckillActivityApplyEntity findOneBySeckillSpuId(Long seckillSpuId) {
+        return lambdaQuery().eq(SeckillActivityApplyEntity::getSeckillSpuId, seckillSpuId)
+                .orderByDesc(SeckillActivityApplyEntity::getId)
+                .last("limit 1")
+                .one();
+    }
 }

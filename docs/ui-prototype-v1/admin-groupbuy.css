@@ -1,0 +1,282 @@
+/* 拼团管理（原型）：活动管理 / 申请审核 / 商品管理 / 订单管理。
+   复用秒杀模块已归一化的通用原语（sk-status-tabs / sk-table-intro / sk-activity-cell /
+   sk-when-cell / sk-switch / sk-detail-* / sk-flow / sa-product-cell / sa-party-cell /
+   sa-time-cell / sa-sku-table / sa-richtext / sa-result-* / ss-activity-bar / ss-queue /
+   skp-price-cell / skp-stock-cell / skp-sales-cell / skp-stat），仅在此定义拼团专用视觉。
+   纯文本堆叠列一律复用已带 box 居中覆盖的类，避免重蹈居中/探针字号覆辙。 */
+
+.groupbuy-page .admin-table-frame { overflow-x: auto; }
+
+/* ---------- 活动管理表格 ---------- */
+.gb-activity-table { width: 100%; min-width: 1160px; table-layout: fixed; }
+.gb-activity-table th:nth-child(1), .gb-activity-table td:nth-child(1) { width: 22%; }
+.gb-activity-table th:nth-child(2), .gb-activity-table td:nth-child(2) { width: 150px; }
+.gb-activity-table th:nth-child(3), .gb-activity-table td:nth-child(3) { width: 150px; }
+.gb-activity-table th:nth-child(4), .gb-activity-table td:nth-child(4) { width: 74px; }
+.gb-activity-table th:nth-child(5), .gb-activity-table td:nth-child(5) { width: 82px; }
+.gb-activity-table th:nth-child(6), .gb-activity-table td:nth-child(6) { width: 96px; }
+.gb-activity-table th:nth-child(7), .gb-activity-table td:nth-child(7) { width: 84px; }
+.gb-activity-table th:nth-child(8), .gb-activity-table td:nth-child(8) { width: 48px; }
+.gb-activity-table th:nth-child(9), .gb-activity-table td:nth-child(9) { width: 78px; }
+.gb-activity-table th:nth-child(10), .gb-activity-table td:nth-child(10) { width: 154px; }
+.gb-activity-table .actions { white-space: nowrap; }
+.gb-activity-table .row-menu button:disabled { color: var(--muted-2); cursor: not-allowed; }
+.gb-activity-table .row-menu button:disabled:hover { background: transparent; }
+.gb-activity-table .row-menu button.gb-danger-action { color: var(--danger); }
+.gb-activity-table .row-menu button.gb-danger-action:disabled { color: var(--muted-2); }
+
+/* 报名 / 商品 双链接堆叠（多按钮复合块，容器居中、内容左对齐） */
+.gb-link-stack {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.gb-link-stack .table-link { height: 24px; padding: 0 6px; font-weight: 600; }
+.gb-link-stack .table-link.is-zero { color: var(--muted); font-weight: 500; }
+
+/* 操作按钮行（多按钮复合块） */
+.gb-operations {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+}
+.gb-operations .table-link { white-space: nowrap; }
+.gb-next-link { font-weight: 600; }
+
+/* ---------- 申请审核表格 ---------- */
+.gb-apply-table { width: 100%; min-width: 1080px; table-layout: fixed; }
+.gb-apply-table th:nth-child(1), .gb-apply-table td:nth-child(1) { width: 22%; }
+.gb-apply-table th:nth-child(2), .gb-apply-table td:nth-child(2) { width: 12%; }
+.gb-apply-table th:nth-child(3), .gb-apply-table td:nth-child(3) { width: 13%; }
+.gb-apply-table th:nth-child(4), .gb-apply-table td:nth-child(4) { width: 10%; }
+.gb-apply-table th:nth-child(5), .gb-apply-table td:nth-child(5) { width: 13%; }
+.gb-apply-table th:nth-child(6), .gb-apply-table td:nth-child(6) { width: 11%; }
+.gb-apply-table th:nth-child(7), .gb-apply-table td:nth-child(7) { width: 9%; }
+.gb-apply-table th:nth-child(8), .gb-apply-table td:nth-child(8) { width: 10%; }
+.gb-apply-table td { text-align: center; vertical-align: middle; }
+.gb-apply-table td.actions { text-align: right; white-space: nowrap; }
+.gb-review-link { color: var(--brand); font-weight: 600; }
+
+/* ---------- 商品管理表格 ---------- */
+.gb-product-table { width: 100%; min-width: 1120px; table-layout: fixed; }
+.gb-product-table th:nth-child(1), .gb-product-table td:nth-child(1) { width: 20%; }
+.gb-product-table th:nth-child(2), .gb-product-table td:nth-child(2) { width: 12%; }
+.gb-product-table th:nth-child(3), .gb-product-table td:nth-child(3) { width: 13%; }
+.gb-product-table th:nth-child(4), .gb-product-table td:nth-child(4) { width: 12%; }
+.gb-product-table th:nth-child(5), .gb-product-table td:nth-child(5) { width: 10%; }
+.gb-product-table th:nth-child(6), .gb-product-table td:nth-child(6) { width: 9%; }
+.gb-product-table th:nth-child(7), .gb-product-table td:nth-child(7) { width: 7%; }
+.gb-product-table th:nth-child(8), .gb-product-table td:nth-child(8) { width: 9%; }
+.gb-product-table th:nth-child(9), .gb-product-table td:nth-child(9) { width: 8%; }
+.gb-product-table td { text-align: center; vertical-align: middle; }
+.gb-product-table td.actions { text-align: right; white-space: nowrap; }
+
+/* ---------- 订单管理：视图切换 ---------- */
+.gb-view-bar {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 10px;
+}
+.gb-view-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  background: #fff;
+}
+.gb-view-toggle button {
+  display: inline-flex;
+  height: 32px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  color: var(--muted);
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.gb-view-toggle button + button { border-left: 1px solid var(--line); }
+.gb-view-toggle button.active { color: var(--brand); background: var(--brand-soft); font-weight: 600; }
+.gb-view-toggle button .icon { opacity: .85; }
+.gb-view-hint { display: flex; min-width: 0; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; }
+.gb-view-hint .icon { flex: 0 0 auto; color: var(--brand); }
+
+/* ---------- 订单表格 ---------- */
+.gb-order-table { width: 100%; min-width: 1180px; table-layout: fixed; }
+.gb-order-table th:nth-child(1), .gb-order-table td:nth-child(1) { width: 12%; }
+.gb-order-table th:nth-child(2), .gb-order-table td:nth-child(2) { width: 11%; }
+.gb-order-table th:nth-child(3), .gb-order-table td:nth-child(3) { width: 19%; }
+.gb-order-table th:nth-child(4), .gb-order-table td:nth-child(4) { width: 11%; }
+.gb-order-table th:nth-child(5), .gb-order-table td:nth-child(5) { width: 11%; }
+.gb-order-table th:nth-child(6), .gb-order-table td:nth-child(6) { width: 9%; }
+.gb-order-table th:nth-child(7), .gb-order-table td:nth-child(7) { width: 9%; }
+.gb-order-table th:nth-child(8), .gb-order-table td:nth-child(8) { width: 10%; }
+.gb-order-table th:nth-child(9), .gb-order-table td:nth-child(9) { width: 8%; }
+.gb-order-table td { text-align: center; vertical-align: middle; }
+.gb-order-table td.actions { text-align: right; white-space: nowrap; }
+
+/* 会员 cell（头像 + 名称 + 团长标识，图片+文本复合块） */
+.gb-member-cell {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  text-align: left;
+}
+.gb-member-cell .avatar { flex: 0 0 auto; }
+.gb-member-copy { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 2px; }
+.gb-member-copy b { display: block; max-width: 100%; overflow: hidden; color: var(--ink); font-size: 13px !important; text-overflow: ellipsis; white-space: nowrap; }
+.gb-member-copy small { display: block; max-width: 100%; overflow: hidden; color: var(--muted); font-size: 11px !important; text-overflow: ellipsis; white-space: nowrap; }
+.gb-member-copy small.is-leader { color: var(--brand); font-weight: 600; }
+
+/* ---------- 团概览表格 ---------- */
+.gb-group-table { width: 100%; min-width: 1120px; table-layout: fixed; }
+.gb-group-table th:nth-child(1), .gb-group-table td:nth-child(1) { width: 12%; }
+.gb-group-table th:nth-child(2), .gb-group-table td:nth-child(2) { width: 20%; }
+.gb-group-table th:nth-child(3), .gb-group-table td:nth-child(3) { width: 11%; }
+.gb-group-table th:nth-child(4), .gb-group-table td:nth-child(4) { width: 8%; }
+.gb-group-table th:nth-child(5), .gb-group-table td:nth-child(5) { width: 8%; }
+.gb-group-table th:nth-child(6), .gb-group-table td:nth-child(6) { width: 14%; }
+.gb-group-table th:nth-child(7), .gb-group-table td:nth-child(7) { width: 9%; }
+.gb-group-table th:nth-child(8), .gb-group-table td:nth-child(8) { width: 11%; }
+.gb-group-table th:nth-child(9), .gb-group-table td:nth-child(9) { width: 7%; }
+.gb-group-table td { text-align: center; vertical-align: middle; }
+.gb-group-table td.actions { text-align: right; white-space: nowrap; }
+
+/* 成团进度（进度条 + 文本复合块） */
+.gb-progress {
+  display: flex;
+  width: 132px;
+  max-width: 100%;
+  margin: 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  text-align: left;
+}
+.gb-progress-track {
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #e7ede8;
+}
+.gb-progress-track em {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #2f6a55, #7fae97);
+  transition: width .3s ease;
+}
+.gb-progress.is-full .gb-progress-track em { background: linear-gradient(90deg, #2f6a55, #4a7c59); }
+.gb-progress.is-fail .gb-progress-track em { background: linear-gradient(90deg, #b4574a, #d08a7e); }
+.gb-progress-label { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; color: var(--muted); font-size: 11px !important; white-space: nowrap; }
+.gb-progress-label b { color: var(--ink-2); font: 600 11px var(--font-mono); font-variant-numeric: tabular-nums; }
+.gb-progress-label b.is-full { color: var(--brand); }
+
+/* ---------- 抽屉：团卡片 / 成员列表 / 时间线 ---------- */
+.gb-group-card {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: linear-gradient(135deg, #fbfdfb 0%, #f4f8f5 100%);
+}
+.gb-group-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.gb-group-card-head b { color: var(--ink); font: 600 13px var(--font-mono); letter-spacing: .2px; }
+.gb-group-card-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 8px; color: var(--muted); font-size: 11px; }
+.gb-group-card-meta > span { display: inline-flex; align-items: center; gap: 5px; }
+.gb-group-card-meta .icon { color: var(--brand); opacity: .8; }
+.gb-group-card .gb-progress { width: 100%; margin-top: 10px; }
+
+.gb-member-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.gb-member-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+.gb-member-row .avatar { flex: 0 0 auto; }
+.gb-member-row-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
+.gb-member-row-copy b { display: flex; align-items: center; gap: 6px; color: var(--ink); font-size: 12px; }
+.gb-member-row-copy small { color: var(--muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.gb-leader-chip { display: inline-flex; align-items: center; padding: 1px 6px; color: var(--brand); border-radius: 4px; background: var(--brand-soft); font-size: 9.5px; font-weight: 600; }
+.gb-member-row-amount { flex: 0 0 auto; color: var(--price); font: 600 12px var(--font-mono); font-variant-numeric: tabular-nums; }
+.gb-member-row .status-ticket { flex: 0 0 auto; }
+
+.gb-timeline { display: flex; flex-direction: column; gap: 0; margin-top: 10px; }
+.gb-timeline-step { position: relative; display: flex; gap: 10px; padding: 0 0 14px; }
+.gb-timeline-step:last-child { padding-bottom: 0; }
+.gb-timeline-step::before { content: ''; position: absolute; top: 12px; left: 5px; width: 1px; height: calc(100% - 6px); background: var(--line-strong); }
+.gb-timeline-step:last-child::before { display: none; }
+.gb-timeline-dot { position: relative; z-index: 1; width: 11px; height: 11px; flex: 0 0 11px; margin-top: 2px; border: 2px solid var(--line-strong); border-radius: 50%; background: #fff; }
+.gb-timeline-step.is-done .gb-timeline-dot { border-color: var(--brand); background: var(--brand); }
+.gb-timeline-step.is-done::before { background: var(--brand); }
+.gb-timeline-copy { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+.gb-timeline-copy b { color: var(--ink-2); font-size: 12px; }
+.gb-timeline-copy small { color: var(--muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.gb-timeline-step.is-muted .gb-timeline-copy b { color: var(--muted); }
+
+/* 拼团玩法说明条 */
+.gb-play-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  color: var(--ink-2);
+  border: 1px solid #d5e3da;
+  border-radius: 7px;
+  background: var(--brand-soft);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+.gb-play-note .icon { flex: 0 0 auto; margin-top: 1px; color: var(--brand); }
+
+/* 活动编辑弹窗：成团人数 / 开团上限 */
+.gb-rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+.gb-rule-hint { display: block; margin-top: 4px; color: var(--muted); font-size: 10.5px; font-weight: 400; line-height: 1.5; }
+.gb-limit-toggle { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--muted); font-size: 11px; cursor: pointer; }
+.gb-limit-toggle input { accent-color: var(--brand); }
+
+/* 订单 / 团抽屉宽度 */
+.admin-shell-light .admin-drawer.gb-order-drawer,
+.admin-shell-light .admin-drawer.gb-group-drawer { width: 560px; }
+
+/* 队列摘要告警态 */
+.groupbuy-audit-page .ss-queue-summary .is-warning,
+.groupbuy-audit-page .ss-queue-summary .is-warning b { color: var(--warning); }
+.groupbuy-order-page .ss-tabs button[data-status='waitpay'] .ss-tab-count,
+.groupbuy-order-page .ss-tabs button[data-status='forming'] .ss-tab-count { color: var(--warning); background: var(--warning-soft); }
+.groupbuy-order-page .ss-tabs button[data-status='waitpay'].active .ss-tab-count,
+.groupbuy-order-page .ss-tabs button[data-status='forming'].active .ss-tab-count { color: #fff; background: var(--warning); }
+.groupbuy-audit-page .ss-tabs button[data-status='pending'] .ss-tab-count { color: var(--warning); background: var(--warning-soft); }
+.groupbuy-audit-page .ss-tabs button[data-status='pending'].active { color: var(--warning); background: var(--warning-soft); }
+.groupbuy-audit-page .ss-tabs button[data-status='pending'].active .ss-tab-count { color: #fff; background: var(--warning); }
+.groupbuy-product-page .ss-tabs button[data-status='pending'] .ss-tab-count { color: var(--warning); background: var(--warning-soft); }
+.groupbuy-product-page .ss-tabs button[data-status='pending'].active { color: var(--warning); background: var(--warning-soft); }
+.groupbuy-product-page .ss-tabs button[data-status='pending'].active .ss-tab-count { color: #fff; background: var(--warning); }
+
+@media (max-width: 1180px) {
+  .gb-view-bar { flex-wrap: wrap; }
+  .gb-rule-grid { grid-template-columns: 1fr; }
+}

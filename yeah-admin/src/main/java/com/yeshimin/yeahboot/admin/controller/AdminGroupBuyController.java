@@ -12,9 +12,12 @@ import com.yeshimin.yeahboot.data.domain.entity.GroupBuyApplyEntity;
 import com.yeshimin.yeahboot.data.domain.entity.GroupBuyOrderEntity;
 import com.yeshimin.yeahboot.data.domain.entity.GroupBuyGroupEntity;
 import com.yeshimin.yeahboot.data.domain.entity.GroupBuySpuEntity;
+import com.yeshimin.yeahboot.data.domain.vo.GroupBuyApplyDetailVo;
 import com.yeshimin.yeahboot.data.domain.vo.GroupBuyApplyVo;
+import com.yeshimin.yeahboot.data.domain.vo.GroupBuyGroupDetailVo;
 import com.yeshimin.yeahboot.data.domain.vo.GroupBuyOrderVo;
 import com.yeshimin.yeahboot.data.domain.vo.GroupBuyGroupOverviewVo;
+import com.yeshimin.yeahboot.data.domain.vo.GroupBuyProductDetailVo;
 import com.yeshimin.yeahboot.data.domain.vo.GroupBuySpuVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,6 +50,15 @@ public class AdminGroupBuyController {
     }
 
     /**
+     * 查询报名详情
+     */
+    @PreAuthorize("@pms.hasPermission('admin:groupBuy:query')")
+    @GetMapping("/apply/detail")
+    public R<GroupBuyApplyDetailVo> applyDetail(@RequestParam Long id) {
+        return R.ok(service.queryApplyDetail(id));
+    }
+
+    /**
      * 审核报名记录
      */
     @PreAuthorize("@pms.hasPermission('admin:groupBuy:audit')")
@@ -67,6 +79,15 @@ public class AdminGroupBuyController {
     }
 
     /**
+     * 查询拼团商品详情
+     */
+    @PreAuthorize("@pms.hasPermission('admin:groupBuy:query')")
+    @GetMapping("/product/detail")
+    public R<GroupBuyProductDetailVo> productDetail(@RequestParam Long id) {
+        return R.ok(service.queryProductDetail(id));
+    }
+
+    /**
      * 查询拼团订单
      */
     @PreAuthorize("@pms.hasPermission('admin:groupBuy:query')")
@@ -84,5 +105,14 @@ public class AdminGroupBuyController {
     public R<IPage<GroupBuyGroupOverviewVo>> queryGroup(Page<GroupBuyGroupEntity> page,
                                                          @RequestParam Long activityId) {
         return R.ok(service.queryGroup(page, activityId));
+    }
+
+    /**
+     * 查询团详情（含成员名单）
+     */
+    @PreAuthorize("@pms.hasPermission('admin:groupBuy:query')")
+    @GetMapping("/group/detail")
+    public R<GroupBuyGroupDetailVo> groupDetail(@RequestParam Long id) {
+        return R.ok(service.queryGroupDetail(id));
     }
 }

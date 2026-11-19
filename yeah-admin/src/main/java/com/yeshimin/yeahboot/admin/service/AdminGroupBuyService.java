@@ -9,6 +9,7 @@ import com.yeshimin.yeahboot.admin.domain.dto.GroupBuyApplyAuditDto;
 import com.yeshimin.yeahboot.common.common.exception.BaseException;
 import com.yeshimin.yeahboot.data.common.enums.GroupBuyActivityStatusEnum;
 import com.yeshimin.yeahboot.data.common.enums.GroupBuyApplyAuditStatusEnum;
+import com.yeshimin.yeahboot.data.common.enums.GroupBuyOrderStatusEnum;
 import com.yeshimin.yeahboot.data.domain.dto.GroupBuyApplyQueryDto;
 import com.yeshimin.yeahboot.data.domain.dto.GroupBuyOrderQueryDto;
 import com.yeshimin.yeahboot.data.domain.dto.GroupBuySpuQueryDto;
@@ -22,9 +23,13 @@ import com.yeshimin.yeahboot.data.domain.entity.MemberEntity;
 import com.yeshimin.yeahboot.data.domain.entity.MerchantEntity;
 import com.yeshimin.yeahboot.data.domain.entity.OrderEntity;
 import com.yeshimin.yeahboot.data.domain.entity.ShopEntity;
+import com.yeshimin.yeahboot.data.domain.vo.GroupBuyApplyDetailVo;
 import com.yeshimin.yeahboot.data.domain.vo.GroupBuyApplyVo;
+import com.yeshimin.yeahboot.data.domain.vo.GroupBuyGroupDetailVo;
+import com.yeshimin.yeahboot.data.domain.vo.GroupBuyGroupMemberVo;
 import com.yeshimin.yeahboot.data.domain.vo.GroupBuyGroupOverviewVo;
 import com.yeshimin.yeahboot.data.domain.vo.GroupBuyOrderVo;
+import com.yeshimin.yeahboot.data.domain.vo.GroupBuyProductDetailVo;
 import com.yeshimin.yeahboot.data.domain.vo.GroupBuySpuVo;
 import com.yeshimin.yeahboot.data.repository.GroupBuyActivityRepo;
 import com.yeshimin.yeahboot.data.repository.GroupBuyApplyRepo;
@@ -42,7 +47,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +66,15 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AdminGroupBuyService {
+
+    /**
+     * 计入成交与已参团人数的订单状态：已支付及后续退款链路状态。
+     */
+    private static final Set<String> PAID_ORDER_STATUSES = new HashSet<>(Arrays.asList(
+            GroupBuyOrderStatusEnum.PAID.getValue(),
+            GroupBuyOrderStatusEnum.REFUNDING.getValue(),
+            GroupBuyOrderStatusEnum.REFUNDED.getValue(),
+            GroupBuyOrderStatusEnum.REFUND_FAILED.getValue()));
 
     private final GroupBuyApplyRepo groupBuyApplyRepo;
     private final GroupBuySpuRepo groupBuySpuRepo;
@@ -147,6 +167,7 @@ public class AdminGroupBuyService {
      */
     public IPage<GroupBuyOrderVo> queryOrder(Page<GroupBuyOrderEntity> page, GroupBuyOrderQueryDto query) {
         LambdaQueryWrapper<GroupBuyOrderEntity> wrapper = new LambdaQueryWrapper<GroupBuyOrderEntity>()
+                .eq(query.getActivityId() != null, GroupBuyOrderEntity::getActivityId, query.getActivityId())
                 .like(StrUtil.isNotBlank(query.getOrderNo()), GroupBuyOrderEntity::getOrderNo, query.getOrderNo())
                 .eq(StrUtil.isNotBlank(query.getStatus()), GroupBuyOrderEntity::getStatus, query.getStatus())
                 .orderByDesc(GroupBuyOrderEntity::getCreateTime);
@@ -173,6 +194,92 @@ public class AdminGroupBuyService {
                         .eq(GroupBuyGroupEntity::getActivityId, activityId)
                         .orderByDesc(GroupBuyGroupEntity::getCreateTime));
         return wrapGroupPage(groupPage);
+    }
+
+    /**
+     * 查询报名详情：列表字段 + 活动规则 + SKU + 商品详情。
+     */
+    public GroupBuyApplyDetailVo queryApplyDetail(Long id) {
+        GroupBuyApplyEntity apply = groupBuyApplyRepo.getOneById(id, "报名记录不存在");
+        Page<GroupBuyApplyEntity> page = new Page<>(1, 1, 1);
+        page.setRecords(Collections.singletonList(apply));
+        GroupBuyApplyVo base = wrapApplyPage(page).getRecords().get(0);
+        GroupBuyApplyDetailVo vo = BeanUtil.copyProperties(base, GroupBuyApplyDetailVo.class);
+        GroupBuyActivityEntity activity = groupBuyActivityRepo.getOneById(apply.getActivityId(), "拼团活动不存在");
+        vo.setActivityStatus(activity.getStatus());
+        vo.setActivityMinPeople(activity.getMinPeople());
+        vo.setActivityGroupLimit(activity.getGroupLimit());
+        vo.setApplyBeginTime(activity.getApplyBeginTime());
+        vo.setApplyEndTime(activity.getApplyEndTime());
+        vo.setActivityBeginTime(activity.getActivityBeginTime());
+        vo.setActivityEndTime(activity.getActivityEndTime());
+        GroupBuySpuEntity spu = groupBuySpuRepo.getOneById(apply.getGroupBuySpuId(), "拼团商品不存在");
+        vo.setSkus(listSkusBySpuId(spu.getId()));
+        return vo;
+    }
+
+    /**
+     * 查询拼团商品详情：列表字段 + SKU。
+     */
+    public GroupBuyProductDetailVo queryProductDetail(Long id) {
+        GroupBuySpuEntity spu = groupBuySpuRepo.getOneById(id, "拼团商品不存在");
+        Page<GroupBuySpuEntity> page = new Page<>(1, 1, 1);
+        page.setRecords(Collections.singletonList(spu));
+        GroupBuySpuVo base = wrapSpuPage(page).getRecords().get(0);
+        GroupBuyProductDetailVo vo = BeanUtil.copyProperties(base, GroupBuyProductDetailVo.class);
+        vo.setSkus(listSkusBySpuId(spu.getId()));
+        return vo;
+    }
+
+    /**
+     * 查询团详情：概览字段 + 成员名单（团长在前，按下单时间排序）。
+     */
+    public GroupBuyGroupDetailVo queryGroupDetail(Long id) {
+        GroupBuyGroupEntity group = groupBuyGroupRepo.getOneById(id, "拼团不存在");
+        Page<GroupBuyGroupEntity> page = new Page<>(1, 1, 1);
+        page.setRecords(Collections.singletonList(group));
+        GroupBuyGroupOverviewVo base = wrapGroupPage(page).getRecords().get(0);
+        GroupBuyGroupDetailVo vo = BeanUtil.copyProperties(base, GroupBuyGroupDetailVo.class);
+        List<GroupBuyOrderEntity> orders = groupBuyOrderRepo.lambdaQuery()
+                .eq(GroupBuyOrderEntity::getGroupId, id)
+                .list().stream()
+                .sorted(Comparator
+                        .comparing((GroupBuyOrderEntity item) -> Boolean.TRUE.equals(item.getIsLeader()) ? 0 : 1)
+                        .thenComparing(GroupBuyOrderEntity::getCreateTime,
+                                Comparator.nullsLast(Comparator.naturalOrder())))
+                .collect(Collectors.toList());
+        Map<Long, MemberEntity> memberMap = toIdMap(memberRepo.findListByIds(ids(orders,
+                GroupBuyOrderEntity::getMemberId)));
+        Map<Long, OrderEntity> orderMap = toIdMap(orderRepo.findListByIds(ids(orders,
+                GroupBuyOrderEntity::getOrderId)));
+        vo.setMembers(orders.stream().map(item -> {
+            GroupBuyGroupMemberVo member = new GroupBuyGroupMemberVo();
+            member.setId(item.getId());
+            member.setOrderId(item.getOrderId());
+            member.setOrderNo(item.getOrderNo());
+            member.setIsLeader(item.getIsLeader());
+            member.setOrderStatus(item.getStatus());
+            member.setCreateTime(item.getCreateTime());
+            MemberEntity memberEntity = memberMap.get(item.getMemberId());
+            if (memberEntity != null) {
+                member.setMemberName(memberEntity.getNickname());
+                member.setMemberAvatar(memberEntity.getAvatar());
+            }
+            OrderEntity order = orderMap.get(item.getOrderId());
+            if (order != null) {
+                member.setActualAmount(order.getFinalAmount());
+                member.setPayTime(order.getPaySuccessTime());
+            }
+            return member;
+        }).collect(Collectors.toList()));
+        return vo;
+    }
+
+    private List<GroupBuySkuEntity> listSkusBySpuId(Long groupBuySpuId) {
+        return groupBuySkuRepo.lambdaQuery()
+                .eq(GroupBuySkuEntity::getGroupBuySpuId, groupBuySpuId)
+                .orderByAsc(GroupBuySkuEntity::getId)
+                .list();
     }
 
     /**
@@ -214,10 +321,30 @@ public class AdminGroupBuyService {
                 GroupBuySpuEntity::getMchId)));
         Map<Long, ShopEntity> shopMap = toIdMap(shopRepo.findListByIds(ids(spus,
                 GroupBuySpuEntity::getShopId)));
-        Map<Long, Integer> stockMap = groupStockMap(ids(spus, GroupBuySpuEntity::getId));
+        Set<Long> spuIds = ids(spus, GroupBuySpuEntity::getId);
+        // SKU 一次查出，同时汇总剩余库存与规格数量。
+        List<GroupBuySkuEntity> skus = groupBuySkuRepo.lambdaQuery()
+                .in(GroupBuySkuEntity::getGroupBuySpuId, spuIds)
+                .list();
+        Map<Long, Integer> stockMap = skus.stream()
+                .collect(Collectors.groupingBy(GroupBuySkuEntity::getGroupBuySpuId,
+                        Collectors.summingInt(sku -> sku.getStock() == null ? 0 : sku.getStock())));
+        Map<Long, Long> skuCountMap = skus.stream()
+                .collect(Collectors.groupingBy(GroupBuySkuEntity::getGroupBuySpuId, Collectors.counting()));
         Map<Long, String> sourceImageMap = groupBuyImageService.findSourceSpuMainImageMap(ids(spus,
                 GroupBuySpuEntity::getSpuId));
-        return page.convert(spu -> toSpuVo(spu, activityMap, merchantMap, shopMap, stockMap, sourceImageMap));
+        List<GroupBuyOrderEntity> paidOrders = listPaidOrders(spuIds);
+        Map<Long, BigDecimal> soldAmountMap = soldAmountMap(paidOrders);
+        Map<Long, Long> salesMap = paidOrders.stream()
+                .collect(Collectors.groupingBy(GroupBuyOrderEntity::getGroupBuySpuId, Collectors.counting()));
+        // 报名备注与时间来自报名记录，同一商品多次报名时取最新一条。
+        Map<Long, GroupBuyApplyEntity> applyMap = groupBuyApplyRepo.lambdaQuery()
+                .in(GroupBuyApplyEntity::getGroupBuySpuId, spuIds)
+                .orderByDesc(GroupBuyApplyEntity::getCreateTime)
+                .list().stream()
+                .collect(Collectors.toMap(GroupBuyApplyEntity::getGroupBuySpuId, Function.identity(), (a, b) -> a));
+        return page.convert(spu -> toSpuVo(spu, activityMap, merchantMap, shopMap, stockMap, sourceImageMap,
+                soldAmountMap, skuCountMap, salesMap, applyMap));
     }
 
     /**
@@ -241,8 +368,10 @@ public class AdminGroupBuyService {
                 GroupBuyOrderEntity::getOrderId)));
         Map<Long, MemberEntity> memberMap = toIdMap(memberRepo.findListByIds(ids(groupBuyOrders,
                 GroupBuyOrderEntity::getMemberId)));
+        Map<Long, String> sourceImageMap = groupBuyImageService.findSourceSpuMainImageMap(
+                spuMap.values().stream().map(GroupBuySpuEntity::getSpuId).collect(Collectors.toSet()));
         return page.convert(groupBuyOrder -> toOrderVo(groupBuyOrder, groupMap, skuMap, spuMap, activityMap, orderMap,
-                memberMap));
+                memberMap, sourceImageMap));
     }
 
     /**
@@ -300,8 +429,11 @@ public class AdminGroupBuyService {
             // 自定义拼团主图为空时实时回退到原始SPU主图。
             vo.setMainImage(spu.getMainImage() == null || spu.getMainImage().trim().isEmpty()
                     ? sourceImageMap.get(spu.getSpuId()) : spu.getMainImage());
+            vo.setDetailDesc(spu.getDetailDesc());
             vo.setMinGroupPrice(spu.getMinGroupPrice());
             vo.setMaxGroupPrice(spu.getMaxGroupPrice());
+            vo.setMinOriginPrice(spu.getMinOriginPrice());
+            vo.setMaxOriginPrice(spu.getMaxOriginPrice());
             vo.setGroupStock(stockMap.getOrDefault(spu.getId(), 0));
         }
         if (merchant != null) {
@@ -321,17 +453,40 @@ public class AdminGroupBuyService {
                                   Map<Long, MerchantEntity> merchantMap,
                                   Map<Long, ShopEntity> shopMap,
                                   Map<Long, Integer> stockMap,
-                                  Map<Long, String> sourceImageMap) {
+                                  Map<Long, String> sourceImageMap,
+                                  Map<Long, BigDecimal> soldAmountMap,
+                                  Map<Long, Long> skuCountMap,
+                                  Map<Long, Long> salesMap,
+                                  Map<Long, GroupBuyApplyEntity> applyMap) {
         GroupBuySpuVo vo = BeanUtil.copyProperties(spu, GroupBuySpuVo.class);
         // 视图需同时返回自定义图、源图和最终展示图，便于后台识别覆盖关系。
         groupBuyImageService.fillSpuMainImages(vo, spu, sourceImageMap.get(spu.getSpuId()));
         vo.setGroupStock(stockMap.getOrDefault(spu.getId(), 0));
+        vo.setSoldAmount(soldAmountMap.getOrDefault(spu.getId(), BigDecimal.ZERO));
+        // 销量按已支付链路订单实时统计，不依赖未维护的冗余字段。
+        vo.setSales(salesMap.getOrDefault(spu.getId(), 0L));
+        vo.setSkuCount(skuCountMap.getOrDefault(spu.getId(), 0L));
+        GroupBuyApplyEntity apply = applyMap.get(spu.getId());
+        if (apply != null) {
+            vo.setApplyTime(apply.getCreateTime());
+            vo.setAuditTime(apply.getUpdateTime());
+            vo.setApplyRemark(apply.getApplyRemark());
+            vo.setAuditRemark(apply.getAuditRemark());
+        }
         GroupBuyActivityEntity activity = activityMap.get(spu.getActivityId());
         MerchantEntity merchant = merchantMap.get(spu.getMchId());
         ShopEntity shop = shopMap.get(spu.getShopId());
         if (activity != null) {
             vo.setActivityName(activity.getName());
             vo.setMinPeople(activity.getMinPeople());
+            vo.setActivityStatus(activity.getStatus());
+            vo.setActivityBeginTime(activity.getActivityBeginTime());
+            vo.setActivityEndTime(activity.getActivityEndTime());
+            LocalDateTime now = LocalDateTime.now();
+            vo.setActivityPurchasable(Boolean.TRUE.equals(activity.getIsEnabled())
+                    && GroupBuyActivityStatusEnum.ACTIVITY_STARTED.equalsValue(activity.getStatus())
+                    && activity.getActivityBeginTime() != null && !now.isBefore(activity.getActivityBeginTime())
+                    && activity.getActivityEndTime() != null && now.isBefore(activity.getActivityEndTime()));
         }
         if (merchant != null) {
             vo.setMchName(merchant.getNickname());
@@ -351,7 +506,8 @@ public class AdminGroupBuyService {
                                       Map<Long, GroupBuySpuEntity> spuMap,
                                       Map<Long, GroupBuyActivityEntity> activityMap,
                                       Map<Long, OrderEntity> orderMap,
-                                      Map<Long, MemberEntity> memberMap) {
+                                      Map<Long, MemberEntity> memberMap,
+                                      Map<Long, String> sourceImageMap) {
         GroupBuyOrderVo vo = BeanUtil.copyProperties(groupBuyOrder, GroupBuyOrderVo.class);
         // 参与状态来自拼团订单表；主订单状态用于订单详情，不在此处混用。
         vo.setOrderStatus(groupBuyOrder.getStatus());
@@ -364,23 +520,63 @@ public class AdminGroupBuyService {
         if (group != null) {
             vo.setGroupNo(group.getGroupNo());
             vo.setGroupStatus(group.getStatus());
+            vo.setGroupMinPeople(group.getMinPeople());
+            vo.setGroupMemberCount(group.getMemberCount());
+            vo.setGroupReservedMemberCount(group.getReservedMemberCount());
         }
         if (sku != null) {
             vo.setGroupPrice(sku.getGroupPrice());
         }
         if (spu != null) {
             vo.setProductName(spu.getName());
+            vo.setProductImage(spu.getMainImage() == null || spu.getMainImage().trim().isEmpty()
+                    ? sourceImageMap.get(spu.getSpuId()) : spu.getMainImage());
         }
         if (activity != null) {
             vo.setActivityName(activity.getName());
         }
         if (order != null) {
             vo.setActualAmount(order.getFinalAmount());
+            vo.setPayTime(order.getPaySuccessTime());
         }
         if (member != null) {
             vo.setMemberName(member.getNickname());
+            vo.setMemberAvatar(member.getAvatar());
         }
         return vo;
+    }
+
+    /**
+     * 查询拼团商品下已支付链路订单，供销量与成交金额共用。
+     */
+    private List<GroupBuyOrderEntity> listPaidOrders(Collection<Long> groupBuySpuIds) {
+        if (groupBuySpuIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return groupBuyOrderRepo.lambdaQuery()
+                .in(GroupBuyOrderEntity::getGroupBuySpuId, groupBuySpuIds)
+                .in(GroupBuyOrderEntity::getStatus, PAID_ORDER_STATUSES)
+                .list();
+    }
+
+    /**
+     * 按拼团SPU汇总已支付链路订单的实付金额。
+     */
+    private Map<Long, BigDecimal> soldAmountMap(List<GroupBuyOrderEntity> paidOrders) {
+        if (paidOrders.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Map<Long, OrderEntity> orderMap = toIdMap(orderRepo.findListByIds(ids(paidOrders,
+                GroupBuyOrderEntity::getOrderId)));
+        Map<Long, BigDecimal> result = new java.util.HashMap<>();
+        for (GroupBuyOrderEntity item : paidOrders) {
+            OrderEntity order = orderMap.get(item.getOrderId());
+            if (order == null || order.getFinalAmount() == null) {
+                continue;
+            }
+            result.merge(item.getGroupBuySpuId(), order.getFinalAmount(), BigDecimal::add);
+        }
+        return result;
     }
 
     /**

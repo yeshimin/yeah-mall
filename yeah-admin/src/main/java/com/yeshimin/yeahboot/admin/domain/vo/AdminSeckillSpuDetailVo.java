@@ -4,6 +4,7 @@ import com.yeshimin.yeahboot.common.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -27,4 +28,24 @@ public class AdminSeckillSpuDetailVo extends BaseDomain {
      * 秒杀sku信息
      */
     private List<AdminSeckillSkuVo> skuList;
+
+    /**
+     * 报名时间
+     */
+    private LocalDateTime applyTime;
+
+    /**
+     * 审核时间（待审核时为空）
+     */
+    private LocalDateTime auditTime;
+
+    /**
+     * 报名备注
+     */
+    private String applyRemark;
+
+    /**
+     * 审核备注
+     */
+    private String auditRemark;
 }

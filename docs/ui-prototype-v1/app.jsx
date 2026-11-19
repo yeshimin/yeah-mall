@@ -2239,16 +2239,32 @@ function seckillSessionDuration(begin,end) {
   return rest ? `${hours} 小时 ${rest} 分钟` : `${hours} 小时`;
 }
 
-function seckillSessionState(session) {
-  if (SECKILL_SESSION_NOW < session.beginTime) return { key:'upcoming', label:'未开始', tone:'info' };
-  if (SECKILL_SESSION_NOW < session.endTime) return { key:'ongoing', label:'进行中', tone:'success' };
+function seckillSessionState(session, now = SECKILL_SESSION_NOW) {
+  if (now < session.beginTime) return { key:'upcoming', label:'未开始', tone:'info' };
+  if (now < session.endTime) return { key:'ongoing', label:'进行中', tone:'success' };
   return { key:'ended', label:'已结束', tone:'neutral' };
 }
 
-function seckillActivityState(activity) {
-  if (SECKILL_SESSION_NOW < activity.activityBeginTime) return { key:'upcoming', label:'活动未开始', tone:'info' };
-  if (SECKILL_SESSION_NOW < activity.activityEndTime) return { key:'ongoing', label:'活动进行中', tone:'success' };
+function seckillActivityState(activity, now = SECKILL_SESSION_NOW) {
+  if (!activity?.activityBeginTime || !activity?.activityEndTime) return { key:'none', label:'时间待设置', tone:'neutral' };
+  if (now < activity.activityBeginTime) return { key:'upcoming', label:'活动未开始', tone:'info' };
+  if (now < activity.activityEndTime) return { key:'ongoing', label:'活动进行中', tone:'success' };
   return { key:'ended', label:'活动已结束', tone:'neutral' };
+}
+
+function seckillSessionProgress(session, now = SECKILL_SESSION_NOW) {
+  const start = new Date(String(session.beginTime).replace(' ','T')).getTime();
+  const finish = new Date(String(session.endTime).replace(' ','T')).getTime();
+  const current = new Date(String(now).replace(' ','T')).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(finish) || finish <= start) return 0;
+  return Math.min(1, Math.max(0, (current - start) / (finish - start)));
+}
+
+function seckillAdvanceClock(value, seconds) {
+  const date = new Date(String(value).replace(' ','T'));
+  date.setSeconds(date.getSeconds() + seconds);
+  const pad = (part)=>String(part).padStart(2,'0');
+  return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 function seckillShiftDay(value,days) {
@@ -2599,6 +2615,42 @@ const SECKILL_APPLIES_INITIAL = [
     spuName:'夏日冷萃咖啡壶', art:'coffee', detailDesc:'耐热玻璃壶身，配不锈钢滤网，容量 1L。',
     auditStatus:2, applyTime:'2026-08-02 09:50:00', auditTime:'2026-08-03 09:10:00', applyRemark:'夏季清凉节报名。', auditRemark:'通过，历史活动资料完整。',
     skus:[seckillApplySku('透明 · 1L','COLD-BREW-1L',159,89,50)]
+  },
+  {
+    id:'ap-15', activityId:'sa-1', sessionId:'ss-2', mchName:'Yeah 数码', shopName:'Yeah 数码生活馆',
+    spuName:'真无线降噪耳机 Air', art:'headphone', detailDesc:'<p>半入耳轻量设计，单次续航 6 小时，支持无线充电。</p><ul><li>13mm 动圈单元，低频量感充足</li><li>双麦通话降噪，地铁通话清晰</li><li>含仓 24h，充电 10 分钟听 2 小时</li></ul>',
+    auditStatus:2, applyTime:'2026-10-21 09:40:00', auditTime:'2026-10-22 10:05:00', applyRemark:'主会场次推款，备货 100 件。', auditRemark:'通过，价格与库存符合要求。',
+    skus:[seckillApplySku('曜石黑 · Air','TWS-AIR-BK',399,249,60),seckillApplySku('雾银 · Air','TWS-AIR-SV',399,249,40)]
+  },
+  {
+    id:'ap-16', activityId:'sa-1', sessionId:'ss-1', mchName:'声屿音频', shopName:'声屿音频店',
+    spuName:'桌面监听音箱', art:'headphone', detailDesc:'<p>4 英寸低音单元 + 丝膜高音，桌面近场监听。</p><blockquote>早鸟场限量 30 台，售完即止。</blockquote>',
+    auditStatus:2, applyTime:'2026-10-20 15:12:00', auditTime:'2026-10-21 09:30:00', applyRemark:'早鸟场限量 30 台。', auditRemark:'通过，限量库存与报名一致。',
+    skus:[seckillApplySku('胡桃木 · 标准版','MONITOR-SPK-WN',699,429,30)]
+  },
+  {
+    id:'ap-17', activityId:'sa-6', sessionId:'ss-10', mchName:'Yeah 数码', shopName:'Yeah 数码生活馆',
+    spuName:'头戴式游戏耳机', art:'headphone', detailDesc:'<p>50mm 单元与可拆卸麦克风，支持 7.1 声道。</p><ul><li>USB / 3.5mm 双接口</li><li>记忆棉耳罩，长时间佩戴不压耳</li></ul>',
+    auditStatus:2, applyTime:'2026-10-29 10:20:00', auditTime:'2026-10-30 09:40:00', applyRemark:'返场上午场主推。', auditRemark:'通过，历史活动资料完整。',
+    skus:[seckillApplySku('曜石黑 · 游戏版','HEAD-GAME-BK',599,359,50)]
+  },
+  {
+    id:'ap-18', activityId:'sa-6', sessionId:'ss-11', mchName:'声屿音频', shopName:'声屿音频店',
+    spuName:'便携 K 歌音箱', art:'headphone', detailDesc:'<p>30W 双单元，自带无线麦克风与混响调节。</p><p>续航 8 小时，支持蓝牙 / U 盘 / TF 卡播放。</p>',
+    auditStatus:2, applyTime:'2026-10-29 14:05:00', auditTime:'2026-10-30 10:12:00', applyRemark:'返场下午场，库存 40 件。', auditRemark:'通过。',
+    skus:[seckillApplySku('砂岩灰 · 标准版','SPK-KARAOKE-GY',899,549,40)]
+  },
+  {
+    id:'ap-19', activityId:'sa-8', sessionId:'ss-14', mchName:'声屿音频', shopName:'声屿音频店',
+    spuName:'开放式运动耳机 Pro', art:'headphone', detailDesc:'<p>不入耳开放式结构，IPX5 防汗，续航 10 小时。</p><ul><li>定向声场技术，减少漏音</li><li>钛合金记忆耳挂，跑步不位移</li></ul>',
+    auditStatus:2, applyTime:'2026-11-02 09:36:00', auditTime:'2026-11-03 10:20:00', applyRemark:'会员首场运动品类补充。', auditRemark:'通过，质检资料齐全。',
+    skus:[seckillApplySku('松针绿 · Pro','OPEN-PRO-GN',499,329,50)]
+  },
+  {
+    id:'ap-20', activityId:'sa-8', sessionId:'ss-14', mchName:'Yeah 数码', shopName:'Yeah 数码生活馆',
+    spuName:'智能降噪耳夹耳机', art:'headphone', detailDesc:'<p>耳夹式开放设计，单耳 5.6g，支持空间音频。</p><p><strong>自适应降噪</strong>按环境噪声调节深度，含仓续航 28 小时。</p>',
+    auditStatus:2, applyTime:'2026-11-02 16:48:00', auditTime:'2026-11-03 11:05:00', applyRemark:'会员首场新品，限量 60 件。', auditRemark:'通过，新品资料与价格符合要求。',
+    skus:[seckillApplySku('雾银 · 标准版','CLIP-ANC-SV',299,199,60)]
   }
 ];
 
@@ -2849,6 +2901,669 @@ function AdminSeckillAudits({ activities, applies, setApplies, sessionsByActivit
         </div>
       </section>
     </div>}
+  </section>;
+}
+
+/* 秒杀商品管理 / 实时监控 / 成交分析：商品池由报名审核生成，统计口径对齐后端
+   /admin/seckillSpu/query、/admin/seckill/monitor/data、/admin/seckill/analysis/data。 */
+const SECKILL_PRODUCT_STATS_INITIAL = {
+  'ap-7':{ sold:86, amount:51514 },
+  'ap-9':{ sold:0, amount:0 },
+  'ap-12':{ sold:74, amount:59126 },
+  'ap-14':{ sold:50, amount:4450 },
+  'ap-15':{ sold:96, amount:23904 },
+  'ap-16':{ sold:30, amount:12870 },
+  'ap-17':{ sold:47, amount:16873 },
+  'ap-18':{ sold:36, amount:19764 },
+  'ap-19':{ sold:41, amount:13489 },
+  'ap-20':{ sold:52, amount:10348 }
+};
+const SECKILL_ACTIVITY_STATS_INITIAL = {
+  'sa-1':{ paidOrderCount:168, participantCount:142 },
+  'sa-6':{ paidOrderCount:71, participantCount:63 },
+  'sa-7':{ paidOrderCount:48, participantCount:45 },
+  'sa-8':{ paidOrderCount:156, participantCount:121 }
+};
+const SECKILL_MONITOR_MEMBERS = ['林可','周予安','陈一禾','苏晚','何知遥','赵启明','沈亦舟','吴星野','郑南','许清和'];
+const SECKILL_SHARE_COLORS = ['#24634f','#376d80','#986019','#be412b','#65538d','#4a7c59','#8a6d3b','#2f6a8a'];
+const SECKILL_PRODUCT_TABS = [
+  { key:'all', label:'全部商品' },
+  { key:'pending', label:'待审核' },
+  { key:'passed', label:'审核通过' },
+  { key:'rejected', label:'审核驳回' }
+];
+const SECKILL_REFRESH_INTERVALS = [5,10,30];
+const SECKILL_WARN_RATIOS = [
+  { value:0.1, label:'剩余 ≤ 10%' },
+  { value:0.2, label:'剩余 ≤ 20%' },
+  { value:0.3, label:'剩余 ≤ 30%' }
+];
+
+const seckillNumber = (value)=>Number(value||0).toLocaleString('zh-CN');
+const seckillAmount = (value)=>`¥${Number(value||0).toLocaleString('zh-CN',{ minimumFractionDigits:2, maximumFractionDigits:2 })}`;
+const seckillPercent = (value,digits=1)=>`${(Number(value||0)*100).toFixed(digits)}%`;
+const seckillDiscount = (seckill,origin)=>origin>0&&seckill>0?`${(seckill/origin*10).toFixed(1)} 折`:'—';
+const seckillMaskMember = (name)=>`${String(name||'会员').slice(0,1)}**`;
+const seckillCsvCell = (value)=>{
+  const text = String(value ?? '');
+  return /[",\n]/.test(text) ? `"${text.replace(/"/g,'""')}"` : text;
+};
+
+function seckillInsightActivityId(activities, applies) {
+  const ongoing = activities.find((item)=>item.enabled && seckillActivityState(item).key==='ongoing');
+  if (ongoing) return ongoing.id;
+  const withPassed = activities.find((item)=>applies.some((apply)=>apply.activityId===item.id && Number(apply.auditStatus)===2));
+  if (withPassed) return withPassed.id;
+  const withApply = activities.find((item)=>applies.some((apply)=>apply.activityId===item.id));
+  if (withApply) return withApply.id;
+  return (activities[0]||{}).id || '';
+}
+
+function seckillProductPool(applies, activityId, sessions, productStats) {
+  return applies.filter((item)=>item.activityId===activityId).map((apply)=>{
+    const summary = seckillApplySummary(apply);
+    const stat = productStats[apply.id] || { sold:0, amount:0 };
+    const passed = Number(apply.auditStatus)===2;
+    const sold = passed ? Math.min(Number(stat.sold||0), summary.stock) : 0;
+    return {
+      ...apply,
+      summary,
+      passed,
+      sold,
+      session: sessions.find((item)=>item.id===apply.sessionId) || null,
+      stock: summary.stock,
+      remaining: Math.max(0, summary.stock - sold),
+      amount: passed ? Number(stat.amount||0) : 0,
+      sellThrough: summary.stock ? sold / summary.stock : 0,
+      discount: summary.minOrigin ? summary.minSeckill / summary.minOrigin : 0
+    };
+  });
+}
+
+const seckillRanking = (pool)=>pool.filter((item)=>item.passed)
+  .sort((a,b)=>b.amount-a.amount||b.sold-a.sold||String(b.id).localeCompare(String(a.id)));
+
+function seckillAggregate(pool, activityStats, activityId) {
+  const live = pool.filter((item)=>item.passed);
+  const base = activityStats[activityId] || { paidOrderCount:0, participantCount:0 };
+  const paidOrderCount = Number(base.paidOrderCount||0);
+  const participantCount = Number(base.participantCount||0);
+  const salesAmount = live.reduce((total,item)=>total+item.amount,0);
+  const soldCount = live.reduce((total,item)=>total+item.sold,0);
+  const stockTotal = live.reduce((total,item)=>total+item.stock,0);
+  const originTotal = live.reduce((total,item)=>total+item.sold*item.summary.minOrigin,0);
+  return {
+    paidOrderCount,
+    participantCount,
+    salesAmount,
+    soldCount,
+    stockTotal,
+    remainingStock: live.reduce((total,item)=>total+item.remaining,0),
+    productCount: live.length,
+    averageOrder: paidOrderCount ? salesAmount/paidOrderCount : 0,
+    unitPrice: soldCount ? salesAmount/soldCount : 0,
+    perMember: participantCount ? salesAmount/participantCount : 0,
+    ordersPerMember: participantCount ? paidOrderCount/participantCount : 0,
+    sellThrough: stockTotal ? soldCount/stockTotal : 0,
+    discount: originTotal ? salesAmount/originTotal : 0
+  };
+}
+
+function seckillStockState(item, now, warnRatio = 0.2) {
+  if (item.remaining<=0) return { label:'已售罄', tone:'danger' };
+  if (item.session && seckillSessionState(item.session,now).key==='upcoming') return { label:'待开抢', tone:'info' };
+  if (item.stock>0 && item.remaining/item.stock<=warnRatio) return { label:'库存紧张', tone:'warning' };
+  if (item.sellThrough>=0.6) return { label:'热销中', tone:'success' };
+  return { label:'库存充足', tone:'neutral' };
+}
+
+function SeckillContextBar({ icon, activity, ticket, meta, activities, activityId, onSwitch, navigate, children }) {
+  return <div className="ss-activity-bar">
+    <span className="ss-activity-icon"><AdminIcon name={icon} size={22}/></span>
+    <div className="ss-activity-copy">
+      <div className="ss-activity-title"><h2>{activity.name}</h2>{ticket}</div>
+      <div className="ss-activity-meta">{meta.map((item,index)=><span key={index}><AdminIcon name={item.icon} size={13}/>{item.text}</span>)}</div>
+    </div>
+    <div className="ss-activity-controls">
+      {children}
+      <label className="ss-activity-switch"><span>切换活动</span><select value={activityId} onChange={(event)=>onSwitch(event.target.value)}>{activities.map((item)=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+      <button className="ss-back-link" onClick={()=>navigate('platform/seckill?tab=活动管理')}><AdminIcon name="back" size={15}/>返回活动管理</button>
+    </div>
+  </div>;
+}
+
+function AdminSeckillProducts({ activities, applies, sessionsByActivity, productStats, route, navigate, notify }) {
+  const routeActivityId = routeParam(route,'activityId');
+  const emptyFilters = { keyword:'', merchant:'', sessionId:'' };
+  const [activityId,setActivityId] = useState(()=>activities.some((item)=>item.id===routeActivityId)?routeActivityId:seckillInsightActivityId(activities,applies));
+  const [tab,setTab] = useState('all');
+  const [filters,setFilters] = useState(emptyFilters);
+  const [applied,setApplied] = useState(emptyFilters);
+  const [detailId,setDetailId] = useState('');
+  useEffect(()=>{
+    if (routeActivityId && activities.some((item)=>item.id===routeActivityId)) setActivityId(routeActivityId);
+  },[routeActivityId]);
+  useEffect(()=>{
+    setTab('all');
+    setFilters(emptyFilters);
+    setApplied(emptyFilters);
+    setDetailId('');
+  },[activityId]);
+
+  const activity = activities.find((item)=>item.id===activityId) || activities[0] || { id:'', name:'暂无活动' };
+  const state = seckillActivityState(activity);
+  const sessions = useMemo(()=>[...(sessionsByActivity[activity.id]||[])].sort((a,b)=>a.beginTime.localeCompare(b.beginTime)||a.sort-b.sort),[activity.id,sessionsByActivity]);
+  const pool = useMemo(()=>seckillProductPool(applies,activity.id,sessions,productStats),[applies,activity.id,sessions,productStats]);
+  const baseRows = useMemo(()=>pool.filter((row)=>{
+    const keyword = applied.keyword.trim().toLowerCase();
+    const merchant = applied.merchant.trim().toLowerCase();
+    return (!keyword || row.spuName.toLowerCase().includes(keyword))
+      && (!merchant || `${row.mchName}${row.shopName}`.toLowerCase().includes(merchant))
+      && (!applied.sessionId || row.sessionId===applied.sessionId);
+  }).sort((a,b)=>b.applyTime.localeCompare(a.applyTime)),[pool,applied]);
+  const counts = { all:baseRows.length, pending:0, passed:0, rejected:0 };
+  baseRows.forEach((row)=>{ counts[seckillApplyStatus(row.auditStatus).key] += 1; });
+  const filtered = baseRows.filter((row)=>tab==='all'||seckillApplyStatus(row.auditStatus).key===tab);
+  const live = pool.filter((row)=>row.passed);
+  const stockTotal = live.reduce((total,row)=>total+row.stock,0);
+  const soldTotal = live.reduce((total,row)=>total+row.sold,0);
+  const detail = detailId ? pool.find((row)=>row.id===detailId) || null : null;
+  const detailMeta = detail ? seckillApplyStatus(detail.auditStatus) : null;
+  const search = ()=>setApplied({ ...filters });
+  const reset = ()=>{ setFilters(emptyFilters); setApplied(emptyFilters); setTab('all'); };
+  const introText = state.key==='ongoing'
+    ? `活动进行中，${live.length} 款审核通过商品正在秒杀；销量与剩余库存按已支付订单累计。`
+    : state.key==='upcoming'
+      ? `活动将于 ${activity.activityBeginTime?activity.activityBeginTime.slice(0,16):'待定'} 开始；审核通过的商品会在开抢时投放库存。`
+      : state.key==='ended'
+        ? '活动已结束，商品池与成交表现仅供复盘；如需调整请回到报名审核。'
+        : '活动时间待设置，商品池仍可核对；商品由报名审核生成，平台在此只读查看。';
+
+  return <section className="admin-page seckill-product-page" data-screen-label="平台后台-秒杀商品管理">
+    <SeckillContextBar
+      icon="Goods"
+      activity={activity}
+      activities={activities}
+      activityId={activity.id}
+      onSwitch={setActivityId}
+      navigate={navigate}
+      ticket={<StatusTicket tone={state.tone}><span className="ss-status-live">{state.key==='ongoing'&&<i className="ss-live-dot"></i>}{state.label}</span></StatusTicket>}
+      meta={[
+        { icon:'Lightning', text:`活动 ${seckillFullRange(activity.activityBeginTime,activity.activityEndTime)}` },
+        { icon:'Clock', text:`共 ${sessions.length} 个场次` },
+        { icon:'Goods', text:`商品池 ${pool.length} 款 · 通过 ${live.length} 款` },
+        { icon:'Tickets', text:`投放库存 ${seckillNumber(stockTotal)} 件` }
+      ]}
+    />
+    <div className="ss-queue">
+      <div className="ss-tabs">{SECKILL_PRODUCT_TABS.map((item)=><button key={item.key} data-status={item.key} className={tab===item.key?'active':''} onClick={()=>setTab(item.key)}>{item.label}<span className="ss-tab-count">{counts[item.key]}</span></button>)}</div>
+      <div className="ss-queue-summary">
+        <span><AdminIcon name="Tickets" size={13}/>投放库存 <b>{seckillNumber(stockTotal)}</b> 件</span>
+        <span><AdminIcon name="check" size={13}/>累计销量 <b>{seckillNumber(soldTotal)}</b> 件</span>
+      </div>
+    </div>
+    <FilterBar onReset={reset} onSearch={search}>
+      <label><span>商品名称</span><input value={filters.keyword} onChange={(event)=>setFilters({...filters,keyword:event.target.value})} placeholder="搜索秒杀商品名称" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+      <label><span>商家 / 店铺</span><input value={filters.merchant} onChange={(event)=>setFilters({...filters,merchant:event.target.value})} placeholder="商家名称或店铺名称" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+      <label><span>所属场次</span><select value={filters.sessionId} onChange={(event)=>setFilters({...filters,sessionId:event.target.value})}><option value="">全部场次</option>{sessions.map((item)=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+    </FilterBar>
+    <div className="admin-table-frame">
+      <div className="ss-table-intro">
+        <span><AdminIcon name={state.key==='ongoing'?'Lightning':'Goods'} size={15}/>{introText}</span>
+        <div className="sa-intro-right"><b>筛选 {filtered.length} 条</b>{counts.pending>0&&<span className="sa-pending-chip">待审 {counts.pending}</span>}</div>
+      </div>
+      <table data-align-table="t29" className="admin-table seckill-product-table">
+        <thead><tr><th>秒杀商品</th><th>商家 / 店铺</th><th>所属场次</th><th>秒杀价</th><th>投放库存</th><th>销量</th><th>审核状态</th><th className="actions">操作</th></tr></thead>
+        <tbody>{filtered.map((row)=>{
+          const meta = seckillApplyStatus(row.auditStatus);
+          return <tr key={row.id}>
+            <td><div className="cb"><div className="sa-product-cell">
+              <span className="sa-product-art"><ProductArt type={row.art}/></span>
+              <div className="sa-product-copy"><b title={row.spuName}>{row.spuName}</b><small>{row.summary.skuCount} 个 SKU · 报名 {row.applyTime.slice(0,10)}</small></div>
+            </div></div></td>
+            <td><div className="cb"><div className="sa-party-cell"><b title={row.mchName}>{row.mchName}</b><small title={row.shopName}>{row.shopName}</small></div></div></td>
+            <td><div className="cb"><div className="sa-session-cell"><b title={row.session?.name}>{row.session?.name||'—'}</b><small>{row.session?`${row.session.beginTime.slice(5,16)} – ${row.session.endTime.slice(11,16)}`:'场次待确认'}</small></div></div></td>
+            <td><div className="cb"><div className="skp-price-cell">
+              <b>{seckillApplyRange(row.summary.minSeckill,row.summary.maxSeckill)}</b>
+              <small><s>{seckillApplyRange(row.summary.minOrigin,row.summary.maxOrigin)}</s><em>{seckillDiscount(row.summary.minSeckill,row.summary.minOrigin)}</em></small>
+            </div></div></td>
+            <td><div className="cb"><div className="skp-stock-cell"><b>{seckillNumber(row.stock)} 件</b><small>{row.passed?`剩余 ${seckillNumber(row.remaining)} 件`:'审核通过后投放'}</small></div></div></td>
+            <td><div className="cb"><div className="skp-sales-cell"><b>{row.passed?seckillNumber(row.sold):'—'}</b><small>{row.passed?(row.amount?seckillAmount(row.amount):'暂无成交'):'未进入商品池'}</small></div></div></td>
+            <td><div className="cb"><StatusTicket tone={meta.tone}>{meta.label}</StatusTicket></div></td>
+            <td className="actions"><div className="cb"><button className="table-link" onClick={()=>setDetailId(row.id)}>详情</button></div></td>
+          </tr>;
+        })}</tbody>
+      </table>
+      {!filtered.length&&<div className="admin-empty"><AdminIcon name="Goods" size={28}/><b>{pool.length?'没有匹配的秒杀商品':'当前活动还没有秒杀商品'}</b><span>{pool.length?'调整商品名称、商家或场次筛选后重试':'商家报名并审核通过后，商品会进入这里'}</span></div>}
+      <AdminPagination count={filtered.length}/>
+    </div>
+
+    {detail&&detailMeta&&<div className="dialog-mask" onClick={()=>setDetailId('')}>
+      <section className="admin-dialog sa-audit-dialog skp-detail-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head">
+          <div><span className="drawer-kicker">SECKILL PRODUCT</span><h2>秒杀商品详情</h2></div>
+          <button onClick={()=>setDetailId('')}>×</button>
+        </div>
+        <div className="sa-dialog-scroll">
+          <div className="sa-apply-context">
+            <div className="sa-context-item"><span>商家 / 店铺</span><b title={detail.mchName}>{detail.mchName}</b><small title={detail.shopName}>{detail.shopName}</small></div>
+            <div className="sa-context-item"><span>活动 / 场次</span><b title={activity.name}>{activity.name}</b><small title={detail.session?.name}>{detail.session?.name||'场次待确认'}</small></div>
+            <div className="sa-context-item"><span>报名 / 审核时间</span><b>{detail.applyTime.slice(0,16)}</b><small>{detail.auditTime?`审核 ${detail.auditTime.slice(0,16)}`:'等待平台审核'}</small></div>
+            <div className="sa-context-item"><span>审核状态</span><StatusTicket tone={detailMeta.tone}>{detailMeta.label}</StatusTicket><small>{detail.passed?'已进入秒杀商品池':'未进入秒杀商品池'}</small></div>
+          </div>
+          <div className="sa-product-panel">
+            <span className="sa-product-art large"><ProductArt type={detail.art}/></span>
+            <div className="sa-product-info">
+              <h3>{detail.spuName}</h3>
+              <p>{seckillRichPlain(detail.detailDesc)||'暂无商品描述'}</p>
+              <div className="sa-product-tags">
+                <span><AdminIcon name="Goods" size={13}/>{detail.summary.skuCount} 个 SKU</span>
+                <span><AdminIcon name="Tickets" size={13}/>投放库存 {seckillNumber(detail.stock)} 件</span>
+                <span><AdminIcon name="Coin" size={13}/>{seckillDiscount(detail.summary.minSeckill,detail.summary.minOrigin)}</span>
+              </div>
+            </div>
+            <div className="sa-price-panel"><span>秒杀价</span><b>{seckillApplyRange(detail.summary.minSeckill,detail.summary.maxSeckill)}</b><small>原价 {seckillApplyRange(detail.summary.minOrigin,detail.summary.maxOrigin)}</small></div>
+          </div>
+          <div className="sa-section">
+            <div className="sa-section-head"><b>成交表现</b><small>{detail.passed?'仅统计已支付且未关闭的秒杀订单':'商品未审核通过，暂无成交数据'}</small></div>
+            {detail.passed?<div className="skp-stat-grid">
+              <div className="skp-stat"><span>累计销量</span><b>{seckillNumber(detail.sold)} 件</b></div>
+              <div className="skp-stat"><span>成交金额</span><b className="is-price">{seckillAmount(detail.amount)}</b></div>
+              <div className="skp-stat"><span>剩余库存</span><b className={detail.remaining?'':'is-danger'}>{seckillNumber(detail.remaining)} 件</b></div>
+              <div className="skp-stat"><span>售罄率</span><b>{seckillPercent(detail.sellThrough)}</b><i className="skp-stat-bar"><em style={{width:seckillPercent(detail.sellThrough)}}></em></i></div>
+            </div>:<div className="sa-empty-sku">审核通过后商品才会投放库存并产生成交数据</div>}
+          </div>
+          {(detail.applyRemark||detail.auditRemark)&&<div className="sa-apply-note"><AdminIcon name="message" size={15}/><div><b>报名与审核备注</b><p>{detail.applyRemark||'未填写报名备注'}</p>{detail.auditRemark&&<p className="skp-audit-remark">平台审核：{detail.auditRemark}</p>}</div></div>}
+          <div className="sa-section">
+            <div className="sa-section-head"><b>SKU 信息</b><small>共 {detail.summary.skuCount} 个规格 · 投放库存 {seckillNumber(detail.stock)} 件</small></div>
+            {detail.summary.skuCount?<table data-align-table="t32" className="sa-sku-table">
+              <thead><tr><th>SKU 名称</th><th>规格编码</th><th>原价</th><th>秒杀价</th><th>库存</th><th>SKU 图片</th></tr></thead>
+              <tbody>{detail.skus.map((sku,index)=><tr key={`${sku.specCode}-${index}`}>
+                <td><div className="cb"><b className="sa-sku-name" title={sku.name}>{sku.name}</b></div></td>
+                <td><div className="cb"><span className="mono">{sku.specCode}</span></div></td>
+                <td><div className="cb"><span className="sa-sku-origin">{seckillApplyMoney(sku.originPrice)}</span></div></td>
+                <td><div className="cb"><span className="sa-sku-price">{seckillApplyMoney(sku.seckillPrice)}</span></div></td>
+                <td><div className="cb">{sku.stock} 件</div></td>
+                <td><div className="cb"><span className="sa-sku-art"><ProductArt type={detail.art}/></span></div></td>
+              </tr>)}</tbody>
+            </table>:<div className="sa-empty-sku">暂无 SKU 信息</div>}
+          </div>
+          <div className="sa-section">
+            <div className="sa-section-head"><b>商品详情</b><small>商家提交的富文本内容 · 只读预览</small></div>
+            {seckillRichHasContent(detail.detailDesc)
+              ?<div className="sa-richtext" dangerouslySetInnerHTML={{__html:detail.detailDesc}}/>
+              :<div className="sa-empty-sku">商家未提交商品详情</div>}
+          </div>
+        </div>
+        <div className="dialog-actions">
+          <button onClick={()=>{setDetailId('');navigate(`platform/seckill?tab=报名审核&activityId=${activity.id}`);}}>去报名审核</button>
+          <button className="primary" onClick={()=>setDetailId('')}>关闭</button>
+        </div>
+      </section>
+    </div>}
+  </section>;
+}
+
+function AdminSeckillMonitor({ activities, applies, sessionsByActivity, productStats, setProductStats, activityStats, setActivityStats, route, navigate, notify }) {
+  const routeActivityId = routeParam(route,'activityId');
+  const [activityId,setActivityId] = useState(()=>activities.some((item)=>item.id===routeActivityId)?routeActivityId:seckillInsightActivityId(activities,applies));
+  const [autoRefresh,setAutoRefresh] = useState(true);
+  const [refreshSeconds,setRefreshSeconds] = useState(5);
+  const [clock,setClock] = useState(SECKILL_SESSION_NOW);
+  const [events,setEvents] = useState([]);
+  const [warnRatio,setWarnRatio] = useState(0.2);
+  useEffect(()=>{
+    if (routeActivityId && activities.some((item)=>item.id===routeActivityId)) setActivityId(routeActivityId);
+  },[routeActivityId]);
+  useEffect(()=>{ setClock(SECKILL_SESSION_NOW); setEvents([]); },[activityId]);
+
+  const activity = activities.find((item)=>item.id===activityId) || activities[0] || { id:'', name:'暂无活动' };
+  const state = seckillActivityState(activity,clock);
+  const sessions = useMemo(()=>[...(sessionsByActivity[activity.id]||[])].sort((a,b)=>a.beginTime.localeCompare(b.beginTime)||a.sort-b.sort),[activity.id,sessionsByActivity]);
+  const pool = useMemo(()=>seckillProductPool(applies,activity.id,sessions,productStats),[applies,activity.id,sessions,productStats]);
+  const ranking = useMemo(()=>seckillRanking(pool),[pool]);
+  const totals = useMemo(()=>seckillAggregate(pool,activityStats,activity.id),[pool,activityStats,activity.id]);
+  const running = Boolean(activity.enabled) && state.key==='ongoing';
+  const warnings = ranking.filter((item)=>item.remaining<=0||(item.stock>0&&item.remaining/item.stock<=warnRatio));
+  const snapshot = useRef(null);
+  snapshot.current = { pool, activityId, clock, ended: state.key==='ended' };
+
+  const advance = (seconds)=>{
+    const snap = snapshot.current;
+    if (!snap || snap.ended) return;
+    const nextClock = seckillAdvanceClock(snap.clock,seconds);
+    setClock(nextClock);
+    const salable = snap.pool.filter((item)=>item.passed && item.remaining>0 && item.session
+      && item.session.enabled!==false && seckillSessionState(item.session,nextClock).key==='ongoing');
+    if (!salable.length) return;
+    const pick = salable[Math.floor(Math.random()*salable.length)];
+    const qty = Math.min(pick.remaining, Math.random()<0.78?1:2);
+    const amount = Math.round(pick.summary.minSeckill*qty*100)/100;
+    setProductStats((prev)=>{
+      const current = prev[pick.id] || { sold:0, amount:0 };
+      return { ...prev, [pick.id]:{ sold:current.sold+qty, amount:Math.round((current.amount+amount)*100)/100 } };
+    });
+    const member = SECKILL_MONITOR_MEMBERS[Math.floor(Math.random()*SECKILL_MONITOR_MEMBERS.length)];
+    const isNewMember = Math.random()<0.72;
+    setActivityStats((prev)=>{
+      const current = prev[snap.activityId] || { paidOrderCount:0, participantCount:0 };
+      return { ...prev, [snap.activityId]:{ paidOrderCount:current.paidOrderCount+1, participantCount:current.participantCount+(isNewMember?1:0) } };
+    });
+    setEvents((prev)=>[{
+      id:`${nextClock}-${pick.id}-${Math.random().toString(36).slice(2,7)}`,
+      time:nextClock,
+      member:seckillMaskMember(member),
+      product:pick.spuName,
+      session:pick.session?pick.session.name:'',
+      qty,
+      amount
+    }, ...prev].slice(0,24));
+  };
+  const advanceRef = useRef(advance);
+  advanceRef.current = advance;
+  useEffect(()=>{
+    if (!autoRefresh || !running) return undefined;
+    const timer = setInterval(()=>advanceRef.current(refreshSeconds), refreshSeconds*1000);
+    return ()=>clearInterval(timer);
+  },[autoRefresh,running,refreshSeconds,activityId]);
+
+  const refresh = ()=>{
+    advance(refreshSeconds);
+    notify(running?'监控数据已刷新':state.key==='ended'?'活动已结束，展示最终成交数据':'已刷新，当前活动没有进行中的场次');
+  };
+  const runLabel = !activity.enabled ? '活动已停用' : state.key==='ongoing' ? '监控中' : state.key==='upcoming' ? '等待开抢' : '监控已结束';
+  const runTone = !activity.enabled ? 'neutral' : state.key==='ongoing' ? 'success' : state.key==='upcoming' ? 'info' : 'neutral';
+
+  return <section className="admin-page seckill-monitor-page" data-screen-label="平台后台-秒杀实时监控">
+    <SeckillContextBar
+      icon="Monitor"
+      activity={activity}
+      activities={activities}
+      activityId={activity.id}
+      onSwitch={setActivityId}
+      navigate={navigate}
+      ticket={<StatusTicket tone={state.tone}><span className="ss-status-live">{state.key==='ongoing'&&<i className="ss-live-dot"></i>}{state.label}</span></StatusTicket>}
+      meta={[
+        { icon:'Lightning', text:`活动 ${seckillFullRange(activity.activityBeginTime,activity.activityEndTime)}` },
+        { icon:'Clock', text:`共 ${sessions.length} 个场次` },
+        { icon:'Goods', text:`秒杀商品 ${totals.productCount} 款` },
+        { icon:'Calendar', text:`数据时间 ${clock.slice(0,19)}` }
+      ]}
+    />
+    <div className="skm-control-bar">
+      <div className="skm-control-left">
+        <StatusTicket tone={runTone}><span className="ss-status-live">{running&&autoRefresh&&<i className="ss-live-dot"></i>}{runLabel}</span></StatusTicket>
+        <button className={`ss-toggle${autoRefresh?' is-on':''}`} onClick={()=>setAutoRefresh(!autoRefresh)} aria-pressed={autoRefresh}>
+          <span className="ss-toggle-track"><i></i></span><span>自动刷新</span>
+        </button>
+        <label className="skm-interval"><span>刷新间隔</span><select value={refreshSeconds} disabled={!autoRefresh} onChange={(event)=>setRefreshSeconds(Number(event.target.value))}>{SECKILL_REFRESH_INTERVALS.map((item)=><option key={item} value={item}>{item} 秒</option>)}</select></label>
+      </div>
+      <div className="skm-control-right">
+        <span className="skm-updated"><AdminIcon name="Clock" size={13}/>最近更新 <b className="mono">{clock.slice(11,19)}</b></span>
+        <button className="skm-refresh" onClick={refresh}><AdminIcon name="Refresh" size={15}/>立即刷新</button>
+      </div>
+    </div>
+    <div className="skm-kpi-grid">
+      <div className="skm-kpi">
+        <span className="skm-kpi-icon"><AdminIcon name="Tickets" size={18}/></span>
+        <div className="skm-kpi-copy"><span>已支付订单</span><b>{seckillNumber(totals.paidOrderCount)}</b><small>含 {seckillNumber(totals.soldCount)} 件商品</small></div>
+      </div>
+      <div className="skm-kpi">
+        <span className="skm-kpi-icon"><AdminIcon name="Avatar" size={18}/></span>
+        <div className="skm-kpi-copy"><span>参与会员</span><b>{seckillNumber(totals.participantCount)}</b><small>人均 {totals.ordersPerMember.toFixed(2)} 单</small></div>
+      </div>
+      <div className="skm-kpi">
+        <span className="skm-kpi-icon"><AdminIcon name="Money" size={18}/></span>
+        <div className="skm-kpi-copy"><span>成交金额</span><b className="is-price">{seckillAmount(totals.salesAmount)}</b><small>客单价 {seckillAmount(totals.averageOrder)}</small></div>
+      </div>
+      <div className="skm-kpi">
+        <span className="skm-kpi-icon"><AdminIcon name="Goods" size={18}/></span>
+        <div className="skm-kpi-copy"><span>剩余秒杀库存</span><b>{seckillNumber(totals.remainingStock)}</b><small>整体售罄率 {seckillPercent(totals.sellThrough)}</small></div>
+      </div>
+    </div>
+    <div className="skm-session-strip">
+      {sessions.length?sessions.map((session)=>{
+        const sessionState = seckillSessionState(session,clock);
+        const items = pool.filter((item)=>item.passed&&item.sessionId===session.id);
+        const sold = items.reduce((total,item)=>total+item.sold,0);
+        const progress = sessionState.key==='ended'?1:sessionState.key==='upcoming'?0:seckillSessionProgress(session,clock);
+        return <div key={session.id} className={`skm-session is-${sessionState.key}${session.enabled?'':' is-off'}`}>
+          <div className="skm-session-head"><b title={session.name}>{session.name}</b><StatusTicket tone={session.enabled?sessionState.tone:'neutral'} small>{session.enabled?sessionState.label:'已停用'}</StatusTicket></div>
+          <span className="skm-session-time mono">{session.beginTime.slice(11,16)} – {session.endTime.slice(11,16)}</span>
+          <i className="skm-session-bar"><em style={{width:`${(progress*100).toFixed(1)}%`}}></em></i>
+          <div className="skm-session-meta"><span>{items.length} 款商品</span><span>已售 {seckillNumber(sold)} 件</span></div>
+        </div>;
+      }):<div className="skm-session-empty"><AdminIcon name="Clock" size={18}/>当前活动尚未配置场次，开抢前请先在场次管理补充。</div>}
+    </div>
+    <div className="admin-table-frame">
+      <div className={`ss-table-intro${running?' is-open':''}`}>
+        <span><AdminIcon name={running?'Monitor':'WarningFilled'} size={15}/>{running
+          ? `进行中场次实时累计成交，排行按成交额排序；自动刷新${autoRefresh?`每 ${refreshSeconds} 秒更新一次`:'已关闭，可手动刷新'}。`
+          : state.key==='upcoming'
+            ? '活动尚未开始，排行展示已审核商品的投放库存，开抢后开始累计成交。'
+            : '活动已结束，以下为最终成交与库存余量，数据不再变化。'}</span>
+        <div className="sa-intro-right"><b>商品 {ranking.length} 款</b>{warnings.length>0&&<span className="skm-warn-chip">库存预警 {warnings.length}</span>}</div>
+      </div>
+      <table data-align-table="t30" className="admin-table seckill-monitor-table">
+        <thead><tr><th>排名</th><th>秒杀商品</th><th>已售</th><th>成交额</th><th>剩余库存</th><th>售罄进度</th><th>库存状态</th></tr></thead>
+        <tbody>{ranking.map((item,index)=>{
+          const stockState = seckillStockState(item,clock,warnRatio);
+          return <tr key={item.id}>
+            <td><div className="cb"><span className={`skm-rank${index<3?' is-top':''}`}>{index+1}</span></div></td>
+            <td><div className="cb"><div className="sa-product-cell">
+              <span className="sa-product-art"><ProductArt type={item.art}/></span>
+              <div className="sa-product-copy"><b title={item.spuName}>{item.spuName}</b><small>{item.session?item.session.name:'场次待确认'} · {item.mchName}</small></div>
+            </div></div></td>
+            <td><div className="cb"><span className="skm-num">{seckillNumber(item.sold)} 件</span></div></td>
+            <td><div className="cb"><span className="skm-num is-price">{seckillAmount(item.amount)}</span></div></td>
+            <td><div className="cb"><span className={`skm-num${item.remaining<=0?' is-danger':item.stock&&item.remaining/item.stock<=warnRatio?' is-warning':''}`}>{seckillNumber(item.remaining)} 件</span></div></td>
+            <td><div className="cb"><div className="skm-progress"><i><em style={{width:seckillPercent(item.sellThrough)}}></em></i><span>{seckillPercent(item.sellThrough,0)}</span></div></div></td>
+            <td><div className="cb"><StatusTicket tone={stockState.tone}>{stockState.label}</StatusTicket></div></td>
+          </tr>;
+        })}</tbody>
+      </table>
+      {!ranking.length&&<div className="admin-empty"><AdminIcon name="Monitor" size={28}/><b>暂无已审核的秒杀商品</b><span>报名审核通过后，商品会进入实时排行</span></div>}
+    </div>
+    <div className="skm-panels">
+      <section className="skm-panel">
+        <div className="skm-panel-head">
+          <div><b>库存预警</b><small>售罄或余量低于阈值的商品</small></div>
+          <label className="skm-warn-select"><span>预警阈值</span><select value={warnRatio} onChange={(event)=>setWarnRatio(Number(event.target.value))}>{SECKILL_WARN_RATIOS.map((item)=><option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
+        </div>
+        {warnings.length?<div className="skm-warn-list">{warnings.map((item)=>{
+          const soldOut = item.remaining<=0;
+          return <div key={item.id} className={`skm-warn-item${soldOut?' is-out':''}`}>
+            <span className="skm-warn-art"><ProductArt type={item.art}/></span>
+            <div className="skm-warn-copy"><b title={item.spuName}>{item.spuName}</b><small>{item.session?item.session.name:'场次待确认'} · 投放 {seckillNumber(item.stock)} 件</small></div>
+            <div className="skm-warn-value"><b>{soldOut?'已售罄':`剩 ${seckillNumber(item.remaining)} 件`}</b><small>{seckillPercent(item.sellThrough,0)} 已售</small></div>
+          </div>;
+        })}</div>:<div className="skm-panel-empty"><AdminIcon name="check" size={20}/><b>库存充足</b><span>按当前阈值没有需要补货的商品</span></div>}
+        <p className="skm-panel-note">补货需由商家在报名中调整库存，平台可联系商家或临时下架商品。</p>
+      </section>
+      <section className="skm-panel">
+        <div className="skm-panel-head">
+          <div><b>实时成交动态</b><small>已支付秒杀订单滚动记录</small></div>
+          <span className="skm-feed-count mono">{events.length} 条</span>
+        </div>
+        {events.length?<div className="skm-feed">{events.map((event)=><div key={event.id} className="skm-feed-item">
+          <span className="skm-feed-time mono">{event.time.slice(11,19)}</span>
+          <div className="skm-feed-copy"><b>{event.member} 拍下 {event.product}</b><small>{event.session} · {event.qty} 件</small></div>
+          <span className="skm-feed-amount">{seckillAmount(event.amount)}</span>
+        </div>)}</div>:<div className="skm-panel-empty"><AdminIcon name="Clock" size={20}/><b>{running?'等待成交动态':'当前无实时成交'}</b><span>{running?(autoRefresh?'自动刷新开启后，新的支付订单会在此滚动':'开启自动刷新或点击立即刷新查看最新成交'):'活动未开始或已结束，不再产生新的成交'}</span></div>}
+      </section>
+    </div>
+    <p className="skm-note">数据仅统计已支付且未关闭的秒杀订单，剩余库存为秒杀投放库存余量；访问量与在线人数需接入埋点后另行提供。</p>
+  </section>;
+}
+
+function AdminSeckillAnalysis({ activities, applies, sessionsByActivity, productStats, activityStats, route, navigate, notify }) {
+  const routeActivityId = routeParam(route,'activityId');
+  const [activityId,setActivityId] = useState(()=>activities.some((item)=>item.id===routeActivityId)?routeActivityId:seckillInsightActivityId(activities,applies));
+  useEffect(()=>{
+    if (routeActivityId && activities.some((item)=>item.id===routeActivityId)) setActivityId(routeActivityId);
+  },[routeActivityId]);
+
+  const activity = activities.find((item)=>item.id===activityId) || activities[0] || { id:'', name:'暂无活动' };
+  const state = seckillActivityState(activity);
+  const sessions = useMemo(()=>[...(sessionsByActivity[activity.id]||[])].sort((a,b)=>a.beginTime.localeCompare(b.beginTime)||a.sort-b.sort),[activity.id,sessionsByActivity]);
+  const pool = useMemo(()=>seckillProductPool(applies,activity.id,sessions,productStats),[applies,activity.id,sessions,productStats]);
+  const ranking = useMemo(()=>seckillRanking(pool),[pool]);
+  const totals = useMemo(()=>seckillAggregate(pool,activityStats,activity.id),[pool,activityStats,activity.id]);
+  const shareOf = (amount)=>totals.salesAmount?amount/totals.salesAmount:0;
+  const segments = ranking.map((item,index)=>({ ...item, share:shareOf(item.amount), color:SECKILL_SHARE_COLORS[index%SECKILL_SHARE_COLORS.length] }));
+  const sessionRows = useMemo(()=>sessions.map((session)=>{
+    const items = ranking.filter((item)=>item.sessionId===session.id);
+    return {
+      key:session.id,
+      name:session.name,
+      time:`${session.beginTime.slice(5,16)} – ${session.endTime.slice(11,16)}`,
+      count:items.length,
+      sold:items.reduce((total,item)=>total+item.sold,0),
+      amount:items.reduce((total,item)=>total+item.amount,0)
+    };
+  }).sort((a,b)=>b.amount-a.amount||b.sold-a.sold),[sessions,ranking]);
+  const merchantRows = useMemo(()=>{
+    const grouped = new Map();
+    ranking.forEach((item)=>{
+      if (!grouped.has(item.mchName)) grouped.set(item.mchName,{ key:item.mchName, count:0, sold:0, amount:0 });
+      const entry = grouped.get(item.mchName);
+      entry.count += 1; entry.sold += item.sold; entry.amount += item.amount;
+    });
+    return [...grouped.values()].sort((a,b)=>b.amount-a.amount||b.sold-a.sold);
+  },[ranking]);
+
+  const exportReport = ()=>{
+    if (!ranking.length) { notify('当前活动暂无成交数据可导出'); return; }
+    const header = ['活动','场次','商品','商家','销量','成交额','成交占比','剩余库存','售罄率'];
+    const lines = [header.join(',')].concat(ranking.map((item)=>[
+      activity.name,
+      item.session?item.session.name:'',
+      item.spuName,
+      item.mchName,
+      item.sold,
+      item.amount.toFixed(2),
+      seckillPercent(shareOf(item.amount),2),
+      item.remaining,
+      seckillPercent(item.sellThrough)
+    ].map(seckillCsvCell).join(',')));
+    lines.push('');
+    lines.push(['成交订单',totals.paidOrderCount,'成交会员',totals.participantCount,'成交总额',totals.salesAmount.toFixed(2),'客单价',totals.averageOrder.toFixed(2)].map(seckillCsvCell).join(','));
+    const blob = new Blob([`\uFEFF${lines.join('\r\n')}`],{ type:'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `秒杀成交分析_${activity.name}_${SECKILL_SESSION_NOW.slice(0,10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    notify('成交分析报表已导出');
+  };
+
+  return <section className="admin-page seckill-analysis-page" data-screen-label="平台后台-秒杀成交分析">
+    <SeckillContextBar
+      icon="DataAnalysis"
+      activity={activity}
+      activities={activities}
+      activityId={activity.id}
+      onSwitch={setActivityId}
+      navigate={navigate}
+      ticket={<StatusTicket tone={state.tone}>{state.label}</StatusTicket>}
+      meta={[
+        { icon:'Lightning', text:`活动 ${seckillFullRange(activity.activityBeginTime,activity.activityEndTime)}` },
+        { icon:'Clock', text:`共 ${sessions.length} 个场次` },
+        { icon:'Goods', text:`成交商品 ${totals.productCount} 款` },
+        { icon:'DocumentChecked', text:'口径：已支付且未关闭' }
+      ]}
+    >
+      <button className="skm-refresh" onClick={exportReport}><AdminIcon name="file" size={15}/>导出报表</button>
+    </SeckillContextBar>
+    <div className="skm-kpi-grid ska-kpi-grid">
+      <div className="skm-kpi">
+        <span className="skm-kpi-icon"><AdminIcon name="Tickets" size={18}/></span>
+        <div className="skm-kpi-copy"><span>成交订单</span><b>{seckillNumber(totals.paidOrderCount)}</b><small>共 {seckillNumber(totals.soldCount)} 件商品</small></div>
+      </div>
+      <div className="skm-kpi">
+        <span className="skm-kpi-icon"><AdminIcon name="Avatar" size={18}/></span>
+        <div className="skm-kpi-copy"><span>成交会员</span><b>{seckillNumber(totals.participantCount)}</b><small>人均 {totals.ordersPerMember.toFixed(2)} 单</small></div>
+      </div>
+      <div className="skm-kpi">
+        <span className="skm-kpi-icon"><AdminIcon name="Money" size={18}/></span>
+        <div className="skm-kpi-copy"><span>成交总额</span><b className="is-price">{seckillAmount(totals.salesAmount)}</b><small>投放库存 {seckillNumber(totals.stockTotal)} 件</small></div>
+      </div>
+      <div className="skm-kpi">
+        <span className="skm-kpi-icon"><AdminIcon name="Coin" size={18}/></span>
+        <div className="skm-kpi-copy"><span>客单价</span><b>{seckillAmount(totals.averageOrder)}</b><small>件单价 {seckillAmount(totals.unitPrice)}</small></div>
+      </div>
+    </div>
+    <div className="ska-substrip">
+      <div className="ska-sub"><span>整体售罄率</span><b>{seckillPercent(totals.sellThrough)}</b><i className="ska-sub-bar"><em style={{width:seckillPercent(totals.sellThrough)}}></em></i></div>
+      <div className="ska-sub"><span>平均折扣</span><b>{totals.discount?`${(totals.discount*10).toFixed(2)} 折`:'—'}</b><small>成交额 / 原价成交额</small></div>
+      <div className="ska-sub"><span>人均消费</span><b>{seckillAmount(totals.perMember)}</b><small>成交会员口径</small></div>
+      <div className="ska-sub"><span>剩余库存</span><b className={totals.remainingStock?'':'is-danger'}>{seckillNumber(totals.remainingStock)} 件</b><small>{totals.remainingStock?'可继续承接流量':'全部售罄'}</small></div>
+    </div>
+    <section className="ska-share">
+      <div className="skm-panel-head">
+        <div><b>成交额构成</b><small>按商品拆解成交总额占比</small></div>
+        <span className="skm-feed-count">{state.key==='ongoing'?'活动进行中，数据持续累计':state.key==='ended'?'活动已结束，最终复盘口径':'活动未开始，暂无成交'}</span>
+      </div>
+      {totals.salesAmount?<>
+        <div className="ska-stack">{segments.filter((item)=>item.share>0).map((item)=><i key={item.id} style={{ width:seckillPercent(item.share,2), background:item.color }} title={`${item.spuName} ${seckillPercent(item.share)}`}></i>)}</div>
+        <div className="ska-legend">{segments.map((item)=><div key={item.id} className="ska-legend-item">
+          <i style={{ background:item.color }}></i>
+          <b title={item.spuName}>{item.spuName}</b>
+          <span className="mono">{seckillAmount(item.amount)}</span>
+          <em>{seckillPercent(item.share)}</em>
+        </div>)}</div>
+      </>:<div className="skm-panel-empty"><AdminIcon name="DataAnalysis" size={20}/><b>暂无成交构成</b><span>活动产生已支付订单后，这里会展示各商品成交额占比</span></div>}
+    </section>
+    <div className="admin-table-frame">
+      <div className="ss-table-intro">
+        <span><AdminIcon name="DataAnalysis" size={15}/>成交分析只计算已支付且未关闭的秒杀订单，不混入普通订单或未支付订单。</span>
+        <div className="sa-intro-right"><b>商品 {ranking.length} 款</b></div>
+      </div>
+      <table data-align-table="t31" className="admin-table seckill-analysis-table">
+        <thead><tr><th>排名</th><th>商品</th><th>销量</th><th>成交额</th><th>成交占比</th><th>剩余库存</th><th>售罄率</th></tr></thead>
+        <tbody>{ranking.map((item,index)=><tr key={item.id}>
+          <td><div className="cb"><span className={`skm-rank${index<3?' is-top':''}`}>{index+1}</span></div></td>
+          <td><div className="cb"><div className="sa-product-cell">
+            <span className="sa-product-art"><ProductArt type={item.art}/></span>
+            <div className="sa-product-copy"><b title={item.spuName}>{item.spuName}</b><small>{item.session?item.session.name:'场次待确认'} · {item.mchName}</small></div>
+          </div></div></td>
+          <td><div className="cb"><span className="skm-num">{seckillNumber(item.sold)} 件</span></div></td>
+          <td><div className="cb"><span className="skm-num is-price">{seckillAmount(item.amount)}</span></div></td>
+          <td><div className="cb"><div className="skm-progress"><i><em style={{width:seckillPercent(shareOf(item.amount),2)}}></em></i><span>{seckillPercent(shareOf(item.amount))}</span></div></div></td>
+          <td><div className="cb"><span className={`skm-num${item.remaining<=0?' is-danger':''}`}>{seckillNumber(item.remaining)} 件</span></div></td>
+          <td><div className="cb"><span className="skm-num">{seckillPercent(item.sellThrough)}</span></div></td>
+        </tr>)}</tbody>
+      </table>
+      {!ranking.length&&<div className="admin-empty"><AdminIcon name="DataAnalysis" size={28}/><b>暂无已支付秒杀订单</b><span>{state.key==='upcoming'?'活动开始后产生的成交会在此统计':'审核通过的商品产生支付订单后，这里会展示成交贡献'}</span></div>}
+    </div>
+    <div className="skm-panels">
+      <section className="skm-panel">
+        <div className="skm-panel-head"><div><b>场次成交分布</b><small>按场次归集成交额与销量</small></div><span className="skm-feed-count mono">{sessionRows.length} 个场次</span></div>
+        {sessionRows.length?<div className="ska-bars">{sessionRows.map((row,index)=>{
+          const share = shareOf(row.amount);
+          return <div key={row.key} className="ska-bar-row">
+            <div className="ska-bar-copy"><b title={row.name}>{row.name}</b><small>{row.time} · {row.count} 款商品</small></div>
+            <i className="ska-bar"><em style={{ width:seckillPercent(share,2), background:SECKILL_SHARE_COLORS[index%SECKILL_SHARE_COLORS.length] }}></em></i>
+            <div className="ska-bar-value"><b>{seckillAmount(row.amount)}</b><small>{seckillNumber(row.sold)} 件 · {seckillPercent(share)}</small></div>
+          </div>;
+        })}</div>:<div className="skm-panel-empty"><AdminIcon name="Clock" size={20}/><b>尚未配置场次</b><span>补充场次后可按场次复盘成交</span></div>}
+      </section>
+      <section className="skm-panel">
+        <div className="skm-panel-head"><div><b>商家成交贡献</b><small>按商家归集成交额与商品数</small></div><span className="skm-feed-count mono">{merchantRows.length} 家商家</span></div>
+        {merchantRows.length?<div className="ska-bars">{merchantRows.map((row,index)=>{
+          const share = shareOf(row.amount);
+          return <div key={row.key} className="ska-bar-row">
+            <div className="ska-bar-copy"><b title={row.key}>{row.key}</b><small>{row.count} 款商品</small></div>
+            <i className="ska-bar"><em style={{ width:seckillPercent(share,2), background:SECKILL_SHARE_COLORS[index%SECKILL_SHARE_COLORS.length] }}></em></i>
+            <div className="ska-bar-value"><b>{seckillAmount(row.amount)}</b><small>{seckillNumber(row.sold)} 件 · {seckillPercent(share)}</small></div>
+          </div>;
+        })}</div>:<div className="skm-panel-empty"><AdminIcon name="Shop" size={20}/><b>暂无商家成交</b><span>商家商品产生支付订单后在此归集</span></div>}
+      </section>
+    </div>
+    <p className="skm-note">成交分析只计算已支付且未关闭的秒杀订单，不混入普通订单或未支付订单；退款订单需接入售后统计后另行扣减。</p>
   </section>;
 }
 
@@ -3375,9 +4090,6 @@ function moduleTabView(surface, page, tab, fallback) {
     'platform:points-mall:兑换订单': { columns:['兑换单号','会员','兑换商品','消耗积分','状态'], rows:[['PX20261027001','林可','品牌帆布袋','600','待发货'],['PX20261020008','周予安','全店 20 元券','300','已完成']] },
     'platform:seckill:场次管理': { columns:['场次','活动','开始时间','结束时间','商品数'], rows:[['10:00 场','秋日数码秒杀','10/27 10:00','10/27 12:00','8'],['20:00 场','晚八点居家场','10/28 20:00','10/28 22:00','5']] },
     'platform:seckill:报名审核': { columns:['商家','店铺','活动','商品','审核状态'], rows:[['Yeah 数码','Yeah 数码生活馆','秋日数码秒杀','云感降噪头戴耳机','待审核'],['山野生活','山野生活店','晚八点居家场','弧光人体工学休闲椅','审核通过']] },
-    'platform:seckill:商品管理': { columns:['秒杀商品','活动','商家','秒杀价','状态'], rows:[['云感降噪头戴耳机','秋日数码秒杀','Yeah 数码','¥299.00','销售中'],['弧光人体工学休闲椅','晚八点居家场','山野生活','¥499.00','待开始']] },
-    'platform:seckill:实时监控': { columns:['活动','支付订单','待支付','已售库存','运行状态'], rows:[['秋日数码秒杀','126','18','126/180','监控中'],['晚八点居家场','0','0','0/80','待开始']] },
-    'platform:seckill:成交分析': { columns:['活动','成交订单','成交额','退款订单','转化状态'], rows:[['秋日数码秒杀','126','¥37,674.00','2','统计中'],['晚八点居家场','0','¥0.00','0','待开始']] },
     'platform:groupbuy:申请审核': { columns:['申请时间','商家','店铺','活动','审核状态'], rows:[['10/24 09:18','Yeah 数码','Yeah 数码生活馆','双人好物团','待审核'],['10/23 16:40','山野生活','山野生活店','山野咖啡拼团','审核通过']] },
     'platform:groupbuy:商品管理': { columns:['拼团商品','源商品','拼团价','拼团库存','状态'], rows:[['白茶修护双人团','白茶屏障修护精华','¥139.00','48','销售中'],['山野咖啡三人团','山野拼配挂耳咖啡','¥49.00','90','销售中']] },
     'platform:groupbuy:订单管理': { columns:['订单编号','拼团活动','团编号','已占席/成团','状态'], rows:[['YM202610260018','双人好物团','G20261027003','2/2','待发货'],['YM202610270021','山野咖啡拼团','G20261027008','2/3','待成团']] },
@@ -4422,11 +5134,1262 @@ function AdminSeckillPage({ route, navigate, notify }) {
     return grouped;
   });
   const [applies,setApplies] = useState(SECKILL_APPLIES_INITIAL);
+  const [productStats,setProductStats] = useState(SECKILL_PRODUCT_STATS_INITIAL);
+  const [activityStats,setActivityStats] = useState(SECKILL_ACTIVITY_STATS_INITIAL);
   const tab = routeParam(route,'tab') || '活动管理';
   if (tab === '场次管理') return <AdminSeckillSessions activities={activities} setActivities={setActivities} sessionsByActivity={sessionsByActivity} setSessionsByActivity={setSessionsByActivity} route={route} navigate={navigate} notify={notify}/>;
   if (tab === '报名审核') return <AdminSeckillAudits activities={activities} applies={applies} setApplies={setApplies} sessionsByActivity={sessionsByActivity} route={route} navigate={navigate} notify={notify}/>;
+  if (tab === '商品管理') return <AdminSeckillProducts activities={activities} applies={applies} sessionsByActivity={sessionsByActivity} productStats={productStats} route={route} navigate={navigate} notify={notify}/>;
+  if (tab === '实时监控') return <AdminSeckillMonitor activities={activities} applies={applies} sessionsByActivity={sessionsByActivity} productStats={productStats} setProductStats={setProductStats} activityStats={activityStats} setActivityStats={setActivityStats} route={route} navigate={navigate} notify={notify}/>;
+  if (tab === '成交分析') return <AdminSeckillAnalysis activities={activities} applies={applies} sessionsByActivity={sessionsByActivity} productStats={productStats} activityStats={activityStats} route={route} navigate={navigate} notify={notify}/>;
   if (tab !== '活动管理') return <AdminModulePage surface="platform" page="seckill" route={route} navigate={navigate} notify={notify}/>;
   return <AdminSeckillActivity activities={activities} setActivities={setActivities} navigate={navigate} notify={notify}/>;
+}
+
+/* ===== 平台拼团管理：活动管理 / 申请审核 / 商品管理 / 订单管理 =====
+   领域口径对齐后端 GroupBuyActivityStatusEnum(1新建2发布3开始报名4结束报名5活动开始6活动结束7活动下架)、
+   GroupBuyApplyAuditStatusEnum(1待审2通过3驳回)、GroupBuyGroupStatusEnum(1待团长支付2拼团中3已成团4拼团失败5已关闭)、
+   GroupBuyOrderStatusEnum(1待支付2已支付3已关闭4退款中5已退款6退款失败)。
+   拼团语义：每团 minPeople 人成团，groupLimit 为最大开团数(-1 不限)；活动结束统一结算——满团待发货、未满团关闭/退款、释放剩余预留库存。
+   复用秒杀模块已归一化的通用样式原语，时间/金额/富文本格式化沿用 seckill* 纯函数。 */
+const GROUPBUY_NOW = '2026-11-19 10:00:00';
+const GROUPBUY_STATUS_ORDER = ['1','2','3','4','5','6','7'];
+const GROUPBUY_STATUS_META = {
+  '1': { label:'新建', tone:'neutral', action:'发布', next:'2', hint:'发布前会校验报名与活动时间段是否有效、成团人数与最大开团数是否设置。' },
+  '2': { label:'已发布', tone:'info', action:'开始报名', next:'3', hint:'开始报名后，商家可在报名时间段内提交拼团商品报名。' },
+  '3': { label:'报名中', tone:'warning', action:'结束报名', next:'4', hint:'结束报名后活动进入等待开始状态，请核对审核通过的拼团商品后开始活动。' },
+  '4': { label:'报名结束', tone:'info', action:'开始活动', next:'5', hint:'开始活动后系统会按审核通过商品预留拼团库存，App 端开放开团与参团。' },
+  '5': { label:'进行中', tone:'success', action:'结束活动', next:'6', hint:'结束活动后统一结算：满团进入待发货，未满团关闭或退款，并释放剩余预留库存。' },
+  '6': { label:'已结束', tone:'neutral', action:'活动下架', next:'7', hint:'活动下架后会从进行中集合移除，App 端不再作为进行中活动展示。' },
+  '7': { label:'已下架', tone:'neutral', action:'', next:'', hint:'' }
+};
+const GROUPBUY_FLOW = [
+  { value:'1', label:'新建' }, { value:'2', label:'发布' }, { value:'3', label:'报名中' },
+  { value:'4', label:'报名结束' }, { value:'5', label:'进行中' }, { value:'6', label:'结束' }, { value:'7', label:'下架' }
+];
+const GROUPBUY_ACTIVITIES_INITIAL = [
+  { id:'gb-1', name:'秋日好物双人团', description:'居家好物两人成团，主推休闲椅与露营折叠桌。', art:'chair', applyBeginTime:'2026-10-20 10:00:00', applyEndTime:'2026-10-24 22:00:00', activityBeginTime:'2026-11-16 10:00:00', activityEndTime:'2026-11-22 22:00:00', minPeople:2, groupLimit:20, status:'5', sort:1, enabled:true, remark:'活动进行中，满团后于活动结束统一结算发货。', createTime:'2026-10-15 09:20:00', updateTime:'2026-11-16 10:02:18' },
+  { id:'gb-2', name:'山野咖啡拼团', description:'手冲器具与磨豆机三人成团，咖啡爱好者专场。', art:'coffee', applyBeginTime:'2026-11-14 10:00:00', applyEndTime:'2026-11-22 18:00:00', activityBeginTime:'2026-11-24 10:00:00', activityEndTime:'2026-11-30 22:00:00', minPeople:3, groupLimit:-1, status:'3', sort:2, enabled:true, remark:'', createTime:'2026-11-10 14:30:00', updateTime:'2026-11-14 10:05:40' },
+  { id:'gb-3', name:'深秋护肤 trio 团', description:'精华与香薰礼盒三人成团，面向秋冬敏感肌。', art:'serum', applyBeginTime:'2026-11-20 10:00:00', applyEndTime:'2026-11-24 22:00:00', activityBeginTime:'2026-11-26 10:00:00', activityEndTime:'2026-12-02 22:00:00', minPeople:3, groupLimit:10, status:'2', sort:3, enabled:true, remark:'', createTime:'2026-11-12 10:12:00', updateTime:'2026-11-17 09:20:05' },
+  { id:'gb-4', name:'周末咖啡闪购团', description:'挂耳咖啡与手冲壶周末双人团，开团数待设置。', art:'coffee', applyBeginTime:'2026-11-18 10:00:00', applyEndTime:'2026-11-20 22:00:00', activityBeginTime:'2026-11-22 10:00:00', activityEndTime:'2026-11-23 14:00:00', minPeople:2, groupLimit:0, status:'1', sort:4, enabled:true, remark:'最大开团数未设置，发布前需补充。', createTime:'2026-11-17 11:42:18', updateTime:'2026-11-17 11:42:18' },
+  { id:'gb-5', name:'户外装备拼团节', description:'露营折叠椅与户外音箱双人成团，日间场景主推。', art:'chair', applyBeginTime:'2026-11-10 10:00:00', applyEndTime:'2026-11-15 22:00:00', activityBeginTime:'2026-11-20 10:00:00', activityEndTime:'2026-11-26 22:00:00', minPeople:2, groupLimit:15, status:'4', sort:5, enabled:true, remark:'', createTime:'2026-11-05 09:08:00', updateTime:'2026-11-16 14:30:22' },
+  { id:'gb-6', name:'双十一返场拼团', description:'大促返场降噪耳机与音箱，保留历史数据用于复盘。', art:'headphone', applyBeginTime:'2026-10-28 10:00:00', applyEndTime:'2026-11-01 22:00:00', activityBeginTime:'2026-11-03 10:00:00', activityEndTime:'2026-11-11 22:00:00', minPeople:2, groupLimit:-1, status:'6', sort:6, enabled:false, remark:'活动已结束并完成统一结算。', createTime:'2026-10-24 16:40:00', updateTime:'2026-11-12 08:10:02' },
+  { id:'gb-7', name:'夏日清凉拼团', description:'冷萃咖啡壶三人团，已下架归档。', art:'coffee', applyBeginTime:'2026-08-01 10:00:00', applyEndTime:'2026-08-05 22:00:00', activityBeginTime:'2026-08-08 10:00:00', activityEndTime:'2026-08-15 22:00:00', minPeople:3, groupLimit:8, status:'7', sort:7, enabled:false, remark:'', createTime:'2026-07-28 09:30:00', updateTime:'2026-08-16 10:05:36' },
+  { id:'gb-8', name:'会员耳机专享团', description:'会员专属降噪耳机双人团，限量开团。', art:'headphone', applyBeginTime:'2026-11-01 10:00:00', applyEndTime:'2026-11-05 22:00:00', activityBeginTime:'2026-11-17 20:00:00', activityEndTime:'2026-11-23 22:00:00', minPeople:2, groupLimit:30, status:'5', sort:8, enabled:true, remark:'', createTime:'2026-10-28 10:16:00', updateTime:'2026-11-17 20:08:52' }
+];
+const GROUPBUY_APPLY_TABS = [
+  { key:'all', label:'全部' }, { key:'pending', label:'待审核' }, { key:'passed', label:'审核通过' }, { key:'rejected', label:'审核驳回' }
+];
+const GROUPBUY_APPLY_STATUS = {
+  1: { key:'pending', label:'待审核', tone:'warning' },
+  2: { key:'passed', label:'审核通过', tone:'success' },
+  3: { key:'rejected', label:'审核驳回', tone:'danger' }
+};
+const GROUPBUY_GROUP_STATUS = {
+  1: { key:'waitpay', label:'待团长支付', tone:'warning' },
+  2: { key:'forming', label:'拼团中', tone:'info' },
+  3: { key:'success', label:'已成团', tone:'success' },
+  4: { key:'failed', label:'拼团失败', tone:'danger' },
+  5: { key:'closed', label:'已关闭', tone:'neutral' }
+};
+const GROUPBUY_GROUP_TABS = [
+  { key:'all', label:'全部团' }, { key:'waitpay', label:'待团长支付' }, { key:'forming', label:'拼团中' },
+  { key:'success', label:'已成团' }, { key:'failed', label:'拼团失败' }, { key:'closed', label:'已关闭' }
+];
+const GROUPBUY_ORDER_STATUS = {
+  1: { key:'waitpay', label:'待支付', tone:'warning' },
+  2: { key:'paid', label:'已支付', tone:'success' },
+  3: { key:'closed', label:'已关闭', tone:'neutral' },
+  4: { key:'refunding', label:'退款中', tone:'info' },
+  5: { key:'refunded', label:'已退款', tone:'neutral' },
+  6: { key:'refundfail', label:'退款失败', tone:'danger' }
+};
+const GROUPBUY_ORDER_TABS = [
+  { key:'all', label:'全部订单' }, { key:'waitpay', label:'待支付' }, { key:'paid', label:'已支付' },
+  { key:'closed', label:'已关闭' }, { key:'refunding', label:'退款中' }, { key:'refunded', label:'已退款' }, { key:'refundfail', label:'退款失败' }
+];
+const groupbuySku = (name,specCode,originPrice,groupPrice,stock)=>({ name,specCode,originPrice,groupPrice,stock });
+const GROUPBUY_APPLIES_INITIAL = [
+  { id:'gap-1', activityId:'gb-1', mchName:'山野生活', shopName:'山野生活店', spuName:'弧光人体工学休闲椅', art:'chair',
+    detailDesc:'<p>高回弹海绵与弧形靠背，适配客厅阅读角，双人团主推款。</p><h3>坐感说明</h3><ol><li>45D 高回弹海绵，久坐不塌陷</li><li>弧形靠背贴合腰椎曲线，倾角 105°</li><li>实木框架 + 蛇形弹簧，承重 150kg</li></ol><blockquote>面料可选棉麻 / 科技布，拼团默认发棉麻款。</blockquote>',
+    auditStatus:2, applyTime:'2026-10-21 16:40:00', auditTime:'2026-10-22 09:30:00', applyRemark:'主推款，计划开团 20 个。', auditRemark:'资料完整，拼团价符合活动要求。',
+    skus:[groupbuySku('暖棕 · 标准款','ARC-CHAIR-BR',1299,699,60),groupbuySku('雾灰 · 标准款','ARC-CHAIR-GY',1299,699,60)] },
+  { id:'gap-2', activityId:'gb-1', mchName:'山野生活', shopName:'山野生活店', spuName:'轻量露营折叠桌', art:'chair',
+    detailDesc:'<p>铝合金折叠结构，桌面承重 30kg，附收纳袋。</p><ul><li><strong>一秒开合</strong>：免安装折叠骨架，收纳厚度仅 8cm</li><li>阳极氧化铝桌面，<span style="color:#e6a23c">耐刮耐高温</span></li><li>附 600D 牛津布收纳袋，肩背手提两用</li></ul>',
+    auditStatus:2, applyTime:'2026-10-22 10:24:00', auditTime:'2026-10-23 09:12:00', applyRemark:'搭配休闲椅做居家场景团。', auditRemark:'通过，库存与价格符合要求。',
+    skus:[groupbuySku('原木色 · 中号','CAMP-TABLE-M',459,269,50),groupbuySku('曜石黑 · 中号','CAMP-TABLE-BK',459,269,30)] },
+  { id:'gap-3', activityId:'gb-1', mchName:'森屿香氛', shopName:'森屿香氛店', spuName:'无火香薰礼盒', art:'serum',
+    detailDesc:'<p>雪松与白茶香调，含藤条与 200ml 香薰液。</p><ul><li>前调白茶 / 中调雪松 / 尾调琥珀</li><li><span style="background-color:#fdf6ec">扩香约 8–10㎡，持香 60 天</span></li></ul>',
+    auditStatus:2, applyTime:'2026-10-23 14:05:00', auditTime:'2026-10-24 09:22:00', applyRemark:'礼盒装，适合双人拼团送礼。', auditRemark:'通过，礼盒信息与主图一致。',
+    skus:[groupbuySku('雪松白茶 · 200ml','DIFFUSER-200',259,139,80),groupbuySku('无花果 · 200ml','DIFFUSER-FIG',259,139,60)] },
+  { id:'gap-4', activityId:'gb-1', mchName:'日常咖啡', shopName:'日常咖啡研究所', spuName:'便携手冲咖啡壶', art:'coffee',
+    detailDesc:'<p>304 不锈钢细口壶，600ml，适配 1–2 人份手冲。</p>',
+    auditStatus:3, applyTime:'2026-10-23 11:18:00', auditTime:'2026-10-24 10:12:00', applyRemark:'希望加入秋日好物团。', auditRemark:'拼团价高于近 30 天最低成交价，请调整价格后重新报名。',
+    skus:[groupbuySku('雾银 · 600ml','KETTLE-600-SV',199,129,60)] },
+  { id:'gap-5', activityId:'gb-2', mchName:'日常咖啡', shopName:'日常咖啡研究所', spuName:'便携手摇磨豆机', art:'coffee',
+    detailDesc:'<p>CNC 不锈钢磨芯，外置调节环，支持 36 档研磨。</p><ul><li>420 不锈钢刀盘，<em>意式 / 手冲通用</em></li><li>外置刻度环，换豆无需拆机调档</li><li>双轴承固定，研磨均匀度提升约 30%</li></ul>',
+    auditStatus:1, applyTime:'2026-11-17 09:08:00', auditTime:'', applyRemark:'三人团首发，随单赠滤纸 50 张。', auditRemark:'',
+    skus:[groupbuySku('银色 · 标准版','GRINDER-S',329,219,50),groupbuySku('黑色 · 标准版','GRINDER-BK',329,219,50)] },
+  { id:'gap-6', activityId:'gb-2', mchName:'户外星球', shopName:'户外星球装备店', spuName:'钛合金户外水杯', art:'coffee',
+    detailDesc:'<p>双层真空结构，轻量钛合金杯体，容量 450ml。</p><p><strong>纯钛内胆</strong>无金属味，盛茶 / 咖啡不串味。</p>',
+    auditStatus:1, applyTime:'2026-11-18 18:30:00', auditTime:'', applyRemark:'新品首发，报名三人团。', auditRemark:'',
+    skus:[groupbuySku('钛本色 · 450ml','CUP-TI-450',399,259,60)] },
+  { id:'gap-7', activityId:'gb-2', mchName:'Yeah 数码', shopName:'Yeah 数码生活馆', spuName:'云感降噪头戴耳机', art:'headphone',
+    detailDesc:'<p>40mm 动圈单元，佩戴轻量，支持有线模式。</p><ul><li>有线 / 蓝牙双模，没电也能听</li><li>折叠收纳，附硬壳收纳包</li></ul>',
+    auditStatus:2, applyTime:'2026-11-15 10:15:00', auditTime:'2026-11-16 09:30:00', applyRemark:'咖啡团跨界补充品类。', auditRemark:'品牌授权与质检资料已核对，通过。',
+    skus:[groupbuySku('曜石黑 · 标准版','HEAD-ANC-BK',999,599,60),groupbuySku('雾银 · 标准版','HEAD-ANC-SV',999,599,60)] },
+  { id:'gap-8', activityId:'gb-2', mchName:'声屿音频', shopName:'声屿音频店', spuName:'开放式运动耳机', art:'headphone',
+    detailDesc:'<p><br></p>',
+    auditStatus:3, applyTime:'2026-11-16 16:22:00', auditTime:'2026-11-17 11:10:00', applyRemark:'报名三人团 60 件。', auditRemark:'商品详情为空，请补充图文后重新提交。',
+    skus:[groupbuySku('曜石黑 · 运动版','OPEN-SPORT-BK',299,229,60)] },
+  { id:'gap-9', activityId:'gb-5', mchName:'山野生活', shopName:'山野生活店', spuName:'轻量露营折叠椅', art:'chair',
+    detailDesc:'<p>铝合金支架，收纳体积小，承重 120kg。</p><ul><li>7075 铝合金杖杆，整椅仅 980g</li><li>收纳后约雨伞大小，侧袋可放</li></ul>',
+    auditStatus:2, applyTime:'2026-11-13 09:16:00', auditTime:'2026-11-14 10:05:00', applyRemark:'日间场主推，备货 80 件。', auditRemark:'通过，库存与价格符合要求。',
+    skus:[groupbuySku('沙丘色 · 标准款','CAMP-CHAIR-SD',329,199,40),groupbuySku('墨绿色 · 标准款','CAMP-CHAIR-GN',329,199,40)] },
+  { id:'gap-10', activityId:'gb-5', mchName:'山野生活', shopName:'山野生活店', spuName:'户外便携音箱', art:'headphone',
+    detailDesc:'<p>双单元立体声，IPX7 防水，续航 12 小时。</p><ul><li>20W 双单元 + 被动振膜，低频下潜 60Hz</li><li>支持 TWS 串联，两台组立体声</li></ul>',
+    auditStatus:2, applyTime:'2026-11-13 14:08:00', auditTime:'2026-11-14 10:02:00', applyRemark:'户外场景主推，库存 80 件。', auditRemark:'资料齐全，通过。',
+    skus:[groupbuySku('松针绿 · 标准版','SPK-OUT-GN',499,329,50),groupbuySku('岩石灰 · 标准版','SPK-OUT-GY',499,329,30)] },
+  { id:'gap-11', activityId:'gb-5', mchName:'户外星球', shopName:'户外星球装备店', spuName:'钛合金户外水杯', art:'coffee',
+    detailDesc:'<p>双层真空钛杯，容量 450ml，整杯 186g。</p>',
+    auditStatus:1, applyTime:'2026-11-15 20:30:00', auditTime:'', applyRemark:'报名截止前补充提交。', auditRemark:'',
+    skus:[groupbuySku('钛本色 · 450ml','CUP-TI-450',399,259,60)] },
+  { id:'gap-12', activityId:'gb-6', mchName:'Yeah 数码', shopName:'Yeah 数码生活馆', spuName:'头戴式降噪耳机 Pro', art:'headphone',
+    detailDesc:'<p>自适应降噪与空间音频，支持多设备切换。</p><h3>Pro 升级点</h3><ul><li><strong>自适应降噪</strong>：随环境噪声实时调节深度</li><li>空间音频 + 头部追踪，观影更沉浸</li></ul>',
+    auditStatus:2, applyTime:'2026-10-29 10:22:00', auditTime:'2026-10-30 09:18:00', applyRemark:'返场主推款。', auditRemark:'通过，资料与价格均符合要求。',
+    skus:[groupbuySku('曜石黑 · Pro','HEAD-PRO-BK',1299,799,40),groupbuySku('雾银 · Pro','HEAD-PRO-SV',1299,799,40)] },
+  { id:'gap-13', activityId:'gb-6', mchName:'声屿音频', shopName:'声屿音频店', spuName:'便携蓝牙音箱', art:'headphone',
+    detailDesc:'<p>织物网罩与金属提手，支持立体声串联。</p>',
+    auditStatus:2, applyTime:'2026-10-29 15:40:00', auditTime:'2026-10-30 10:05:00', applyRemark:'返场活动报名。', auditRemark:'通过，历史活动资料完整。',
+    skus:[groupbuySku('砂岩灰 · 标准版','SPK-GRAY',399,279,40)] },
+  { id:'gap-14', activityId:'gb-8', mchName:'Yeah 数码', shopName:'Yeah 数码生活馆', spuName:'主动降噪真无线耳机', art:'headphone',
+    detailDesc:'<p>42dB 主动降噪，双设备连接，单次续航 8 小时。</p><ul><li>蓝牙 5.4，双设备无缝切换</li><li>单次 8h，含仓 32h，支持快充</li></ul>',
+    auditStatus:2, applyTime:'2026-11-03 21:40:00', auditTime:'2026-11-04 09:30:00', applyRemark:'会员专享团，计划开团 30 个。', auditRemark:'通过，质检资料齐全。',
+    skus:[groupbuySku('曜石黑 · 标准版','TWS-ANC-BK',399,299,100),groupbuySku('雾银 · 标准版','TWS-ANC-SV',399,299,100)] },
+  { id:'gap-15', activityId:'gb-8', mchName:'Yeah 数码', shopName:'Yeah 数码生活馆', spuName:'智能降噪耳夹耳机', art:'headphone',
+    detailDesc:'<p>耳夹式开放设计，单耳 5.6g，支持空间音频。</p><p><strong>自适应降噪</strong>按环境噪声调节深度，含仓续航 28 小时。</p>',
+    auditStatus:2, applyTime:'2026-11-02 16:48:00', auditTime:'2026-11-03 11:05:00', applyRemark:'会员团新品，限量 60 件。', auditRemark:'通过，新品资料与价格符合要求。',
+    skus:[groupbuySku('雾银 · 标准版','CLIP-ANC-SV',299,199,60)] },
+  { id:'gap-16', activityId:'gb-8', mchName:'声屿音频', shopName:'声屿音频店', spuName:'桌面监听音箱', art:'headphone',
+    detailDesc:'<p>4 英寸低音单元 + 丝膜高音，桌面近场监听。</p><blockquote>会员团限量 30 台，售完即止。</blockquote>',
+    auditStatus:2, applyTime:'2026-11-02 15:12:00', auditTime:'2026-11-03 09:30:00', applyRemark:'会员团限量 30 台。', auditRemark:'通过，限量库存与报名一致。',
+    skus:[groupbuySku('胡桃木 · 标准版','MONITOR-SPK-WN',699,429,30)] },
+  { id:'gap-17', activityId:'gb-7', mchName:'日常咖啡', shopName:'日常咖啡研究所', spuName:'夏日冷萃咖啡壶', art:'coffee',
+    detailDesc:'<p>耐热玻璃壶身，配不锈钢滤网，容量 1L。</p>',
+    auditStatus:2, applyTime:'2026-08-02 09:50:00', auditTime:'2026-08-03 09:10:00', applyRemark:'夏季清凉节报名。', auditRemark:'通过，历史活动资料完整。',
+    skus:[groupbuySku('透明 · 1L','COLD-BREW-1L',159,89,50)] }
+];
+const groupbuyGroup = (id,groupNo,activityId,productName,art,leaderMemberName,minPeople,status,createTime,successTime,failedTime)=>({ id,groupNo,activityId,productName,art,leaderMemberName,minPeople,status,createTime,successTime:successTime||'',failedTime:failedTime||'' });
+const GROUPBUY_GROUPS_INITIAL = [
+  groupbuyGroup('g-1','T20261116001','gb-1','弧光人体工学休闲椅','chair','林可',2,'3','2026-11-16 10:12:00','2026-11-16 11:02:00'),
+  groupbuyGroup('g-2','T20261116002','gb-1','弧光人体工学休闲椅','chair','周予安',2,'2','2026-11-16 14:30:00'),
+  groupbuyGroup('g-3','T20261117003','gb-1','轻量露营折叠桌','chair','陈一禾',2,'3','2026-11-17 09:20:00','2026-11-17 10:05:00'),
+  groupbuyGroup('g-4','T20261118004','gb-1','轻量露营折叠桌','chair','苏晚',2,'1','2026-11-18 20:40:00'),
+  groupbuyGroup('g-5','T20261116005','gb-1','无火香薰礼盒','serum','何知遥',2,'4','2026-11-16 16:00:00','','2026-11-18 16:00:00'),
+  groupbuyGroup('g-6','T20261117006','gb-1','无火香薰礼盒','serum','赵启明',2,'3','2026-11-17 11:30:00','2026-11-17 13:20:00'),
+  groupbuyGroup('g-7','T20261117007','gb-8','主动降噪真无线耳机','headphone','沈亦舟',2,'3','2026-11-17 20:15:00','2026-11-17 21:00:00'),
+  groupbuyGroup('g-8','T20261118008','gb-8','智能降噪耳夹耳机','headphone','吴星野',2,'2','2026-11-18 09:40:00'),
+  groupbuyGroup('g-9','T20261118009','gb-8','桌面监听音箱','headphone','郑南',2,'3','2026-11-18 10:20:00','2026-11-18 12:10:00'),
+  groupbuyGroup('g-10','T20261103010','gb-6','头戴式降噪耳机 Pro','headphone','许清和',2,'3','2026-11-03 10:30:00','2026-11-03 12:00:00'),
+  groupbuyGroup('g-11','T20261104011','gb-6','便携蓝牙音箱','headphone','林可',2,'5','2026-11-04 15:00:00','','2026-11-11 22:00:00'),
+  groupbuyGroup('g-12','T20261105012','gb-6','头戴式降噪耳机 Pro','headphone','周予安',2,'3','2026-11-05 09:10:00','2026-11-05 11:40:00'),
+  groupbuyGroup('g-13','T20261106013','gb-6','便携蓝牙音箱','headphone','周予安',2,'4','2026-11-06 14:20:00','','2026-11-08 14:20:00'),
+  groupbuyGroup('g-14','T20261107014','gb-6','便携蓝牙音箱','headphone','苏晚',2,'5','2026-11-07 19:00:00','','2026-11-11 22:00:00')
+];
+const groupbuyOrder = (id,orderNo,groupId,groupNo,activityId,memberName,productName,art,groupPrice,actualAmount,isLeader,orderStatus,createTime,payTime)=>({ id,orderNo,groupId,groupNo,activityId,memberName,productName,art,groupPrice,actualAmount,isLeader,orderStatus,createTime,payTime:payTime||'' });
+const GROUPBUY_ORDERS_INITIAL = [
+  groupbuyOrder('go-1','GB202611160001','g-1','T20261116001','gb-1','林可','弧光人体工学休闲椅','chair',699,699,true,2,'2026-11-16 10:12:00','2026-11-16 10:13:20'),
+  groupbuyOrder('go-2','GB202611160002','g-1','T20261116001','gb-1','苏晚','弧光人体工学休闲椅','chair',699,669,false,2,'2026-11-16 10:58:00','2026-11-16 11:02:00'),
+  groupbuyOrder('go-3','GB202611160003','g-2','T20261116002','gb-1','周予安','弧光人体工学休闲椅','chair',699,699,true,2,'2026-11-16 14:30:00','2026-11-16 14:31:10'),
+  groupbuyOrder('go-4','GB202611190004','g-2','T20261116002','gb-1','郑南','弧光人体工学休闲椅','chair',699,699,false,1,'2026-11-19 08:40:00'),
+  groupbuyOrder('go-5','GB202611170005','g-3','T20261117003','gb-1','陈一禾','轻量露营折叠桌','chair',269,269,true,2,'2026-11-17 09:20:00','2026-11-17 09:21:00'),
+  groupbuyOrder('go-6','GB202611170006','g-3','T20261117003','gb-1','何知遥','轻量露营折叠桌','chair',269,239,false,2,'2026-11-17 09:55:00','2026-11-17 10:05:00'),
+  groupbuyOrder('go-7','GB202611180007','g-4','T20261118004','gb-1','苏晚','轻量露营折叠桌','chair',269,269,true,1,'2026-11-18 20:40:00'),
+  groupbuyOrder('go-8','GB202611160008','g-5','T20261116005','gb-1','何知遥','无火香薰礼盒','serum',139,139,true,5,'2026-11-16 16:00:00','2026-11-16 16:02:00'),
+  groupbuyOrder('go-9','GB202611170009','g-6','T20261117006','gb-1','赵启明','无火香薰礼盒','serum',139,139,true,2,'2026-11-17 11:30:00','2026-11-17 11:31:00'),
+  groupbuyOrder('go-10','GB202611170010','g-6','T20261117006','gb-1','沈亦舟','无火香薰礼盒','serum',139,119,false,2,'2026-11-17 13:10:00','2026-11-17 13:20:00'),
+  groupbuyOrder('go-11','GB202611170011','g-7','T20261117007','gb-8','沈亦舟','主动降噪真无线耳机','headphone',299,299,true,2,'2026-11-17 20:15:00','2026-11-17 20:16:00'),
+  groupbuyOrder('go-12','GB202611170012','g-7','T20261117007','gb-8','吴星野','主动降噪真无线耳机','headphone',299,279,false,2,'2026-11-17 20:50:00','2026-11-17 21:00:00'),
+  groupbuyOrder('go-13','GB202611180013','g-8','T20261118008','gb-8','吴星野','智能降噪耳夹耳机','headphone',199,199,true,2,'2026-11-18 09:40:00','2026-11-18 09:41:00'),
+  groupbuyOrder('go-14','GB202611180014','g-9','T20261118009','gb-8','郑南','桌面监听音箱','headphone',429,429,true,2,'2026-11-18 10:20:00','2026-11-18 10:21:00'),
+  groupbuyOrder('go-15','GB202611180015','g-9','T20261118009','gb-8','许清和','桌面监听音箱','headphone',429,399,false,2,'2026-11-18 12:00:00','2026-11-18 12:10:00'),
+  groupbuyOrder('go-16','GB202611030016','g-10','T20261103010','gb-6','许清和','头戴式降噪耳机 Pro','headphone',799,799,true,2,'2026-11-03 10:30:00','2026-11-03 10:31:00'),
+  groupbuyOrder('go-17','GB202611030017','g-10','T20261103010','gb-6','林可','头戴式降噪耳机 Pro','headphone',799,769,false,2,'2026-11-03 11:40:00','2026-11-03 12:00:00'),
+  groupbuyOrder('go-18','GB202611040018','g-10','T20261103010','gb-6','陈一禾','头戴式降噪耳机 Pro','headphone',799,799,false,6,'2026-11-04 09:00:00','2026-11-04 09:02:00'),
+  groupbuyOrder('go-19','GB202611040019','g-11','T20261104011','gb-6','林可','便携蓝牙音箱','headphone',279,279,true,5,'2026-11-04 15:00:00','2026-11-04 15:01:00'),
+  groupbuyOrder('go-20','GB202611050020','g-12','T20261105012','gb-6','周予安','头戴式降噪耳机 Pro','headphone',799,799,true,2,'2026-11-05 09:10:00','2026-11-05 09:11:00'),
+  groupbuyOrder('go-21','GB202611050021','g-12','T20261105012','gb-6','陈一禾','头戴式降噪耳机 Pro','headphone',799,769,false,2,'2026-11-05 11:30:00','2026-11-05 11:40:00'),
+  groupbuyOrder('go-22','GB202611060022','g-13','T20261106013','gb-6','周予安','便携蓝牙音箱','headphone',279,279,true,4,'2026-11-06 14:20:00','2026-11-06 14:21:00'),
+  groupbuyOrder('go-23','GB202611070023','g-14','T20261107014','gb-6','苏晚','便携蓝牙音箱','headphone',279,279,true,3,'2026-11-07 19:00:00')
+];
+const GROUPBUY_PRODUCT_STATS_INITIAL = {
+  'gap-1':{ sales:3, amount:2067 }, 'gap-2':{ sales:2, amount:508 }, 'gap-3':{ sales:3, amount:397 },
+  'gap-7':{ sales:0, amount:0 }, 'gap-9':{ sales:0, amount:0 }, 'gap-10':{ sales:0, amount:0 },
+  'gap-12':{ sales:5, amount:3965 }, 'gap-13':{ sales:2, amount:558 },
+  'gap-14':{ sales:2, amount:578 }, 'gap-15':{ sales:1, amount:199 }, 'gap-16':{ sales:2, amount:828 },
+  'gap-17':{ sales:12, amount:1068 }
+};
+
+const groupbuyApplyStatus = (status)=>GROUPBUY_APPLY_STATUS[Number(status)] || GROUPBUY_APPLY_STATUS[1];
+const groupbuyGroupStatus = (status)=>GROUPBUY_GROUP_STATUS[Number(status)] || GROUPBUY_GROUP_STATUS[1];
+const groupbuyOrderStatus = (status)=>GROUPBUY_ORDER_STATUS[Number(status)] || GROUPBUY_ORDER_STATUS[1];
+const groupbuyLimitText = (limit)=>Number(limit)===-1?'不限':(Number(limit)>0?`${limit} 团`:'未设置');
+function groupbuyApplyWindowState(activity) {
+  if (!activity?.applyBeginTime || !activity?.applyEndTime) return { key:'none', label:'报名未开放', tone:'neutral' };
+  if (GROUPBUY_NOW < activity.applyBeginTime) return { key:'upcoming', label:'报名未开始', tone:'info' };
+  if (GROUPBUY_NOW < activity.applyEndTime) return { key:'open', label:'报名中', tone:'success' };
+  return { key:'closed', label:'报名已结束', tone:'neutral' };
+}
+function groupbuyActivityState(activity) {
+  if (!activity?.activityBeginTime || !activity?.activityEndTime) return { key:'none', label:'时间待设置', tone:'neutral' };
+  if (GROUPBUY_NOW < activity.activityBeginTime) return { key:'upcoming', label:'活动未开始', tone:'info' };
+  if (GROUPBUY_NOW < activity.activityEndTime) return { key:'ongoing', label:'活动进行中', tone:'success' };
+  return { key:'ended', label:'活动已结束', tone:'neutral' };
+}
+function groupbuyApplySummary(apply) {
+  const skus = apply.skus || [];
+  const groupPrices = skus.map((sku)=>Number(sku.groupPrice)).filter((value)=>Number.isFinite(value));
+  const originPrices = skus.map((sku)=>Number(sku.originPrice)).filter((value)=>Number.isFinite(value));
+  return {
+    skuCount:skus.length,
+    stock:skus.reduce((total,sku)=>total+Number(sku.stock||0),0),
+    minGroup:groupPrices.length?Math.min(...groupPrices):0,
+    maxGroup:groupPrices.length?Math.max(...groupPrices):0,
+    minOrigin:originPrices.length?Math.min(...originPrices):0,
+    maxOrigin:originPrices.length?Math.max(...originPrices):0
+  };
+}
+function groupbuyPublishIssues(row) {
+  const issues = [];
+  if (!row.applyBeginTime || !row.applyEndTime || !row.activityBeginTime || !row.activityEndTime) {
+    issues.push('报名与活动时间段未完整设置');
+  } else {
+    if (row.applyBeginTime > row.applyEndTime) issues.push('报名开始时间需早于或等于结束时间');
+    if (row.activityBeginTime > row.activityEndTime) issues.push('活动开始时间需早于或等于结束时间');
+  }
+  if (!row.minPeople || Number(row.minPeople)<2) issues.push('成团人数需大于等于 2 人');
+  if (row.groupLimit===null || row.groupLimit===undefined || Number(row.groupLimit)===0) issues.push('请设置最大开团数，或选择不限制');
+  return issues;
+}
+function groupbuyInsightActivityId(activities, applies, orders) {
+  const ongoing = activities.find((item)=>item.enabled && groupbuyActivityState(item).key==='ongoing' && orders.some((order)=>order.activityId===item.id));
+  if (ongoing) return ongoing.id;
+  const withPassed = activities.find((item)=>applies.some((apply)=>apply.activityId===item.id && Number(apply.auditStatus)===2));
+  if (withPassed) return withPassed.id;
+  const withApply = activities.find((item)=>applies.some((apply)=>apply.activityId===item.id));
+  if (withApply) return withApply.id;
+  return (activities[0]||{}).id || '';
+}
+function groupbuyProductPool(applies, activity, productStats) {
+  const minPeople = Number(activity?.minPeople||2);
+  return applies.filter((item)=>item.activityId===activity.id).map((apply)=>{
+    const summary = groupbuyApplySummary(apply);
+    const stat = productStats[apply.id] || { sales:0, amount:0 };
+    const passed = Number(apply.auditStatus)===2;
+    const sales = passed ? Number(stat.sales||0) : 0;
+    return {
+      ...apply, summary, passed, minPeople,
+      stock:summary.stock,
+      sales,
+      remaining:Math.max(0, summary.stock - sales),
+      amount:passed ? Number(stat.amount||0) : 0,
+      sellThrough:summary.stock ? sales / summary.stock : 0,
+      discount:summary.minOrigin ? summary.minGroup / summary.minOrigin : 0
+    };
+  });
+}
+const groupbuyGroupOrders = (orders, groupId)=>orders.filter((order)=>order.groupId===groupId);
+const groupbuyPaidCount = (orders)=>orders.filter((order)=>[2,4,5,6].includes(Number(order.orderStatus))).length;
+function groupbuyGroupCounts(group, orders) {
+  const list = groupbuyGroupOrders(orders, group.id);
+  return { reserved:list.length, member:groupbuyPaidCount(list), orders:list };
+}
+function GroupBuyContextBar({ icon, activity, ticket, meta, activities, activityId, onSwitch, navigate, children }) {
+  return <div className="ss-activity-bar">
+    <span className="ss-activity-icon"><AdminIcon name={icon} size={22}/></span>
+    <div className="ss-activity-copy">
+      <div className="ss-activity-title"><h2>{activity.name}</h2>{ticket}</div>
+      <div className="ss-activity-meta">{meta.map((item,index)=><span key={index}><AdminIcon name={item.icon} size={13}/>{item.text}</span>)}</div>
+    </div>
+    <div className="ss-activity-controls">
+      {children}
+      <label className="ss-activity-switch"><span>切换活动</span><select value={activityId} onChange={(event)=>onSwitch(event.target.value)}>{activities.map((item)=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+      <button className="ss-back-link" onClick={()=>navigate('platform/groupbuy?tab=活动管理')}><AdminIcon name="back" size={15}/>返回活动管理</button>
+    </div>
+  </div>;
+}
+
+function AdminGroupBuyActivity({ activities: rows, setActivities: setRows, applies, navigate, notify }) {
+  const [tab,setTab] = useState('all');
+  const [filters,setFilters] = useState({ keyword:'', enabled:'全部状态' });
+  const [applied,setApplied] = useState({ keyword:'', enabled:'全部状态' });
+  const [detail,setDetail] = useState(null);
+  const [editing,setEditing] = useState(null);
+  const [errors,setErrors] = useState({});
+  const [coverPreview,setCoverPreview] = useState('');
+  const [menu,setMenu] = useState(null);
+  const [transition,setTransition] = useState(null);
+  const [deleting,setDeleting] = useState(null);
+  const applyCount = (id)=>applies.filter((item)=>item.activityId===id).length;
+  const productCount = (id)=>applies.filter((item)=>item.activityId===id&&Number(item.auditStatus)===2).length;
+  const baseRows = [...rows].sort((a,b)=>a.sort-b.sort||String(a.id).localeCompare(String(b.id))).filter((row)=>{
+    const keyword = applied.keyword.trim().toLowerCase();
+    const keywordMatch = !keyword || `${row.name}${row.description}${row.remark}`.toLowerCase().includes(keyword);
+    const enabledMatch = applied.enabled==='全部状态' || (applied.enabled==='启用' ? row.enabled : !row.enabled);
+    return keywordMatch && enabledMatch;
+  });
+  const counts = { all: baseRows.length };
+  GROUPBUY_STATUS_ORDER.forEach((status)=>{ counts[status] = baseRows.filter((row)=>row.status===status).length; });
+  const filtered = baseRows.filter((row)=>tab==='all'||row.status===tab);
+  const setupCount = rows.filter((row)=>row.status==='1'&&groupbuyPublishIssues(row).length).length;
+  const search = () => setApplied({ ...filters });
+  const reset = () => { const empty = { keyword:'', enabled:'全部状态' }; setFilters(empty); setApplied(empty); setTab('all'); };
+  const goTab = (row, tabName) => { setMenu(null); setDetail(null); navigate(`platform/groupbuy?tab=${encodeURIComponent(tabName)}&activityId=${row.id}`); };
+  const openCreate = () => {
+    setMenu(null); setDetail(null); setErrors({}); setCoverPreview('');
+    setEditing({ id:'', name:'', description:'', coverImage:'', art:'coffee', applyBeginTime:'', applyEndTime:'', activityBeginTime:'', activityEndTime:'', minPeople:2, groupLimit:0, sort:1, remark:'', status:'1', enabled:true, createTime:'', updateTime:'' });
+  };
+  const openEdit = (row) => { setMenu(null); setDetail(null); setErrors({}); setCoverPreview(row.coverPreview || ''); setEditing({ ...row }); };
+  const setField = (key,value) => setEditing((current)=>current ? { ...current,[key]:value } : current);
+  const pickCover = (file) => { if (!file) return; setCoverPreview(URL.createObjectURL(file)); };
+  const save = () => {
+    const nextErrors = {};
+    if (!editing.name.trim()) nextErrors.name = '请输入活动名称';
+    if (!editing.description.trim()) nextErrors.description = '请输入活动描述';
+    if (!editing.sort || Number(editing.sort)<1) nextErrors.sort = '排序需大于等于 1';
+    if (!editing.minPeople || Number(editing.minPeople)<2) nextErrors.minPeople = '成团人数需大于等于 2 人';
+    if (editing.groupLimit===null || editing.groupLimit===undefined || Number(editing.groupLimit)===0) nextErrors.groupLimit = '请设置最大开团数，或勾选不限';
+    else if (Number(editing.groupLimit)<-1) nextErrors.groupLimit = '最大开团数需为正整数或 -1（不限）';
+    if (!editing.applyBeginTime || !editing.applyEndTime) nextErrors.applyTime = '请选择完整的报名开始和结束时间';
+    else if (editing.applyBeginTime > editing.applyEndTime) nextErrors.applyTime = '报名开始时间需早于或等于结束时间';
+    if (!editing.activityBeginTime || !editing.activityEndTime) nextErrors.activityTime = '请选择完整的活动开始和结束时间';
+    else if (editing.activityBeginTime > editing.activityEndTime) nextErrors.activityTime = '活动开始时间需早于或等于结束时间';
+    if (Object.keys(nextErrors).length) { setErrors(nextErrors); return; }
+    const stamp = '2026-11-19 10:20:00';
+    if (editing.id) {
+      const next = { ...editing, coverImage:editing.coverImage||'sample-cover', coverPreview:coverPreview||editing.coverPreview||'', updateTime:stamp };
+      setRows(rows.map((row)=>row.id===editing.id?next:row));
+      if (detail?.id===editing.id) setDetail(next);
+      notify('活动信息已保存');
+    } else {
+      const next = { ...editing, id:`gb-${Date.now()}`, status:'1', enabled:true, coverImage:editing.coverImage||'sample-cover', coverPreview:coverPreview||'', createTime:stamp, updateTime:stamp };
+      setRows([...rows,next]);
+      notify('活动已创建，完善规则后即可发布');
+    }
+    setEditing(null); setErrors({});
+  };
+  const toggleEnabled = (row) => {
+    const nextEnabled = !row.enabled; const stamp = '2026-11-19 10:22:00';
+    setRows(rows.map((item)=>item.id===row.id?{ ...item, enabled:nextEnabled, updateTime:stamp }:item));
+    if (detail?.id===row.id) setDetail({ ...detail, enabled:nextEnabled, updateTime:stamp });
+    notify(`活动已${nextEnabled?'启用':'停用'}`);
+  };
+  const openTransition = (row) => {
+    const meta = GROUPBUY_STATUS_META[row.status];
+    if (!meta?.action) return;
+    setMenu(null);
+    setTransition({ row, meta, issues:meta.next==='2' ? groupbuyPublishIssues(row) : [] });
+  };
+  const confirmTransition = () => {
+    if (!transition || transition.issues.length) return;
+    const stamp = '2026-11-19 10:24:00';
+    const nextRow = { ...transition.row, status:transition.meta.next, updateTime:stamp };
+    setRows(rows.map((item)=>item.id===nextRow.id?nextRow:item));
+    if (detail?.id===nextRow.id) setDetail(nextRow);
+    notify(`活动已${transition.meta.action}`);
+    setTransition(null);
+  };
+  const confirmDelete = () => {
+    if (!deleting) return;
+    setRows(rows.filter((row)=>row.id!==deleting.id));
+    if (detail?.id===deleting.id) setDetail(null);
+    setDeleting(null); notify('活动已删除');
+  };
+  const canEdit = (row)=>!['6','7'].includes(row.status);
+  return (
+    <section className="admin-page groupbuy-page groupbuy-activity-page" data-screen-label="平台后台-拼团活动管理">
+      <div className="sk-status-tabs">
+        <button data-status="all" className={tab==='all'?'active':''} onClick={()=>setTab('all')}>全部<span className="sk-tab-count">{counts.all}</span></button>
+        {GROUPBUY_STATUS_ORDER.map((status)=><button key={status} data-status={status} className={tab===status?'active':''} onClick={()=>setTab(status)}>{GROUPBUY_STATUS_META[status].label}<span className="sk-tab-count">{counts[status]}</span></button>)}
+      </div>
+      <FilterBar onReset={reset} onSearch={search} actions={<button className="business-primary" onClick={openCreate}><AdminIcon name="plus" size={17}/>新建活动</button>}>
+        <label><span>活动名称</span><input value={filters.keyword} onChange={(event)=>setFilters({ ...filters,keyword:event.target.value })} onKeyDown={(event)=>event.key==='Enter'&&search()} placeholder="搜索活动名称或描述"/></label>
+        <label><span>启用状态</span><select value={filters.enabled} onChange={(event)=>setFilters({ ...filters,enabled:event.target.value })}><option>全部状态</option><option>启用</option><option>停用</option></select></label>
+      </FilterBar>
+      <div className="admin-table-frame">
+        <div className="sk-table-intro">
+          <span><AdminIcon name="clock" size={15}/>发布前需设置成团人数（≥2）与最大开团数；报名与活动时间段允许重叠，但各自起止需有效。</span>
+          <div className="sk-intro-right">
+            {setupCount>0&&<span className="sk-setup-chip"><AdminIcon name="warning" size={12}/>{setupCount} 个待完善规则</span>}
+            <b>共 {filtered.length} 个活动</b>
+          </div>
+        </div>
+        <table data-align-table="t29" className="admin-table gb-activity-table">
+          <thead><tr><th>活动信息</th><th>报名时间</th><th>活动时间</th><th>成团人数</th><th>开团上限</th><th>报名 / 商品</th><th>状态</th><th className="numeric">排序</th><th>启用</th><th className="actions">操作</th></tr></thead>
+          <tbody>{filtered.map((row)=>{
+            const meta = GROUPBUY_STATUS_META[row.status] || GROUPBUY_STATUS_META['1'];
+            const ac = applyCount(row.id); const pc = productCount(row.id);
+            return <tr key={row.id}>
+              <td><div className="cb"><div className="sk-activity-cell">
+                <span className="sk-cover-art">{row.coverPreview?<img src={row.coverPreview} alt="活动封面"/>:<ProductArt type={row.art||'coffee'}/>}</span>
+                <span className="sk-activity-copy">
+                  <button className="sk-name-link" title={row.name} onClick={()=>setDetail(row)}>{row.name}</button>
+                  <small title={row.description}>{row.description||'暂无活动描述'}</small>
+                </span>
+              </div></div></td>
+              <td><div className="cb"><div className="sk-when-cell" title={`${row.applyBeginTime} 至 ${row.applyEndTime}`}>
+                {row.applyBeginTime&&row.applyEndTime?<><span>{seckillShortTime(row.applyBeginTime)}</span><i>→</i><span>{seckillShortTime(row.applyEndTime)}</span></>:<span className="sk-when-empty">待设置</span>}
+              </div></div></td>
+              <td><div className="cb"><div className="sk-when-cell" title={`${row.activityBeginTime} 至 ${row.activityEndTime}`}>
+                {row.activityBeginTime&&row.activityEndTime?<><span>{seckillShortTime(row.activityBeginTime)}</span><i>→</i><span>{seckillShortTime(row.activityEndTime)}</span></>:<span className="sk-when-empty">待设置</span>}
+              </div></div></td>
+              <td><div className="cb">{row.minPeople} 人</div></td>
+              <td><div className="cb">{groupbuyLimitText(row.groupLimit)}</div></td>
+              <td><div className="cb"><div className="gb-link-stack">
+                <button className={`table-link${ac?'':' is-zero'}`} onClick={()=>goTab(row,'申请审核')}>报名 {ac}</button>
+                <button className={`table-link${pc?'':' is-zero'}`} onClick={()=>goTab(row,'商品管理')}>商品 {pc}</button>
+              </div></div></td>
+              <td><div className="cb"><StatusTicket tone={meta.tone}>{meta.label}</StatusTicket></div></td>
+              <td className="numeric"><div className="cb">{row.sort}</div></td>
+              <td><div className="cb"><label className="sk-switch"><input type="checkbox" checked={row.enabled} onChange={()=>toggleEnabled(row)}/><i></i><span>{row.enabled?'启用':'停用'}</span></label></div></td>
+              <td className="actions"><div className="cb"><div className="gb-operations">
+                {meta.action?<button className="table-link gb-next-link" onClick={()=>openTransition(row)}>{meta.action}</button>:<button className="table-link" onClick={()=>setDetail(row)}>详情</button>}
+                <button className="table-link" disabled={!canEdit(row)} title={canEdit(row)?'':'活动已结束，不可编辑'} onClick={()=>canEdit(row)&&openEdit(row)}>编辑</button>
+                <RowActionMenu open={menu===row.id} onToggle={()=>setMenu(menu===row.id?null:row.id)}>
+                  <button onClick={()=>{setDetail(row);setMenu(null);}}>查看详情</button>
+                  <button onClick={()=>goTab(row,'申请审核')}>申请审核</button>
+                  <button onClick={()=>goTab(row,'商品管理')}>商品管理</button>
+                  <button onClick={()=>goTab(row,'订单管理')}>订单管理</button>
+                  <button className="gb-danger-action" disabled={row.status!=='1'} title={row.status!=='1'?'仅新建状态的活动可删除':''} onClick={()=>{setMenu(null);setDeleting(row);}}>删除</button>
+                </RowActionMenu>
+              </div></div></td>
+            </tr>;
+          })}</tbody>
+        </table>
+        {!filtered.length&&<div className="admin-empty"><AdminIcon name="Calendar" size={28}/><b>没有匹配的拼团活动</b><span>调整筛选条件，或新建一个活动</span></div>}
+        <AdminPagination count={filtered.length}/>
+      </div>
+
+      {detail&&(()=>{
+        const meta = GROUPBUY_STATUS_META[detail.status] || GROUPBUY_STATUS_META['1'];
+        const currentIndex = GROUPBUY_FLOW.findIndex((step)=>step.value===detail.status);
+        return <div className="drawer-mask" onClick={()=>setDetail(null)}><aside className="admin-drawer sk-detail-drawer" onClick={(event)=>event.stopPropagation()}>
+          <div className="drawer-head"><div><span className="drawer-kicker">GROUP BUY ACTIVITY</span><h2>活动详情</h2></div><button onClick={()=>setDetail(null)}>×</button></div>
+          <div className="sk-detail-hero">
+            <span className="sk-detail-cover">{detail.coverPreview?<img src={detail.coverPreview} alt="活动封面"/>:<ProductArt type={detail.art||'coffee'}/>}</span>
+            <div className="sk-detail-copy"><h3>{detail.name}</h3><StatusTicket tone={meta.tone}>{meta.label}</StatusTicket><p>{detail.description||'暂无活动描述'}</p></div>
+          </div>
+          <div className="sk-detail-times">
+            <div><span>报名时间</span><b>{seckillFullRange(detail.applyBeginTime,detail.applyEndTime)}</b></div>
+            <div><span>活动时间</span><b>{seckillFullRange(detail.activityBeginTime,detail.activityEndTime)}</b></div>
+          </div>
+          <div className="sk-detail-meta">
+            <div><span>成团人数</span><b>{detail.minPeople} 人 / 团</b></div>
+            <div><span>最大开团数</span><b>{groupbuyLimitText(detail.groupLimit)}</b></div>
+            <div><span>报名 / 通过商品</span><b>{applyCount(detail.id)} 条 / {productCount(detail.id)} 款</b></div>
+            <div><span>排序</span><b>{detail.sort}</b></div>
+            <div><span>启用状态</span><b>{detail.enabled?'启用':'停用'}</b></div>
+            <div><span>最近更新</span><b>{detail.updateTime?detail.updateTime.slice(0,19):'—'}</b></div>
+          </div>
+          <div className="gb-play-note"><AdminIcon name="users" size={15}/><span>拼团玩法：用户开团后邀请好友参团，每团满 {detail.minPeople} 人即成团；活动结束时统一结算——满团订单进入待发货，未满团自动关闭或退款，并释放剩余预留库存。</span></div>
+          <div className="drawer-section"><h3>活动进度</h3><div className="sk-flow">
+            {GROUPBUY_FLOW.map((step,index)=><span key={step.value} className={`sk-flow-step${index<=currentIndex?' is-done':''}${index===currentIndex?' is-current':''}`}><i></i><small>{step.label}</small></span>)}
+          </div></div>
+          <div className="drawer-section"><h3>备注</h3><p className="sk-detail-remark">{detail.remark||'暂无备注'}</p></div>
+          <div className="drawer-actions"><button onClick={()=>setDetail(null)}>关闭</button><button onClick={()=>goTab(detail,'订单管理')}>订单管理</button><button className="primary" disabled={!canEdit(detail)} onClick={()=>canEdit(detail)&&openEdit(detail)}>编辑活动</button></div>
+        </aside></div>;
+      })()}
+
+      {editing&&<div className="dialog-mask" onClick={()=>setEditing(null)}><section className="admin-dialog sk-activity-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">GROUP BUY ACTIVITY</span><h2>{editing.id?'编辑活动':'新建活动'}</h2></div><button onClick={()=>setEditing(null)}>×</button></div>
+        <div className="sk-dialog-note"><AdminIcon name="users" size={16}/><span>拼团活动需设置成团人数与最大开团数；报名与活动时间段允许重叠。保存后可在列表按阶段推进活动状态，活动结束将统一结算。</span></div>
+        <div className="sk-form-grid">
+          <label className={`dialog-field${errors.name?' is-invalid':''}`}><span>活动名称 <em className="sk-required">*</em></span><input value={editing.name} maxLength="64" onChange={(event)=>setField('name',event.target.value)} placeholder="例如：秋日好物双人团"/>{errors.name&&<small className="sk-field-error">{errors.name}</small>}</label>
+          <label className={`dialog-field${errors.sort?' is-invalid':''}`}><span>排序 <em className="sk-required">*</em></span><input type="number" min="1" value={editing.sort} onChange={(event)=>setField('sort',Number(event.target.value))}/>{errors.sort&&<small className="sk-field-error">{errors.sort}</small>}</label>
+          <label className={`dialog-field wide${errors.description?' is-invalid':''}`}><span>活动描述 <em className="sk-required">*</em></span><textarea rows="3" maxLength="500" value={editing.description} onChange={(event)=>setField('description',event.target.value)} placeholder="简要说明活动商品与拼团玩法"/>{errors.description&&<small className="sk-field-error">{errors.description}</small>}</label>
+          <div className="dialog-field wide"><span>活动封面 <em className="sk-required">*</em></span>
+            <div className="sk-cover-editor">
+              <span className="sk-cover-preview">{coverPreview?<img src={coverPreview} alt="活动封面预览"/>:<ProductArt type={editing.art||'coffee'}/>}</span>
+              <span className="sk-cover-copy">
+                <label className="sk-upload-btn"><AdminIcon name="image" size={16}/>{coverPreview?'更换封面':'选择封面'}<input type="file" accept="image/*" onChange={(event)=>{pickCover(event.target.files?.[0]);event.target.value='';}}/></label>
+                <small>{coverPreview?'已选择本地图片，保存后用于活动列表与 App 展示。':'建议 640×320（2:1），支持 JPG / PNG / WebP，单张不超过 2MB；未上传时使用示意封面。'}</small>
+              </span>
+            </div>
+          </div>
+          <div className="dialog-field wide"><span>拼团规则 <em className="sk-required">*</em></span>
+            <div className="gb-rule-grid">
+              <label className={`dialog-field${errors.minPeople?' is-invalid':''}`}><span>成团人数</span><input type="number" min="2" value={editing.minPeople} onChange={(event)=>setField('minPeople',Number(event.target.value))}/><small className="gb-rule-hint">每团满此人数即成团，至少 2 人。</small>{errors.minPeople&&<small className="sk-field-error">{errors.minPeople}</small>}</label>
+              <label className={`dialog-field${errors.groupLimit?' is-invalid':''}`}><span>最大开团数</span><input type="number" min="1" disabled={Number(editing.groupLimit)===-1} value={Number(editing.groupLimit)===-1?'':editing.groupLimit} onChange={(event)=>setField('groupLimit',Number(event.target.value))}/><label className="gb-limit-toggle"><input type="checkbox" checked={Number(editing.groupLimit)===-1} onChange={(event)=>setField('groupLimit',event.target.checked?-1:(Number(editing.groupLimit)>0?Number(editing.groupLimit):1))}/>不限制开团数</label>{errors.groupLimit&&<small className="sk-field-error">{errors.groupLimit}</small>}</label>
+            </div>
+          </div>
+          <div className={`dialog-field wide${errors.applyTime?' is-invalid':''}`}><span>报名时间 <em className="sk-required">*</em></span>
+            <div className="sk-time-inputs">
+              <label><small>开始</small><input type="datetime-local" value={seckillToInput(editing.applyBeginTime)} onChange={(event)=>setField('applyBeginTime',seckillFromInput(event.target.value))}/></label>
+              <i>→</i>
+              <label><small>结束</small><input type="datetime-local" value={seckillToInput(editing.applyEndTime)} onChange={(event)=>setField('applyEndTime',seckillFromInput(event.target.value))}/></label>
+            </div>
+            {errors.applyTime&&<small className="sk-field-error">{errors.applyTime}</small>}
+          </div>
+          <div className={`dialog-field wide${errors.activityTime?' is-invalid':''}`}><span>活动时间 <em className="sk-required">*</em></span>
+            <div className="sk-time-inputs">
+              <label><small>开始</small><input type="datetime-local" value={seckillToInput(editing.activityBeginTime)} onChange={(event)=>setField('activityBeginTime',seckillFromInput(event.target.value))}/></label>
+              <i>→</i>
+              <label><small>结束</small><input type="datetime-local" value={seckillToInput(editing.activityEndTime)} onChange={(event)=>setField('activityEndTime',seckillFromInput(event.target.value))}/></label>
+            </div>
+            {errors.activityTime&&<small className="sk-field-error">{errors.activityTime}</small>}
+          </div>
+          <label className="dialog-field wide"><span>备注 <small>选填</small></span><textarea rows="2" maxLength="255" value={editing.remark} onChange={(event)=>setField('remark',event.target.value)} placeholder="补充运营说明或发布注意事项"/></label>
+        </div>
+        <div className="dialog-actions"><button onClick={()=>setEditing(null)}>取消</button><button className="primary" onClick={save}>{editing.id?'保存修改':'创建活动'}</button></div>
+      </section></div>}
+
+      {transition&&(()=>{
+        const current = GROUPBUY_STATUS_META[transition.row.status] || GROUPBUY_STATUS_META['1'];
+        const next = GROUPBUY_STATUS_META[transition.meta.next] || current;
+        const isPublish = transition.meta.next==='2';
+        const fail = transition.issues.length>0;
+        const timeConfigured = Boolean(transition.row.applyBeginTime&&transition.row.applyEndTime&&transition.row.activityBeginTime&&transition.row.activityEndTime);
+        const orderOk = timeConfigured && transition.row.applyBeginTime<=transition.row.applyEndTime && transition.row.activityBeginTime<=transition.row.activityEndTime;
+        const ruleOk = Number(transition.row.minPeople)>=2 && Number(transition.row.groupLimit)!==0;
+        return <div className="dialog-mask" onClick={()=>setTransition(null)}><section className="admin-dialog sk-transition-dialog" onClick={(event)=>event.stopPropagation()}>
+          <div className="dialog-head"><div><span className="drawer-kicker">GROUP BUY WORKFLOW</span><h2>{transition.meta.action}活动</h2></div><button onClick={()=>setTransition(null)}>×</button></div>
+          <div className="sk-transition-context">
+            <span className="sk-cover-art small">{transition.row.coverPreview?<img src={transition.row.coverPreview} alt="活动封面"/>:<ProductArt type={transition.row.art||'coffee'}/>}</span>
+            <span className="sk-transition-copy"><b>{transition.row.name}</b><small>报名 {seckillShortTime(transition.row.applyBeginTime)} → {seckillShortTime(transition.row.applyEndTime)}</small><small>活动 {seckillShortTime(transition.row.activityBeginTime)} → {seckillShortTime(transition.row.activityEndTime)}</small></span>
+            <span className="sk-transition-shift"><StatusTicket tone={current.tone}>{current.label}</StatusTicket><AdminIcon name="ArrowRight" size={14}/><StatusTicket tone={next.tone}>{next.label}</StatusTicket></span>
+          </div>
+          {isPublish&&<div className={`sk-check ${fail?'is-fail':'is-pass'}`}>
+            <b><AdminIcon name={fail?'warning':'check'} size={14}/>{fail?'发布前检查未通过':'发布前检查通过'}</b>
+            <ul className="sk-check-list">
+              <li className={timeConfigured?'':'is-bad'}><i></i>报名与活动时间段已配置</li>
+              <li className={orderOk?'':'is-bad'}><i></i>各时间段起止有效</li>
+              <li className={Number(transition.row.minPeople)>=2?'':'is-bad'}><i></i>成团人数 ≥ 2 人（当前 {transition.row.minPeople} 人）</li>
+              <li className={Number(transition.row.groupLimit)!==0?'':'is-bad'}><i></i>最大开团数已设置（{groupbuyLimitText(transition.row.groupLimit)}）</li>
+            </ul>
+          </div>}
+          <p className="sk-transition-hint">{transition.meta.hint}</p>
+          <div className="dialog-actions">
+            <button onClick={()=>setTransition(null)}>取消</button>
+            {isPublish&&fail&&<button onClick={()=>{setTransition(null);openEdit(transition.row);}}>前往完善规则</button>}
+            <button className="primary" disabled={fail} onClick={confirmTransition}>确认{transition.meta.action}</button>
+          </div>
+        </section></div>;
+      })()}
+
+      {deleting&&<div className="dialog-mask" onClick={()=>setDeleting(null)}><section className="admin-dialog sk-delete-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head"><div><span className="drawer-kicker">DELETE ACTIVITY</span><h2>删除活动</h2></div><button onClick={()=>setDeleting(null)}>×</button></div>
+        <div className="danger-confirm"><AdminIcon name="warning" size={18}/><div><b>删除后不可恢复</b><span>仅【新建】状态的活动可以删除。删除后活动基础信息将被移除，后续需重新创建。</span><small>当前活动：{deleting.name}</small></div></div>
+        <p className="sk-delete-context">如需保留活动记录，请改为停用或推进至活动下架。</p>
+        <div className="dialog-actions"><button onClick={()=>setDeleting(null)}>取消</button><button className="danger" onClick={confirmDelete}>确认删除</button></div>
+      </section></div>}
+    </section>
+  );
+}
+
+function groupbuyStockState(item, activity) {
+  if (item.remaining<=0) return { label:'已售罄', tone:'danger' };
+  if (groupbuyActivityState(activity).key==='upcoming') return { label:'待开团', tone:'info' };
+  if (item.stock>0 && item.remaining/item.stock<=0.2) return { label:'库存紧张', tone:'warning' };
+  if (item.sellThrough>=0.6) return { label:'热销中', tone:'success' };
+  return { label:'库存充足', tone:'neutral' };
+}
+
+function AdminGroupBuyAudits({ activities, applies, setApplies, route, navigate, notify }) {
+  const routeActivityId = routeParam(route,'activityId');
+  const defaultActivityId = ()=>{
+    const open = activities.find((item)=>item.applyBeginTime <= GROUPBUY_NOW && GROUPBUY_NOW < item.applyEndTime);
+    if (open) return open.id;
+    const withPending = activities.find((item)=>applies.some((apply)=>apply.activityId===item.id && Number(apply.auditStatus)===1));
+    if (withPending) return withPending.id;
+    return (activities[0]||{}).id || '';
+  };
+  const [activityId,setActivityId] = useState(()=>activities.some((item)=>item.id===routeActivityId)?routeActivityId:defaultActivityId());
+  const [tab,setTab] = useState('all');
+  const [filters,setFilters] = useState({ merchant:'', keyword:'' });
+  const [applied,setApplied] = useState({ merchant:'', keyword:'' });
+  const [reviewing,setReviewing] = useState(null);
+  const [auditStatus,setAuditStatus] = useState('');
+  const [auditRemark,setAuditRemark] = useState('');
+  useEffect(()=>{
+    if (routeActivityId && activities.some((item)=>item.id===routeActivityId)) setActivityId(routeActivityId);
+  },[routeActivityId]);
+  useEffect(()=>{
+    setTab('all');
+    setFilters({ merchant:'', keyword:'' });
+    setApplied({ merchant:'', keyword:'' });
+  },[activityId]);
+
+  const activity = activities.find((item)=>item.id===activityId) || activities.find((item)=>item.id===defaultActivityId()) || activities[0] || { id:'', name:'暂无活动', minPeople:2, groupLimit:-1 };
+  const applyState = groupbuyApplyWindowState(activity);
+  const activityApplies = useMemo(()=>applies.filter((row)=>row.activityId===activity.id),[applies,activity.id]);
+  const baseRows = useMemo(()=>activityApplies.filter((row)=>{
+    const merchant = applied.merchant.trim().toLowerCase();
+    const keyword = applied.keyword.trim().toLowerCase();
+    return (!merchant || `${row.mchName}${row.shopName}`.toLowerCase().includes(merchant))
+      && (!keyword || row.spuName.toLowerCase().includes(keyword));
+  }).sort((a,b)=>b.applyTime.localeCompare(a.applyTime)),[activityApplies,applied]);
+  const counts = { all:baseRows.length, pending:0, passed:0, rejected:0 };
+  baseRows.forEach((row)=>{ counts[groupbuyApplyStatus(row.auditStatus).key] += 1; });
+  const filtered = baseRows.filter((row)=>tab==='all'||groupbuyApplyStatus(row.auditStatus).key===tab);
+  const pendingInActivity = activityApplies.filter((row)=>Number(row.auditStatus)===1).length;
+  const processed = counts.passed + counts.rejected;
+  const passRate = processed ? Math.round((counts.passed / processed) * 100) : null;
+  const search = ()=>setApplied({ ...filters });
+  const reset = ()=>{ const empty = { merchant:'', keyword:'' }; setFilters(empty); setApplied(empty); setTab('all'); };
+  const openReview = (row)=>{ setReviewing(row); setAuditStatus(''); setAuditRemark(''); };
+  const closeReview = ()=>{ setReviewing(null); setAuditStatus(''); setAuditRemark(''); };
+  const submitAudit = ()=>{
+    if (!reviewing || !auditStatus) return;
+    const nextStatus = Number(auditStatus);
+    setApplies((current)=>current.map((item)=>item.id===reviewing.id
+      ? { ...item, auditStatus:nextStatus, auditRemark:auditRemark.trim(), auditTime:'2026-11-19 10:30:00' }
+      : item));
+    notify(nextStatus===2?'申请已审核通过，商品进入拼团商品池':'申请已审核驳回');
+    closeReview();
+  };
+  const tableIntroTone = applyState.key==='closed'&&pendingInActivity ? 'is-warning' : applyState.key==='open' ? 'is-open' : '';
+  const tableIntroText = applyState.key==='open'
+    ? `报名进行中，截止 ${activity.applyEndTime.slice(0,16)}；仅待审核记录可执行审核，通过后商品进入拼团商品池。`
+    : applyState.key==='upcoming'
+      ? `报名将于 ${activity.applyBeginTime.slice(0,16)} 开始；当前可提前核对活动规则。`
+      : pendingInActivity
+        ? `报名已于 ${activity.applyEndTime.slice(0,16)} 结束，仍有 ${pendingInActivity} 条待审核；未通过的申请不会进入拼团商品池。`
+        : `报名已于 ${activity.applyEndTime.slice(0,16)} 结束；历史审核记录仅可查看。`;
+  const reviewingApply = reviewing ? applies.find((item)=>item.id===reviewing.id) || reviewing : null;
+  const reviewSummary = reviewingApply ? groupbuyApplySummary(reviewingApply) : null;
+  const reviewMeta = reviewingApply ? groupbuyApplyStatus(reviewingApply.auditStatus) : null;
+  const reviewPending = Boolean(reviewingApply && Number(reviewingApply.auditStatus)===1);
+  const reviewPriceText = reviewSummary ? seckillApplyRange(reviewSummary.minGroup,reviewSummary.maxGroup) : '';
+  const reviewOriginText = reviewSummary ? seckillApplyRange(reviewSummary.minOrigin,reviewSummary.maxOrigin) : '';
+
+  return <section className="admin-page groupbuy-page groupbuy-audit-page" data-screen-label="平台后台-拼团申请审核">
+    <GroupBuyContextBar
+      icon="DocumentChecked"
+      activity={activity}
+      activities={activities}
+      activityId={activity.id}
+      onSwitch={setActivityId}
+      navigate={navigate}
+      ticket={<StatusTicket tone={applyState.tone}><span className="ss-status-live">{applyState.key==='open'&&<i className="ss-live-dot"></i>}{applyState.label}</span></StatusTicket>}
+      meta={[
+        { icon:'Calendar', text:`报名 ${seckillFullRange(activity.applyBeginTime,activity.applyEndTime)}` },
+        { icon:'Lightning', text:`活动 ${seckillFullRange(activity.activityBeginTime,activity.activityEndTime)}` },
+        { icon:'users', text:`${activity.minPeople} 人成团 · 上限 ${groupbuyLimitText(activity.groupLimit)}` },
+        { icon:'DocumentChecked', text:`申请 ${activityApplies.length} 条` }
+      ]}
+    />
+    <div className="ss-queue">
+      <div className="ss-tabs">{GROUPBUY_APPLY_TABS.map((item)=><button key={item.key} data-status={item.key} className={tab===item.key?'active':''} onClick={()=>setTab(item.key)}>{item.label}<span className="ss-tab-count">{counts[item.key]}</span></button>)}</div>
+      <div className="ss-queue-summary">
+        <span className={counts.pending?'is-warning':''}>{counts.pending>0&&<i className="ss-live-dot"></i>}待审核 <b>{counts.pending}</b> 条</span>
+        <span><AdminIcon name="check" size={13}/>通过率 <b>{passRate===null?'—':`${passRate}%`}</b></span>
+      </div>
+    </div>
+    <FilterBar onReset={reset} onSearch={search}>
+      <label><span>申请商家</span><input value={filters.merchant} onChange={(event)=>setFilters({...filters,merchant:event.target.value})} placeholder="商家名称或店铺名称" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+      <label><span>商品名称</span><input value={filters.keyword} onChange={(event)=>setFilters({...filters,keyword:event.target.value})} placeholder="搜索报名商品名称" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+    </FilterBar>
+    <div className="admin-table-frame">
+      <div className={`ss-table-intro sa-table-intro${tableIntroTone?` ${tableIntroTone}`:''}`}>
+        <span><AdminIcon name={tableIntroTone==='is-warning'?'warning':applyState.key==='open'?'clock':'DocumentChecked'} size={15}/>{tableIntroText}</span>
+        <div className="sa-intro-right"><b>筛选 {filtered.length} 条</b>{counts.pending>0&&<span className="sa-pending-chip">待审 {counts.pending}</span>}</div>
+      </div>
+      <table data-align-table="t30" className="admin-table gb-apply-table">
+        <thead><tr><th>报名商品</th><th>商家 / 店铺</th><th>拼团价</th><th>报名时间</th><th>审核状态</th><th>申请备注</th><th>审核备注</th><th className="actions">操作</th></tr></thead>
+        <tbody>{filtered.map((row)=>{
+          const meta = groupbuyApplyStatus(row.auditStatus);
+          const summary = groupbuyApplySummary(row);
+          return <tr key={row.id}>
+            <td><div className="cb"><div className="sa-product-cell">
+              <span className="sa-product-art"><ProductArt type={row.art}/></span>
+              <div className="sa-product-copy"><b title={row.spuName}>{row.spuName}</b><small title={seckillRichPlain(row.detailDesc)||'暂无商品描述'}>{seckillRichPlain(row.detailDesc)||'暂无商品描述'}</small></div>
+            </div></div></td>
+            <td><div className="cb"><div className="sa-party-cell"><b title={row.mchName}>{row.mchName}</b><small title={row.shopName}>{row.shopName}</small></div></div></td>
+            <td><div className="cb"><div className="skp-price-cell">
+              <b>{seckillApplyRange(summary.minGroup,summary.maxGroup)}</b>
+              <small><s>{seckillApplyRange(summary.minOrigin,summary.maxOrigin)}</s><em>{seckillDiscount(summary.minGroup,summary.minOrigin)}</em></small>
+            </div></div></td>
+            <td><div className="cb"><div className="sa-time-cell"><b>{row.applyTime.slice(0,10)}</b><small>{row.applyTime.slice(11,16)}</small></div></div></td>
+            <td><div className="cb"><StatusTicket tone={meta.tone}>{meta.label}</StatusTicket></div></td>
+            <td><div className="cb"><span className={`sa-remark${row.applyRemark?'':' is-empty'}`} title={row.applyRemark||'未填写申请备注'}>{row.applyRemark||'未填写'}</span></div></td>
+            <td><div className="cb"><span className={`sa-remark${row.auditRemark?'':' is-empty'}`} title={row.auditRemark||(meta.key==='pending'?'待审核':'未填写审核备注')}>{row.auditRemark||(meta.key==='pending'?'—':'未填写')}</span></div></td>
+            <td className="actions"><div className="cb"><button className={`table-link${meta.key==='pending'?' gb-review-link':''}`} onClick={()=>openReview(row)}>{meta.key==='pending'?'审核':'查看'}</button></div></td>
+          </tr>;
+        })}</tbody>
+      </table>
+      {!filtered.length&&<div className="admin-empty"><AdminIcon name="DocumentChecked" size={28}/><b>{activityApplies.length?'没有匹配的申请记录':'当前活动还没有申请记录'}</b><span>{activityApplies.length?'调整申请商家或商品名称筛选后重试':applyState.key==='upcoming'?'报名开始后，商家提交的记录会出现在这里':'商家提交申请后，记录会出现在这里'}</span></div>}
+      <AdminPagination count={filtered.length}/>
+    </div>
+
+    {reviewingApply&&reviewMeta&&reviewSummary&&<div className="dialog-mask" onClick={closeReview}>
+      <section className="admin-dialog sa-audit-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head">
+          <div><span className="drawer-kicker">{reviewPending?'APPLY REVIEW':'APPLY DETAIL'}</span><h2>{reviewPending?'申请审核':'申请详情'}</h2></div>
+          <button onClick={closeReview}>×</button>
+        </div>
+        <div className="sa-dialog-scroll">
+          <div className="sa-apply-context">
+            <div className="sa-context-item"><span>商家 / 店铺</span><b title={reviewingApply.mchName}>{reviewingApply.mchName}</b><small title={reviewingApply.shopName}>{reviewingApply.shopName}</small></div>
+            <div className="sa-context-item"><span>活动 / 成团规则</span><b title={activity.name}>{activity.name}</b><small>{activity.minPeople} 人成团 · 上限 {groupbuyLimitText(activity.groupLimit)}</small></div>
+            <div className="sa-context-item"><span>报名时间</span><b>{reviewingApply.applyTime.slice(0,16)}</b><small>{reviewingApply.auditTime?`审核 ${reviewingApply.auditTime.slice(0,16)}`:'等待平台审核'}</small></div>
+            <div className="sa-context-item"><span>审核状态</span><StatusTicket tone={reviewMeta.tone}>{reviewMeta.label}</StatusTicket><small>{reviewPending?'当前可提交审核结果':reviewingApply.auditRemark?'已填写审核备注':'未填写审核备注'}</small></div>
+          </div>
+          <div className="sa-product-panel">
+            <span className="sa-product-art large"><ProductArt type={reviewingApply.art}/></span>
+            <div className="sa-product-info">
+              <h3>{reviewingApply.spuName}</h3>
+              <p>{seckillRichPlain(reviewingApply.detailDesc)||'暂无商品描述'}</p>
+              <div className="sa-product-tags"><span><AdminIcon name="Goods" size={13}/>{reviewSummary.skuCount} 个 SKU</span><span><AdminIcon name="Tickets" size={13}/>报名库存 {reviewSummary.stock} 件</span></div>
+            </div>
+            <div className="sa-price-panel"><span>拼团价</span><b>{reviewPriceText}</b><small>原价 {reviewOriginText}</small></div>
+          </div>
+          <div className="sa-apply-note"><AdminIcon name="message" size={15}/><div><b>商家申请备注</b><p>{reviewingApply.applyRemark||'未填写申请备注'}</p></div></div>
+          <div className="sa-section">
+            <div className="sa-section-head"><b>SKU 信息</b><small>共 {reviewSummary.skuCount} 个规格 · 报名库存 {reviewSummary.stock} 件</small></div>
+            {reviewSummary.skuCount?<table data-align-table="t31" className="sa-sku-table">
+              <thead><tr><th>SKU 名称</th><th>规格编码</th><th>原价</th><th>拼团价</th><th>库存</th><th>SKU 图片</th></tr></thead>
+              <tbody>{reviewingApply.skus.map((sku,index)=><tr key={`${sku.specCode}-${index}`}>
+                <td><div className="cb"><b className="sa-sku-name" title={sku.name}>{sku.name}</b></div></td>
+                <td><div className="cb"><span className="mono">{sku.specCode}</span></div></td>
+                <td><div className="cb"><span className="sa-sku-origin">{seckillApplyMoney(sku.originPrice)}</span></div></td>
+                <td><div className="cb"><span className="sa-sku-price">{seckillApplyMoney(sku.groupPrice)}</span></div></td>
+                <td><div className="cb">{sku.stock} 件</div></td>
+                <td><div className="cb"><span className="sa-sku-art"><ProductArt type={reviewingApply.art}/></span></div></td>
+              </tr>)}</tbody>
+            </table>:<div className="sa-empty-sku">暂无 SKU 信息</div>}
+          </div>
+          <div className="sa-section">
+            <div className="sa-section-head"><b>商品详情</b><small>商家提交的富文本内容 · 只读预览</small></div>
+            {seckillRichHasContent(reviewingApply.detailDesc)
+              ?<div className="sa-richtext" dangerouslySetInnerHTML={{__html:reviewingApply.detailDesc}}/>
+              :<div className="sa-empty-sku">商家未提交商品详情</div>}
+          </div>
+          <div className="sa-section sa-review-section">
+            <div className="sa-section-head"><b>{reviewPending?'审核操作':'审核结果'}</b><small>{reviewPending?'审核结果将同步至拼团商品池':'审核记录仅供查看，不可再次提交'}</small></div>
+            {reviewPending?<>
+              <div className="sa-result-options" role="radiogroup" aria-label="审核结果">
+                <label className={`sa-result-option is-pass${auditStatus==='2'?' is-active':''}`}>
+                  <input type="radio" name="gb-audit-result" value="2" checked={auditStatus==='2'} onChange={()=>setAuditStatus('2')}/>
+                  <span className="sa-result-check"><AdminIcon name="check" size={16}/></span>
+                  <span className="sa-result-copy"><b>审核通过</b><small>商品资料与拼团价符合要求，活动开始时预留库存并进入拼团商品池。</small></span>
+                </label>
+                <label className={`sa-result-option is-reject${auditStatus==='3'?' is-active':''}`}>
+                  <input type="radio" name="gb-audit-result" value="3" checked={auditStatus==='3'} onChange={()=>setAuditStatus('3')}/>
+                  <span className="sa-result-check"><AdminIcon name="close" size={16}/></span>
+                  <span className="sa-result-copy"><b>审核驳回</b><small>商品资料或拼团价不符合要求，商家可调整后重新申请。</small></span>
+                </label>
+              </div>
+              <label className="sa-remark-field">
+                <span>审核备注<small>选填，审核结果与备注将同步给商家</small></span>
+                <textarea maxLength={200} value={auditRemark} onChange={(event)=>setAuditRemark(event.target.value)} placeholder={auditStatus==='3'?'建议说明驳回原因，便于商家调整后重新申请':'可补充审核说明，最多 200 字'}></textarea>
+                <div className="sa-remark-meta"><small>{auditRemark.length}/200</small>{auditStatus==='3'&&<small className="is-warning">驳回时建议填写原因</small>}</div>
+              </label>
+              <div className="sa-audit-tip"><AdminIcon name="warning" size={14}/>审核结果提交后不可修改，请先核对商品、拼团价与库存信息。</div>
+            </>:<div className={`sa-audit-result is-${reviewMeta.key}`}>
+              <div className="sa-result-head"><StatusTicket tone={reviewMeta.tone}>{reviewMeta.label}</StatusTicket><span>审核时间 <b>{reviewingApply.auditTime?reviewingApply.auditTime.slice(0,16):'—'}</b></span></div>
+              <div className="sa-result-note"><span>审核备注</span><p>{reviewingApply.auditRemark||'未填写审核备注'}</p></div>
+            </div>}
+          </div>
+        </div>
+        <div className="dialog-actions">
+          {reviewPending?<>
+            <button onClick={closeReview}>取消</button>
+            <button className="primary" disabled={!auditStatus} onClick={submitAudit}>提交审核</button>
+          </>:<button onClick={closeReview}>关闭</button>}
+        </div>
+      </section>
+    </div>}
+  </section>;
+}
+
+function AdminGroupBuyProducts({ activities, applies, productStats, route, navigate, notify }) {
+  const routeActivityId = routeParam(route,'activityId');
+  const emptyFilters = { keyword:'', merchant:'' };
+  const [activityId,setActivityId] = useState(()=>activities.some((item)=>item.id===routeActivityId)?routeActivityId:groupbuyInsightActivityId(activities,applies,[]));
+  const [tab,setTab] = useState('all');
+  const [filters,setFilters] = useState(emptyFilters);
+  const [applied,setApplied] = useState(emptyFilters);
+  const [detailId,setDetailId] = useState('');
+  useEffect(()=>{
+    if (routeActivityId && activities.some((item)=>item.id===routeActivityId)) setActivityId(routeActivityId);
+  },[routeActivityId]);
+  useEffect(()=>{
+    setTab('all');
+    setFilters(emptyFilters);
+    setApplied(emptyFilters);
+    setDetailId('');
+  },[activityId]);
+
+  const activity = activities.find((item)=>item.id===activityId) || activities[0] || { id:'', name:'暂无活动', minPeople:2, groupLimit:-1 };
+  const state = groupbuyActivityState(activity);
+  const pool = useMemo(()=>groupbuyProductPool(applies,activity,productStats),[applies,activity,productStats]);
+  const baseRows = useMemo(()=>pool.filter((row)=>{
+    const keyword = applied.keyword.trim().toLowerCase();
+    const merchant = applied.merchant.trim().toLowerCase();
+    return (!keyword || row.spuName.toLowerCase().includes(keyword))
+      && (!merchant || `${row.mchName}${row.shopName}`.toLowerCase().includes(merchant));
+  }).sort((a,b)=>b.applyTime.localeCompare(a.applyTime)),[pool,applied]);
+  const counts = { all:baseRows.length, pending:0, passed:0, rejected:0 };
+  baseRows.forEach((row)=>{ counts[groupbuyApplyStatus(row.auditStatus).key] += 1; });
+  const filtered = baseRows.filter((row)=>tab==='all'||groupbuyApplyStatus(row.auditStatus).key===tab);
+  const live = pool.filter((row)=>row.passed);
+  const stockTotal = live.reduce((total,row)=>total+row.stock,0);
+  const salesTotal = live.reduce((total,row)=>total+row.sales,0);
+  const detail = detailId ? pool.find((row)=>row.id===detailId) || null : null;
+  const detailMeta = detail ? groupbuyApplyStatus(detail.auditStatus) : null;
+  const search = ()=>setApplied({ ...filters });
+  const reset = ()=>{ setFilters(emptyFilters); setApplied(emptyFilters); setTab('all'); };
+  const introText = state.key==='ongoing'
+    ? `活动进行中，${live.length} 款审核通过商品正在拼团；销量与剩余库存按已支付订单累计，满团后于活动结束统一发货。`
+    : state.key==='upcoming'
+      ? `活动将于 ${activity.activityBeginTime?activity.activityBeginTime.slice(0,16):'待定'} 开始；审核通过的商品会在开始活动时预留拼团库存。`
+      : state.key==='ended'
+        ? '活动已结束并完成统一结算，商品池与成交表现仅供复盘；如需调整请回到申请审核。'
+        : '活动时间待设置，商品池仍可核对；商品由申请审核生成，平台在此只读查看。';
+
+  return <section className="admin-page groupbuy-page groupbuy-product-page" data-screen-label="平台后台-拼团商品管理">
+    <GroupBuyContextBar
+      icon="Goods"
+      activity={activity}
+      activities={activities}
+      activityId={activity.id}
+      onSwitch={setActivityId}
+      navigate={navigate}
+      ticket={<StatusTicket tone={state.tone}><span className="ss-status-live">{state.key==='ongoing'&&<i className="ss-live-dot"></i>}{state.label}</span></StatusTicket>}
+      meta={[
+        { icon:'Lightning', text:`活动 ${seckillFullRange(activity.activityBeginTime,activity.activityEndTime)}` },
+        { icon:'users', text:`${activity.minPeople} 人成团 · 上限 ${groupbuyLimitText(activity.groupLimit)}` },
+        { icon:'Goods', text:`商品池 ${pool.length} 款 · 通过 ${live.length} 款` },
+        { icon:'Tickets', text:`预留库存 ${seckillNumber(stockTotal)} 件` }
+      ]}
+    />
+    <div className="ss-queue">
+      <div className="ss-tabs">{GROUPBUY_APPLY_TABS.map((item)=><button key={item.key} data-status={item.key} className={tab===item.key?'active':''} onClick={()=>setTab(item.key)}>{item.label}<span className="ss-tab-count">{counts[item.key]}</span></button>)}</div>
+      <div className="ss-queue-summary">
+        <span><AdminIcon name="Tickets" size={13}/>预留库存 <b>{seckillNumber(stockTotal)}</b> 件</span>
+        <span><AdminIcon name="check" size={13}/>累计销量 <b>{seckillNumber(salesTotal)}</b> 件</span>
+      </div>
+    </div>
+    <FilterBar onReset={reset} onSearch={search}>
+      <label><span>商品名称</span><input value={filters.keyword} onChange={(event)=>setFilters({...filters,keyword:event.target.value})} placeholder="搜索拼团商品名称" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+      <label><span>商家 / 店铺</span><input value={filters.merchant} onChange={(event)=>setFilters({...filters,merchant:event.target.value})} placeholder="商家名称或店铺名称" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+    </FilterBar>
+    <div className="admin-table-frame">
+      <div className="ss-table-intro">
+        <span><AdminIcon name={state.key==='ongoing'?'Lightning':'Goods'} size={15}/>{introText}</span>
+        <div className="sa-intro-right"><b>筛选 {filtered.length} 条</b>{counts.pending>0&&<span className="sa-pending-chip">待审 {counts.pending}</span>}</div>
+      </div>
+      <table data-align-table="t32" className="admin-table gb-product-table">
+        <thead><tr><th>拼团商品</th><th>商家 / 店铺</th><th>拼团价</th><th>预留库存</th><th>销量</th><th>售罄率</th><th>审核状态</th><th>商品状态</th><th className="actions">操作</th></tr></thead>
+        <tbody>{filtered.map((row)=>{
+          const meta = groupbuyApplyStatus(row.auditStatus);
+          const stockState = row.passed ? groupbuyStockState(row,activity) : { label:'未入池', tone:'neutral' };
+          return <tr key={row.id}>
+            <td><div className="cb"><div className="sa-product-cell">
+              <span className="sa-product-art"><ProductArt type={row.art}/></span>
+              <div className="sa-product-copy"><b title={row.spuName}>{row.spuName}</b><small>{row.summary.skuCount} 个 SKU · 报名 {row.applyTime.slice(0,10)}</small></div>
+            </div></div></td>
+            <td><div className="cb"><div className="sa-party-cell"><b title={row.mchName}>{row.mchName}</b><small title={row.shopName}>{row.shopName}</small></div></div></td>
+            <td><div className="cb"><div className="skp-price-cell">
+              <b>{seckillApplyRange(row.summary.minGroup,row.summary.maxGroup)}</b>
+              <small><s>{seckillApplyRange(row.summary.minOrigin,row.summary.maxOrigin)}</s><em>{seckillDiscount(row.summary.minGroup,row.summary.minOrigin)}</em></small>
+            </div></div></td>
+            <td><div className="cb"><div className="skp-stock-cell"><b>{seckillNumber(row.stock)} 件</b><small>{row.passed?`剩余 ${seckillNumber(row.remaining)} 件`:'审核通过后预留'}</small></div></div></td>
+            <td><div className="cb"><div className="skp-sales-cell"><b>{row.passed?seckillNumber(row.sales):'—'}</b><small>{row.passed?(row.amount?seckillAmount(row.amount):'暂无成交'):'未进入商品池'}</small></div></div></td>
+            <td><div className="cb">{row.passed?seckillPercent(row.sellThrough):'—'}</div></td>
+            <td><div className="cb"><StatusTicket tone={meta.tone}>{meta.label}</StatusTicket></div></td>
+            <td><div className="cb"><StatusTicket tone={stockState.tone} small>{stockState.label}</StatusTicket></div></td>
+            <td className="actions"><div className="cb"><button className="table-link" onClick={()=>setDetailId(row.id)}>详情</button></div></td>
+          </tr>;
+        })}</tbody>
+      </table>
+      {!filtered.length&&<div className="admin-empty"><AdminIcon name="Goods" size={28}/><b>{pool.length?'没有匹配的拼团商品':'当前活动还没有拼团商品'}</b><span>{pool.length?'调整商品名称或商家筛选后重试':'商家申请并审核通过后，商品会进入这里'}</span></div>}
+      <AdminPagination count={filtered.length}/>
+    </div>
+
+    {detail&&detailMeta&&<div className="dialog-mask" onClick={()=>setDetailId('')}>
+      <section className="admin-dialog sa-audit-dialog skp-detail-dialog" onClick={(event)=>event.stopPropagation()}>
+        <div className="dialog-head">
+          <div><span className="drawer-kicker">GROUP BUY PRODUCT</span><h2>拼团商品详情</h2></div>
+          <button onClick={()=>setDetailId('')}>×</button>
+        </div>
+        <div className="sa-dialog-scroll">
+          <div className="sa-apply-context">
+            <div className="sa-context-item"><span>商家 / 店铺</span><b title={detail.mchName}>{detail.mchName}</b><small title={detail.shopName}>{detail.shopName}</small></div>
+            <div className="sa-context-item"><span>活动 / 成团规则</span><b title={activity.name}>{activity.name}</b><small>{activity.minPeople} 人成团 · 上限 {groupbuyLimitText(activity.groupLimit)}</small></div>
+            <div className="sa-context-item"><span>报名 / 审核时间</span><b>{detail.applyTime.slice(0,16)}</b><small>{detail.auditTime?`审核 ${detail.auditTime.slice(0,16)}`:'等待平台审核'}</small></div>
+            <div className="sa-context-item"><span>审核状态</span><StatusTicket tone={detailMeta.tone}>{detailMeta.label}</StatusTicket><small>{detail.passed?'已进入拼团商品池':'未进入拼团商品池'}</small></div>
+          </div>
+          <div className="sa-product-panel">
+            <span className="sa-product-art large"><ProductArt type={detail.art}/></span>
+            <div className="sa-product-info">
+              <h3>{detail.spuName}</h3>
+              <p>{seckillRichPlain(detail.detailDesc)||'暂无商品描述'}</p>
+              <div className="sa-product-tags">
+                <span><AdminIcon name="Goods" size={13}/>{detail.summary.skuCount} 个 SKU</span>
+                <span><AdminIcon name="Tickets" size={13}/>预留库存 {seckillNumber(detail.stock)} 件</span>
+                <span><AdminIcon name="Coin" size={13}/>{seckillDiscount(detail.summary.minGroup,detail.summary.minOrigin)}</span>
+              </div>
+            </div>
+            <div className="sa-price-panel"><span>拼团价</span><b>{seckillApplyRange(detail.summary.minGroup,detail.summary.maxGroup)}</b><small>原价 {seckillApplyRange(detail.summary.minOrigin,detail.summary.maxOrigin)}</small></div>
+          </div>
+          <div className="sa-section">
+            <div className="sa-section-head"><b>成交表现</b><small>{detail.passed?'仅统计已支付且未关闭的拼团订单':'商品未审核通过，暂无成交数据'}</small></div>
+            {detail.passed?<div className="skp-stat-grid">
+              <div className="skp-stat"><span>累计销量</span><b>{seckillNumber(detail.sales)} 件</b></div>
+              <div className="skp-stat"><span>成交金额</span><b className="is-price">{seckillAmount(detail.amount)}</b></div>
+              <div className="skp-stat"><span>剩余库存</span><b className={detail.remaining?'':'is-danger'}>{seckillNumber(detail.remaining)} 件</b></div>
+              <div className="skp-stat"><span>售罄率</span><b>{seckillPercent(detail.sellThrough)}</b><i className="skp-stat-bar"><em style={{width:seckillPercent(detail.sellThrough)}}></em></i></div>
+            </div>:<div className="sa-empty-sku">审核通过后商品才会预留库存并产生成交数据</div>}
+          </div>
+          {(detail.applyRemark||detail.auditRemark)&&<div className="sa-apply-note"><AdminIcon name="message" size={15}/><div><b>申请与审核备注</b><p>{detail.applyRemark||'未填写申请备注'}</p>{detail.auditRemark&&<p className="skp-audit-remark">平台审核：{detail.auditRemark}</p>}</div></div>}
+          <div className="sa-section">
+            <div className="sa-section-head"><b>SKU 信息</b><small>共 {detail.summary.skuCount} 个规格 · 预留库存 {seckillNumber(detail.stock)} 件</small></div>
+            {detail.summary.skuCount?<table data-align-table="t33" className="sa-sku-table">
+              <thead><tr><th>SKU 名称</th><th>规格编码</th><th>原价</th><th>拼团价</th><th>库存</th><th>SKU 图片</th></tr></thead>
+              <tbody>{detail.skus.map((sku,index)=><tr key={`${sku.specCode}-${index}`}>
+                <td><div className="cb"><b className="sa-sku-name" title={sku.name}>{sku.name}</b></div></td>
+                <td><div className="cb"><span className="mono">{sku.specCode}</span></div></td>
+                <td><div className="cb"><span className="sa-sku-origin">{seckillApplyMoney(sku.originPrice)}</span></div></td>
+                <td><div className="cb"><span className="sa-sku-price">{seckillApplyMoney(sku.groupPrice)}</span></div></td>
+                <td><div className="cb">{sku.stock} 件</div></td>
+                <td><div className="cb"><span className="sa-sku-art"><ProductArt type={detail.art}/></span></div></td>
+              </tr>)}</tbody>
+            </table>:<div className="sa-empty-sku">暂无 SKU 信息</div>}
+          </div>
+          <div className="sa-section">
+            <div className="sa-section-head"><b>商品详情</b><small>商家提交的富文本内容 · 只读预览</small></div>
+            {seckillRichHasContent(detail.detailDesc)
+              ?<div className="sa-richtext" dangerouslySetInnerHTML={{__html:detail.detailDesc}}/>
+              :<div className="sa-empty-sku">商家未提交商品详情</div>}
+          </div>
+        </div>
+        <div className="dialog-actions">
+          <button onClick={()=>{setDetailId('');navigate(`platform/groupbuy?tab=申请审核&activityId=${activity.id}`);}}>去申请审核</button>
+          <button className="primary" onClick={()=>setDetailId('')}>关闭</button>
+        </div>
+      </section>
+    </div>}
+  </section>;
+}
+
+function AdminGroupBuyOrders({ activities, applies, groups, orders, route, navigate, notify }) {
+  const routeActivityId = routeParam(route,'activityId');
+  const emptyFilters = { keyword:'', secondary:'' };
+  const [activityId,setActivityId] = useState(()=>activities.some((item)=>item.id===routeActivityId)?routeActivityId:groupbuyInsightActivityId(activities,applies,orders));
+  const [view,setView] = useState('orders');
+  const [orderTab,setOrderTab] = useState('all');
+  const [groupTab,setGroupTab] = useState('all');
+  const [filters,setFilters] = useState(emptyFilters);
+  const [applied,setApplied] = useState(emptyFilters);
+  const [orderDetail,setOrderDetail] = useState(null);
+  const [groupDetail,setGroupDetail] = useState(null);
+  useEffect(()=>{
+    if (routeActivityId && activities.some((item)=>item.id===routeActivityId)) setActivityId(routeActivityId);
+  },[routeActivityId]);
+  useEffect(()=>{
+    setOrderTab('all'); setGroupTab('all'); setFilters(emptyFilters); setApplied(emptyFilters);
+    setOrderDetail(null); setGroupDetail(null);
+  },[activityId]);
+
+  const activity = activities.find((item)=>item.id===activityId) || activities[0] || { id:'', name:'暂无活动', minPeople:2, groupLimit:-1 };
+  const state = groupbuyActivityState(activity);
+  const activityOrders = useMemo(()=>orders.filter((item)=>item.activityId===activity.id),[orders,activity.id]);
+  const activityGroups = useMemo(()=>groups.filter((item)=>item.activityId===activity.id),[groups,activity.id]);
+  const switchView = (next)=>{ setView(next); setFilters(emptyFilters); setApplied(emptyFilters); };
+  const search = ()=>setApplied({ ...filters });
+  const reset = ()=>{ setFilters(emptyFilters); setApplied(emptyFilters); setOrderTab('all'); setGroupTab('all'); };
+
+  const orderBase = useMemo(()=>activityOrders.filter((row)=>{
+    const keyword = applied.keyword.trim().toLowerCase();
+    const secondary = applied.secondary.trim().toLowerCase();
+    return (!keyword || `${row.orderNo}${row.memberName}`.toLowerCase().includes(keyword))
+      && (!secondary || row.groupNo.toLowerCase().includes(secondary));
+  }).sort((a,b)=>b.createTime.localeCompare(a.createTime)),[activityOrders,applied]);
+  const orderCounts = { all:orderBase.length, waitpay:0, paid:0, closed:0, refunding:0, refunded:0, refundfail:0 };
+  orderBase.forEach((row)=>{ orderCounts[groupbuyOrderStatus(row.orderStatus).key] += 1; });
+  const filteredOrders = orderBase.filter((row)=>orderTab==='all'||groupbuyOrderStatus(row.orderStatus).key===orderTab);
+
+  const groupBase = useMemo(()=>activityGroups.filter((row)=>{
+    const keyword = applied.keyword.trim().toLowerCase();
+    const secondary = applied.secondary.trim().toLowerCase();
+    return (!keyword || `${row.groupNo}${row.leaderMemberName}`.toLowerCase().includes(keyword))
+      && (!secondary || row.productName.toLowerCase().includes(secondary));
+  }).sort((a,b)=>b.createTime.localeCompare(a.createTime)),[activityGroups,applied]);
+  const groupCounts = { all:groupBase.length, waitpay:0, forming:0, success:0, failed:0, closed:0 };
+  groupBase.forEach((row)=>{ groupCounts[groupbuyGroupStatus(row.status).key] += 1; });
+  const filteredGroups = groupBase.filter((row)=>groupTab==='all'||groupbuyGroupStatus(row.status).key===groupTab);
+
+  const waitpayOrders = activityOrders.filter((row)=>Number(row.orderStatus)===1).length;
+  const formingGroups = activityGroups.filter((row)=>Number(row.status)===2).length;
+  const successGroups = activityGroups.filter((row)=>Number(row.status)===3).length;
+  const openGroupOrders = (group)=>{ setGroupDetail(null); setView('orders'); setOrderTab('all'); const next = { keyword:'', secondary:group.groupNo }; setFilters(next); setApplied(next); };
+
+  const orderGroup = orderDetail ? groups.find((item)=>item.id===orderDetail.groupId) || null : null;
+  const detailGroupOrders = groupDetail ? orders.filter((item)=>item.groupId===groupDetail.id) : [];
+  const detailGroupCounts = groupDetail ? groupbuyGroupCounts(groupDetail,orders) : { reserved:0, member:0 };
+
+  const orderTimeline = (order,group)=>{
+    const paid = [2,4,5,6].includes(Number(order.orderStatus));
+    const steps = [
+      { label:'提交订单', time:order.createTime.slice(0,16), done:true },
+      { label:'支付订单', time:paid?(order.payTime?order.payTime.slice(0,16):'已支付'):'等待支付', done:paid, muted:!paid }
+    ];
+    if (group) {
+      const gs = Number(group.status);
+      if (gs===3) steps.push({ label:'拼团成功', time:group.successTime?group.successTime.slice(0,16):'已成团', done:true });
+      else if (gs===4) steps.push({ label:'拼团失败', time:group.failedTime?group.failedTime.slice(0,16):'未成团', done:true, fail:true });
+      else if (gs===5) steps.push({ label:'团已关闭', time:group.failedTime?group.failedTime.slice(0,16):'已关闭', done:true });
+      else if (gs===2) steps.push({ label:'等待成团', time:`还差 ${Math.max(0,group.minPeople-groupbuyPaidCount(groupbuyGroupOrders(orders,group.id)))} 人`, done:false, muted:true });
+      else steps.push({ label:'等待团长支付', time:'待支付', done:false, muted:true });
+    }
+    const os = Number(order.orderStatus);
+    if (os===5) steps.push({ label:'退款完成', time:'已退款', done:true });
+    else if (os===4) steps.push({ label:'退款处理中', time:'退款中', done:false });
+    else if (os===6) steps.push({ label:'退款失败', time:'需人工处理', done:false, fail:true });
+    else if (os===3) steps.push({ label:'订单已关闭', time:'已关闭', done:true });
+    else if (group && Number(group.status)===3 && paid) steps.push({ label:'待发货', time:'活动结束统一结算发货', done:false, muted:true });
+    return steps;
+  };
+  const groupTimeline = (group)=>{
+    const list = groupbuyGroupOrders(orders,group.id);
+    const leader = list.find((item)=>item.isLeader);
+    const leaderPaid = leader ? [2,4,5,6].includes(Number(leader.orderStatus)) : false;
+    const member = groupbuyPaidCount(list);
+    const gs = Number(group.status);
+    const steps = [
+      { label:'发起开团', time:group.createTime.slice(0,16), done:true },
+      { label:'团长支付', time:leaderPaid?(leader.payTime?leader.payTime.slice(0,16):'已支付'):'等待团长支付', done:leaderPaid, muted:!leaderPaid }
+    ];
+    if (gs===3) steps.push({ label:'满员成团', time:group.successTime?group.successTime.slice(0,16):`${member}/${group.minPeople} 人`, done:true });
+    else if (gs===4) steps.push({ label:'拼团失败', time:group.failedTime?group.failedTime.slice(0,16):'超时未成团', done:true, fail:true });
+    else if (gs===5) steps.push({ label:'团已关闭', time:group.failedTime?group.failedTime.slice(0,16):'活动结束关闭', done:true });
+    else steps.push({ label:'等待参团', time:`${member}/${group.minPeople} 人 · 还差 ${Math.max(0,group.minPeople-member)} 人`, done:false, muted:true });
+    if (gs===3) steps.push({ label:'统一结算', time:groupbuyActivityState(activity).key==='ended'?'满团订单进入待发货':'活动结束统一结算发货', done:groupbuyActivityState(activity).key==='ended', muted:groupbuyActivityState(activity).key!=='ended' });
+    else if (gs===4||gs===5) steps.push({ label:'退款 / 释放库存', time:'未满团自动退款并释放预留库存', done:true });
+    return steps;
+  };
+  const progressInfo = (group)=>{
+    const counts = groupbuyGroupCounts(group,orders);
+    const gs = Number(group.status);
+    const percent = Math.min(100, Math.round(counts.member/group.minPeople*100));
+    const full = counts.member>=group.minPeople;
+    const fail = gs===4||gs===5;
+    let text = '拼团中';
+    if (gs===3) text = '已成团';
+    else if (gs===4) text = '拼团失败';
+    else if (gs===5) text = '已关闭';
+    else if (gs===1) text = '待团长支付';
+    else text = `还差 ${Math.max(0,group.minPeople-counts.member)} 人`;
+    return { counts, percent, full, fail, text };
+  };
+
+  return <section className="admin-page groupbuy-page groupbuy-order-page" data-screen-label="平台后台-拼团订单管理">
+    <GroupBuyContextBar
+      icon="Tickets"
+      activity={activity}
+      activities={activities}
+      activityId={activity.id}
+      onSwitch={setActivityId}
+      navigate={navigate}
+      ticket={<StatusTicket tone={state.tone}><span className="ss-status-live">{state.key==='ongoing'&&<i className="ss-live-dot"></i>}{state.label}</span></StatusTicket>}
+      meta={[
+        { icon:'Lightning', text:`活动 ${seckillFullRange(activity.activityBeginTime,activity.activityEndTime)}` },
+        { icon:'users', text:`${activity.minPeople} 人成团 · 上限 ${groupbuyLimitText(activity.groupLimit)}` },
+        { icon:'Tickets', text:`订单 ${activityOrders.length} 单` },
+        { icon:'order', text:`开团 ${activityGroups.length} 个` }
+      ]}
+    />
+    <div className="gb-view-bar">
+      <div className="gb-view-toggle" role="tablist" aria-label="订单视图">
+        <button className={view==='orders'?'active':''} onClick={()=>switchView('orders')}><AdminIcon name="Tickets" size={14}/>订单列表</button>
+        <button className={view==='groups'?'active':''} onClick={()=>switchView('groups')}><AdminIcon name="users" size={14}/>团概览</button>
+      </div>
+      <span className="gb-view-hint"><AdminIcon name="users" size={13}/>{view==='orders'?'按订单维度查看支付与退款状态，点击详情可查看所属团与结算时间线。':'按团维度查看成团进度与成员，满团后于活动结束统一结算发货。'}</span>
+    </div>
+
+    {view==='orders'?<>
+      <div className="ss-queue">
+        <div className="ss-tabs">{GROUPBUY_ORDER_TABS.map((item)=><button key={item.key} data-status={item.key} className={orderTab===item.key?'active':''} onClick={()=>setOrderTab(item.key)}>{item.label}<span className="ss-tab-count">{orderCounts[item.key]}</span></button>)}</div>
+        <div className="ss-queue-summary">
+          <span className={waitpayOrders?'is-warning':''}>{waitpayOrders>0&&<i className="ss-live-dot"></i>}待支付 <b>{waitpayOrders}</b> 单</span>
+          <span><AdminIcon name="users" size={13}/>拼团中 <b>{formingGroups}</b> 团</span>
+        </div>
+      </div>
+      <FilterBar onReset={reset} onSearch={search}>
+        <label><span>订单号 / 会员</span><input value={filters.keyword} onChange={(event)=>setFilters({...filters,keyword:event.target.value})} placeholder="搜索订单编号或会员名" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+        <label><span>团编号</span><input value={filters.secondary} onChange={(event)=>setFilters({...filters,secondary:event.target.value})} placeholder="搜索所属团编号" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+      </FilterBar>
+      <div className="admin-table-frame">
+        <div className="ss-table-intro">
+          <span><AdminIcon name="Tickets" size={15}/>拼团订单每人限购 1 件；团长支付后开团，满 {activity.minPeople} 人成团，活动结束统一结算——满团待发货、未满团退款。</span>
+          <div className="sa-intro-right"><b>筛选 {filteredOrders.length} 单</b>{waitpayOrders>0&&<span className="sa-pending-chip">待支付 {waitpayOrders}</span>}</div>
+        </div>
+        <table data-align-table="t34" className="admin-table gb-order-table">
+          <thead><tr><th>订单编号</th><th>会员</th><th>拼团商品</th><th>拼团价</th><th>团编号</th><th>订单状态</th><th>团状态</th><th>下单时间</th><th className="actions">操作</th></tr></thead>
+          <tbody>{filteredOrders.map((row)=>{
+            const om = groupbuyOrderStatus(row.orderStatus);
+            const group = groups.find((item)=>item.id===row.groupId);
+            const gm = group ? groupbuyGroupStatus(group.status) : { label:'—', tone:'neutral' };
+            return <tr key={row.id}>
+              <td><div className="cb"><span className="mono"><CopyableText value={row.orderNo} label="订单编号" notify={notify}/></span></div></td>
+              <td><div className="cb"><div className="gb-member-cell">
+                <Avatar name={row.memberName} size={30}/>
+                <div className="gb-member-copy"><b title={row.memberName}>{row.memberName}</b><small className={row.isLeader?'is-leader':''}>{row.isLeader?'团长':'团员'}</small></div>
+              </div></div></td>
+              <td><div className="cb"><div className="sa-product-cell">
+                <span className="sa-product-art"><ProductArt type={row.art}/></span>
+                <div className="sa-product-copy"><b title={row.productName}>{row.productName}</b><small>{row.groupNo}</small></div>
+              </div></div></td>
+              <td><div className="cb"><div className="skp-price-cell"><b>{seckillApplyMoney(row.groupPrice)}</b><small>实付 {seckillApplyMoney(row.actualAmount)}</small></div></div></td>
+              <td><div className="cb"><span className="mono"><CopyableText value={row.groupNo} label="团编号" notify={notify}/></span></div></td>
+              <td><div className="cb"><StatusTicket tone={om.tone}>{om.label}</StatusTicket></div></td>
+              <td><div className="cb"><StatusTicket tone={gm.tone} small>{gm.label}</StatusTicket></div></td>
+              <td><div className="cb"><div className="sa-time-cell"><b>{row.createTime.slice(0,10)}</b><small>{row.createTime.slice(11,16)}</small></div></div></td>
+              <td className="actions"><div className="cb"><button className="table-link" onClick={()=>setOrderDetail(row)}>详情</button></div></td>
+            </tr>;
+          })}</tbody>
+        </table>
+        {!filteredOrders.length&&<div className="admin-empty"><AdminIcon name="Tickets" size={28}/><b>{activityOrders.length?'没有匹配的拼团订单':'当前活动还没有拼团订单'}</b><span>{activityOrders.length?'调整订单号、会员或团编号筛选后重试':'活动开始并有人开团后，订单会出现在这里'}</span></div>}
+        <AdminPagination count={filteredOrders.length}/>
+      </div>
+    </>:<>
+      <div className="ss-queue">
+        <div className="ss-tabs">{GROUPBUY_GROUP_TABS.map((item)=><button key={item.key} data-status={item.key} className={groupTab===item.key?'active':''} onClick={()=>setGroupTab(item.key)}>{item.label}<span className="ss-tab-count">{groupCounts[item.key]}</span></button>)}</div>
+        <div className="ss-queue-summary">
+          <span className={formingGroups?'is-warning':''}>{formingGroups>0&&<i className="ss-live-dot"></i>}拼团中 <b>{formingGroups}</b> 团</span>
+          <span><AdminIcon name="check" size={13}/>已成团 <b>{successGroups}</b> 团</span>
+        </div>
+      </div>
+      <FilterBar onReset={reset} onSearch={search}>
+        <label><span>团编号 / 团长</span><input value={filters.keyword} onChange={(event)=>setFilters({...filters,keyword:event.target.value})} placeholder="搜索团编号或团长名" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+        <label><span>商品名称</span><input value={filters.secondary} onChange={(event)=>setFilters({...filters,secondary:event.target.value})} placeholder="搜索拼团商品名称" onKeyDown={(event)=>event.key==='Enter'&&search()}/></label>
+      </FilterBar>
+      <div className="admin-table-frame">
+        <div className="ss-table-intro">
+          <span><AdminIcon name="users" size={15}/>每团满 {activity.minPeople} 人即成团；开团上限 {groupbuyLimitText(activity.groupLimit)}。点击详情可查看成员名单与成团时间线。</span>
+          <div className="sa-intro-right"><b>筛选 {filteredGroups.length} 团</b>{formingGroups>0&&<span className="sa-pending-chip">拼团中 {formingGroups}</span>}</div>
+        </div>
+        <table data-align-table="t35" className="admin-table gb-group-table">
+          <thead><tr><th>团编号</th><th>拼团商品</th><th>团长</th><th>成团人数</th><th>已参团</th><th>成团进度</th><th>团状态</th><th>开团时间</th><th className="actions">操作</th></tr></thead>
+          <tbody>{filteredGroups.map((row)=>{
+            const gm = groupbuyGroupStatus(row.status);
+            const info = progressInfo(row);
+            return <tr key={row.id}>
+              <td><div className="cb"><span className="mono"><CopyableText value={row.groupNo} label="团编号" notify={notify}/></span></div></td>
+              <td><div className="cb"><div className="sa-product-cell">
+                <span className="sa-product-art"><ProductArt type={row.art}/></span>
+                <div className="sa-product-copy"><b title={row.productName}>{row.productName}</b><small>团长 {row.leaderMemberName}</small></div>
+              </div></div></td>
+              <td><div className="cb"><div className="gb-member-cell">
+                <Avatar name={row.leaderMemberName} size={30}/>
+                <div className="gb-member-copy"><b title={row.leaderMemberName}>{row.leaderMemberName}</b><small className="is-leader">团长</small></div>
+              </div></div></td>
+              <td><div className="cb">{row.minPeople} 人</div></td>
+              <td><div className="cb">{info.counts.member} / {info.counts.reserved}</div></td>
+              <td><div className="cb"><div className={`gb-progress${info.full?' is-full':''}${info.fail?' is-fail':''}`}>
+                <span className="gb-progress-track"><em style={{width:`${info.percent}%`}}></em></span>
+                <span className="gb-progress-label"><b className={info.full?'is-full':''}>{info.counts.member}/{row.minPeople}</b><span>{info.text}</span></span>
+              </div></div></td>
+              <td><div className="cb"><StatusTicket tone={gm.tone}>{gm.label}</StatusTicket></div></td>
+              <td><div className="cb"><div className="sa-time-cell"><b>{row.createTime.slice(0,10)}</b><small>{row.createTime.slice(11,16)}</small></div></div></td>
+              <td className="actions"><div className="cb"><button className="table-link" onClick={()=>setGroupDetail(row)}>详情</button></div></td>
+            </tr>;
+          })}</tbody>
+        </table>
+        {!filteredGroups.length&&<div className="admin-empty"><AdminIcon name="users" size={28}/><b>{activityGroups.length?'没有匹配的团':'当前活动还没有开团'}</b><span>{activityGroups.length?'调整团编号、团长或商品筛选后重试':'活动开始后用户开团，团会出现在这里'}</span></div>}
+        <AdminPagination count={filteredGroups.length}/>
+      </div>
+    </>}
+
+    {orderDetail&&<div className="drawer-mask" onClick={()=>setOrderDetail(null)}><aside className="admin-drawer gb-order-drawer" onClick={(event)=>event.stopPropagation()}>
+      <div className="drawer-head"><div><span className="drawer-kicker">GROUP BUY ORDER</span><h2>拼团订单详情</h2></div><button onClick={()=>setOrderDetail(null)}>×</button></div>
+      <div className="sk-detail-meta">
+        <div><span>订单编号</span><b className="mono"><CopyableText value={orderDetail.orderNo} label="订单编号" notify={notify}/></b></div>
+        <div><span>订单状态</span><b><StatusTicket tone={groupbuyOrderStatus(orderDetail.orderStatus).tone}>{groupbuyOrderStatus(orderDetail.orderStatus).label}</StatusTicket></b></div>
+        <div><span>会员</span><b>{orderDetail.memberName}{orderDetail.isLeader?'（团长）':'（团员）'}</b></div>
+        <div><span>拼团商品</span><b>{orderDetail.productName}</b></div>
+        <div><span>拼团价 / 实付</span><b>{seckillApplyMoney(orderDetail.groupPrice)} / {seckillApplyMoney(orderDetail.actualAmount)}</b></div>
+        <div><span>下单时间</span><b>{orderDetail.createTime.slice(0,16)}</b></div>
+      </div>
+      {orderGroup&&(()=>{ const info = progressInfo(orderGroup); const gm = groupbuyGroupStatus(orderGroup.status); return <div className="gb-group-card">
+        <div className="gb-group-card-head"><b>{orderGroup.groupNo}</b><StatusTicket tone={gm.tone}>{gm.label}</StatusTicket></div>
+        <div className="gb-group-card-meta">
+          <span><AdminIcon name="users" size={13}/>团长 {orderGroup.leaderMemberName}</span>
+          <span><AdminIcon name="Goods" size={13}/>{orderGroup.productName}</span>
+          <span><AdminIcon name="clock" size={13}/>开团 {orderGroup.createTime.slice(0,16)}</span>
+        </div>
+        <div className={`gb-progress${info.full?' is-full':''}${info.fail?' is-fail':''}`}>
+          <span className="gb-progress-track"><em style={{width:`${info.percent}%`}}></em></span>
+          <span className="gb-progress-label"><b className={info.full?'is-full':''}>{info.counts.member}/{orderGroup.minPeople} 人</b><span>{info.text}</span></span>
+        </div>
+      </div>; })()}
+      <div className="drawer-section"><h3>订单时间线</h3><div className="gb-timeline">
+        {orderTimeline(orderDetail,orderGroup).map((step,index)=><div key={index} className={`gb-timeline-step${step.done?' is-done':''}${step.muted?' is-muted':''}`}>
+          <span className="gb-timeline-dot"></span>
+          <div className="gb-timeline-copy"><b>{step.label}</b><small>{step.time}</small></div>
+        </div>)}
+      </div></div>
+      <div className="drawer-actions">
+        <button onClick={()=>setOrderDetail(null)}>关闭</button>
+        {orderGroup&&<button className="primary" onClick={()=>{setOrderDetail(null);setGroupDetail(orderGroup);}}>查看团详情</button>}
+      </div>
+    </aside></div>}
+
+    {groupDetail&&(()=>{ const info = progressInfo(groupDetail); const gm = groupbuyGroupStatus(groupDetail.status); return <div className="drawer-mask" onClick={()=>setGroupDetail(null)}><aside className="admin-drawer gb-group-drawer" onClick={(event)=>event.stopPropagation()}>
+      <div className="drawer-head"><div><span className="drawer-kicker">GROUP BUY TEAM</span><h2>团详情</h2></div><button onClick={()=>setGroupDetail(null)}>×</button></div>
+      <div className="gb-group-card">
+        <div className="gb-group-card-head"><b>{groupDetail.groupNo}</b><StatusTicket tone={gm.tone}>{gm.label}</StatusTicket></div>
+        <div className="gb-group-card-meta">
+          <span><AdminIcon name="Goods" size={13}/>{groupDetail.productName}</span>
+          <span><AdminIcon name="users" size={13}/>团长 {groupDetail.leaderMemberName}</span>
+          <span><AdminIcon name="clock" size={13}/>开团 {groupDetail.createTime.slice(0,16)}</span>
+        </div>
+        <div className={`gb-progress${info.full?' is-full':''}${info.fail?' is-fail':''}`}>
+          <span className="gb-progress-track"><em style={{width:`${info.percent}%`}}></em></span>
+          <span className="gb-progress-label"><b className={info.full?'is-full':''}>{info.counts.member}/{groupDetail.minPeople} 人成团</b><span>{info.text}</span></span>
+        </div>
+      </div>
+      <div className="drawer-section"><h3>成员名单 <small>已参团 {info.counts.member} 人 · 含待支付共 {info.counts.reserved} 人</small></h3>
+        <div className="gb-member-list">
+          {detailGroupOrders.map((order)=><div key={order.id} className="gb-member-row">
+            <Avatar name={order.memberName} size={34}/>
+            <div className="gb-member-row-copy">
+              <b>{order.memberName}{order.isLeader&&<span className="gb-leader-chip">团长</span>}</b>
+              <small>下单 {order.createTime.slice(0,16)}{order.payTime?` · 支付 ${order.payTime.slice(11,16)}`:''}</small>
+            </div>
+            <span className="gb-member-row-amount">{seckillApplyMoney(order.actualAmount)}</span>
+            <StatusTicket tone={groupbuyOrderStatus(order.orderStatus).tone} small>{groupbuyOrderStatus(order.orderStatus).label}</StatusTicket>
+          </div>)}
+          {!detailGroupOrders.length&&<div className="sa-empty-sku">暂无成员订单</div>}
+        </div>
+      </div>
+      <div className="drawer-section"><h3>成团时间线</h3><div className="gb-timeline">
+        {groupTimeline(groupDetail).map((step,index)=><div key={index} className={`gb-timeline-step${step.done?' is-done':''}${step.muted?' is-muted':''}`}>
+          <span className="gb-timeline-dot"></span>
+          <div className="gb-timeline-copy"><b>{step.label}</b><small>{step.time}</small></div>
+        </div>)}
+      </div></div>
+      <div className="drawer-actions">
+        <button onClick={()=>setGroupDetail(null)}>关闭</button>
+        <button className="primary" onClick={()=>openGroupOrders(groupDetail)}>查看该团订单</button>
+      </div>
+    </aside></div>; })()}
+  </section>;
+}
+
+function AdminGroupBuyPage({ route, navigate, notify }) {
+  const [activities,setActivities] = useState(GROUPBUY_ACTIVITIES_INITIAL);
+  const [applies,setApplies] = useState(GROUPBUY_APPLIES_INITIAL);
+  const [groups] = useState(GROUPBUY_GROUPS_INITIAL);
+  const [orders] = useState(GROUPBUY_ORDERS_INITIAL);
+  const [productStats] = useState(GROUPBUY_PRODUCT_STATS_INITIAL);
+  const tab = routeParam(route,'tab') || '活动管理';
+  if (tab === '申请审核') return <AdminGroupBuyAudits activities={activities} applies={applies} setApplies={setApplies} route={route} navigate={navigate} notify={notify}/>;
+  if (tab === '商品管理') return <AdminGroupBuyProducts activities={activities} applies={applies} productStats={productStats} route={route} navigate={navigate} notify={notify}/>;
+  if (tab === '订单管理') return <AdminGroupBuyOrders activities={activities} applies={applies} groups={groups} orders={orders} route={route} navigate={navigate} notify={notify}/>;
+  if (tab !== '活动管理') return <AdminModulePage surface="platform" page="groupbuy" route={route} navigate={navigate} notify={notify}/>;
+  return <AdminGroupBuyActivity activities={activities} setActivities={setActivities} applies={applies} navigate={navigate} notify={notify}/>;
 }
 
 function MerchantSettingsPage({ notify }) {
@@ -4545,6 +6508,7 @@ function AdminPrototype({ surface, route, navigate, notify }) {
   else if (surface === 'platform' && page === 'points-mall') content = <AdminPointsMall route={route} notify={notify}/>;
   else if (surface === 'platform' && page === 'content') content = <AdminHomeOperation route={route} notify={notify}/>;
   else if (surface === 'platform' && page === 'seckill') content = <AdminSeckillPage route={route} navigate={navigate} notify={notify}/>;
+  else if (surface === 'platform' && page === 'groupbuy') content = <AdminGroupBuyPage route={route} navigate={navigate} notify={notify}/>;
   else if (surface === 'platform' && page === 'feedback') content = <AdminFeedback notify={notify}/>;
   else if (surface === 'merchant' && page === 'orders') content = <AdminOrders orders={orders} setOrders={setOrders} notify={notify}/>;
   else if (surface === 'merchant' && page === 'products') content = <MerchantProducts notify={notify}/>;

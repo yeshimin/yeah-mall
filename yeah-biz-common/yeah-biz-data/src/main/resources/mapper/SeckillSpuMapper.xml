@@ -23,7 +23,41 @@
             spu.max_origin_price as maxOriginPrice,
             spu.max_seckill_price as maxSeckillPrice,
             spu.detail_desc as detailDesc,
-            spu.audit_status as auditStatus
+            spu.audit_status as auditStatus,
+            ifnull((
+                select count(*)
+                from s_seckill_sku sku
+                where sku.deleted = 0 and sku.seckill_spu_id = spu.id
+            ), 0) as skuCount,
+            ifnull((
+                select sum(sku.stock)
+                from s_seckill_sku sku
+                where sku.deleted = 0 and sku.seckill_spu_id = spu.id
+            ), 0) + spu.sales as stock,
+            ifnull((
+                select sum(order_item.total_price)
+                from s_order_item order_item
+                    inner join s_order `order` on `order`.id = order_item.order_id and `order`.deleted = 0
+                where order_item.deleted = 0
+                    and order_item.spu_id = spu.id
+                    and `order`.order_type = '2'
+                    and `order`.pay_success_time is not null
+                    and `order`.status not in ('5', '6', '7')
+            ), 0) as salesAmount,
+            session.begin_time as sessionBeginTime,
+            session.end_time as sessionEndTime,
+            (
+                select apply.create_time
+                from s_seckill_activity_apply apply
+                where apply.deleted = 0 and apply.seckill_spu_id = spu.id
+                order by apply.id desc limit 1
+            ) as applyTime,
+            (
+                select apply.update_time
+                from s_seckill_activity_apply apply
+                where apply.deleted = 0 and apply.seckill_spu_id = spu.id and apply.audit_status != 1
+                order by apply.id desc limit 1
+            ) as auditTime
         from s_seckill_spu spu
             left join s_merchant mch on spu.mch_id = mch.id and mch.deleted = 0
             left join s_shop shop on spu.shop_id = shop.id and shop.deleted = 0
@@ -116,12 +150,43 @@
                 select sum(sku.stock)
                 from s_seckill_sku sku
                 where sku.deleted = 0 and sku.seckill_spu_id = spu.id
-            ), 0) as remainingStock
+            ), 0) as remainingStock,
+            spu.session_id as sessionId,
+            session.name as sessionName,
+            mch.nickname as mchName,
+            spu.main_image as mainImage,
+            spu.min_origin_price as minOriginPrice
         from s_seckill_spu spu
+            left join s_seckill_session session on spu.session_id = session.id and session.deleted = 0
+            left join s_merchant mch on spu.mch_id = mch.id and mch.deleted = 0
         where spu.deleted = 0
             and spu.activity_id = #{activityId}
             and spu.audit_status = 2
         order by salesAmount desc, salesCount desc, spu.id desc
+    </select>
+
+    <!-- 查询秒杀活动最近成交动态，口径与统计一致：已支付且未关闭、未退款、未售后。 -->
+    <select id="queryActivityRecentOrders" resultType="com.yeshimin.yeahboot.data.domain.vo.SeckillOrderEventVo">
+        select
+            `order`.id as orderId,
+            `order`.pay_success_time as payTime,
+            member.nickname as memberName,
+            spu.name as spuName,
+            session.name as sessionName,
+            order_item.quantity as quantity,
+            order_item.total_price as totalPrice
+        from s_order `order`
+            inner join s_order_item order_item on order_item.order_id = `order`.id and order_item.deleted = 0
+            inner join s_seckill_spu spu on spu.id = order_item.spu_id and spu.deleted = 0
+            left join s_member member on member.id = `order`.member_id and member.deleted = 0
+            left join s_seckill_session session on session.id = spu.session_id and session.deleted = 0
+        where `order`.deleted = 0
+            and `order`.order_type = '2'
+            and `order`.pay_success_time is not null
+            and `order`.status not in ('5', '6', '7')
+            and spu.activity_id = #{activityId}
+        order by `order`.pay_success_time desc, `order`.id desc
+        limit #{limit}
     </select>
 
 </mapper>

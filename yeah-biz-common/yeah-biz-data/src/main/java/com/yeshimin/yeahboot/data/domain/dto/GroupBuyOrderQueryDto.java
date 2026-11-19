@@ -15,6 +15,11 @@ import lombok.EqualsAndHashCode;
 public class GroupBuyOrderQueryDto extends BaseQueryDto {
 
     /**
+     * 拼团活动ID
+     */
+    private Long activityId;
+
+    /**
      * 订单编号
      */
     private String orderNo;

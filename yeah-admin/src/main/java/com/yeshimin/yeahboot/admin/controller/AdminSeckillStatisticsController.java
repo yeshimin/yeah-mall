@@ -3,12 +3,15 @@ package com.yeshimin.yeahboot.admin.controller;
 import com.yeshimin.yeahboot.admin.domain.vo.SeckillDashboardVo;
 import com.yeshimin.yeahboot.admin.service.AdminSeckillStatisticsService;
 import com.yeshimin.yeahboot.common.domain.base.R;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillOrderEventVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * 平台秒杀监控和经营分析
@@ -36,5 +39,15 @@ public class AdminSeckillStatisticsController {
     @GetMapping("/analysis/data")
     public R<SeckillDashboardVo> analysisData(@RequestParam Long activityId) {
         return R.ok(service.queryDashboard(activityId));
+    }
+
+    /**
+     * 查询实时监控成交动态
+     */
+    @PreAuthorize("@pms.hasPermission('admin:seckill:query')")
+    @GetMapping("/monitor/events")
+    public R<List<SeckillOrderEventVo>> monitorEvents(@RequestParam Long activityId,
+                                                      @RequestParam(defaultValue = "24") Integer limit) {
+        return R.ok(service.queryRecentOrders(activityId, limit));
     }
 }

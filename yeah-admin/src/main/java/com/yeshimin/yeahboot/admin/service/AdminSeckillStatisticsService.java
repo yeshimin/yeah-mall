@@ -2,11 +2,14 @@ package com.yeshimin.yeahboot.admin.service;
 
 import com.yeshimin.yeahboot.admin.domain.vo.SeckillDashboardVo;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityEntity;
+import com.yeshimin.yeahboot.data.domain.vo.SeckillOrderEventVo;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillStatisticsVo;
 import com.yeshimin.yeahboot.data.mapper.SeckillSpuMapper;
 import com.yeshimin.yeahboot.data.repository.SeckillActivityRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 平台秒杀订单和库存统计服务
@@ -34,5 +37,13 @@ public class AdminSeckillStatisticsService {
         // 排行榜由Mapper按有效成交额和销量排序，避免前端再次聚合。
         result.setProductRanking(seckillSpuMapper.queryActivityProductStatistics(activity.getId()));
         return result;
+    }
+
+    /**
+     * 查询秒杀活动最近成交动态
+     */
+    public List<SeckillOrderEventVo> queryRecentOrders(Long activityId, int limit) {
+        SeckillActivityEntity activity = seckillActivityRepo.getOneById(activityId, "秒杀活动不存在");
+        return seckillSpuMapper.queryActivityRecentOrders(activity.getId(), limit);
     }
 }

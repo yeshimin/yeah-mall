@@ -1,5 +1,6 @@
 package com.yeshimin.yeahboot.data.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.yeshimin.yeahboot.common.domain.base.ConditionBaseEntity;
 import lombok.Data;
@@ -79,4 +80,16 @@ public class GroupBuyActivityEntity extends ConditionBaseEntity<GroupBuyActivity
      * 备注
      */
     private String remark;
+
+    /**
+     * 报名申请数量（列表回填，不落库）
+     */
+    @TableField(exist = false)
+    private Long applyCount;
+
+    /**
+     * 审核通过商品数量（列表回填，不落库）
+     */
+    @TableField(exist = false)
+    private Long productCount;
 }

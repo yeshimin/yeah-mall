@@ -111,6 +111,20 @@
     return textProbe.getBoundingClientRect().width
   }
 
+  /* 探针挂在 body 下，拿不到 #app / 页面祖先作用域里的字体规则（如 b{font-weight:600}、
+     继承的 tabular-nums），克隆体会按错误字重/字形量宽，导致容器偏窄、最长文本被假截断。
+     逐元素把渲染态 computed 字体同步到克隆体，使探针字形与真实渲染完全一致，与作用域无关。 */
+  var FONT_PROPS = ['fontSize', 'fontFamily', 'fontWeight', 'fontStyle', 'letterSpacing', 'fontVariantNumeric', 'textTransform', 'wordSpacing']
+  function syncFont(source, clone) {
+    var cs = getComputedStyle(source)
+    for (var i = 0; i < FONT_PROPS.length; i += 1) clone.style[FONT_PROPS[i]] = cs[FONT_PROPS[i]]
+    var srcKids = source.children
+    var cloneKids = clone.children
+    for (var j = 0; j < srcKids.length; j += 1) {
+      if (cloneKids[j]) syncFont(srcKids[j], cloneKids[j])
+    }
+  }
+
   /* 多元素列内容的自然宽度：克隆单元格内容到离屏探针，放开块级子元素的固定宽/max-width，
      让 flex 复合块收缩到内容真正需要的宽度。渲染态 extent 会被 max-width:100% 压到≈列内容宽，
      窄列里永远填满而无法居中；自然宽才能算出可居中的容器宽。 */
@@ -147,6 +161,7 @@
       if (clone.nodeType === Node.ELEMENT_NODE) {
         clone.style.width = 'auto'
         clone.style.maxWidth = 'none'
+        syncFont(child, clone)
       }
       blockProbe.appendChild(clone)
       has = true
@@ -260,6 +275,9 @@
       for (var q = 0; q < columns[p].length; q += 1) {
         if (columns[p][q].style.width !== width) columns[p][q].style.width = width
         if (columns[p][q].getAttribute('data-ym-align') !== 'multi') columns[p][q].setAttribute('data-ym-align', 'multi')
+        // box=容器收缩到内容自然宽（内容可再居中）；full=自然宽>=列宽的回退满宽（内容保持左对齐截断）
+        var fit = width === 'auto' ? 'full' : 'box'
+        if (columns[p][q].getAttribute('data-ym-fit') !== fit) columns[p][q].setAttribute('data-ym-fit', fit)
         if (columns[p][q].getAttribute('data-ym-title') === '1') { columns[p][q].removeAttribute('title'); columns[p][q].removeAttribute('data-ym-title') }
       }
     }

@@ -7,10 +7,12 @@ import com.yeshimin.yeahboot.admin.domain.vo.AdminSeckillSkuVo;
 import com.yeshimin.yeahboot.admin.domain.vo.AdminSeckillSpuDetailVo;
 import com.yeshimin.yeahboot.admin.domain.vo.AdminSeckillSpuVo;
 import com.yeshimin.yeahboot.data.domain.dto.SeckillSpuQueryDto;
+import com.yeshimin.yeahboot.data.domain.entity.SeckillActivityApplyEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSkuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSpuEntity;
 import com.yeshimin.yeahboot.data.domain.entity.SeckillSpuImageEntity;
 import com.yeshimin.yeahboot.data.domain.vo.SeckillSpuVo;
+import com.yeshimin.yeahboot.data.repository.SeckillActivityApplyRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSkuRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSpuImageRepo;
 import com.yeshimin.yeahboot.data.repository.SeckillSpuRepo;
@@ -29,6 +31,7 @@ public class AdminSeckillSpuService {
     private final SeckillSpuRepo seckillSpuRepo;
     private final SeckillSpuImageRepo seckillSpuImageRepo;
     private final SeckillSkuRepo seckillSkuRepo;
+    private final SeckillActivityApplyRepo seckillActivityApplyRepo;
 
     /**
      * 查询报名列表
@@ -55,6 +58,17 @@ public class AdminSeckillSpuService {
         vo.setSpu(BeanUtil.copyProperties(seckillSpu, AdminSeckillSpuVo.class));
         vo.setImages(spuImages);
         vo.setSkuList(BeanUtil.copyToList(skuList, AdminSeckillSkuVo.class));
+
+        // 报名与审核信息来自报名申请，审核时间在待审核状态下不展示。
+        SeckillActivityApplyEntity apply = seckillActivityApplyRepo.findOneBySeckillSpuId(seckillSpu.getId());
+        if (apply != null) {
+            vo.setApplyTime(apply.getCreateTime());
+            vo.setApplyRemark(apply.getApplyRemark());
+            vo.setAuditRemark(apply.getAuditRemark());
+            if (apply.getAuditStatus() != null && apply.getAuditStatus() != 1) {
+                vo.setAuditTime(apply.getUpdateTime());
+            }
+        }
         return vo;
     }
 }

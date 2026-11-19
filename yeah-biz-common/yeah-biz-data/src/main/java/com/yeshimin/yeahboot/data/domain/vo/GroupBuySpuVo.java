@@ -85,6 +85,11 @@ public class GroupBuySpuVo extends BaseDomain {
     private Long sales;
 
     /**
+     * 已支付订单成交金额
+     */
+    private BigDecimal soldAmount;
+
+    /**
      * 最低原价
      */
     private BigDecimal minOriginPrice;
@@ -137,6 +142,31 @@ public class GroupBuySpuVo extends BaseDomain {
      * 拼团库存
      */
     private Integer groupStock;
+
+    /**
+     * SKU 数量
+     */
+    private Long skuCount;
+
+    /**
+     * 报名时间
+     */
+    private LocalDateTime applyTime;
+
+    /**
+     * 审核时间
+     */
+    private LocalDateTime auditTime;
+
+    /**
+     * 商家申请备注
+     */
+    private String applyRemark;
+
+    /**
+     * 平台审核备注
+     */
+    private String auditRemark;
 
     /**
      * 报名商品创建时间
